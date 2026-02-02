@@ -1,6 +1,6 @@
 {
   "name": "@erc7730/sdk",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Decode blockchain transactions into human-readable format using ERC-7730 standard",
   "type": "module",
   "main": "./dist/index.js",
