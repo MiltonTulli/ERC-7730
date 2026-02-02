@@ -10,17 +10,73 @@
  * 4. Removes sourcemaps to reduce package size
  */
 
-import { readFile, writeFile, rm } from 'fs/promises';
+import { readFile, writeFile, rm, readdir } from 'fs/promises';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { execSync } from 'child_process';
-import { glob } from 'fs/promises';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 const REGISTRY_JSON = join(ROOT, '..', 'registry', 'dist', 'registry.json');
 const OUTPUT_DIR = join(ROOT, 'src', 'registry');
 const DIST_DIR = join(ROOT, 'dist');
+
+/**
+ * Recursively remove all .map files from a directory
+ */
+async function removeSourcemaps(dir) {
+  let count = 0;
+  try {
+    const entries = await readdir(dir, { withFileTypes: true });
+    for (const entry of entries) {
+      const fullPath = join(dir, entry.name);
+      if (entry.isDirectory()) {
+        count += await removeSourcemaps(fullPath);
+      } else if (entry.name.endsWith('.map')) {
+        await rm(fullPath);
+        count++;
+      }
+    }
+  } catch (err) {
+    // Directory might not exist yet
+  }
+  return count;
+}
+
+/**
+ * Minify a single descriptor - keep only essential display/context data
+ */
+function minifyDescriptor(descriptor) {
+  if (!descriptor) return null;
+
+  const minified = {};
+
+  // Keep display info (essential for rendering)
+  if (descriptor.display) {
+    minified.display = descriptor.display;
+  }
+
+  // Keep minimal context (deployments only, no ABI)
+  if (descriptor.context?.contract?.deployments) {
+    minified.context = {
+      contract: {
+        deployments: descriptor.context.contract.deployments,
+      }
+    };
+  }
+
+  // Keep minimal metadata
+  if (descriptor.metadata) {
+    minified.metadata = {
+      owner: descriptor.metadata.owner,
+    };
+    if (descriptor.metadata.info?.url) {
+      minified.metadata.info = { url: descriptor.metadata.info.url };
+    }
+  }
+
+  return minified;
+}
 
 /**
  * Minify registry by removing unnecessary data
@@ -31,49 +87,16 @@ const DIST_DIR = join(ROOT, 'dist');
 function minifyRegistry(registry) {
   const minified = {
     stats: registry.stats,
-    bySelector: {},
-    byAddress: {},
+    bySelector: registry.bySelector, // Keep references as-is
+    byAddress: registry.byAddress,   // Keep references as-is
+    descriptors: {},                  // Minify descriptors
   };
 
-  // Process bySelector - keep only display formats and essential context
-  for (const [selector, matches] of Object.entries(registry.bySelector)) {
-    minified.bySelector[selector] = matches.map(match => ({
-      descriptor: minifyDescriptor(match.descriptor),
-      format: match.format,
-    }));
-  }
-
-  // Process byAddress - keep only minimal info
-  for (const [address, matches] of Object.entries(registry.byAddress)) {
-    minified.byAddress[address] = matches.map(match =>
-      minifyDescriptor(match)
-    );
-  }
-
-  return minified;
-}
-
-/**
- * Minify a single descriptor
- */
-function minifyDescriptor(descriptor) {
-  const minified = {
-    display: descriptor.display,
-    context: {
-      contract: descriptor.context?.contract ? {
-        deployments: descriptor.context.contract.deployments,
-        // Remove full ABI - it's huge and can be fetched from Sourcify
-      } : undefined,
-    },
-  };
-
-  // Keep metadata if present (small)
-  if (descriptor.metadata) {
-    minified.metadata = {
-      owner: descriptor.metadata.owner,
-    };
-    if (descriptor.metadata.info?.url) {
-      minified.metadata.info = { url: descriptor.metadata.info.url };
+  // Minify each descriptor
+  for (const [key, descriptor] of Object.entries(registry.descriptors || {})) {
+    const minifiedDesc = minifyDescriptor(descriptor);
+    if (minifiedDesc) {
+      minified.descriptors[key] = minifiedDesc;
     }
   }
 
@@ -135,17 +158,8 @@ export default EMBEDDED_REGISTRY;
 
   // Remove sourcemaps to reduce package size
   console.log('\nRemoving sourcemaps...');
-  try {
-    const { globSync } = await import('glob');
-    const mapFiles = globSync('**/*.map', { cwd: DIST_DIR });
-    for (const file of mapFiles) {
-      await rm(join(DIST_DIR, file));
-    }
-    console.log(`  ✓ Removed ${mapFiles.length} sourcemap files`);
-  } catch (err) {
-    // glob might not be available, try manual approach
-    console.log('  ⚠ Could not remove sourcemaps (glob not available)');
-  }
+  const removedCount = await removeSourcemaps(DIST_DIR);
+  console.log(`  ✓ Removed ${removedCount} sourcemap files`);
 
   console.log('\n✅ Build complete!');
 }
