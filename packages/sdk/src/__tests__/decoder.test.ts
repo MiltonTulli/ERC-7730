@@ -93,7 +93,7 @@ describe('ClearSigner', () => {
   });
 
   it('works without provider (offline mode)', async () => {
-    const signer = new ClearSigner({ provider: null });
+    const signer = new ClearSigner({ provider: null, useSourcifyFallback: false });
 
     const result = await signer.decode({
       to: '0x1234567890123456789012345678901234567890',
@@ -107,7 +107,7 @@ describe('ClearSigner', () => {
   });
 
   it('allows extending with custom descriptors', async () => {
-    const signer = new ClearSigner();
+    const signer = new ClearSigner({ provider: null, useSourcifyFallback: false });
 
     signer.extend({
       context: {
