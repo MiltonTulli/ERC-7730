@@ -325,30 +325,6 @@ function generateFileName(descriptor: ERC7730Descriptor): string {
   return `${owner}-${chainId}-${address.slice(0, 10)}.json`;
 }
 
-function generatePRTitle(descriptor: ERC7730Descriptor): string {
-  const owner = descriptor.metadata?.owner || 'Custom Contract';
-  const deployment = descriptor.context.contract?.deployments?.[0];
-  const chainId = deployment?.chainId || 1;
-  return `Add descriptor for ${owner} on chain ${chainId}`;
-}
-
-function generatePRBody(descriptor: ERC7730Descriptor): string {
-  const deployment = descriptor.context.contract?.deployments?.[0];
-  const functions = Object.keys(descriptor.display.formats);
-
-  return `## New Descriptor
-
-**Protocol/Contract:** ${descriptor.metadata?.owner || 'Unknown'}
-**Chain ID:** ${deployment?.chainId || 'N/A'}
-**Contract Address:** ${deployment?.address || 'N/A'}
-
-### Functions Covered
-${functions.map(f => `- \`${f}\``).join('\n')}
-
----
-*Generated with [ERC-7730 SDK](https://github.com/${GITHUB_REPO})*`;
-}
-
 async function openContributePR(descriptor: ERC7730Descriptor) {
   const fileName = generateFileName(descriptor);
   const content = JSON.stringify(descriptor, replacer, 2);
