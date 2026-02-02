@@ -35,11 +35,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Build SDK
-        run: pnpm --filter @erc7730/sdk build
-
-      - name: Build web app
-        run: pnpm --filter @erc7730/web build
+      - name: Build all packages
+        run: pnpm build
 
       - name: Setup Pages
         uses: actions/configure-pages@v4

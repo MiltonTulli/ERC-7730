@@ -2,10 +2,11 @@ import { defineConfig } from 'vite';
 import { resolve } from 'path';
 
 export default defineConfig({
-  base: './', // For GitHub Pages compatibility
+  // Use repo name for GitHub Pages (https://miltontulli.github.io/ERC-7730/)
+  base: process.env.GITHUB_ACTIONS ? '/ERC-7730/' : '/',
   build: {
     outDir: 'dist',
-    sourcemap: true,
+    sourcemap: false, // Disable sourcemaps for smaller build
   },
   resolve: {
     alias: {
