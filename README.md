@@ -230,7 +230,7 @@ Then open a Pull Request!
 
 ## Web Demo
 
-Try it online: [erc7730-sdk.github.io](https://erc7730-sdk.github.io)
+Try it online: [miltontulli.github.io/ERC-7730](https://miltontulli.github.io/ERC-7730/)
 
 Or run locally:
 

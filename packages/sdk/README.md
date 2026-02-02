@@ -37,7 +37,7 @@ Send tokens
 ## Installation
 
 ```bash
-npm install @erc7730/sdk viem
+npm install @erc7730/sdk
 ```
 
 ## Quick Start
