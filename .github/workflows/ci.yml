@@ -26,68 +26,9 @@ jobs:
       - name: Run Biome
         run: biome ci .
 
-  typecheck:
-    name: Type Check
+  build-and-test:
+    name: Build & Test
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install
-
-      - name: Type check
-        run: pnpm typecheck
-
-  test:
-    name: Test
-    runs-on: ubuntu-latest
-    needs: [lint, typecheck]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install
-
-      - name: Build
-        run: pnpm build
-
-      - name: Run tests with coverage
-        run: pnpm --filter @erc7730/sdk test:coverage
-
-      - name: Upload coverage
-        uses: codecov/codecov-action@v4
-        with:
-          files: packages/sdk/coverage/lcov.info
-          fail_ci_if_error: false
-
-  build:
-    name: Build
-    runs-on: ubuntu-latest
-    needs: [test]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -108,6 +49,12 @@ jobs:
 
       - name: Build all packages
         run: pnpm build
+
+      - name: Type check (after build)
+        run: pnpm typecheck
+
+      - name: Run tests
+        run: pnpm --filter @erc7730/sdk test
 
       - name: Check package exports
         run: |
