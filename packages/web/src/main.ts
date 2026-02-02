@@ -655,20 +655,20 @@ function renderResult(result: DecodedTransaction) {
   // Setup contribute button for Sourcify results
   const contributeBtn = resultDiv.querySelector('#contribute-sourcify-btn');
   if (contributeBtn && currentInput) {
+    // Capture values to avoid null check issues in async callback
+    const capturedChainId = currentInput.chainId;
+    const capturedContract = currentInput.contract;
     contributeBtn.addEventListener('click', async () => {
       // Generate descriptor from the current decode result
       // We need to fetch the ABI from Sourcify to generate the full descriptor
       try {
         const { fetchFromSourcify } = await import('@erc7730/sdk');
-        const sourcifyResult = await fetchFromSourcify(
-          currentInput?.chainId,
-          currentInput?.contract
-        );
+        const sourcifyResult = await fetchFromSourcify(capturedChainId, capturedContract);
 
         if (sourcifyResult.verified && sourcifyResult.abi) {
           const descriptor = generateDescriptor({
-            chainId: currentInput?.chainId,
-            address: currentInput?.contract,
+            chainId: capturedChainId,
+            address: capturedContract,
             abi: sourcifyResult.abi,
             owner: sourcifyResult.name || undefined,
           });
