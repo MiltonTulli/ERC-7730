@@ -67,10 +67,10 @@ describe('ClearSigner', () => {
     expect(result.source).toBe('registry');
     expect(result.fields).toHaveLength(2);
 
-    // Check amount field - without RPC, shows raw units
+    // Check amount field - USDC is in the known tokens cache
     const amountField = result.fields.find((f) => f.label === 'Amount');
     expect(amountField).toBeDefined();
-    expect(amountField?.value).toContain('100000000');
+    expect(amountField?.value).toBe('100 USDC');
 
     // Check recipient field
     const recipientField = result.fields.find((f) => f.label === 'Recipient');
