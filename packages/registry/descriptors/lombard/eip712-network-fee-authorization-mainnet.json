@@ -19,13 +19,20 @@
               { "name": "chainId", "type": "uint256" },
               { "name": "verifyingContract", "type": "address" }
             ],
-            "feeApproval": [{ "name": "chainId", "type": "uint256" }, { "name": "fee", "type": "uint256" }, { "name": "expiry", "type": "uint256" }]
+            "feeApproval": [
+              { "name": "chainId", "type": "uint256" },
+              { "name": "fee", "type": "uint256" },
+              { "name": "expiry", "type": "uint256" }
+            ]
           }
         }
       ]
     }
   },
-  "metadata": { "owner": "Lombard Finance", "info": { "legalName": "Lombard Finance", "url": "https://www.lombard.finance/" } },
+  "metadata": {
+    "owner": "Lombard Finance",
+    "info": { "legalName": "Lombard Finance", "url": "https://www.lombard.finance/" }
+  },
   "display": {
     "formats": {
       "feeApproval": {
@@ -33,7 +40,12 @@
         "fields": [
           { "path": "chainId", "label": "Chain ID", "format": "raw" },
           { "path": "fee", "label": "Network Fee", "format": "amount" },
-          { "path": "expiry", "label": "Expiry", "format": "date", "params": { "encoding": "timestamp" } }
+          {
+            "path": "expiry",
+            "label": "Expiry",
+            "format": "date",
+            "params": { "encoding": "timestamp" }
+          }
         ]
       }
     }

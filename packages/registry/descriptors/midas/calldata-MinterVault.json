@@ -96,8 +96,22 @@
           "type": "function",
           "name": "depositInstant",
           "inputs": [
-            { "name": "tokenIn", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null },
-            { "name": "amountToken", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null },
+            {
+              "name": "tokenIn",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "amountToken",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
             {
               "name": "minReceiveAmount",
               "type": "uint256",
@@ -106,8 +120,22 @@
               "indexed": null,
               "unit": null
             },
-            { "name": "referrerId", "type": "bytes32", "internalType": "bytes32", "components": null, "indexed": null, "unit": null },
-            { "name": "recipient", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null }
+            {
+              "name": "referrerId",
+              "type": "bytes32",
+              "internalType": "bytes32",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "recipient",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
           "outputs": [],
           "stateMutability": "nonpayable",
@@ -120,8 +148,22 @@
           "type": "function",
           "name": "depositInstant",
           "inputs": [
-            { "name": "tokenIn", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null },
-            { "name": "amountToken", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null },
+            {
+              "name": "tokenIn",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "amountToken",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
             {
               "name": "minReceiveAmount",
               "type": "uint256",
@@ -130,7 +172,14 @@
               "indexed": null,
               "unit": null
             },
-            { "name": "referrerId", "type": "bytes32", "internalType": "bytes32", "components": null, "indexed": null, "unit": null }
+            {
+              "name": "referrerId",
+              "type": "bytes32",
+              "internalType": "bytes32",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
           "outputs": [],
           "stateMutability": "nonpayable",
@@ -143,11 +192,41 @@
           "type": "function",
           "name": "depositRequest",
           "inputs": [
-            { "name": "tokenIn", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null },
-            { "name": "amountToken", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null },
-            { "name": "referrerId", "type": "bytes32", "internalType": "bytes32", "components": null, "indexed": null, "unit": null }
+            {
+              "name": "tokenIn",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "amountToken",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "referrerId",
+              "type": "bytes32",
+              "internalType": "bytes32",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
-          "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "nonpayable",
           "constant": null,
           "payable": null,
@@ -158,12 +237,49 @@
           "type": "function",
           "name": "depositRequest",
           "inputs": [
-            { "name": "tokenIn", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null },
-            { "name": "amountToken", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null },
-            { "name": "referrerId", "type": "bytes32", "internalType": "bytes32", "components": null, "indexed": null, "unit": null },
-            { "name": "recipient", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null }
+            {
+              "name": "tokenIn",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "amountToken",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "referrerId",
+              "type": "bytes32",
+              "internalType": "bytes32",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "recipient",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
-          "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "nonpayable",
           "constant": null,
           "payable": null,
@@ -181,7 +297,12 @@
       "depositInstant(address,uint256,uint256,bytes32,address)": {
         "intent": "instantly buy",
         "fields": [
-          { "label": "You pay with", "format": "addressName", "params": { "types": ["token"] }, "path": "#.tokenIn" },
+          {
+            "label": "You pay with",
+            "format": "addressName",
+            "params": { "types": ["token"] },
+            "path": "#.tokenIn"
+          },
           {
             "label": "Amount",
             "format": "unit",
@@ -194,7 +315,12 @@
             "params": { "base": " ", "decimals": "18", "prefix": "false" },
             "path": "#.minReceiveAmount"
           },
-          { "label": "Receiver", "format": "addressName", "params": { "types": ["eoa", "wallet"] }, "path": "#.recipient" }
+          {
+            "label": "Receiver",
+            "format": "addressName",
+            "params": { "types": ["eoa", "wallet"] },
+            "path": "#.recipient"
+          }
         ],
         "required": ["#.tokenIn", "#.amountToken", "#.minReceiveAmount", "#.recipient"],
         "excluded": ["#.referrerId"]
@@ -202,7 +328,12 @@
       "depositInstant(address,uint256,uint256,bytes32)": {
         "intent": "instantly buy",
         "fields": [
-          { "label": "You pay with", "format": "addressName", "params": { "types": ["token"] }, "path": "#.tokenIn" },
+          {
+            "label": "You pay with",
+            "format": "addressName",
+            "params": { "types": ["token"] },
+            "path": "#.tokenIn"
+          },
           {
             "label": "Amount",
             "format": "unit",
@@ -222,7 +353,12 @@
       "depositRequest(address,uint256,bytes32)": {
         "intent": "request buying",
         "fields": [
-          { "label": "You pay with", "format": "addressName", "params": { "types": ["token"] }, "path": "#.tokenIn" },
+          {
+            "label": "You pay with",
+            "format": "addressName",
+            "params": { "types": ["token"] },
+            "path": "#.tokenIn"
+          },
           {
             "label": "Amount",
             "format": "unit",
@@ -236,14 +372,24 @@
       "depositRequest(address,uint256,bytes32,address)": {
         "intent": "request buying",
         "fields": [
-          { "label": "You pay with", "format": "addressName", "params": { "types": ["token"] }, "path": "#.tokenIn" },
+          {
+            "label": "You pay with",
+            "format": "addressName",
+            "params": { "types": ["token"] },
+            "path": "#.tokenIn"
+          },
           {
             "label": "Amount",
             "format": "unit",
             "params": { "base": " ", "decimals": "18", "prefix": "false" },
             "path": "#.amountToken"
           },
-          { "label": "Receiver", "format": "addressName", "params": { "types": ["eoa", "wallet"] }, "path": "#.recipient" }
+          {
+            "label": "Receiver",
+            "format": "addressName",
+            "params": { "types": ["eoa", "wallet"] },
+            "path": "#.recipient"
+          }
         ],
         "required": ["#.tokenIn", "#.amountToken", "#.recipient"],
         "excluded": ["#.referrerId"]

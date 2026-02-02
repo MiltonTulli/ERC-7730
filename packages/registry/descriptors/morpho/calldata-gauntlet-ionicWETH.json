@@ -4,7 +4,15 @@
   "metadata": {
     "owner": "Gauntlet",
     "info": { "legalName": "Gauntlet", "url": "https://www.gauntlet.xyz/" },
-    "constants": { "underlyingToken": "0x4200000000000000000000000000000000000006", "underlyingTicker": "WETH", "vaultTicker": "ionicWETH" }
+    "constants": {
+      "underlyingToken": "0x4200000000000000000000000000000000000006",
+      "underlyingTicker": "WETH",
+      "vaultTicker": "ionicWETH"
+    }
   },
-  "context": { "contract": { "deployments": [{ "chainId": 8453, "address": "0x9aB2d181E4b87ba57D5eD564D3eF652C4E710707" }] } }
+  "context": {
+    "contract": {
+      "deployments": [{ "chainId": 8453, "address": "0x9aB2d181E4b87ba57D5eD564D3eF652C4E710707" }]
+    }
+  }
 }

@@ -16,7 +16,10 @@
           "type": "function"
         },
         {
-          "inputs": [{ "name": "fellowshipId", "type": "uint256" }, { "name": "metadata", "type": "string" }],
+          "inputs": [
+            { "name": "fellowshipId", "type": "uint256" },
+            { "name": "metadata", "type": "string" }
+          ],
           "name": "applyToFellowship",
           "type": "function"
         },
@@ -36,7 +39,11 @@
   },
   "metadata": {
     "owner": "FellowFund",
-    "info": { "legalName": "FellowFund", "url": "https://fellow-fund.vercel.app", "deploymentDate": "2024-03-14T00:00:00Z" }
+    "info": {
+      "legalName": "FellowFund",
+      "url": "https://fellow-fund.vercel.app",
+      "deploymentDate": "2024-03-14T00:00:00Z"
+    }
   },
   "display": {
     "formats": {
@@ -45,11 +52,32 @@
         "fields": [
           { "path": "_metadata", "label": "Program Details", "format": "raw" },
           { "path": "_funds", "label": "Total Funding", "format": "amount" },
-          { "path": "_applicationDeadline", "label": "Application Deadline", "format": "date", "params": { "encoding": "timestamp" } },
-          { "path": "_marketDeadline", "label": "Market Phase Deadline", "format": "date", "params": { "encoding": "timestamp" } },
-          { "path": "_epochDeadline", "label": "Program End Date", "format": "date", "params": { "encoding": "timestamp" } }
+          {
+            "path": "_applicationDeadline",
+            "label": "Application Deadline",
+            "format": "date",
+            "params": { "encoding": "timestamp" }
+          },
+          {
+            "path": "_marketDeadline",
+            "label": "Market Phase Deadline",
+            "format": "date",
+            "params": { "encoding": "timestamp" }
+          },
+          {
+            "path": "_epochDeadline",
+            "label": "Program End Date",
+            "format": "date",
+            "params": { "encoding": "timestamp" }
+          }
         ],
-        "required": ["_metadata", "_funds", "_applicationDeadline", "_marketDeadline", "_epochDeadline"]
+        "required": [
+          "_metadata",
+          "_funds",
+          "_applicationDeadline",
+          "_marketDeadline",
+          "_epochDeadline"
+        ]
       },
       "applyToFellowship(uint256 fellowshipId,string metadata)": {
         "intent": "Apply to Fellowship Program",

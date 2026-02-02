@@ -15,14 +15,24 @@
   "metadata": {
     "owner": "OpenCover",
     "info": { "legalName": "OpenCover", "url": "https://opencover.com" },
-    "enums": { "assetSymbol": { "0": "ETH", "1": "DAI", "2": "USDC", "3": "USDT", "4": "POL", "5": "cbBTC" } }
+    "enums": {
+      "assetSymbol": { "0": "ETH", "1": "DAI", "2": "USDC", "3": "USDT", "4": "POL", "5": "cbBTC" }
+    }
   },
   "display": {
     "definitions": {
-      "coverAssetId": { "label": "Cover asset", "format": "enum", "params": { "$ref": "$.metadata.enums.assetSymbol" } },
+      "coverAssetId": {
+        "label": "Cover asset",
+        "format": "enum",
+        "params": { "$ref": "$.metadata.enums.assetSymbol" }
+      },
       "coverAmount": { "label": "Cover amount", "format": "raw" },
       "coverExpiry": { "label": "Cover duration", "format": "unit", "params": { "base": "days" } },
-      "paymentAssetId": { "label": "Payment asset", "format": "enum", "params": { "$ref": "$.metadata.enums.assetSymbol" } },
+      "paymentAssetId": {
+        "label": "Payment asset",
+        "format": "enum",
+        "params": { "$ref": "$.metadata.enums.assetSymbol" }
+      },
       "premiumAmount": { "label": "Premium amount", "format": "raw" }
     },
     "formats": {
@@ -36,8 +46,22 @@
           { "path": "#.quote.paymentAssetId", "$ref": "$.display.definitions.paymentAssetId" },
           { "path": "#.quote.premiumAmount", "$ref": "$.display.definitions.premiumAmount" }
         ],
-        "required": ["#.quote.coverAssetId", "#.quote.coverAmount", "#.quote.coverExpiry", "#.quote.paymentAssetId", "#.quote.premiumAmount"],
-        "excluded": ["#.quote.providerId", "#.quote.productId", "#.quote.feeAmount", "#.quote.validUntil", "#.v", "#.r", "#.s"]
+        "required": [
+          "#.quote.coverAssetId",
+          "#.quote.coverAmount",
+          "#.quote.coverExpiry",
+          "#.quote.paymentAssetId",
+          "#.quote.premiumAmount"
+        ],
+        "excluded": [
+          "#.quote.providerId",
+          "#.quote.productId",
+          "#.quote.feeAmount",
+          "#.quote.validUntil",
+          "#.v",
+          "#.r",
+          "#.s"
+        ]
       },
       "submitQuoteV15((uint32,uint32,uint32,uint256,uint32,uint256,uint256,uint16,uint256),address[],uint256,address,uint8,bytes32,bytes32)": {
         "$id": "submitQuoteV15",
@@ -49,7 +73,13 @@
           { "path": "#.quote.paymentAssetId", "$ref": "$.display.definitions.paymentAssetId" },
           { "path": "#.quote.premiumAmount", "$ref": "$.display.definitions.premiumAmount" }
         ],
-        "required": ["#.quote.coverAssetId", "#.quote.coverAmount", "#.quote.coverExpiry", "#.quote.paymentAssetId", "#.quote.premiumAmount"],
+        "required": [
+          "#.quote.coverAssetId",
+          "#.quote.coverAmount",
+          "#.quote.coverExpiry",
+          "#.quote.paymentAssetId",
+          "#.quote.premiumAmount"
+        ],
         "excluded": [
           "#.quote.providerId",
           "#.quote.productId",

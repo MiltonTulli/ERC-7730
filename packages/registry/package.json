@@ -27,9 +27,5 @@
     "ajv": "^8.12.0",
     "serve": "^14.2.0"
   },
-  "files": [
-    "dist",
-    "descriptors",
-    "types"
-  ]
+  "files": ["dist", "descriptors", "types"]
 }

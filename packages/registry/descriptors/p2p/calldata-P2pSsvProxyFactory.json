@@ -45,8 +45,18 @@
               "type": "tuple",
               "internalType": "struct FeeRecipient",
               "components": [
-                { "name": "basisPoints", "type": "uint96", "internalType": "uint96", "components": null },
-                { "name": "recipient", "type": "address", "internalType": "address payable", "components": null }
+                {
+                  "name": "basisPoints",
+                  "type": "uint96",
+                  "internalType": "uint96",
+                  "components": null
+                },
+                {
+                  "name": "recipient",
+                  "type": "address",
+                  "internalType": "address payable",
+                  "components": null
+                }
               ],
               "indexed": null,
               "unit": null
@@ -56,18 +66,56 @@
               "type": "tuple",
               "internalType": "struct FeeRecipient",
               "components": [
-                { "name": "basisPoints", "type": "uint96", "internalType": "uint96", "components": null },
-                { "name": "recipient", "type": "address", "internalType": "address payable", "components": null }
+                {
+                  "name": "basisPoints",
+                  "type": "uint96",
+                  "internalType": "uint96",
+                  "components": null
+                },
+                {
+                  "name": "recipient",
+                  "type": "address",
+                  "internalType": "address payable",
+                  "components": null
+                }
               ],
               "indexed": null,
               "unit": null
             },
-            { "name": "_extraData", "type": "bytes", "internalType": "bytes", "components": null, "indexed": null, "unit": null }
+            {
+              "name": "_extraData",
+              "type": "bytes",
+              "internalType": "bytes",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
           "outputs": [
-            { "name": "", "type": "bytes32", "internalType": "bytes32", "components": null, "indexed": null, "unit": null },
-            { "name": "", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null },
-            { "name": "", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null }
+            {
+              "name": "",
+              "type": "bytes32",
+              "internalType": "bytes32",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
           "stateMutability": "payable",
           "constant": null,
@@ -79,7 +127,14 @@
           "type": "function",
           "name": "changeOperator",
           "inputs": [
-            { "name": "_newOperator", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null }
+            {
+              "name": "_newOperator",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
           "outputs": [],
           "stateMutability": "nonpayable",
@@ -91,7 +146,16 @@
         {
           "type": "function",
           "name": "checkOperatorOrOwner",
-          "inputs": [{ "name": "_address", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null }],
+          "inputs": [
+            {
+              "name": "_address",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "outputs": [],
           "stateMutability": "view",
           "constant": null,
@@ -168,8 +232,18 @@
               "type": "tuple",
               "internalType": "struct DepositData",
               "components": [
-                { "name": "signatures", "type": "bytes[]", "internalType": "bytes[]", "components": null },
-                { "name": "depositDataRoots", "type": "bytes32[]", "internalType": "bytes32[]", "components": null }
+                {
+                  "name": "signatures",
+                  "type": "bytes[]",
+                  "internalType": "bytes[]",
+                  "components": null
+                },
+                {
+                  "name": "depositDataRoots",
+                  "type": "bytes32[]",
+                  "internalType": "bytes32[]",
+                  "components": null
+                }
               ],
               "indexed": null,
               "unit": null
@@ -192,10 +266,30 @@
                   "type": "tuple[]",
                   "internalType": "struct SsvOperator[]",
                   "components": [
-                    { "name": "owner", "type": "address", "internalType": "address", "components": null },
-                    { "name": "id", "type": "uint64", "internalType": "uint64", "components": null },
-                    { "name": "snapshot", "type": "bytes32", "internalType": "bytes32", "components": null },
-                    { "name": "fee", "type": "uint256", "internalType": "uint256", "components": null }
+                    {
+                      "name": "owner",
+                      "type": "address",
+                      "internalType": "address",
+                      "components": null
+                    },
+                    {
+                      "name": "id",
+                      "type": "uint64",
+                      "internalType": "uint64",
+                      "components": null
+                    },
+                    {
+                      "name": "snapshot",
+                      "type": "bytes32",
+                      "internalType": "bytes32",
+                      "components": null
+                    },
+                    {
+                      "name": "fee",
+                      "type": "uint256",
+                      "internalType": "uint256",
+                      "components": null
+                    }
                   ]
                 },
                 {
@@ -203,8 +297,18 @@
                   "type": "tuple[]",
                   "internalType": "struct SsvValidator[]",
                   "components": [
-                    { "name": "pubkey", "type": "bytes", "internalType": "bytes", "components": null },
-                    { "name": "sharesData", "type": "bytes", "internalType": "bytes", "components": null }
+                    {
+                      "name": "pubkey",
+                      "type": "bytes",
+                      "internalType": "bytes",
+                      "components": null
+                    },
+                    {
+                      "name": "sharesData",
+                      "type": "bytes",
+                      "internalType": "bytes",
+                      "components": null
+                    }
                   ]
                 },
                 {
@@ -212,15 +316,50 @@
                   "type": "tuple",
                   "internalType": "struct ISSVNetworkCore.Cluster",
                   "components": [
-                    { "name": "validatorCount", "type": "uint32", "internalType": "uint32", "components": null },
-                    { "name": "networkFeeIndex", "type": "uint64", "internalType": "uint64", "components": null },
-                    { "name": "index", "type": "uint64", "internalType": "uint64", "components": null },
-                    { "name": "active", "type": "bool", "internalType": "bool", "components": null },
-                    { "name": "balance", "type": "uint256", "internalType": "uint256", "components": null }
+                    {
+                      "name": "validatorCount",
+                      "type": "uint32",
+                      "internalType": "uint32",
+                      "components": null
+                    },
+                    {
+                      "name": "networkFeeIndex",
+                      "type": "uint64",
+                      "internalType": "uint64",
+                      "components": null
+                    },
+                    {
+                      "name": "index",
+                      "type": "uint64",
+                      "internalType": "uint64",
+                      "components": null
+                    },
+                    {
+                      "name": "active",
+                      "type": "bool",
+                      "internalType": "bool",
+                      "components": null
+                    },
+                    {
+                      "name": "balance",
+                      "type": "uint256",
+                      "internalType": "uint256",
+                      "components": null
+                    }
                   ]
                 },
-                { "name": "tokenAmount", "type": "uint256", "internalType": "uint256", "components": null },
-                { "name": "ssvSlot0", "type": "bytes32", "internalType": "bytes32", "components": null }
+                {
+                  "name": "tokenAmount",
+                  "type": "uint256",
+                  "internalType": "uint256",
+                  "components": null
+                },
+                {
+                  "name": "ssvSlot0",
+                  "type": "bytes32",
+                  "internalType": "bytes32",
+                  "components": null
+                }
               ],
               "indexed": null,
               "unit": null
@@ -230,8 +369,18 @@
               "type": "tuple",
               "internalType": "struct FeeRecipient",
               "components": [
-                { "name": "basisPoints", "type": "uint96", "internalType": "uint96", "components": null },
-                { "name": "recipient", "type": "address", "internalType": "address payable", "components": null }
+                {
+                  "name": "basisPoints",
+                  "type": "uint96",
+                  "internalType": "uint96",
+                  "components": null
+                },
+                {
+                  "name": "recipient",
+                  "type": "address",
+                  "internalType": "address payable",
+                  "components": null
+                }
               ],
               "indexed": null,
               "unit": null
@@ -241,14 +390,33 @@
               "type": "tuple",
               "internalType": "struct FeeRecipient",
               "components": [
-                { "name": "basisPoints", "type": "uint96", "internalType": "uint96", "components": null },
-                { "name": "recipient", "type": "address", "internalType": "address payable", "components": null }
+                {
+                  "name": "basisPoints",
+                  "type": "uint96",
+                  "internalType": "uint96",
+                  "components": null
+                },
+                {
+                  "name": "recipient",
+                  "type": "address",
+                  "internalType": "address payable",
+                  "components": null
+                }
               ],
               "indexed": null,
               "unit": null
             }
           ],
-          "outputs": [{ "name": "p2pSsvProxy", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "p2pSsvProxy",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "payable",
           "constant": null,
           "payable": null,
@@ -264,8 +432,18 @@
               "type": "tuple",
               "internalType": "struct DepositData",
               "components": [
-                { "name": "signatures", "type": "bytes[]", "internalType": "bytes[]", "components": null },
-                { "name": "depositDataRoots", "type": "bytes32[]", "internalType": "bytes32[]", "components": null }
+                {
+                  "name": "signatures",
+                  "type": "bytes[]",
+                  "internalType": "bytes[]",
+                  "components": null
+                },
+                {
+                  "name": "depositDataRoots",
+                  "type": "bytes32[]",
+                  "internalType": "bytes32[]",
+                  "components": null
+                }
               ],
               "indexed": null,
               "unit": null
@@ -294,19 +472,55 @@
               "indexed": null,
               "unit": null
             },
-            { "name": "_publicKeys", "type": "bytes[]", "internalType": "bytes[]", "components": null, "indexed": null, "unit": null },
-            { "name": "_sharesData", "type": "bytes[]", "internalType": "bytes[]", "components": null, "indexed": null, "unit": null },
-            { "name": "_amount", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null },
+            {
+              "name": "_publicKeys",
+              "type": "bytes[]",
+              "internalType": "bytes[]",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "_sharesData",
+              "type": "bytes[]",
+              "internalType": "bytes[]",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "_amount",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
             {
               "name": "_cluster",
               "type": "tuple",
               "internalType": "struct ISSVNetworkCore.Cluster",
               "components": [
-                { "name": "validatorCount", "type": "uint32", "internalType": "uint32", "components": null },
-                { "name": "networkFeeIndex", "type": "uint64", "internalType": "uint64", "components": null },
+                {
+                  "name": "validatorCount",
+                  "type": "uint32",
+                  "internalType": "uint32",
+                  "components": null
+                },
+                {
+                  "name": "networkFeeIndex",
+                  "type": "uint64",
+                  "internalType": "uint64",
+                  "components": null
+                },
                 { "name": "index", "type": "uint64", "internalType": "uint64", "components": null },
                 { "name": "active", "type": "bool", "internalType": "bool", "components": null },
-                { "name": "balance", "type": "uint256", "internalType": "uint256", "components": null }
+                {
+                  "name": "balance",
+                  "type": "uint256",
+                  "internalType": "uint256",
+                  "components": null
+                }
               ],
               "indexed": null,
               "unit": null
@@ -316,8 +530,18 @@
               "type": "tuple",
               "internalType": "struct FeeRecipient",
               "components": [
-                { "name": "basisPoints", "type": "uint96", "internalType": "uint96", "components": null },
-                { "name": "recipient", "type": "address", "internalType": "address payable", "components": null }
+                {
+                  "name": "basisPoints",
+                  "type": "uint96",
+                  "internalType": "uint96",
+                  "components": null
+                },
+                {
+                  "name": "recipient",
+                  "type": "address",
+                  "internalType": "address payable",
+                  "components": null
+                }
               ],
               "indexed": null,
               "unit": null
@@ -327,14 +551,33 @@
               "type": "tuple",
               "internalType": "struct FeeRecipient",
               "components": [
-                { "name": "basisPoints", "type": "uint96", "internalType": "uint96", "components": null },
-                { "name": "recipient", "type": "address", "internalType": "address payable", "components": null }
+                {
+                  "name": "basisPoints",
+                  "type": "uint96",
+                  "internalType": "uint96",
+                  "components": null
+                },
+                {
+                  "name": "recipient",
+                  "type": "address",
+                  "internalType": "address payable",
+                  "components": null
+                }
               ],
               "indexed": null,
               "unit": null
             }
           ],
-          "outputs": [{ "name": "p2pSsvProxy", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "p2pSsvProxy",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "payable",
           "constant": null,
           "payable": null,
@@ -345,8 +588,22 @@
           "type": "function",
           "name": "depositToSSV",
           "inputs": [
-            { "name": "_clusterOwner", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null },
-            { "name": "_tokenAmount", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null },
+            {
+              "name": "_clusterOwner",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "_tokenAmount",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
             {
               "name": "_operatorIds",
               "type": "uint64[]",
@@ -360,11 +617,26 @@
               "type": "tuple",
               "internalType": "struct ISSVNetworkCore.Cluster",
               "components": [
-                { "name": "validatorCount", "type": "uint32", "internalType": "uint32", "components": null },
-                { "name": "networkFeeIndex", "type": "uint64", "internalType": "uint64", "components": null },
+                {
+                  "name": "validatorCount",
+                  "type": "uint32",
+                  "internalType": "uint32",
+                  "components": null
+                },
+                {
+                  "name": "networkFeeIndex",
+                  "type": "uint64",
+                  "internalType": "uint64",
+                  "components": null
+                },
                 { "name": "index", "type": "uint64", "internalType": "uint64", "components": null },
                 { "name": "active", "type": "bool", "internalType": "bool", "components": null },
-                { "name": "balance", "type": "uint256", "internalType": "uint256", "components": null }
+                {
+                  "name": "balance",
+                  "type": "uint256",
+                  "internalType": "uint256",
+                  "components": null
+                }
               ],
               "indexed": null,
               "unit": null
@@ -391,8 +663,26 @@
         {
           "type": "function",
           "name": "getAllClientP2pSsvProxies",
-          "inputs": [{ "name": "_client", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null }],
-          "outputs": [{ "name": "", "type": "address[]", "internalType": "address[]", "components": null, "indexed": null, "unit": null }],
+          "inputs": [
+            {
+              "name": "_client",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
+          "outputs": [
+            {
+              "name": "",
+              "type": "address[]",
+              "internalType": "address[]",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -403,7 +693,16 @@
           "type": "function",
           "name": "getAllP2pSsvProxies",
           "inputs": [],
-          "outputs": [{ "name": "", "type": "address[]", "internalType": "address[]", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "address[]",
+              "internalType": "address[]",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -423,7 +722,16 @@
               "unit": null
             }
           ],
-          "outputs": [{ "name": "", "type": "uint64[24]", "internalType": "uint64[24]", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint64[24]",
+              "internalType": "uint64[24]",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -434,7 +742,16 @@
           "type": "function",
           "name": "getAllowedSsvOperatorOwners",
           "inputs": [],
-          "outputs": [{ "name": "", "type": "address[]", "internalType": "address[]", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "address[]",
+              "internalType": "address[]",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -445,7 +762,16 @@
           "type": "function",
           "name": "getFeeDistributorFactory",
           "inputs": [],
-          "outputs": [{ "name": "", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -456,7 +782,16 @@
           "type": "function",
           "name": "getMaxSsvTokenAmountPerValidator",
           "inputs": [],
-          "outputs": [{ "name": "", "type": "uint112", "internalType": "uint112", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint112",
+              "internalType": "uint112",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -467,9 +802,25 @@
           "type": "function",
           "name": "getNeededAmountOfEtherToCoverSsvFees",
           "inputs": [
-            { "name": "_tokenAmount", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }
+            {
+              "name": "_tokenAmount",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
-          "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -480,7 +831,16 @@
           "type": "function",
           "name": "getReferenceFeeDistributor",
           "inputs": [],
-          "outputs": [{ "name": "", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -491,7 +851,16 @@
           "type": "function",
           "name": "getReferenceP2pSsvProxy",
           "inputs": [],
-          "outputs": [{ "name": "", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -502,7 +871,16 @@
           "type": "function",
           "name": "getSsvPerEthExchangeRateDividedByWei",
           "inputs": [],
-          "outputs": [{ "name": "", "type": "uint112", "internalType": "uint112", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint112",
+              "internalType": "uint112",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -512,8 +890,26 @@
         {
           "type": "function",
           "name": "isClientSelectorAllowed",
-          "inputs": [{ "name": "_selector", "type": "bytes4", "internalType": "bytes4", "components": null, "indexed": null, "unit": null }],
-          "outputs": [{ "name": "", "type": "bool", "internalType": "bool", "components": null, "indexed": null, "unit": null }],
+          "inputs": [
+            {
+              "name": "_selector",
+              "type": "bytes4",
+              "internalType": "bytes4",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
+          "outputs": [
+            {
+              "name": "",
+              "type": "bool",
+              "internalType": "bool",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -523,8 +919,26 @@
         {
           "type": "function",
           "name": "isOperatorSelectorAllowed",
-          "inputs": [{ "name": "_selector", "type": "bytes4", "internalType": "bytes4", "components": null, "indexed": null, "unit": null }],
-          "outputs": [{ "name": "", "type": "bool", "internalType": "bool", "components": null, "indexed": null, "unit": null }],
+          "inputs": [
+            {
+              "name": "_selector",
+              "type": "bytes4",
+              "internalType": "bytes4",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
+          "outputs": [
+            {
+              "name": "",
+              "type": "bool",
+              "internalType": "bool",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -535,10 +949,33 @@
           "type": "function",
           "name": "isWhitelisted",
           "inputs": [
-            { "name": "account", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null },
-            { "name": "", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }
+            {
+              "name": "account",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
-          "outputs": [{ "name": "", "type": "bool", "internalType": "bool", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "bool",
+              "internalType": "bool",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -578,8 +1015,18 @@
               "type": "tuple",
               "internalType": "struct DepositData",
               "components": [
-                { "name": "signatures", "type": "bytes[]", "internalType": "bytes[]", "components": null },
-                { "name": "depositDataRoots", "type": "bytes32[]", "internalType": "bytes32[]", "components": null }
+                {
+                  "name": "signatures",
+                  "type": "bytes[]",
+                  "internalType": "bytes[]",
+                  "components": null
+                },
+                {
+                  "name": "depositDataRoots",
+                  "type": "bytes32[]",
+                  "internalType": "bytes32[]",
+                  "components": null
+                }
               ],
               "indexed": null,
               "unit": null
@@ -592,25 +1039,70 @@
               "indexed": null,
               "unit": null
             },
-            { "name": "_publicKeys", "type": "bytes[]", "internalType": "bytes[]", "components": null, "indexed": null, "unit": null },
-            { "name": "_sharesData", "type": "bytes[]", "internalType": "bytes[]", "components": null, "indexed": null, "unit": null },
-            { "name": "_amount", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null },
+            {
+              "name": "_publicKeys",
+              "type": "bytes[]",
+              "internalType": "bytes[]",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "_sharesData",
+              "type": "bytes[]",
+              "internalType": "bytes[]",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "_amount",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
             {
               "name": "_cluster",
               "type": "tuple",
               "internalType": "struct ISSVNetworkCore.Cluster",
               "components": [
-                { "name": "validatorCount", "type": "uint32", "internalType": "uint32", "components": null },
-                { "name": "networkFeeIndex", "type": "uint64", "internalType": "uint64", "components": null },
+                {
+                  "name": "validatorCount",
+                  "type": "uint32",
+                  "internalType": "uint32",
+                  "components": null
+                },
+                {
+                  "name": "networkFeeIndex",
+                  "type": "uint64",
+                  "internalType": "uint64",
+                  "components": null
+                },
                 { "name": "index", "type": "uint64", "internalType": "uint64", "components": null },
                 { "name": "active", "type": "bool", "internalType": "bool", "components": null },
-                { "name": "balance", "type": "uint256", "internalType": "uint256", "components": null }
+                {
+                  "name": "balance",
+                  "type": "uint256",
+                  "internalType": "uint256",
+                  "components": null
+                }
               ],
               "indexed": null,
               "unit": null
             }
           ],
-          "outputs": [{ "name": "p2pSsvProxy", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "p2pSsvProxy",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "nonpayable",
           "constant": null,
           "payable": null,
@@ -621,7 +1113,16 @@
           "type": "function",
           "name": "operator",
           "inputs": [],
-          "outputs": [{ "name": "", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -632,7 +1133,16 @@
           "type": "function",
           "name": "owner",
           "inputs": [],
-          "outputs": [{ "name": "", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -643,7 +1153,16 @@
           "type": "function",
           "name": "pendingOwner",
           "inputs": [],
-          "outputs": [{ "name": "", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -659,14 +1178,33 @@
               "type": "tuple",
               "internalType": "struct FeeRecipient",
               "components": [
-                { "name": "basisPoints", "type": "uint96", "internalType": "uint96", "components": null },
-                { "name": "recipient", "type": "address", "internalType": "address payable", "components": null }
+                {
+                  "name": "basisPoints",
+                  "type": "uint96",
+                  "internalType": "uint96",
+                  "components": null
+                },
+                {
+                  "name": "recipient",
+                  "type": "address",
+                  "internalType": "address payable",
+                  "components": null
+                }
               ],
               "indexed": null,
               "unit": null
             }
           ],
-          "outputs": [{ "name": "", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -682,8 +1220,18 @@
               "type": "tuple",
               "internalType": "struct FeeRecipient",
               "components": [
-                { "name": "basisPoints", "type": "uint96", "internalType": "uint96", "components": null },
-                { "name": "recipient", "type": "address", "internalType": "address payable", "components": null }
+                {
+                  "name": "basisPoints",
+                  "type": "uint96",
+                  "internalType": "uint96",
+                  "components": null
+                },
+                {
+                  "name": "recipient",
+                  "type": "address",
+                  "internalType": "address payable",
+                  "components": null
+                }
               ],
               "indexed": null,
               "unit": null
@@ -693,14 +1241,33 @@
               "type": "tuple",
               "internalType": "struct FeeRecipient",
               "components": [
-                { "name": "basisPoints", "type": "uint96", "internalType": "uint96", "components": null },
-                { "name": "recipient", "type": "address", "internalType": "address payable", "components": null }
+                {
+                  "name": "basisPoints",
+                  "type": "uint96",
+                  "internalType": "uint96",
+                  "components": null
+                },
+                {
+                  "name": "recipient",
+                  "type": "address",
+                  "internalType": "address payable",
+                  "components": null
+                }
               ],
               "indexed": null,
               "unit": null
             }
           ],
-          "outputs": [{ "name": "", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -720,7 +1287,16 @@
               "unit": null
             }
           ],
-          "outputs": [{ "name": "", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -744,8 +1320,18 @@
               "type": "tuple",
               "internalType": "struct FeeRecipient",
               "components": [
-                { "name": "basisPoints", "type": "uint96", "internalType": "uint96", "components": null },
-                { "name": "recipient", "type": "address", "internalType": "address payable", "components": null }
+                {
+                  "name": "basisPoints",
+                  "type": "uint96",
+                  "internalType": "uint96",
+                  "components": null
+                },
+                {
+                  "name": "recipient",
+                  "type": "address",
+                  "internalType": "address payable",
+                  "components": null
+                }
               ],
               "indexed": null,
               "unit": null
@@ -755,14 +1341,33 @@
               "type": "tuple",
               "internalType": "struct FeeRecipient",
               "components": [
-                { "name": "basisPoints", "type": "uint96", "internalType": "uint96", "components": null },
-                { "name": "recipient", "type": "address", "internalType": "address payable", "components": null }
+                {
+                  "name": "basisPoints",
+                  "type": "uint96",
+                  "internalType": "uint96",
+                  "components": null
+                },
+                {
+                  "name": "recipient",
+                  "type": "address",
+                  "internalType": "address payable",
+                  "components": null
+                }
               ],
               "indexed": null,
               "unit": null
             }
           ],
-          "outputs": [{ "name": "", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -783,10 +1388,30 @@
                   "type": "tuple[]",
                   "internalType": "struct SsvOperator[]",
                   "components": [
-                    { "name": "owner", "type": "address", "internalType": "address", "components": null },
-                    { "name": "id", "type": "uint64", "internalType": "uint64", "components": null },
-                    { "name": "snapshot", "type": "bytes32", "internalType": "bytes32", "components": null },
-                    { "name": "fee", "type": "uint256", "internalType": "uint256", "components": null }
+                    {
+                      "name": "owner",
+                      "type": "address",
+                      "internalType": "address",
+                      "components": null
+                    },
+                    {
+                      "name": "id",
+                      "type": "uint64",
+                      "internalType": "uint64",
+                      "components": null
+                    },
+                    {
+                      "name": "snapshot",
+                      "type": "bytes32",
+                      "internalType": "bytes32",
+                      "components": null
+                    },
+                    {
+                      "name": "fee",
+                      "type": "uint256",
+                      "internalType": "uint256",
+                      "components": null
+                    }
                   ]
                 },
                 {
@@ -794,8 +1419,18 @@
                   "type": "tuple[]",
                   "internalType": "struct SsvValidator[]",
                   "components": [
-                    { "name": "pubkey", "type": "bytes", "internalType": "bytes", "components": null },
-                    { "name": "sharesData", "type": "bytes", "internalType": "bytes", "components": null }
+                    {
+                      "name": "pubkey",
+                      "type": "bytes",
+                      "internalType": "bytes",
+                      "components": null
+                    },
+                    {
+                      "name": "sharesData",
+                      "type": "bytes",
+                      "internalType": "bytes",
+                      "components": null
+                    }
                   ]
                 },
                 {
@@ -803,15 +1438,50 @@
                   "type": "tuple",
                   "internalType": "struct ISSVNetworkCore.Cluster",
                   "components": [
-                    { "name": "validatorCount", "type": "uint32", "internalType": "uint32", "components": null },
-                    { "name": "networkFeeIndex", "type": "uint64", "internalType": "uint64", "components": null },
-                    { "name": "index", "type": "uint64", "internalType": "uint64", "components": null },
-                    { "name": "active", "type": "bool", "internalType": "bool", "components": null },
-                    { "name": "balance", "type": "uint256", "internalType": "uint256", "components": null }
+                    {
+                      "name": "validatorCount",
+                      "type": "uint32",
+                      "internalType": "uint32",
+                      "components": null
+                    },
+                    {
+                      "name": "networkFeeIndex",
+                      "type": "uint64",
+                      "internalType": "uint64",
+                      "components": null
+                    },
+                    {
+                      "name": "index",
+                      "type": "uint64",
+                      "internalType": "uint64",
+                      "components": null
+                    },
+                    {
+                      "name": "active",
+                      "type": "bool",
+                      "internalType": "bool",
+                      "components": null
+                    },
+                    {
+                      "name": "balance",
+                      "type": "uint256",
+                      "internalType": "uint256",
+                      "components": null
+                    }
                   ]
                 },
-                { "name": "tokenAmount", "type": "uint256", "internalType": "uint256", "components": null },
-                { "name": "ssvSlot0", "type": "bytes32", "internalType": "bytes32", "components": null }
+                {
+                  "name": "tokenAmount",
+                  "type": "uint256",
+                  "internalType": "uint256",
+                  "components": null
+                },
+                {
+                  "name": "ssvSlot0",
+                  "type": "bytes32",
+                  "internalType": "bytes32",
+                  "components": null
+                }
               ],
               "indexed": null,
               "unit": null
@@ -821,8 +1491,18 @@
               "type": "tuple",
               "internalType": "struct FeeRecipient",
               "components": [
-                { "name": "basisPoints", "type": "uint96", "internalType": "uint96", "components": null },
-                { "name": "recipient", "type": "address", "internalType": "address payable", "components": null }
+                {
+                  "name": "basisPoints",
+                  "type": "uint96",
+                  "internalType": "uint96",
+                  "components": null
+                },
+                {
+                  "name": "recipient",
+                  "type": "address",
+                  "internalType": "address payable",
+                  "components": null
+                }
               ],
               "indexed": null,
               "unit": null
@@ -832,14 +1512,33 @@
               "type": "tuple",
               "internalType": "struct FeeRecipient",
               "components": [
-                { "name": "basisPoints", "type": "uint96", "internalType": "uint96", "components": null },
-                { "name": "recipient", "type": "address", "internalType": "address payable", "components": null }
+                {
+                  "name": "basisPoints",
+                  "type": "uint96",
+                  "internalType": "uint96",
+                  "components": null
+                },
+                {
+                  "name": "recipient",
+                  "type": "address",
+                  "internalType": "address payable",
+                  "components": null
+                }
               ],
               "indexed": null,
               "unit": null
             }
           ],
-          "outputs": [{ "name": "p2pSsvProxy", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "p2pSsvProxy",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "payable",
           "constant": null,
           "payable": null,
@@ -866,19 +1565,55 @@
               "indexed": null,
               "unit": null
             },
-            { "name": "_publicKeys", "type": "bytes[]", "internalType": "bytes[]", "components": null, "indexed": null, "unit": null },
-            { "name": "_sharesData", "type": "bytes[]", "internalType": "bytes[]", "components": null, "indexed": null, "unit": null },
-            { "name": "_amount", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null },
+            {
+              "name": "_publicKeys",
+              "type": "bytes[]",
+              "internalType": "bytes[]",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "_sharesData",
+              "type": "bytes[]",
+              "internalType": "bytes[]",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "_amount",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
             {
               "name": "_cluster",
               "type": "tuple",
               "internalType": "struct ISSVNetworkCore.Cluster",
               "components": [
-                { "name": "validatorCount", "type": "uint32", "internalType": "uint32", "components": null },
-                { "name": "networkFeeIndex", "type": "uint64", "internalType": "uint64", "components": null },
+                {
+                  "name": "validatorCount",
+                  "type": "uint32",
+                  "internalType": "uint32",
+                  "components": null
+                },
+                {
+                  "name": "networkFeeIndex",
+                  "type": "uint64",
+                  "internalType": "uint64",
+                  "components": null
+                },
                 { "name": "index", "type": "uint64", "internalType": "uint64", "components": null },
                 { "name": "active", "type": "bool", "internalType": "bool", "components": null },
-                { "name": "balance", "type": "uint256", "internalType": "uint256", "components": null }
+                {
+                  "name": "balance",
+                  "type": "uint256",
+                  "internalType": "uint256",
+                  "components": null
+                }
               ],
               "indexed": null,
               "unit": null
@@ -888,8 +1623,18 @@
               "type": "tuple",
               "internalType": "struct FeeRecipient",
               "components": [
-                { "name": "basisPoints", "type": "uint96", "internalType": "uint96", "components": null },
-                { "name": "recipient", "type": "address", "internalType": "address payable", "components": null }
+                {
+                  "name": "basisPoints",
+                  "type": "uint96",
+                  "internalType": "uint96",
+                  "components": null
+                },
+                {
+                  "name": "recipient",
+                  "type": "address",
+                  "internalType": "address payable",
+                  "components": null
+                }
               ],
               "indexed": null,
               "unit": null
@@ -899,14 +1644,33 @@
               "type": "tuple",
               "internalType": "struct FeeRecipient",
               "components": [
-                { "name": "basisPoints", "type": "uint96", "internalType": "uint96", "components": null },
-                { "name": "recipient", "type": "address", "internalType": "address payable", "components": null }
+                {
+                  "name": "basisPoints",
+                  "type": "uint96",
+                  "internalType": "uint96",
+                  "components": null
+                },
+                {
+                  "name": "recipient",
+                  "type": "address",
+                  "internalType": "address payable",
+                  "components": null
+                }
               ],
               "indexed": null,
               "unit": null
             }
           ],
-          "outputs": [{ "name": "p2pSsvProxy", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "p2pSsvProxy",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "payable",
           "constant": null,
           "payable": null,
@@ -917,7 +1681,14 @@
           "type": "function",
           "name": "removeAllowedSelectorsForClient",
           "inputs": [
-            { "name": "_selectors", "type": "bytes4[]", "internalType": "bytes4[]", "components": null, "indexed": null, "unit": null }
+            {
+              "name": "_selectors",
+              "type": "bytes4[]",
+              "internalType": "bytes4[]",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
           "outputs": [],
           "stateMutability": "nonpayable",
@@ -930,7 +1701,14 @@
           "type": "function",
           "name": "removeAllowedSelectorsForOperator",
           "inputs": [
-            { "name": "_selectors", "type": "bytes4[]", "internalType": "bytes4[]", "components": null, "indexed": null, "unit": null }
+            {
+              "name": "_selectors",
+              "type": "bytes4[]",
+              "internalType": "bytes4[]",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
           "outputs": [],
           "stateMutability": "nonpayable",
@@ -963,7 +1741,14 @@
           "type": "function",
           "name": "setAllowedSelectorsForClient",
           "inputs": [
-            { "name": "_selectors", "type": "bytes4[]", "internalType": "bytes4[]", "components": null, "indexed": null, "unit": null }
+            {
+              "name": "_selectors",
+              "type": "bytes4[]",
+              "internalType": "bytes4[]",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
           "outputs": [],
           "stateMutability": "nonpayable",
@@ -976,7 +1761,14 @@
           "type": "function",
           "name": "setAllowedSelectorsForOperator",
           "inputs": [
-            { "name": "_selectors", "type": "bytes4[]", "internalType": "bytes4[]", "components": null, "indexed": null, "unit": null }
+            {
+              "name": "_selectors",
+              "type": "bytes4[]",
+              "internalType": "bytes4[]",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
           "outputs": [],
           "stateMutability": "nonpayable",
@@ -1136,8 +1928,26 @@
         {
           "type": "function",
           "name": "supportsInterface",
-          "inputs": [{ "name": "interfaceId", "type": "bytes4", "internalType": "bytes4", "components": null, "indexed": null, "unit": null }],
-          "outputs": [{ "name": "", "type": "bool", "internalType": "bool", "components": null, "indexed": null, "unit": null }],
+          "inputs": [
+            {
+              "name": "interfaceId",
+              "type": "bytes4",
+              "internalType": "bytes4",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
+          "outputs": [
+            {
+              "name": "",
+              "type": "bool",
+              "internalType": "bool",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -1148,11 +1958,46 @@
           "type": "function",
           "name": "transferERC1155",
           "inputs": [
-            { "name": "_token", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null },
-            { "name": "_recipient", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null },
-            { "name": "_tokenId", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null },
-            { "name": "_amount", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null },
-            { "name": "_data", "type": "bytes", "internalType": "bytes", "components": null, "indexed": null, "unit": null }
+            {
+              "name": "_token",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "_recipient",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "_tokenId",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "_amount",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "_data",
+              "type": "bytes",
+              "internalType": "bytes",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
           "outputs": [],
           "stateMutability": "nonpayable",
@@ -1165,9 +2010,30 @@
           "type": "function",
           "name": "transferERC20",
           "inputs": [
-            { "name": "_token", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null },
-            { "name": "_recipient", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null },
-            { "name": "_amount", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }
+            {
+              "name": "_token",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "_recipient",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "_amount",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
           "outputs": [],
           "stateMutability": "nonpayable",
@@ -1180,9 +2046,30 @@
           "type": "function",
           "name": "transferERC721",
           "inputs": [
-            { "name": "_token", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null },
-            { "name": "_recipient", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null },
-            { "name": "_tokenId", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }
+            {
+              "name": "_token",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "_recipient",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "_tokenId",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
           "outputs": [],
           "stateMutability": "nonpayable",
@@ -1195,8 +2082,22 @@
           "type": "function",
           "name": "transferEther",
           "inputs": [
-            { "name": "_recipient", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null },
-            { "name": "_amount", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }
+            {
+              "name": "_recipient",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "_amount",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
           "outputs": [],
           "stateMutability": "nonpayable",
@@ -1208,7 +2109,16 @@
         {
           "type": "function",
           "name": "transferOwnership",
-          "inputs": [{ "name": "newOwner", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null }],
+          "inputs": [
+            {
+              "name": "newOwner",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "outputs": [],
           "stateMutability": "nonpayable",
           "constant": null,
@@ -1221,7 +2131,10 @@
       "factory": null
     }
   },
-  "metadata": { "owner": "p2p", "info": { "legalName": "P2P Staking", "url": "https://www.p2p.org/" } },
+  "metadata": {
+    "owner": "p2p",
+    "info": { "legalName": "P2P Staking", "url": "https://www.p2p.org/" }
+  },
   "display": {
     "formats": {
       "addEth(bytes32,uint96,(uint96,address),(uint96,address),bytes)": {
@@ -1245,7 +2158,14 @@
             "path": "#._ethAmountPerValidatorInWei",
             "value": null
           },
-          { "$id": null, "label": "Amount to deposit", "format": "amount", "params": null, "path": "@.value", "value": null }
+          {
+            "$id": null,
+            "label": "Amount to deposit",
+            "format": "amount",
+            "params": null,
+            "path": "@.value",
+            "value": null
+          }
         ],
         "required": ["#._eth2WithdrawalCredentials", "#._ethAmountPerValidatorInWei", "@.value"],
         "excluded": [

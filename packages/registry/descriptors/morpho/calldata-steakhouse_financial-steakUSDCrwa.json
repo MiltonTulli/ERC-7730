@@ -10,5 +10,9 @@
       "vaultTicker": "steakUSDCrwa"
     }
   },
-  "context": { "contract": { "deployments": [{ "chainId": 8453, "address": "0xbEefc4aDBE58173FCa2C042097Fe33095E68C3D6" }] } }
+  "context": {
+    "contract": {
+      "deployments": [{ "chainId": 8453, "address": "0xbEefc4aDBE58173FCa2C042097Fe33095E68C3D6" }]
+    }
+  }
 }

@@ -12,10 +12,38 @@
           "type": "function",
           "name": "batchDeposit",
           "inputs": [
-            { "name": "publicKeys", "type": "bytes", "internalType": null, "components": null, "indexed": null, "unit": null },
-            { "name": "withdrawalCreds", "type": "bytes", "internalType": null, "components": null, "indexed": null, "unit": null },
-            { "name": "signatures", "type": "bytes", "internalType": null, "components": null, "indexed": null, "unit": null },
-            { "name": "dataRoots", "type": "bytes32[]", "internalType": null, "components": null, "indexed": null, "unit": null }
+            {
+              "name": "publicKeys",
+              "type": "bytes",
+              "internalType": null,
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "withdrawalCreds",
+              "type": "bytes",
+              "internalType": null,
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "signatures",
+              "type": "bytes",
+              "internalType": null,
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "dataRoots",
+              "type": "bytes32[]",
+              "internalType": null,
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
           "outputs": [],
           "stateMutability": "payable",
@@ -28,11 +56,46 @@
           "type": "function",
           "name": "batchDepositCustom",
           "inputs": [
-            { "name": "publicKeys", "type": "bytes", "internalType": null, "components": null, "indexed": null, "unit": null },
-            { "name": "withdrawalCreds", "type": "bytes", "internalType": null, "components": null, "indexed": null, "unit": null },
-            { "name": "signatures", "type": "bytes", "internalType": null, "components": null, "indexed": null, "unit": null },
-            { "name": "dataRoots", "type": "bytes32[]", "internalType": null, "components": null, "indexed": null, "unit": null },
-            { "name": "amountPerValidator", "type": "uint256", "internalType": null, "components": null, "indexed": null, "unit": null }
+            {
+              "name": "publicKeys",
+              "type": "bytes",
+              "internalType": null,
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "withdrawalCreds",
+              "type": "bytes",
+              "internalType": null,
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "signatures",
+              "type": "bytes",
+              "internalType": null,
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "dataRoots",
+              "type": "bytes32[]",
+              "internalType": null,
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "amountPerValidator",
+              "type": "uint256",
+              "internalType": null,
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
           "outputs": [],
           "stateMutability": "payable",
@@ -45,10 +108,38 @@
           "type": "function",
           "name": "bigBatchDeposit",
           "inputs": [
-            { "name": "publicKeys", "type": "bytes", "internalType": null, "components": null, "indexed": null, "unit": null },
-            { "name": "withdrawalCreds", "type": "bytes", "internalType": null, "components": null, "indexed": null, "unit": null },
-            { "name": "signatures", "type": "bytes", "internalType": null, "components": null, "indexed": null, "unit": null },
-            { "name": "dataRoots", "type": "bytes32[]", "internalType": null, "components": null, "indexed": null, "unit": null }
+            {
+              "name": "publicKeys",
+              "type": "bytes",
+              "internalType": null,
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "withdrawalCreds",
+              "type": "bytes",
+              "internalType": null,
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "signatures",
+              "type": "bytes",
+              "internalType": null,
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "dataRoots",
+              "type": "bytes32[]",
+              "internalType": null,
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
           "outputs": [],
           "stateMutability": "payable",
@@ -61,11 +152,46 @@
           "type": "function",
           "name": "bigBatchDepositCustom",
           "inputs": [
-            { "name": "publicKeys", "type": "bytes", "internalType": null, "components": null, "indexed": null, "unit": null },
-            { "name": "withdrawalCreds", "type": "bytes", "internalType": null, "components": null, "indexed": null, "unit": null },
-            { "name": "signatures", "type": "bytes", "internalType": null, "components": null, "indexed": null, "unit": null },
-            { "name": "dataRoots", "type": "bytes32[]", "internalType": null, "components": null, "indexed": null, "unit": null },
-            { "name": "amountPerValidator", "type": "uint256", "internalType": null, "components": null, "indexed": null, "unit": null }
+            {
+              "name": "publicKeys",
+              "type": "bytes",
+              "internalType": null,
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "withdrawalCreds",
+              "type": "bytes",
+              "internalType": null,
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "signatures",
+              "type": "bytes",
+              "internalType": null,
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "dataRoots",
+              "type": "bytes32[]",
+              "internalType": null,
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "amountPerValidator",
+              "type": "uint256",
+              "internalType": null,
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
           "outputs": [],
           "stateMutability": "payable",

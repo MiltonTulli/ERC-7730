@@ -143,7 +143,10 @@
             { "internalType": "uint256", "name": "index", "type": "uint256" }
           ],
           "name": "getPendingWithdrawal",
-          "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }, { "internalType": "uint256", "name": "", "type": "uint256" }],
+          "outputs": [
+            { "internalType": "uint256", "name": "", "type": "uint256" },
+            { "internalType": "uint256", "name": "", "type": "uint256" }
+          ],
           "payable": false,
           "stateMutability": "view",
           "type": "function"
@@ -508,7 +511,9 @@
         },
         {
           "anonymous": false,
-          "inputs": [{ "indexed": true, "internalType": "address", "name": "_blockedBy", "type": "address" }],
+          "inputs": [
+            { "indexed": true, "internalType": "address", "name": "_blockedBy", "type": "address" }
+          ],
           "name": "BlockedBySet",
           "type": "event"
         },
@@ -573,14 +578,21 @@
         },
         {
           "anonymous": false,
-          "inputs": [{ "indexed": false, "internalType": "uint256", "name": "value", "type": "uint256" }],
+          "inputs": [
+            { "indexed": false, "internalType": "uint256", "name": "value", "type": "uint256" }
+          ],
           "name": "MaxDelegateesCountSet",
           "type": "event"
         },
         {
           "anonymous": false,
           "inputs": [
-            { "indexed": true, "internalType": "address", "name": "previousOwner", "type": "address" },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "previousOwner",
+              "type": "address"
+            },
             { "indexed": true, "internalType": "address", "name": "newOwner", "type": "address" }
           ],
           "name": "OwnershipTransferred",
@@ -588,25 +600,48 @@
         },
         {
           "anonymous": false,
-          "inputs": [{ "indexed": true, "internalType": "address", "name": "registryAddress", "type": "address" }],
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "registryAddress",
+              "type": "address"
+            }
+          ],
           "name": "RegistrySet",
           "type": "event"
         },
         {
           "anonymous": false,
-          "inputs": [{ "indexed": true, "internalType": "string", "name": "slasherIdentifier", "type": "string" }],
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "string",
+              "name": "slasherIdentifier",
+              "type": "string"
+            }
+          ],
           "name": "SlasherWhitelistAdded",
           "type": "event"
         },
         {
           "anonymous": false,
-          "inputs": [{ "indexed": true, "internalType": "string", "name": "slasherIdentifier", "type": "string" }],
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "string",
+              "name": "slasherIdentifier",
+              "type": "string"
+            }
+          ],
           "name": "SlasherWhitelistRemoved",
           "type": "event"
         },
         {
           "anonymous": false,
-          "inputs": [{ "indexed": false, "internalType": "uint256", "name": "period", "type": "uint256" }],
+          "inputs": [
+            { "indexed": false, "internalType": "uint256", "name": "period", "type": "uint256" }
+          ],
           "name": "UnlockingPeriodSet",
           "type": "event"
         }
@@ -631,8 +666,18 @@
         "$id": "delegateGovernanceVotes",
         "intent": "Delegate",
         "fields": [
-          { "path": "delegateFraction", "label": "Fraction to Delegate", "format": "unit", "params": { "base": "%", "decimals": 22 } },
-          { "path": "delegatee", "label": "Delegatee", "format": "addressName", "params": { "types": ["eoa", "contract"] } }
+          {
+            "path": "delegateFraction",
+            "label": "Fraction to Delegate",
+            "format": "unit",
+            "params": { "base": "%", "decimals": 22 }
+          },
+          {
+            "path": "delegatee",
+            "label": "Delegatee",
+            "format": "addressName",
+            "params": { "types": ["eoa", "contract"] }
+          }
         ],
         "required": ["delegateFraction", "delegatee"],
         "excluded": []
@@ -642,7 +687,12 @@
         "intent": "Lock CELO",
         "fields": [
           { "path": "@.value", "label": "Amount to Lock", "format": "amount" },
-          { "path": "@.from", "label": "Beneficiary", "format": "addressName", "params": { "types": ["eoa", "contract"] } }
+          {
+            "path": "@.from",
+            "label": "Beneficiary",
+            "format": "addressName",
+            "params": { "types": ["eoa", "contract"] }
+          }
         ],
         "required": ["@.value", "@.from"],
         "excluded": []
@@ -652,7 +702,12 @@
         "intent": "Relock",
         "fields": [
           { "path": "value", "label": "Amount to Relock", "format": "amount" },
-          { "path": "@.from", "label": "Beneficiary", "format": "addressName", "params": { "types": ["eoa", "contract"] } }
+          {
+            "path": "@.from",
+            "label": "Beneficiary",
+            "format": "addressName",
+            "params": { "types": ["eoa", "contract"] }
+          }
         ],
         "required": ["value", "@.from"],
         "excluded": ["index"]
@@ -661,8 +716,18 @@
         "$id": "revokeDelegatedGovernanceVotes(address,uint256)",
         "intent": "Revoke Delegation",
         "fields": [
-          { "path": "delegatee", "label": "Delegatee", "format": "addressName", "params": { "types": ["eoa", "contract"] } },
-          { "path": "revokeFraction", "label": "Fraction to Revoke", "format": "unit", "params": { "base": "%", "decimals": 22 } }
+          {
+            "path": "delegatee",
+            "label": "Delegatee",
+            "format": "addressName",
+            "params": { "types": ["eoa", "contract"] }
+          },
+          {
+            "path": "revokeFraction",
+            "label": "Fraction to Revoke",
+            "format": "unit",
+            "params": { "base": "%", "decimals": 22 }
+          }
         ],
         "required": ["delegatee", "revokeFraction"],
         "excluded": []
@@ -672,7 +737,12 @@
         "intent": "Unlock",
         "fields": [
           { "path": "value", "label": "Amount to Unlock", "format": "amount" },
-          { "path": "@.from", "label": "Beneficiary", "format": "addressName", "params": { "types": ["eoa", "contract"] } }
+          {
+            "path": "@.from",
+            "label": "Beneficiary",
+            "format": "addressName",
+            "params": { "types": ["eoa", "contract"] }
+          }
         ],
         "required": ["value", "@.from"],
         "excluded": []
@@ -681,7 +751,12 @@
         "$id": "withdraw",
         "intent": "Withdraw CELO",
         "fields": [
-          { "path": "@.from", "label": "Beneficiary", "format": "addressName", "params": { "types": ["eoa", "contract"] } },
+          {
+            "path": "@.from",
+            "label": "Beneficiary",
+            "format": "addressName",
+            "params": { "types": ["eoa", "contract"] }
+          },
           { "path": "index", "label": "Withdrawal Index", "format": "raw" }
         ],
         "required": ["@.from"],

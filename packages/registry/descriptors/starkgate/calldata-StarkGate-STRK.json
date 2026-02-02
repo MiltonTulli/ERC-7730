@@ -9,7 +9,11 @@
   },
   "metadata": {
     "owner": "Starknet",
-    "info": { "url": "https://starkgate.starknet.io/", "legalName": "StarkWare", "deploymentDate": "2024-10-01T00:00:00Z" }
+    "info": {
+      "url": "https://starkgate.starknet.io/",
+      "legalName": "StarkWare",
+      "deploymentDate": "2024-10-01T00:00:00Z"
+    }
   },
   "display": {
     "formats": {
@@ -17,7 +21,12 @@
         "$id": "deposit",
         "intent": "Bridge",
         "fields": [
-          { "path": "amount", "label": "Amount to deposit", "format": "tokenAmount", "params": { "tokenPath": "token" } },
+          {
+            "path": "amount",
+            "label": "Amount to deposit",
+            "format": "tokenAmount",
+            "params": { "tokenPath": "token" }
+          },
           { "path": "l2Recipient", "label": "Recipient", "format": "raw" },
           { "path": "@.value", "label": "Deposit fee", "format": "amount" }
         ],

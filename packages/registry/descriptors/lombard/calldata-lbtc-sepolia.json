@@ -19,7 +19,13 @@
           "stateMutability": "view",
           "type": "function"
         },
-        { "inputs": [], "name": "acceptOwnership", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
+        {
+          "inputs": [],
+          "name": "acceptOwnership",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
         {
           "inputs": [{ "internalType": "address", "name": "newClaimer", "type": "address" }],
           "name": "addClaimer",
@@ -185,7 +191,9 @@
         {
           "inputs": [],
           "name": "consortium",
-          "outputs": [{ "internalType": "contract INotaryConsortium", "name": "", "type": "address" }],
+          "outputs": [
+            { "internalType": "contract INotaryConsortium", "name": "", "type": "address" }
+          ],
           "stateMutability": "view",
           "type": "function"
         },
@@ -362,7 +370,13 @@
           "stateMutability": "view",
           "type": "function"
         },
-        { "inputs": [], "name": "pause", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
+        {
+          "inputs": [],
+          "name": "pause",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
         {
           "inputs": [],
           "name": "paused",
@@ -423,7 +437,13 @@
           "stateMutability": "nonpayable",
           "type": "function"
         },
-        { "inputs": [], "name": "reinitialize", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
+        {
+          "inputs": [],
+          "name": "reinitialize",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
         {
           "inputs": [{ "internalType": "address", "name": "oldClaimer", "type": "address" }],
           "name": "removeClaimer",
@@ -438,7 +458,13 @@
           "stateMutability": "nonpayable",
           "type": "function"
         },
-        { "inputs": [], "name": "renounceOwnership", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
+        {
+          "inputs": [],
+          "name": "renounceOwnership",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
         {
           "inputs": [],
           "name": "symbol",
@@ -453,7 +479,13 @@
           "stateMutability": "view",
           "type": "function"
         },
-        { "inputs": [], "name": "toggleRedeemsForBtc", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
+        {
+          "inputs": [],
+          "name": "toggleRedeemsForBtc",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
         {
           "inputs": [],
           "name": "totalSupply",
@@ -489,7 +521,13 @@
           "stateMutability": "nonpayable",
           "type": "function"
         },
-        { "inputs": [], "name": "unpause", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
+        {
+          "inputs": [],
+          "name": "unpause",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
         {
           "anonymous": false,
           "inputs": [
@@ -521,7 +559,12 @@
         {
           "anonymous": false,
           "inputs": [
-            { "indexed": true, "internalType": "bytes32", "name": "payloadHash", "type": "bytes32" },
+            {
+              "indexed": true,
+              "internalType": "bytes32",
+              "name": "payloadHash",
+              "type": "bytes32"
+            },
             { "indexed": false, "internalType": "bytes", "name": "payload", "type": "bytes" }
           ],
           "name": "BatchMintSkipped",
@@ -584,7 +627,9 @@
         },
         {
           "anonymous": false,
-          "inputs": [{ "indexed": false, "internalType": "uint64", "name": "version", "type": "uint64" }],
+          "inputs": [
+            { "indexed": false, "internalType": "uint64", "name": "version", "type": "uint64" }
+          ],
           "name": "Initialized",
           "type": "event"
         },
@@ -592,7 +637,12 @@
           "anonymous": false,
           "inputs": [
             { "indexed": true, "internalType": "address", "name": "recipient", "type": "address" },
-            { "indexed": true, "internalType": "bytes32", "name": "payloadHash", "type": "bytes32" },
+            {
+              "indexed": true,
+              "internalType": "bytes32",
+              "name": "payloadHash",
+              "type": "bytes32"
+            },
             { "indexed": false, "internalType": "bytes", "name": "payload", "type": "bytes" }
           ],
           "name": "MintProofConsumed",
@@ -619,7 +669,12 @@
         {
           "anonymous": false,
           "inputs": [
-            { "indexed": true, "internalType": "address", "name": "previousOperator", "type": "address" },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "previousOperator",
+              "type": "address"
+            },
             { "indexed": true, "internalType": "address", "name": "newOperator", "type": "address" }
           ],
           "name": "OperatorRoleTransferred",
@@ -628,7 +683,12 @@
         {
           "anonymous": false,
           "inputs": [
-            { "indexed": true, "internalType": "address", "name": "previousOwner", "type": "address" },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "previousOwner",
+              "type": "address"
+            },
             { "indexed": true, "internalType": "address", "name": "newOwner", "type": "address" }
           ],
           "name": "OwnershipTransferStarted",
@@ -637,7 +697,12 @@
         {
           "anonymous": false,
           "inputs": [
-            { "indexed": true, "internalType": "address", "name": "previousOwner", "type": "address" },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "previousOwner",
+              "type": "address"
+            },
             { "indexed": true, "internalType": "address", "name": "newOwner", "type": "address" }
           ],
           "name": "OwnershipTransferred",
@@ -645,14 +710,21 @@
         },
         {
           "anonymous": false,
-          "inputs": [{ "indexed": false, "internalType": "address", "name": "account", "type": "address" }],
+          "inputs": [
+            { "indexed": false, "internalType": "address", "name": "account", "type": "address" }
+          ],
           "name": "Paused",
           "type": "event"
         },
         {
           "anonymous": false,
           "inputs": [
-            { "indexed": true, "internalType": "address", "name": "previousPauser", "type": "address" },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "previousPauser",
+              "type": "address"
+            },
             { "indexed": true, "internalType": "address", "name": "newPauser", "type": "address" }
           ],
           "name": "PauserRoleTransferred",
@@ -706,23 +778,40 @@
         },
         {
           "anonymous": false,
-          "inputs": [{ "indexed": false, "internalType": "address", "name": "account", "type": "address" }],
+          "inputs": [
+            { "indexed": false, "internalType": "address", "name": "account", "type": "address" }
+          ],
           "name": "Unpaused",
           "type": "event"
         }
       ],
-      "deployments": [{ "chainId": "11155111", "address": "0x731eFa688F3679688cf60A3993b8658138953ED6" }]
+      "deployments": [
+        { "chainId": "11155111", "address": "0x731eFa688F3679688cf60A3993b8658138953ED6" }
+      ]
     }
   },
-  "metadata": { "owner": "Lombard", "info": { "legalName": "Lombard Finance", "url": "https://www.lombard.finance/" } },
+  "metadata": {
+    "owner": "Lombard",
+    "info": { "legalName": "Lombard Finance", "url": "https://www.lombard.finance/" }
+  },
   "display": {
     "formats": {
       "0x095ea7b3": {
         "$id": "approve",
         "intent": "Approve",
         "fields": [
-          { "path": "value", "label": "Amount to Approve", "format": "tokenAmount", "params": { "tokenPath": "@.to" } },
-          { "path": "spender", "label": "Spender", "format": "addressName", "params": { "types": ["eoa", "contract"] } }
+          {
+            "path": "value",
+            "label": "Amount to Approve",
+            "format": "tokenAmount",
+            "params": { "tokenPath": "@.to" }
+          },
+          {
+            "path": "spender",
+            "label": "Spender",
+            "format": "addressName",
+            "params": { "types": ["eoa", "contract"] }
+          }
         ],
         "required": ["value", "spender", "@.to"],
         "excluded": []
@@ -730,14 +819,24 @@
       "0x42966c68": {
         "$id": "burn",
         "intent": "Burn",
-        "fields": [{ "path": "amount", "label": "Amount to Burn", "format": "tokenAmount", "params": { "tokenPath": "@.to" } }],
+        "fields": [
+          {
+            "path": "amount",
+            "label": "Amount to Burn",
+            "format": "tokenAmount",
+            "params": { "tokenPath": "@.to" }
+          }
+        ],
         "required": ["amount", "@.to"],
         "excluded": []
       },
       "0x6bc63893": {
         "$id": "mint",
         "intent": "Mint",
-        "fields": [{ "path": "rawPayload", "label": "Payload", "format": "raw" }, { "path": "proof", "label": "Proof", "format": "raw" }],
+        "fields": [
+          { "path": "rawPayload", "label": "Payload", "format": "raw" },
+          { "path": "proof", "label": "Proof", "format": "raw" }
+        ],
         "required": ["rawPayload", "proof"],
         "excluded": []
       },
@@ -745,10 +844,30 @@
         "$id": "permit",
         "intent": "Permit",
         "fields": [
-          { "path": "owner", "label": "Owner", "format": "addressName", "params": { "types": ["eoa", "wallet"] } },
-          { "path": "spender", "label": "Spender", "format": "addressName", "params": { "types": ["eoa", "wallet", "contract"] } },
-          { "path": "value", "label": "Allowance", "format": "tokenAmount", "params": { "tokenPath": "@.to" } },
-          { "path": "deadline", "label": "Valid Until", "format": "date", "params": { "encoding": "timestamp" } }
+          {
+            "path": "owner",
+            "label": "Owner",
+            "format": "addressName",
+            "params": { "types": ["eoa", "wallet"] }
+          },
+          {
+            "path": "spender",
+            "label": "Spender",
+            "format": "addressName",
+            "params": { "types": ["eoa", "wallet", "contract"] }
+          },
+          {
+            "path": "value",
+            "label": "Allowance",
+            "format": "tokenAmount",
+            "params": { "tokenPath": "@.to" }
+          },
+          {
+            "path": "deadline",
+            "label": "Valid Until",
+            "format": "date",
+            "params": { "encoding": "timestamp" }
+          }
         ],
         "required": ["owner", "spender", "value", "@.to"],
         "excluded": ["v", "r", "s"]
@@ -756,7 +875,14 @@
       "0xdb006a75": {
         "$id": "redeem",
         "intent": "Redeem",
-        "fields": [{ "path": "amount", "label": "Amount to Redeem", "format": "tokenAmount", "params": { "tokenPath": "@.to" } }],
+        "fields": [
+          {
+            "path": "amount",
+            "label": "Amount to Redeem",
+            "format": "tokenAmount",
+            "params": { "tokenPath": "@.to" }
+          }
+        ],
         "required": ["amount", "@.to"],
         "excluded": []
       },
@@ -764,7 +890,12 @@
         "$id": "redeemForBtc",
         "intent": "Redeem BTC",
         "fields": [
-          { "path": "amount", "label": "Amount to Burn", "format": "tokenAmount", "params": { "tokenPath": "@.to" } },
+          {
+            "path": "amount",
+            "label": "Amount to Burn",
+            "format": "tokenAmount",
+            "params": { "tokenPath": "@.to" }
+          },
           { "path": "scriptPubkey", "label": "ScriptPubKey (BTC)", "format": "raw" }
         ],
         "required": ["amount", "scriptPubkey", "@.to"],
@@ -774,8 +905,18 @@
         "$id": "transfer(address,uint256)",
         "intent": "Send",
         "fields": [
-          { "path": "value", "label": "Amount to Send", "format": "tokenAmount", "params": { "tokenPath": "@.to" } },
-          { "path": "to", "label": "Recipient", "format": "addressName", "params": { "types": ["eoa", "wallet"] } }
+          {
+            "path": "value",
+            "label": "Amount to Send",
+            "format": "tokenAmount",
+            "params": { "tokenPath": "@.to" }
+          },
+          {
+            "path": "to",
+            "label": "Recipient",
+            "format": "addressName",
+            "params": { "types": ["eoa", "wallet"] }
+          }
         ],
         "required": ["value", "to", "@.to"],
         "excluded": []
@@ -784,9 +925,24 @@
         "$id": "transferFrom",
         "intent": "Transfer",
         "fields": [
-          { "path": "value", "label": "Amount to Send", "format": "tokenAmount", "params": { "tokenPath": "@.to" } },
-          { "path": "from", "label": "From", "format": "addressName", "params": { "types": ["eoa", "wallet"] } },
-          { "path": "to", "label": "Recipient", "format": "addressName", "params": { "types": ["eoa", "wallet"] } }
+          {
+            "path": "value",
+            "label": "Amount to Send",
+            "format": "tokenAmount",
+            "params": { "tokenPath": "@.to" }
+          },
+          {
+            "path": "from",
+            "label": "From",
+            "format": "addressName",
+            "params": { "types": ["eoa", "wallet"] }
+          },
+          {
+            "path": "to",
+            "label": "Recipient",
+            "format": "addressName",
+            "params": { "types": ["eoa", "wallet"] }
+          }
         ],
         "required": ["value", "from", "to", "@.to"],
         "excluded": []

@@ -42,7 +42,10 @@
       ]
     }
   },
-  "metadata": { "owner": "Ledger", "info": { "url": "https://www.ledger.com", "legalName": "Ledger Multisig" } },
+  "metadata": {
+    "owner": "Ledger",
+    "info": { "url": "https://www.ledger.com", "legalName": "Ledger Multisig" }
+  },
   "display": {
     "formats": {
       "0x1a833ee3": {

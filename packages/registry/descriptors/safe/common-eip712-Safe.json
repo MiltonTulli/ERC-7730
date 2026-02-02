@@ -93,9 +93,7 @@
               { "name": "chainId", "type": "uint256" },
               { "name": "verifyingContract", "type": "address" }
             ],
-            "AuthentAddressBook": [
-              { "name": "totp", "type": "uint256" }
-            ]
+            "AuthentAddressBook": [{ "name": "totp", "type": "uint256" }]
           }
         },
         {

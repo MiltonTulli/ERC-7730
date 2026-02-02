@@ -10,5 +10,9 @@
       "vaultTicker": "9SUSDC11Core"
     }
   },
-  "context": { "contract": { "deployments": [{ "chainId": 1, "address": "0x1E2aAaDcF528b9cC08F43d4fd7db488cE89F5741" }] } }
+  "context": {
+    "contract": {
+      "deployments": [{ "chainId": 1, "address": "0x1E2aAaDcF528b9cC08F43d4fd7db488cE89F5741" }]
+    }
+  }
 }

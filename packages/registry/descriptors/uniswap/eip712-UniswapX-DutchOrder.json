@@ -41,7 +41,10 @@
               { "name": "deadline", "type": "uint256" },
               { "name": "witness", "type": "DutchOrder" }
             ],
-            "TokenPermissions": [{ "name": "token", "type": "address" }, { "name": "amount", "type": "uint256" }]
+            "TokenPermissions": [
+              { "name": "token", "type": "address" },
+              { "name": "amount", "type": "uint256" }
+            ]
           },
           "primaryType": "PermitWitnessTransferFrom"
         }
@@ -69,11 +72,21 @@
           {
             "path": "witness.outputs.[]",
             "fields": [
-              { "path": "endAmount", "label": "Minimum amounts to receive", "format": "tokenAmount", "params": { "tokenPath": "token" } },
+              {
+                "path": "endAmount",
+                "label": "Minimum amounts to receive",
+                "format": "tokenAmount",
+                "params": { "tokenPath": "token" }
+              },
               { "path": "recipient", "label": "On Addresses", "format": "raw" }
             ]
           },
-          { "path": "deadline", "label": "Approval expire", "format": "date", "params": { "encoding": "timestamp" } }
+          {
+            "path": "deadline",
+            "label": "Approval expire",
+            "format": "date",
+            "params": { "encoding": "timestamp" }
+          }
         ],
         "excluded": [
           "nonce",

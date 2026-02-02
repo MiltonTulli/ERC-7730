@@ -1,8 +1,16 @@
 {
   "$schema": "../../specs/erc7730-v1.schema.json",
   "includes": "common-KilnVaults.json",
-  "context": { "contract": { "deployments": [{ "chainId": 8453, "address": "0xb3E9C49d7E18bda41B5806b66f79a09aFD7AD369" }] } },
+  "context": {
+    "contract": {
+      "deployments": [{ "chainId": 8453, "address": "0xb3E9C49d7E18bda41B5806b66f79a09aFD7AD369" }]
+    }
+  },
   "metadata": {
-    "constants": { "underlyingToken": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", "underlyingTicker": "USDC", "vaultTicker": "lmMgUSDC" }
+    "constants": {
+      "underlyingToken": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "underlyingTicker": "USDC",
+      "vaultTicker": "lmMgUSDC"
+    }
   }
 }

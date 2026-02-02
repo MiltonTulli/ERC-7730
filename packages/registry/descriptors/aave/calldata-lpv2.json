@@ -13,7 +13,11 @@
   },
   "metadata": {
     "owner": "Aave",
-    "info": { "url": "https://aave.com", "legalName": "Aave DAO", "deploymentDate": "2020-11-30T09:25:48Z" },
+    "info": {
+      "url": "https://aave.com",
+      "legalName": "Aave DAO",
+      "deploymentDate": "2020-11-30T09:25:48Z"
+    },
     "enums": { "interestRateMode": { "1": "stable", "2": "variable" } },
     "constants": { "max": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff" }
   },
@@ -27,7 +31,11 @@
             "path": "amount",
             "format": "tokenAmount",
             "label": "Amount to repay",
-            "params": { "tokenPath": "asset", "threshold": "$.metadata.constants.max", "message": "All" }
+            "params": {
+              "tokenPath": "asset",
+              "threshold": "$.metadata.constants.max",
+              "message": "All"
+            }
           },
           {
             "path": "rateMode",
@@ -64,7 +72,11 @@
             "path": "amount",
             "format": "tokenAmount",
             "label": "Amount to withdraw",
-            "params": { "tokenPath": "asset", "threshold": "$.metadata.constants.max", "message": "Max" }
+            "params": {
+              "tokenPath": "asset",
+              "threshold": "$.metadata.constants.max",
+              "message": "Max"
+            }
           },
           {
             "path": "to",
@@ -96,7 +108,12 @@
       "borrow(address,uint256,uint256,uint16,address)": {
         "intent": "Borrow",
         "fields": [
-          { "path": "amount", "format": "tokenAmount", "label": "Amount to borrow", "params": { "tokenPath": "asset" } },
+          {
+            "path": "amount",
+            "format": "tokenAmount",
+            "label": "Amount to borrow",
+            "params": { "tokenPath": "asset" }
+          },
           {
             "path": "interestRateMode",
             "format": "enum",
@@ -116,7 +133,12 @@
         "$id": "deposit",
         "intent": "Supply",
         "fields": [
-          { "path": "amount", "format": "tokenAmount", "label": "Amount to supply", "params": { "tokenPath": "asset" } },
+          {
+            "path": "amount",
+            "format": "tokenAmount",
+            "label": "Amount to supply",
+            "params": { "tokenPath": "asset" }
+          },
           {
             "path": "onBehalfOf",
             "format": "addressName",

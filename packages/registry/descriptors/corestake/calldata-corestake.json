@@ -17,14 +17,24 @@
           "stateMutability": "nonpayable",
           "type": "function"
         },
-        { "outputs": [], "inputs": [], "name": "withdraw", "stateMutability": "nonpayable", "type": "function" }
+        {
+          "outputs": [],
+          "inputs": [],
+          "name": "withdraw",
+          "stateMutability": "nonpayable",
+          "type": "function"
+        }
       ],
       "deployments": [{ "chainId": 1116, "address": "0xf5fA1728bABc3f8D2a617397faC2696c958C3409" }]
     }
   },
   "metadata": {
     "owner": "CoreDAO",
-    "info": { "legalName": "CoreDAO Earn Contract", "url": "https://coredao.org/", "deploymentDate": "2025-02-24T02:55:15Z" }
+    "info": {
+      "legalName": "CoreDAO Earn Contract",
+      "url": "https://coredao.org/",
+      "deploymentDate": "2025-02-24T02:55:15Z"
+    }
   },
   "display": {
     "formats": {

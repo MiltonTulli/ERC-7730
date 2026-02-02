@@ -11,8 +11,26 @@
         {
           "type": "function",
           "name": "osTokenPositions",
-          "inputs": [{ "name": "user", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null }],
-          "outputs": [{ "name": "shares", "type": "uint128", "internalType": "uint128", "components": null, "indexed": null, "unit": null }],
+          "inputs": [
+            {
+              "name": "user",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
+          "outputs": [
+            {
+              "name": "shares",
+              "type": "uint128",
+              "internalType": "uint128",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -23,9 +41,25 @@
           "type": "function",
           "name": "burnOsToken",
           "inputs": [
-            { "name": "osTokenShares", "type": "uint128", "internalType": "uint128", "components": null, "indexed": null, "unit": null }
+            {
+              "name": "osTokenShares",
+              "type": "uint128",
+              "internalType": "uint128",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
-          "outputs": [{ "name": "assets", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "assets",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "nonpayable",
           "constant": null,
           "payable": null,
@@ -36,11 +70,41 @@
           "type": "function",
           "name": "mintOsToken",
           "inputs": [
-            { "name": "receiver", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null },
-            { "name": "osTokenShares", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null },
-            { "name": "referrer", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null }
+            {
+              "name": "receiver",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "osTokenShares",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "referrer",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
-          "outputs": [{ "name": "assets", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "assets",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "nonpayable",
           "constant": null,
           "payable": null,
@@ -50,8 +114,26 @@
         {
           "type": "function",
           "name": "convertToAssets",
-          "inputs": [{ "name": "shares", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }],
-          "outputs": [{ "name": "assets", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }],
+          "inputs": [
+            {
+              "name": "shares",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
+          "outputs": [
+            {
+              "name": "assets",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -71,7 +153,16 @@
               "unit": null
             }
           ],
-          "outputs": [{ "name": "", "type": "int256", "internalType": "int256", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "int256",
+              "internalType": "int256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -82,7 +173,14 @@
           "type": "function",
           "name": "calculateExitedAssets",
           "inputs": [
-            { "name": "receiver", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null },
+            {
+              "name": "receiver",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
             {
               "name": "positionTicket",
               "type": "uint256",
@@ -91,7 +189,14 @@
               "indexed": null,
               "unit": null
             },
-            { "name": "timestamp", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null },
+            {
+              "name": "timestamp",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
             {
               "name": "exitQueueIndex",
               "type": "uint256",
@@ -102,9 +207,30 @@
             }
           ],
           "outputs": [
-            { "name": "leftTickets", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null },
-            { "name": "exitedTickets", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null },
-            { "name": "exitedAssets", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }
+            {
+              "name": "leftTickets",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "exitedTickets",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "exitedAssets",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
           "stateMutability": "view",
           "constant": null,
@@ -124,7 +250,14 @@
               "indexed": null,
               "unit": null
             },
-            { "name": "timestamp", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null },
+            {
+              "name": "timestamp",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
             {
               "name": "exitQueueIndex",
               "type": "uint256",
@@ -143,8 +276,22 @@
               "indexed": null,
               "unit": null
             },
-            { "name": "claimedShares", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null },
-            { "name": "claimedAssets", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }
+            {
+              "name": "claimedShares",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "claimedAssets",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
           "stateMutability": "nonpayable",
           "constant": null,
@@ -156,23 +303,66 @@
           "type": "function",
           "name": "updateStateAndDeposit",
           "inputs": [
-            { "name": "receiver", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null },
-            { "name": "referrer", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null },
+            {
+              "name": "receiver",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "referrer",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
             {
               "name": "harvestParams",
               "type": "tuple",
               "internalType": "struct IKeeperRewards.HarvestParams",
               "components": [
-                { "name": "rewardsRoot", "type": "bytes32", "internalType": "bytes32", "components": null },
-                { "name": "reward", "type": "int160", "internalType": "int160", "components": null },
-                { "name": "unlockedMevReward", "type": "uint160", "internalType": "uint160", "components": null },
-                { "name": "proof", "type": "bytes32[]", "internalType": "bytes32[]", "components": null }
+                {
+                  "name": "rewardsRoot",
+                  "type": "bytes32",
+                  "internalType": "bytes32",
+                  "components": null
+                },
+                {
+                  "name": "reward",
+                  "type": "int160",
+                  "internalType": "int160",
+                  "components": null
+                },
+                {
+                  "name": "unlockedMevReward",
+                  "type": "uint160",
+                  "internalType": "uint160",
+                  "components": null
+                },
+                {
+                  "name": "proof",
+                  "type": "bytes32[]",
+                  "internalType": "bytes32[]",
+                  "components": null
+                }
               ],
               "indexed": null,
               "unit": null
             }
           ],
-          "outputs": [{ "name": "shares", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "shares",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "payable",
           "constant": null,
           "payable": null,
@@ -183,10 +373,33 @@
           "type": "function",
           "name": "deposit",
           "inputs": [
-            { "name": "receiver", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null },
-            { "name": "referrer", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null }
+            {
+              "name": "receiver",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "referrer",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
-          "outputs": [{ "name": "shares", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "shares",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "payable",
           "constant": null,
           "payable": null,
@@ -196,8 +409,26 @@
         {
           "type": "function",
           "name": "convertToShares",
-          "inputs": [{ "name": "assets", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }],
-          "outputs": [{ "name": "shares", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }],
+          "inputs": [
+            {
+              "name": "assets",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
+          "outputs": [
+            {
+              "name": "shares",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -208,8 +439,22 @@
           "type": "function",
           "name": "enterExitQueue",
           "inputs": [
-            { "name": "shares", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null },
-            { "name": "receiver", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null }
+            {
+              "name": "shares",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "receiver",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
           "outputs": [
             {
@@ -231,10 +476,33 @@
           "type": "function",
           "name": "redeem",
           "inputs": [
-            { "name": "shares", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null },
-            { "name": "receiver", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null }
+            {
+              "name": "shares",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "receiver",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
-          "outputs": [{ "name": "assets", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "assets",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "nonpayable",
           "constant": null,
           "payable": null,
@@ -264,8 +532,26 @@
         {
           "type": "function",
           "name": "multicall",
-          "inputs": [{ "name": "data", "type": "bytes[]", "internalType": "bytes[]", "components": null, "indexed": null, "unit": null }],
-          "outputs": [{ "name": "results", "type": "bytes[]", "internalType": "bytes[]", "components": null, "indexed": null, "unit": null }],
+          "inputs": [
+            {
+              "name": "data",
+              "type": "bytes[]",
+              "internalType": "bytes[]",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
+          "outputs": [
+            {
+              "name": "results",
+              "type": "bytes[]",
+              "internalType": "bytes[]",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "nonpayable",
           "constant": null,
           "payable": null,
@@ -275,8 +561,26 @@
         {
           "type": "function",
           "name": "getShares",
-          "inputs": [{ "name": "account", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null }],
-          "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }],
+          "inputs": [
+            {
+              "name": "account",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -292,10 +596,30 @@
               "type": "tuple",
               "internalType": "struct IKeeperRewards.HarvestParams",
               "components": [
-                { "name": "rewardsRoot", "type": "bytes32", "internalType": "bytes32", "components": null },
-                { "name": "reward", "type": "int160", "internalType": "int160", "components": null },
-                { "name": "unlockedMevReward", "type": "uint160", "internalType": "uint160", "components": null },
-                { "name": "proof", "type": "bytes32[]", "internalType": "bytes32[]", "components": null }
+                {
+                  "name": "rewardsRoot",
+                  "type": "bytes32",
+                  "internalType": "bytes32",
+                  "components": null
+                },
+                {
+                  "name": "reward",
+                  "type": "int160",
+                  "internalType": "int160",
+                  "components": null
+                },
+                {
+                  "name": "unlockedMevReward",
+                  "type": "uint160",
+                  "internalType": "uint160",
+                  "components": null
+                },
+                {
+                  "name": "proof",
+                  "type": "bytes32[]",
+                  "internalType": "bytes32[]",
+                  "components": null
+                }
               ],
               "indexed": null,
               "unit": null
@@ -332,7 +656,14 @@
           "type": "function",
           "name": "setFeeRecipient",
           "inputs": [
-            { "name": "_feeRecipient", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null }
+            {
+              "name": "_feeRecipient",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
           "outputs": [],
           "stateMutability": "nonpayable",
@@ -345,7 +676,16 @@
           "type": "function",
           "name": "admin",
           "inputs": [],
-          "outputs": [{ "name": "", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -356,7 +696,16 @@
           "type": "function",
           "name": "keysManager",
           "inputs": [],
-          "outputs": [{ "name": "", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -367,7 +716,14 @@
           "type": "function",
           "name": "setKeysManager",
           "inputs": [
-            { "name": "_keysManager", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null }
+            {
+              "name": "_keysManager",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
           "outputs": [],
           "stateMutability": "nonpayable",
@@ -380,7 +736,16 @@
           "type": "function",
           "name": "version",
           "inputs": [],
-          "outputs": [{ "name": "", "type": "uint8", "internalType": "uint8", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint8",
+              "internalType": "uint8",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "pure",
           "constant": null,
           "payable": null,
@@ -391,7 +756,16 @@
           "type": "function",
           "name": "vaultId",
           "inputs": [],
-          "outputs": [{ "name": "", "type": "bytes32", "internalType": "bytes32", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "bytes32",
+              "internalType": "bytes32",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "pure",
           "constant": null,
           "payable": null,
@@ -410,7 +784,14 @@
               "indexed": null,
               "unit": null
             },
-            { "name": "data", "type": "bytes", "internalType": "bytes", "components": null, "indexed": null, "unit": null }
+            {
+              "name": "data",
+              "type": "bytes",
+              "internalType": "bytes",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
           "outputs": [],
           "stateMutability": "payable",
@@ -444,7 +825,10 @@
       "factory": null
     }
   },
-  "metadata": { "owner": "p2p", "info": { "legalName": "P2P Staking", "url": "https://www.p2p.org/" } },
+  "metadata": {
+    "owner": "p2p",
+    "info": { "legalName": "P2P Staking", "url": "https://www.p2p.org/" }
+  },
   "display": {
     "formats": {
       "deposit(address,address)": {
@@ -468,7 +852,14 @@
             "path": "#.referrer",
             "value": null
           },
-          { "$id": null, "label": "Amount to deposit", "format": "amount", "params": null, "path": "@.value", "value": null }
+          {
+            "$id": null,
+            "label": "Amount to deposit",
+            "format": "amount",
+            "params": null,
+            "path": "@.value",
+            "value": null
+          }
         ],
         "required": ["#.receiver", "#.referrer", "@.value"],
         "excluded": null
@@ -494,7 +885,14 @@
             "path": "#.referrer",
             "value": null
           },
-          { "$id": null, "label": "Amount to deposit", "format": "amount", "params": null, "path": "@.value", "value": null }
+          {
+            "$id": null,
+            "label": "Amount to deposit",
+            "format": "amount",
+            "params": null,
+            "path": "@.value",
+            "value": null
+          }
         ],
         "required": ["#.receiver", "#.referrer", "@.value"],
         "excluded": [
@@ -527,7 +925,14 @@
         "intent": "Exit funds",
         "screens": null,
         "fields": [
-          { "$id": null, "label": "Amount to exit", "format": "amount", "params": null, "path": "#.shares", "value": null },
+          {
+            "$id": null,
+            "label": "Amount to exit",
+            "format": "amount",
+            "params": null,
+            "path": "#.shares",
+            "value": null
+          },
           {
             "$id": null,
             "label": "Client address",

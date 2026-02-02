@@ -3,7 +3,11 @@
   "context": {
     "eip712": {
       "deployments": [{ "chainId": 1, "address": "0xb66a603f4cfe17e3d27b87a8bfcad319856518b8" }],
-      "domain": { "name": "Rarible", "chainId": 1, "verifyingContract": "0xb66a603f4cfe17e3d27b87a8bfcad319856518b8" },
+      "domain": {
+        "name": "Rarible",
+        "chainId": 1,
+        "verifyingContract": "0xb66a603f4cfe17e3d27b87a8bfcad319856518b8"
+      },
       "schemas": [
         {
           "primaryType": "Mint1155",
@@ -15,7 +19,10 @@
               { "name": "creators", "type": "Part[]" },
               { "name": "royalties", "type": "Part[]" }
             ],
-            "Part": [{ "name": "account", "type": "address" }, { "name": "value", "type": "uint96" }]
+            "Part": [
+              { "name": "account", "type": "address" },
+              { "name": "value", "type": "uint96" }
+            ]
           }
         }
       ]
@@ -33,7 +40,11 @@
           { "path": "creators.[].account", "label": "Creator account address", "format": "raw" },
           { "path": "creators.[].value", "label": "Creator value (10000 = 100%)", "format": "raw" },
           { "path": "royalties.[].account", "label": "Royalties account address", "format": "raw" },
-          { "path": "royalties.[].value", "label": "Royalties value (10000 = 100%)", "format": "raw" }
+          {
+            "path": "royalties.[].value",
+            "label": "Royalties value (10000 = 100%)",
+            "format": "raw"
+          }
         ]
       }
     }

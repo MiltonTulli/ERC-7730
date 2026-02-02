@@ -11,22 +11,24 @@
  * And saves them to our local registry maintaining the same structure.
  */
 
-import { writeFile, mkdir } from 'fs/promises';
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
+import { mkdir, writeFile } from 'node:fs/promises';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DESCRIPTORS_DIR = join(__dirname, '..', 'descriptors');
 
-const GITHUB_API = 'https://api.github.com/repos/LedgerHQ/clear-signing-erc7730-registry/contents/registry';
-const RAW_BASE = 'https://raw.githubusercontent.com/LedgerHQ/clear-signing-erc7730-registry/master/registry';
+const GITHUB_API =
+  'https://api.github.com/repos/LedgerHQ/clear-signing-erc7730-registry/contents/registry';
+const RAW_BASE =
+  'https://raw.githubusercontent.com/LedgerHQ/clear-signing-erc7730-registry/master/registry';
 
 async function fetchJson(url) {
   const response = await fetch(url, {
     headers: {
-      'Accept': 'application/json',
-      'User-Agent': 'erc7730-sdk'
-    }
+      Accept: 'application/json',
+      'User-Agent': 'erc7730-sdk',
+    },
   });
 
   if (!response.ok) {
@@ -39,8 +41,8 @@ async function fetchJson(url) {
 async function fetchRaw(url) {
   const response = await fetch(url, {
     headers: {
-      'User-Agent': 'erc7730-sdk'
-    }
+      'User-Agent': 'erc7730-sdk',
+    },
   });
 
   if (!response.ok) {
@@ -93,14 +95,13 @@ async function importFromLedger() {
       }
 
       // Rate limiting - be nice to GitHub
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
     }
 
     console.log(`\n✅ Imported ${imported} descriptors`);
     if (failed > 0) {
       console.log(`⚠️  Failed: ${failed}`);
     }
-
   } catch (err) {
     console.error('Failed to import from Ledger:', err.message);
     process.exit(1);

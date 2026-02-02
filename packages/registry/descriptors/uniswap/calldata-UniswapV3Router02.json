@@ -9,7 +9,11 @@
   },
   "metadata": {
     "owner": "Uniswap",
-    "info": { "legalName": "Uniswap Labs", "deploymentDate": "2021-12-14T00:00:00Z", "url": "https://uniswap.org/" }
+    "info": {
+      "legalName": "Uniswap Labs",
+      "deploymentDate": "2021-12-14T00:00:00Z",
+      "url": "https://uniswap.org/"
+    }
   },
   "display": {
     "formats": {
@@ -42,14 +46,24 @@
         "$id": "exactInputSingle",
         "intent": "swap",
         "fields": [
-          { "path": "params.amountIn", "label": "Send", "format": "tokenAmount", "params": { "tokenPath": "params.tokenIn" } },
+          {
+            "path": "params.amountIn",
+            "label": "Send",
+            "format": "tokenAmount",
+            "params": { "tokenPath": "params.tokenIn" }
+          },
           {
             "path": "params.amountOutMinimum",
             "label": "Receive Minimum",
             "format": "tokenAmount",
             "params": { "tokenPath": "params.tokenOut" }
           },
-          { "path": "params.fee", "label": "Uniswap fee", "format": "unit", "params": { "decimals": 4, "base": "%", "prefix": false } },
+          {
+            "path": "params.fee",
+            "label": "Uniswap fee",
+            "format": "unit",
+            "params": { "decimals": 4, "base": "%", "prefix": false }
+          },
           {
             "path": "params.recipient",
             "label": "Beneficiary",
@@ -100,7 +114,12 @@
             "format": "tokenAmount",
             "params": { "tokenPath": "params.tokenOut" }
           },
-          { "path": "params.fee", "label": "Uniswap fee", "format": "unit", "params": { "decimals": 4, "base": "%", "prefix": false } },
+          {
+            "path": "params.fee",
+            "label": "Uniswap fee",
+            "format": "unit",
+            "params": { "decimals": 4, "base": "%", "prefix": false }
+          },
           {
             "path": "params.recipient",
             "label": "Beneficiary",
@@ -113,7 +132,12 @@
         "$id": "swapExactTokensForTokens",
         "intent": "Swap",
         "fields": [
-          { "path": "amountIn", "label": "Amount to Send", "format": "tokenAmount", "params": { "tokenPath": "path.[0]" } },
+          {
+            "path": "amountIn",
+            "label": "Amount to Send",
+            "format": "tokenAmount",
+            "params": { "tokenPath": "path.[0]" }
+          },
           {
             "path": "amountOutMin",
             "label": "Minimum amount to Receive",
@@ -132,8 +156,18 @@
         "$id": "swapTokensForExactTokens",
         "intent": "Swap",
         "fields": [
-          { "path": "amountOut", "label": "Amount to Receive", "format": "tokenAmount", "params": { "tokenPath": "path.[-1]" } },
-          { "path": "amountInMax", "label": "Maximum Amount to Send", "format": "tokenAmount", "params": { "tokenPath": "path.[0]" } },
+          {
+            "path": "amountOut",
+            "label": "Amount to Receive",
+            "format": "tokenAmount",
+            "params": { "tokenPath": "path.[-1]" }
+          },
+          {
+            "path": "amountInMax",
+            "label": "Maximum Amount to Send",
+            "format": "tokenAmount",
+            "params": { "tokenPath": "path.[0]" }
+          },
           {
             "path": "to",
             "label": "Recipient",

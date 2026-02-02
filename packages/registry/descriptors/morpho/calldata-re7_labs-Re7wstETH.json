@@ -10,5 +10,9 @@
       "vaultTicker": "Re7wstETH"
     }
   },
-  "context": { "contract": { "deployments": [{ "chainId": 1, "address": "0xE87ed29896B91421ff43f69257ABF78300e40c7a" }] } }
+  "context": {
+    "contract": {
+      "deployments": [{ "chainId": 1, "address": "0xE87ed29896B91421ff43f69257ABF78300e40c7a" }]
+    }
+  }
 }

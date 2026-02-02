@@ -10,10 +10,10 @@
  * 4. Removes sourcemaps to reduce package size
  */
 
-import { readFile, writeFile, rm, readdir } from 'fs/promises';
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
-import { execSync } from 'child_process';
+import { execSync } from 'node:child_process';
+import { readFile, readdir, rm, writeFile } from 'node:fs/promises';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
@@ -61,7 +61,7 @@ function minifyDescriptor(descriptor) {
     minified.context = {
       contract: {
         deployments: descriptor.context.contract.deployments,
-      }
+      },
     };
   }
 
@@ -88,8 +88,8 @@ function minifyRegistry(registry) {
   const minified = {
     stats: registry.stats,
     bySelector: registry.bySelector, // Keep references as-is
-    byAddress: registry.byAddress,   // Keep references as-is
-    descriptors: {},                  // Minify descriptors
+    byAddress: registry.byAddress, // Keep references as-is
+    descriptors: {}, // Minify descriptors
   };
 
   // Minify each descriptor
@@ -110,7 +110,9 @@ async function build() {
   console.log('Loading registry...');
   const registryContent = await readFile(REGISTRY_JSON, 'utf-8');
   const registry = JSON.parse(registryContent);
-  console.log(`  ✓ Loaded ${registry.stats.descriptors} descriptors from ${registry.stats.protocols} protocols`);
+  console.log(
+    `  ✓ Loaded ${registry.stats.descriptors} descriptors from ${registry.stats.protocols} protocols`
+  );
 
   // Minify the registry
   console.log('\nMinifying registry (removing ABIs)...');
@@ -118,7 +120,9 @@ async function build() {
   const originalSize = JSON.stringify(registry).length;
   const minifiedSize = JSON.stringify(minifiedRegistry).length;
   const reduction = ((1 - minifiedSize / originalSize) * 100).toFixed(1);
-  console.log(`  ✓ Reduced from ${(originalSize / 1024).toFixed(0)}KB to ${(minifiedSize / 1024).toFixed(0)}KB (${reduction}% smaller)`);
+  console.log(
+    `  ✓ Reduced from ${(originalSize / 1024).toFixed(0)}KB to ${(minifiedSize / 1024).toFixed(0)}KB (${reduction}% smaller)`
+  );
 
   // Generate the embedded registry module (minified JSON, no pretty print)
   console.log('\nGenerating embedded registry...');
@@ -164,7 +168,7 @@ export default EMBEDDED_REGISTRY;
   console.log('\n✅ Build complete!');
 }
 
-build().catch(err => {
+build().catch((err) => {
   console.error('Build failed:', err);
   process.exit(1);
 });

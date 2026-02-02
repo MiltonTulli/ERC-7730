@@ -108,7 +108,10 @@
             { "internalType": "uint256", "name": "_decimals", "type": "uint256" }
           ],
           "name": "fractionMulExp",
-          "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }, { "internalType": "uint256", "name": "", "type": "uint256" }],
+          "outputs": [
+            { "internalType": "uint256", "name": "", "type": "uint256" },
+            { "internalType": "uint256", "name": "", "type": "uint256" }
+          ],
           "stateMutability": "view",
           "type": "function"
         },
@@ -157,7 +160,10 @@
         {
           "inputs": [],
           "name": "getGroupLockedGoldRequirements",
-          "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }, { "internalType": "uint256", "name": "", "type": "uint256" }],
+          "outputs": [
+            { "internalType": "uint256", "name": "", "type": "uint256" },
+            { "internalType": "uint256", "name": "", "type": "uint256" }
+          ],
           "stateMutability": "view",
           "type": "function"
         },
@@ -308,7 +314,10 @@
         {
           "inputs": [],
           "name": "getValidatorLockedGoldRequirements",
-          "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }, { "internalType": "uint256", "name": "", "type": "uint256" }],
+          "outputs": [
+            { "internalType": "uint256", "name": "", "type": "uint256" },
+            { "internalType": "uint256", "name": "", "type": "uint256" }
+          ],
           "stateMutability": "view",
           "type": "function"
         },
@@ -379,12 +388,22 @@
             { "internalType": "uint256", "name": "groupRequirementValue", "type": "uint256" },
             { "internalType": "uint256", "name": "groupRequirementDuration", "type": "uint256" },
             { "internalType": "uint256", "name": "validatorRequirementValue", "type": "uint256" },
-            { "internalType": "uint256", "name": "validatorRequirementDuration", "type": "uint256" },
+            {
+              "internalType": "uint256",
+              "name": "validatorRequirementDuration",
+              "type": "uint256"
+            },
             { "internalType": "uint256", "name": "_membershipHistoryLength", "type": "uint256" },
-            { "internalType": "uint256", "name": "_slashingMultiplierResetPeriod", "type": "uint256" },
+            {
+              "internalType": "uint256",
+              "name": "_slashingMultiplierResetPeriod",
+              "type": "uint256"
+            },
             { "internalType": "uint256", "name": "_maxGroupSize", "type": "uint256" },
             {
-              "components": [{ "internalType": "uint256", "name": "commissionUpdateDelay", "type": "uint256" }],
+              "components": [
+                { "internalType": "uint256", "name": "commissionUpdateDelay", "type": "uint256" }
+              ],
               "internalType": "struct Validators.InitParams",
               "name": "initParams",
               "type": "tuple"
@@ -514,7 +533,13 @@
           "stateMutability": "nonpayable",
           "type": "function"
         },
-        { "inputs": [], "name": "renounceOwnership", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
+        {
+          "inputs": [],
+          "name": "renounceOwnership",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
         {
           "inputs": [
             { "internalType": "address", "name": "validator", "type": "address" },
@@ -526,7 +551,13 @@
           "stateMutability": "nonpayable",
           "type": "function"
         },
-        { "inputs": [], "name": "resetSlashingMultiplier", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
+        {
+          "inputs": [],
+          "name": "resetSlashingMultiplier",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
         {
           "inputs": [{ "internalType": "uint256", "name": "delay", "type": "uint256" }],
           "name": "setCommissionUpdateDelay",
@@ -603,7 +634,13 @@
           "stateMutability": "nonpayable",
           "type": "function"
         },
-        { "inputs": [], "name": "updateCommission", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
+        {
+          "inputs": [],
+          "name": "updateCommission",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
         {
           "inputs": [
             { "internalType": "address", "name": "account", "type": "address" },
@@ -651,7 +688,9 @@
         },
         {
           "anonymous": false,
-          "inputs": [{ "indexed": false, "internalType": "uint256", "name": "delay", "type": "uint256" }],
+          "inputs": [
+            { "indexed": false, "internalType": "uint256", "name": "delay", "type": "uint256" }
+          ],
           "name": "CommissionUpdateDelaySet",
           "type": "event"
         },
@@ -666,20 +705,29 @@
         },
         {
           "anonymous": false,
-          "inputs": [{ "indexed": false, "internalType": "uint256", "name": "size", "type": "uint256" }],
+          "inputs": [
+            { "indexed": false, "internalType": "uint256", "name": "size", "type": "uint256" }
+          ],
           "name": "MaxGroupSizeSet",
           "type": "event"
         },
         {
           "anonymous": false,
-          "inputs": [{ "indexed": false, "internalType": "uint256", "name": "length", "type": "uint256" }],
+          "inputs": [
+            { "indexed": false, "internalType": "uint256", "name": "length", "type": "uint256" }
+          ],
           "name": "MembershipHistoryLengthSet",
           "type": "event"
         },
         {
           "anonymous": false,
           "inputs": [
-            { "indexed": true, "internalType": "address", "name": "previousOwner", "type": "address" },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "previousOwner",
+              "type": "address"
+            },
             { "indexed": true, "internalType": "address", "name": "newOwner", "type": "address" }
           ],
           "name": "OwnershipTransferred",
@@ -687,7 +735,14 @@
         },
         {
           "anonymous": false,
-          "inputs": [{ "indexed": true, "internalType": "address", "name": "registryAddress", "type": "address" }],
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "registryAddress",
+              "type": "address"
+            }
+          ],
           "name": "RegistrySet",
           "type": "event"
         },
@@ -711,7 +766,9 @@
         },
         {
           "anonymous": false,
-          "inputs": [{ "indexed": true, "internalType": "address", "name": "validator", "type": "address" }],
+          "inputs": [
+            { "indexed": true, "internalType": "address", "name": "validator", "type": "address" }
+          ],
           "name": "ValidatorDeregistered",
           "type": "event"
         },
@@ -728,8 +785,18 @@
           "anonymous": false,
           "inputs": [
             { "indexed": true, "internalType": "address", "name": "group", "type": "address" },
-            { "indexed": false, "internalType": "uint256", "name": "commission", "type": "uint256" },
-            { "indexed": false, "internalType": "uint256", "name": "activationBlock", "type": "uint256" }
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "commission",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "activationBlock",
+              "type": "uint256"
+            }
           ],
           "name": "ValidatorGroupCommissionUpdateQueued",
           "type": "event"
@@ -745,7 +812,9 @@
         },
         {
           "anonymous": false,
-          "inputs": [{ "indexed": true, "internalType": "address", "name": "group", "type": "address" }],
+          "inputs": [
+            { "indexed": true, "internalType": "address", "name": "group", "type": "address" }
+          ],
           "name": "ValidatorGroupDeregistered",
           "type": "event"
         },
@@ -796,7 +865,9 @@
         },
         {
           "anonymous": false,
-          "inputs": [{ "indexed": true, "internalType": "address", "name": "validator", "type": "address" }],
+          "inputs": [
+            { "indexed": true, "internalType": "address", "name": "validator", "type": "address" }
+          ],
           "name": "ValidatorRegistered",
           "type": "event"
         }
@@ -807,13 +878,23 @@
       ]
     }
   },
-  "metadata": { "owner": "Celo Governance", "info": { "legalName": "Celo", "url": "https://celo.org/" } },
+  "metadata": {
+    "owner": "Celo Governance",
+    "info": { "legalName": "Celo", "url": "https://celo.org/" }
+  },
   "display": {
     "formats": {
       "0x3173b8db": {
         "$id": "addFirstMember",
         "intent": "Add Member",
-        "fields": [{ "path": "validator", "label": "Validator", "format": "addressName", "params": { "types": ["eoa", "contract"] } }],
+        "fields": [
+          {
+            "path": "validator",
+            "label": "Validator",
+            "format": "addressName",
+            "params": { "types": ["eoa", "contract"] }
+          }
+        ],
         "required": ["validator"],
         "excluded": ["lesser", "greater"]
       },
@@ -848,7 +929,14 @@
       "0xfffdfccb": {
         "$id": "deaffiliate",
         "intent": "Deaffiliate",
-        "fields": [{ "path": "@.from", "label": "Validator Account", "format": "addressName", "params": { "types": ["eoa"] } }],
+        "fields": [
+          {
+            "path": "@.from",
+            "label": "Validator Account",
+            "format": "addressName",
+            "params": { "types": ["eoa"] }
+          }
+        ],
         "required": ["@.from"],
         "excluded": []
       },
@@ -884,7 +972,14 @@
       "0xee098310": {
         "$id": "registerValidatorGroup",
         "intent": "Register Group",
-        "fields": [{ "path": "commission", "label": "Commission", "format": "unit", "params": { "base": "%", "decimals": 22 } }],
+        "fields": [
+          {
+            "path": "commission",
+            "label": "Commission",
+            "format": "unit",
+            "params": { "base": "%", "decimals": 22 }
+          }
+        ],
         "required": ["commission"],
         "excluded": []
       },
@@ -898,7 +993,14 @@
       "0x0b1ca49a": {
         "$id": "removeMember",
         "intent": "Remove Member",
-        "fields": [{ "path": "validator", "label": "Validator", "format": "addressName", "params": { "types": ["eoa", "contract"] } }],
+        "fields": [
+          {
+            "path": "validator",
+            "label": "Validator",
+            "format": "addressName",
+            "params": { "types": ["eoa", "contract"] }
+          }
+        ],
         "required": ["validator"],
         "excluded": []
       },
@@ -932,8 +1034,17 @@
         "$id": "resetSlashingMultiplier",
         "intent": "Reset Slashing",
         "fields": [
-          { "path": "@.from", "label": "Signer", "format": "addressName", "params": { "types": ["eoa"] } },
-          { "value": "Resets group's slashing multiplier to 1 if reset period has passed", "label": "Effect", "format": "raw" }
+          {
+            "path": "@.from",
+            "label": "Signer",
+            "format": "addressName",
+            "params": { "types": ["eoa"] }
+          },
+          {
+            "value": "Resets group's slashing multiplier to 1 if reset period has passed",
+            "label": "Effect",
+            "format": "raw"
+          }
         ],
         "required": ["@.from"],
         "excluded": []

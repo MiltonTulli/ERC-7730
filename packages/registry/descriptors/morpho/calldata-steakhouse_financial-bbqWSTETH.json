@@ -10,5 +10,9 @@
       "vaultTicker": "bbqWSTETH"
     }
   },
-  "context": { "contract": { "deployments": [{ "chainId": 1, "address": "0x833AdaeF212c5cD3f78906B44bBfb18258F238F0" }] } }
+  "context": {
+    "contract": {
+      "deployments": [{ "chainId": 1, "address": "0x833AdaeF212c5cD3f78906B44bBfb18258F238F0" }]
+    }
+  }
 }

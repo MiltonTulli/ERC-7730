@@ -10,5 +10,9 @@
       "vaultTicker": "llama-crvUSD"
     }
   },
-  "context": { "contract": { "deployments": [{ "chainId": 1, "address": "0x67315dd969B8Cd3a3520C245837Bf71f54579C75" }] } }
+  "context": {
+    "contract": {
+      "deployments": [{ "chainId": 1, "address": "0x67315dd969B8Cd3a3520C245837Bf71f54579C75" }]
+    }
+  }
 }

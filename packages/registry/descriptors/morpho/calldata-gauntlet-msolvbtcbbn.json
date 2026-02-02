@@ -10,5 +10,9 @@
       "vaultTicker": "msolvbtcbbn"
     }
   },
-  "context": { "contract": { "deployments": [{ "chainId": 1, "address": "0xdBB316375B4dC992B2c8827D120c09dFB1d3455D" }] } }
+  "context": {
+    "contract": {
+      "deployments": [{ "chainId": 1, "address": "0xdBB316375B4dC992B2c8827D120c09dFB1d3455D" }]
+    }
+  }
 }

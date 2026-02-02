@@ -76,7 +76,13 @@
           "outputs": [{ "name": "", "type": "bool", "internalType": "bool" }],
           "stateMutability": "nonpayable"
         },
-        { "type": "function", "name": "deposit", "inputs": [], "outputs": [], "stateMutability": "payable" },
+        {
+          "type": "function",
+          "name": "deposit",
+          "inputs": [],
+          "outputs": [],
+          "stateMutability": "payable"
+        },
         {
           "type": "function",
           "name": "depositViaDepositManager",
@@ -108,7 +114,13 @@
         {
           "type": "function",
           "name": "initialize",
-          "inputs": [{ "name": "_accessControlManager", "type": "address", "internalType": "contract IAccessControlManager" }],
+          "inputs": [
+            {
+              "name": "_accessControlManager",
+              "type": "address",
+              "internalType": "contract IAccessControlManager"
+            }
+          ],
           "outputs": [],
           "stateMutability": "nonpayable"
         },
@@ -133,35 +145,61 @@
         {
           "type": "function",
           "name": "setMaximumRepriceDifferencePercentage",
-          "inputs": [{ "name": "_maximumRepriceDifferencePercentage", "type": "uint256", "internalType": "uint256" }],
+          "inputs": [
+            {
+              "name": "_maximumRepriceDifferencePercentage",
+              "type": "uint256",
+              "internalType": "uint256"
+            }
+          ],
           "outputs": [],
           "stateMutability": "nonpayable"
         },
         {
           "type": "function",
           "name": "setMaximumRepriceRswETHDifferencePercentage",
-          "inputs": [{ "name": "_maximumRepriceRswETHDifferencePercentage", "type": "uint256", "internalType": "uint256" }],
+          "inputs": [
+            {
+              "name": "_maximumRepriceRswETHDifferencePercentage",
+              "type": "uint256",
+              "internalType": "uint256"
+            }
+          ],
           "outputs": [],
           "stateMutability": "nonpayable"
         },
         {
           "type": "function",
           "name": "setSwellTreasuryRewardPercentage",
-          "inputs": [{ "name": "_newSwellTreasuryRewardPercentage", "type": "uint256", "internalType": "uint256" }],
+          "inputs": [
+            {
+              "name": "_newSwellTreasuryRewardPercentage",
+              "type": "uint256",
+              "internalType": "uint256"
+            }
+          ],
           "outputs": [],
           "stateMutability": "nonpayable"
         },
         {
           "type": "function",
           "name": "setNodeOperatorRewardPercentage",
-          "inputs": [{ "name": "_newNodeOperatorRewardPercentage", "type": "uint256", "internalType": "uint256" }],
+          "inputs": [
+            {
+              "name": "_newNodeOperatorRewardPercentage",
+              "type": "uint256",
+              "internalType": "uint256"
+            }
+          ],
           "outputs": [],
           "stateMutability": "nonpayable"
         },
         {
           "type": "function",
           "name": "setMinimumRepriceTime",
-          "inputs": [{ "name": "_minimumRepriceTime", "type": "uint256", "internalType": "uint256" }],
+          "inputs": [
+            { "name": "_minimumRepriceTime", "type": "uint256", "internalType": "uint256" }
+          ],
           "outputs": [],
           "stateMutability": "nonpayable"
         },
@@ -205,23 +243,59 @@
     "formats": {
       "addToWhitelist(address)": {
         "intent": "Add to whitelist a single address",
-        "fields": [{ "label": "Address", "format": "addressName", "params": { "types": ["wallet", "eoa", "contract"] }, "path": "#._address" }]
+        "fields": [
+          {
+            "label": "Address",
+            "format": "addressName",
+            "params": { "types": ["wallet", "eoa", "contract"] },
+            "path": "#._address"
+          }
+        ]
       },
       "allowance(address,address)": {
         "intent": "Remaining number of tokens that `spender` will be allowed to spend",
         "fields": [
-          { "label": "Owner", "format": "addressName", "params": { "types": ["eoa", "wallet"] }, "path": "#.owner" },
-          { "label": "Spender", "format": "addressName", "params": { "types": ["contract"] }, "path": "#.spender" }
+          {
+            "label": "Owner",
+            "format": "addressName",
+            "params": { "types": ["eoa", "wallet"] },
+            "path": "#.owner"
+          },
+          {
+            "label": "Spender",
+            "format": "addressName",
+            "params": { "types": ["contract"] },
+            "path": "#.spender"
+          }
         ]
       },
       "approve(address,uint256)": {
         "intent": "Sets `amount` as the allowance of `spender` over the caller's tokens",
         "fields": [
-          { "label": "Spender", "format": "addressName", "params": { "types": ["contract"] }, "path": "#.spender" },
-          { "label": "Amount", "format": "tokenAmount", "path": "amount", "params": { "token": "$.metadata.constants.swellToken" } }
+          {
+            "label": "Spender",
+            "format": "addressName",
+            "params": { "types": ["contract"] },
+            "path": "#.spender"
+          },
+          {
+            "label": "Amount",
+            "format": "tokenAmount",
+            "path": "amount",
+            "params": { "token": "$.metadata.constants.swellToken" }
+          }
         ]
       },
-      "balanceOf(address)": { "fields": [{ "label": "Account", "format": "addressName", "params": { "types": ["eoa", "wallet"] }, "path": "#.account" }] },
+      "balanceOf(address)": {
+        "fields": [
+          {
+            "label": "Account",
+            "format": "addressName",
+            "params": { "types": ["eoa", "wallet"] },
+            "path": "#.account"
+          }
+        ]
+      },
       "batchAddToWhitelist(address[])": {
         "intent": "Add to whitelist several addresses",
         "fields": [
@@ -244,11 +318,18 @@
           }
         ]
       },
-      "burn(uint256)": { "fields": [{ "label": "Amount", "format": "amount", "path": "#.amount" }] },
+      "burn(uint256)": {
+        "fields": [{ "label": "Amount", "format": "amount", "path": "#.amount" }]
+      },
       "decreaseAllowance(address,uint256)": {
         "intent": "Decrease allowance",
         "fields": [
-          { "label": "Spender", "format": "addressName", "params": { "types": ["contract"] }, "path": "#.spender" },
+          {
+            "label": "Spender",
+            "format": "addressName",
+            "params": { "types": ["contract"] },
+            "path": "#.spender"
+          },
           { "label": "Subtracted Value", "format": "amount", "path": "#.subtractedValue" }
         ]
       },
@@ -256,18 +337,35 @@
         "intent": "Deposit via Deposit Manager",
         "fields": [
           { "label": "Amount", "format": "amount", "path": "#._amount" },
-          { "label": "To", "format": "addressName", "params": { "types": ["eoa", "wallet"] }, "path": "#._to" },
+          {
+            "label": "To",
+            "format": "addressName",
+            "params": { "types": ["eoa", "wallet"] },
+            "path": "#._to"
+          },
           { "label": "Min Rsw ETH", "format": "raw", "path": "#._minRswETH" }
         ]
       },
       "depositWithReferral(address)": {
         "intent": "Deposit with referral",
-        "fields": [{ "label": "Referral", "format": "addressName", "params": { "types": ["wallet", "eoa", "contract"] }, "path": "#.referral" }]
+        "fields": [
+          {
+            "label": "Referral",
+            "format": "addressName",
+            "params": { "types": ["wallet", "eoa", "contract"] },
+            "path": "#.referral"
+          }
+        ]
       },
       "increaseAllowance(address,uint256)": {
         "intent": "Increase allowance",
         "fields": [
-          { "label": "Spender", "format": "addressName", "params": { "types": ["contract"] }, "path": "#.spender" },
+          {
+            "label": "Spender",
+            "format": "addressName",
+            "params": { "types": ["contract"] },
+            "path": "#.spender"
+          },
           { "label": "Added Value", "format": "amount", "path": "#.addedValue" }
         ]
       },
@@ -284,19 +382,36 @@
       },
       "removeFromWhitelist(address)": {
         "intent": "Remove from whitelist a single address",
-        "fields": [{ "label": "Address", "format": "addressName", "params": { "types": ["wallet", "eoa", "contract"] }, "path": "#._address" }]
+        "fields": [
+          {
+            "label": "Address",
+            "format": "addressName",
+            "params": { "types": ["wallet", "eoa", "contract"] },
+            "path": "#._address"
+          }
+        ]
       },
       "reprice(uint256,uint256,uint256)": {
         "intent": "Reprice",
         "fields": [
-          { "label": "Pre Reward ETH Reserves", "format": "raw", "path": "#._preRewardETHReserves" },
+          {
+            "label": "Pre Reward ETH Reserves",
+            "format": "raw",
+            "path": "#._preRewardETHReserves"
+          },
           { "label": "New ETH Rewards", "format": "raw", "path": "#._newETHRewards" },
           { "label": "Rsw ETH Total Supply", "format": "raw", "path": "#._rswETHTotalSupply" }
         ]
       },
       "setMaximumRepriceDifferencePercentage(uint256)": {
         "intent": "Set maximum reprice difference percentage",
-        "fields": [{ "label": "Maximum Reprice Difference Percentage", "format": "amount", "path": "#._maximumRepriceDifferencePercentage" }]
+        "fields": [
+          {
+            "label": "Maximum Reprice Difference Percentage",
+            "format": "amount",
+            "path": "#._maximumRepriceDifferencePercentage"
+          }
+        ]
       },
       "setMaximumRepriceRswETHDifferencePercentage(uint256)": {
         "intent": "Set maximum reprice difference percentage in rsweth",
@@ -311,33 +426,84 @@
       "setMinimumRepriceTime(uint256)": {
         "intent": "Set minimum reprice time",
         "fields": [
-          { "label": "Minimum Reprice Time", "format": "date", "params": { "encoding": "timestamp" }, "path": "#._minimumRepriceTime" }
+          {
+            "label": "Minimum Reprice Time",
+            "format": "date",
+            "params": { "encoding": "timestamp" },
+            "path": "#._minimumRepriceTime"
+          }
         ]
       },
       "setNodeOperatorRewardPercentage(uint256)": {
         "intent": "Set node operator reward percentage",
-        "fields": [{ "label": "New Node Operator Reward Percentage", "format": "raw", "path": "#._newNodeOperatorRewardPercentage" }]
+        "fields": [
+          {
+            "label": "New Node Operator Reward Percentage",
+            "format": "raw",
+            "path": "#._newNodeOperatorRewardPercentage"
+          }
+        ]
       },
       "setSwellTreasuryRewardPercentage(uint256)": {
         "intent": "Set swell treasury reward percentage",
-        "fields": [{ "label": "New Swell Treasury Reward Percentage", "format": "raw", "path": "#._newSwellTreasuryRewardPercentage" }]
+        "fields": [
+          {
+            "label": "New Swell Treasury Reward Percentage",
+            "format": "raw",
+            "path": "#._newSwellTreasuryRewardPercentage"
+          }
+        ]
       },
       "transfer(address,uint256)": {
         "intent": "Moves `amount` tokens from the caller's account to `to`",
         "fields": [
-          { "label": "To", "format": "addressName", "params": { "types": ["eoa", "wallet"] }, "path": "#.to" },
-          { "label": "Amount", "format": "tokenAmount", "path": "amount", "params": { "token": "$.metadata.constants.swellToken" } }
+          {
+            "label": "To",
+            "format": "addressName",
+            "params": { "types": ["eoa", "wallet"] },
+            "path": "#.to"
+          },
+          {
+            "label": "Amount",
+            "format": "tokenAmount",
+            "path": "amount",
+            "params": { "token": "$.metadata.constants.swellToken" }
+          }
         ]
       },
       "transferFrom(address,address,uint256)": {
         "intent": "Moves `amount` tokens from `from` to `to` using the allowance mechanism",
         "fields": [
-          { "label": "From", "format": "addressName", "params": { "types": ["eoa", "wallet"] }, "path": "#.from" },
-          { "label": "To", "format": "addressName", "params": { "types": ["eoa", "wallet"] }, "path": "#.to" },
-          { "label": "Amount", "format": "tokenAmount", "path": "amount", "params": { "token": "$.metadata.constants.swellToken" } }
+          {
+            "label": "From",
+            "format": "addressName",
+            "params": { "types": ["eoa", "wallet"] },
+            "path": "#.from"
+          },
+          {
+            "label": "To",
+            "format": "addressName",
+            "params": { "types": ["eoa", "wallet"] },
+            "path": "#.to"
+          },
+          {
+            "label": "Amount",
+            "format": "tokenAmount",
+            "path": "amount",
+            "params": { "token": "$.metadata.constants.swellToken" }
+          }
         ]
       },
-      "withdrawERC20(address)": { "fields": [{ "label": "Token", "format": "addressName", "params": { "types": ["token"] }, "path": "#._token" }] }
+      "withdrawERC20(address)": {
+        "fields": [
+          {
+            "label": "Token",
+            "format": "addressName",
+            "params": { "types": ["token"] },
+            "path": "#._token"
+          }
+        ]
+      }
     }
   }
 }

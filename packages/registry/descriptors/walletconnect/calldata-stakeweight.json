@@ -87,7 +87,13 @@
           "stateMutability": "nonpayable",
           "type": "function"
         },
-        { "inputs": [], "name": "withdrawAll", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
+        {
+          "inputs": [],
+          "name": "withdrawAll",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
         {
           "inputs": [{ "internalType": "address", "name": "user", "type": "address" }],
           "name": "withdrawAllFor",
@@ -109,7 +115,13 @@
           "stateMutability": "nonpayable",
           "type": "function"
         },
-        { "inputs": [], "name": "checkpoint", "outputs": [], "stateMutability": "nonpayable", "type": "function" }
+        {
+          "inputs": [],
+          "name": "checkpoint",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        }
       ]
     }
   },
@@ -132,14 +144,24 @@
             "format": "tokenAmount",
             "params": { "token": "0xeF4461891DfB3AC8572cCf7C794664A8DD927945" }
           },
-          { "path": "unlockTime", "label": "Unlock Time", "format": "date", "params": { "encoding": "timestamp" } }
+          {
+            "path": "unlockTime",
+            "label": "Unlock Time",
+            "format": "date",
+            "params": { "encoding": "timestamp" }
+          }
         ],
         "required": ["amount", "unlockTime"]
       },
       "depositFor(address,uint256)": {
         "intent": "Deposit tokens for a period for a given address",
         "fields": [
-          { "path": "for_", "label": "For", "format": "addressName", "params": { "types": ["eoa"], "sources": ["local", "ens"] } },
+          {
+            "path": "for_",
+            "label": "For",
+            "format": "addressName",
+            "params": { "types": ["eoa"], "sources": ["local", "ens"] }
+          },
           {
             "path": "amount",
             "label": "Amount",
@@ -163,7 +185,14 @@
       },
       "increaseUnlockTime(uint256)": {
         "intent": "Increase Unlock Time",
-        "fields": [{ "path": "newUnlockTime", "label": "New Unlock Time", "format": "date", "params": { "encoding": "timestamp" } }],
+        "fields": [
+          {
+            "path": "newUnlockTime",
+            "label": "New Unlock Time",
+            "format": "date",
+            "params": { "encoding": "timestamp" }
+          }
+        ],
         "required": ["newUnlockTime"]
       },
       "updateLock(uint256,uint256)": {
@@ -175,7 +204,12 @@
             "format": "tokenAmount",
             "params": { "token": "0xeF4461891DfB3AC8572cCf7C794664A8DD927945" }
           },
-          { "path": "unlockTime", "label": "Unlock Time", "format": "date", "params": { "encoding": "timestamp" } }
+          {
+            "path": "unlockTime",
+            "label": "Unlock Time",
+            "format": "date",
+            "params": { "encoding": "timestamp" }
+          }
         ],
         "required": ["amount", "unlockTime"]
       },

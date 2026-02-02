@@ -21,7 +21,14 @@
       ]
     }
   },
-  "metadata": { "owner": "Aave", "info": { "url": "https://aave.com", "legalName": "Aave DAO", "deploymentDate": "2025-02-11T01:19:11Z" } },
+  "metadata": {
+    "owner": "Aave",
+    "info": {
+      "url": "https://aave.com",
+      "legalName": "Aave DAO",
+      "deploymentDate": "2025-02-11T01:19:11Z"
+    }
+  },
   "display": {
     "formats": {
       "depositETH(address undefined, address onBehalfOf, uint16 referralCode)": {
@@ -89,7 +96,12 @@
         "intent": "Borrow",
         "fields": [
           { "path": "amount", "format": "amount", "label": "Amount to borrow" },
-          { "path": "@.from", "format": "addressName", "label": "Debtor", "params": { "types": ["eoa"], "sources": ["local", "ens"] } }
+          {
+            "path": "@.from",
+            "format": "addressName",
+            "label": "Debtor",
+            "params": { "types": ["eoa"], "sources": ["local", "ens"] }
+          }
         ],
         "required": ["amount"],
         "excluded": ["undefined", "referralCode"]

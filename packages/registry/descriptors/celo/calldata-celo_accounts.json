@@ -132,9 +132,14 @@
         },
         {
           "constant": true,
-          "inputs": [{ "internalType": "address[]", "name": "accountsToQuery", "type": "address[]" }],
+          "inputs": [
+            { "internalType": "address[]", "name": "accountsToQuery", "type": "address[]" }
+          ],
           "name": "batchGetMetadataURL",
-          "outputs": [{ "internalType": "uint256[]", "name": "", "type": "uint256[]" }, { "internalType": "bytes", "name": "", "type": "bytes" }],
+          "outputs": [
+            { "internalType": "uint256[]", "name": "", "type": "uint256[]" },
+            { "internalType": "bytes", "name": "", "type": "bytes" }
+          ],
           "payable": false,
           "stateMutability": "view",
           "type": "function"
@@ -254,7 +259,10 @@
           "constant": true,
           "inputs": [{ "internalType": "address", "name": "account", "type": "address" }],
           "name": "getOffchainStorageRoots",
-          "outputs": [{ "internalType": "bytes", "name": "", "type": "bytes" }, { "internalType": "uint256[]", "name": "", "type": "uint256[]" }],
+          "outputs": [
+            { "internalType": "bytes", "name": "", "type": "bytes" },
+            { "internalType": "uint256[]", "name": "", "type": "uint256[]" }
+          ],
           "payable": false,
           "stateMutability": "view",
           "type": "function"
@@ -263,7 +271,10 @@
           "constant": true,
           "inputs": [{ "internalType": "address", "name": "account", "type": "address" }],
           "name": "getPaymentDelegation",
-          "outputs": [{ "internalType": "address", "name": "", "type": "address" }, { "internalType": "uint256", "name": "", "type": "uint256" }],
+          "outputs": [
+            { "internalType": "address", "name": "", "type": "address" },
+            { "internalType": "uint256", "name": "", "type": "uint256" }
+          ],
           "payable": false,
           "stateMutability": "view",
           "type": "function"
@@ -508,7 +519,10 @@
         },
         {
           "constant": true,
-          "inputs": [{ "internalType": "address", "name": "", "type": "address" }, { "internalType": "uint256", "name": "", "type": "uint256" }],
+          "inputs": [
+            { "internalType": "address", "name": "", "type": "address" },
+            { "internalType": "uint256", "name": "", "type": "uint256" }
+          ],
           "name": "offchainStorageRoots",
           "outputs": [{ "internalType": "bytes", "name": "", "type": "bytes" }],
           "payable": false,
@@ -745,7 +759,9 @@
         },
         {
           "anonymous": false,
-          "inputs": [{ "indexed": true, "internalType": "address", "name": "account", "type": "address" }],
+          "inputs": [
+            { "indexed": true, "internalType": "address", "name": "account", "type": "address" }
+          ],
           "name": "AccountCreated",
           "type": "event"
         },
@@ -753,7 +769,12 @@
           "anonymous": false,
           "inputs": [
             { "indexed": true, "internalType": "address", "name": "account", "type": "address" },
-            { "indexed": false, "internalType": "bytes", "name": "dataEncryptionKey", "type": "bytes" }
+            {
+              "indexed": false,
+              "internalType": "bytes",
+              "name": "dataEncryptionKey",
+              "type": "bytes"
+            }
           ],
           "name": "AccountDataEncryptionKeySet",
           "type": "event"
@@ -780,7 +801,12 @@
           "anonymous": false,
           "inputs": [
             { "indexed": true, "internalType": "address", "name": "account", "type": "address" },
-            { "indexed": false, "internalType": "address", "name": "walletAddress", "type": "address" }
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "walletAddress",
+              "type": "address"
+            }
           ],
           "name": "AccountWalletAddressSet",
           "type": "event"
@@ -885,7 +911,12 @@
         {
           "anonymous": false,
           "inputs": [
-            { "indexed": true, "internalType": "address", "name": "previousOwner", "type": "address" },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "previousOwner",
+              "type": "address"
+            },
             { "indexed": true, "internalType": "address", "name": "newOwner", "type": "address" }
           ],
           "name": "OwnershipTransferred",
@@ -894,7 +925,12 @@
         {
           "anonymous": false,
           "inputs": [
-            { "indexed": true, "internalType": "address", "name": "beneficiary", "type": "address" },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "beneficiary",
+              "type": "address"
+            },
             { "indexed": false, "internalType": "uint256", "name": "fraction", "type": "uint256" }
           ],
           "name": "PaymentDelegationSet",
@@ -902,7 +938,14 @@
         },
         {
           "anonymous": false,
-          "inputs": [{ "indexed": true, "internalType": "address", "name": "registryAddress", "type": "address" }],
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "registryAddress",
+              "type": "address"
+            }
+          ],
           "name": "RegistrySet",
           "type": "event"
         },
@@ -989,7 +1032,10 @@
       ]
     }
   },
-  "metadata": { "owner": "Celo Governance", "info": { "legalName": "Celo", "url": "https://celo.org/" } },
+  "metadata": {
+    "owner": "Celo Governance",
+    "info": { "legalName": "Celo", "url": "https://celo.org/" }
+  },
   "display": {
     "formats": {
       "0xb062c843": {
@@ -1038,7 +1084,12 @@
         "$id": "authorizeSignerWithSignature",
         "intent": "Authorize Signer",
         "fields": [
-          { "path": "signer", "label": "Signer", "format": "addressName", "params": { "types": ["eoa"], "sources": ["local", "ens"] } },
+          {
+            "path": "signer",
+            "label": "Signer",
+            "format": "addressName",
+            "params": { "types": ["eoa"], "sources": ["local", "ens"] }
+          },
           { "path": "role", "label": "Role", "format": "raw" }
         ],
         "required": ["signer", "role"],
@@ -1148,7 +1199,12 @@
         "$id": "removeDefaultSigner",
         "intent": "Remove Signer",
         "fields": [
-          { "path": "@.from", "label": "Account", "format": "addressName", "params": { "types": ["eoa"], "sources": ["local", "ens"] } },
+          {
+            "path": "@.from",
+            "label": "Account",
+            "format": "addressName",
+            "params": { "types": ["eoa"], "sources": ["local", "ens"] }
+          },
           { "path": "role", "label": "Role", "format": "raw" }
         ],
         "required": ["@.from", "role"],
@@ -1181,7 +1237,12 @@
         "intent": "Remove Root",
         "fields": [
           { "path": "index", "label": "Storage Root Index", "format": "raw" },
-          { "path": "@.from", "label": "Account", "format": "addressName", "params": { "types": ["eoa"], "sources": ["local", "ens"] } }
+          {
+            "path": "@.from",
+            "label": "Account",
+            "format": "addressName",
+            "params": { "types": ["eoa"], "sources": ["local", "ens"] }
+          }
         ],
         "required": ["index", "@.from"],
         "excluded": []
@@ -1204,7 +1265,12 @@
         "$id": "removeVoteSigner",
         "intent": "Remove Vote Signer",
         "fields": [
-          { "path": "@.from", "label": "Account", "format": "addressName", "params": { "types": ["eoa"], "sources": ["local", "ens"] } }
+          {
+            "path": "@.from",
+            "label": "Account",
+            "format": "addressName",
+            "params": { "types": ["eoa"], "sources": ["local", "ens"] }
+          }
         ],
         "required": ["@.from"],
         "excluded": []
@@ -1233,7 +1299,12 @@
             "format": "addressName",
             "params": { "types": ["wallet", "eoa", "contract"], "sources": ["ens", "local"] }
           },
-          { "path": "fraction", "label": "Fraction", "format": "unit", "params": { "base": "%", "decimals": 22 } }
+          {
+            "path": "fraction",
+            "label": "Fraction",
+            "format": "unit",
+            "params": { "base": "%", "decimals": 22 }
+          }
         ],
         "required": ["beneficiary", "fraction"],
         "excluded": []

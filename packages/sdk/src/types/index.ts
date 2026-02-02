@@ -52,13 +52,7 @@ export interface RegistryConfig {
 /**
  * Supported chain names for convenience methods
  */
-export type ChainName =
-  | 'ethereum'
-  | 'mainnet'
-  | 'arbitrum'
-  | 'optimism'
-  | 'base'
-  | 'polygon';
+export type ChainName = 'ethereum' | 'mainnet' | 'arbitrum' | 'optimism' | 'base' | 'polygon';
 
 /**
  * ClearSigner configuration

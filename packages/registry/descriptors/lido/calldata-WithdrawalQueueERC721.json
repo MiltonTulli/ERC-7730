@@ -53,7 +53,13 @@
           }
         ],
         "required": ["#._amounts.[]", "#._owner"],
-        "excluded": ["#._permit.value", "#._permit.deadline", "#._permit.v", "#._permit.r", "#._permit.s"]
+        "excluded": [
+          "#._permit.value",
+          "#._permit.deadline",
+          "#._permit.v",
+          "#._permit.r",
+          "#._permit.s"
+        ]
       },
       "requestWithdrawalsWstETH(uint256[],address)": {
         "intent": "Request wstETH withdrawal",

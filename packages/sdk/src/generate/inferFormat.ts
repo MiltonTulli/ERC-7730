@@ -3,7 +3,7 @@
  * Based on python-erc7730 logic
  */
 
-import type { FieldFormat, FormatParams, DateParams, AddressNameParams } from '../types/erc7730.js';
+import type { AddressNameParams, DateParams, FieldFormat, FormatParams } from '../types/erc7730.js';
 
 interface InferredFormat {
   format: FieldFormat;
@@ -44,7 +44,18 @@ export function inferFormat(name: string, type: string): InferredFormat {
         params: { types: ['token'] } as AddressNameParams,
       };
     }
-    if (containsAny(name, ['from', 'to', 'owner', 'recipient', 'receiver', 'account', 'sender', 'user'])) {
+    if (
+      containsAny(name, [
+        'from',
+        'to',
+        'owner',
+        'recipient',
+        'receiver',
+        'account',
+        'sender',
+        'user',
+      ])
+    ) {
       return {
         format: 'addressName',
         params: { types: ['eoa', 'contract'] } as AddressNameParams,
@@ -65,7 +76,18 @@ export function inferFormat(name: string, type: string): InferredFormat {
         params: { encoding: 'blockheight' } as DateParams,
       };
     }
-    if (containsAny(name, ['deadline', 'expiration', 'expiry', 'until', 'time', 'timestamp', 'validUntil', 'validAfter'])) {
+    if (
+      containsAny(name, [
+        'deadline',
+        'expiration',
+        'expiry',
+        'until',
+        'time',
+        'timestamp',
+        'validUntil',
+        'validAfter',
+      ])
+    ) {
       return {
         format: 'date',
         params: { encoding: 'timestamp' } as DateParams,

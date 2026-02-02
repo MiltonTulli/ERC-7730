@@ -186,7 +186,12 @@ export interface DecodedTransaction {
 }
 
 export interface SecurityWarning {
-  type: 'infinite_approval' | 'unusual_recipient' | 'high_value' | 'unknown_contract' | 'proxy_call';
+  type:
+    | 'infinite_approval'
+    | 'unusual_recipient'
+    | 'high_value'
+    | 'unknown_contract'
+    | 'proxy_call';
   severity: 'low' | 'medium' | 'high';
   message: string;
 }

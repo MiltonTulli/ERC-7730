@@ -177,7 +177,10 @@
             { "internalType": "uint256", "name": "_decimals", "type": "uint256" }
           ],
           "name": "fractionMulExp",
-          "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }, { "internalType": "uint256", "name": "", "type": "uint256" }],
+          "outputs": [
+            { "internalType": "uint256", "name": "", "type": "uint256" },
+            { "internalType": "uint256", "name": "", "type": "uint256" }
+          ],
           "payable": false,
           "stateMutability": "view",
           "type": "function"
@@ -273,7 +276,10 @@
           "constant": true,
           "inputs": [],
           "name": "getElectableValidators",
-          "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }, { "internalType": "uint256", "name": "", "type": "uint256" }],
+          "outputs": [
+            { "internalType": "uint256", "name": "", "type": "uint256" },
+            { "internalType": "uint256", "name": "", "type": "uint256" }
+          ],
           "payable": false,
           "stateMutability": "view",
           "type": "function"
@@ -700,7 +706,9 @@
         },
         {
           "constant": false,
-          "inputs": [{ "internalType": "uint256", "name": "_maxNumGroupsVotedFor", "type": "uint256" }],
+          "inputs": [
+            { "internalType": "uint256", "name": "_maxNumGroupsVotedFor", "type": "uint256" }
+          ],
           "name": "setMaxNumGroupsVotedFor",
           "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
           "payable": false,
@@ -792,13 +800,22 @@
         },
         {
           "anonymous": false,
-          "inputs": [{ "indexed": true, "internalType": "address", "name": "_blockedBy", "type": "address" }],
+          "inputs": [
+            { "indexed": true, "internalType": "address", "name": "_blockedBy", "type": "address" }
+          ],
           "name": "BlockedBySet",
           "type": "event"
         },
         {
           "anonymous": false,
-          "inputs": [{ "indexed": false, "internalType": "uint256", "name": "electabilityThreshold", "type": "uint256" }],
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "electabilityThreshold",
+              "type": "uint256"
+            }
+          ],
           "name": "ElectabilityThresholdSet",
           "type": "event"
         },
@@ -822,14 +839,26 @@
         },
         {
           "anonymous": false,
-          "inputs": [{ "indexed": false, "internalType": "uint256", "name": "maxNumGroupsVotedFor", "type": "uint256" }],
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "maxNumGroupsVotedFor",
+              "type": "uint256"
+            }
+          ],
           "name": "MaxNumGroupsVotedForSet",
           "type": "event"
         },
         {
           "anonymous": false,
           "inputs": [
-            { "indexed": true, "internalType": "address", "name": "previousOwner", "type": "address" },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "previousOwner",
+              "type": "address"
+            },
             { "indexed": true, "internalType": "address", "name": "newOwner", "type": "address" }
           ],
           "name": "OwnershipTransferred",
@@ -837,7 +866,14 @@
         },
         {
           "anonymous": false,
-          "inputs": [{ "indexed": true, "internalType": "address", "name": "registryAddress", "type": "address" }],
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "registryAddress",
+              "type": "address"
+            }
+          ],
           "name": "RegistrySet",
           "type": "event"
         },
@@ -854,13 +890,17 @@
         },
         {
           "anonymous": false,
-          "inputs": [{ "indexed": true, "internalType": "address", "name": "group", "type": "address" }],
+          "inputs": [
+            { "indexed": true, "internalType": "address", "name": "group", "type": "address" }
+          ],
           "name": "ValidatorGroupMarkedEligible",
           "type": "event"
         },
         {
           "anonymous": false,
-          "inputs": [{ "indexed": true, "internalType": "address", "name": "group", "type": "address" }],
+          "inputs": [
+            { "indexed": true, "internalType": "address", "name": "group", "type": "address" }
+          ],
           "name": "ValidatorGroupMarkedIneligible",
           "type": "event"
         },
@@ -902,15 +942,28 @@
       ]
     }
   },
-  "metadata": { "owner": "Celo Governance", "info": { "legalName": "Celo", "url": "https://celo.org/" } },
+  "metadata": {
+    "owner": "Celo Governance",
+    "info": { "legalName": "Celo", "url": "https://celo.org/" }
+  },
   "display": {
     "formats": {
       "0x1c5a9d9c": {
         "$id": "activate",
         "intent": "Activate",
         "fields": [
-          { "path": "group", "label": "Validator Group", "format": "addressName", "params": { "types": ["contract"] } },
-          { "path": "@.from", "label": "Vote signer", "format": "addressName", "params": { "types": ["eoa"] } }
+          {
+            "path": "group",
+            "label": "Validator Group",
+            "format": "addressName",
+            "params": { "types": ["contract"] }
+          },
+          {
+            "path": "@.from",
+            "label": "Vote signer",
+            "format": "addressName",
+            "params": { "types": ["eoa"] }
+          }
         ],
         "required": ["group", "@.from"],
         "excluded": []
@@ -919,8 +972,18 @@
         "$id": "activateForAccount",
         "intent": "Activate Votes",
         "fields": [
-          { "path": "group", "label": "Validator Group", "format": "addressName", "params": { "types": ["contract"] } },
-          { "path": "account", "label": "Account", "format": "addressName", "params": { "types": ["contract", "eoa"] } }
+          {
+            "path": "group",
+            "label": "Validator Group",
+            "format": "addressName",
+            "params": { "types": ["contract"] }
+          },
+          {
+            "path": "account",
+            "label": "Account",
+            "format": "addressName",
+            "params": { "types": ["contract", "eoa"] }
+          }
         ],
         "required": ["group", "account"],
         "excluded": []
@@ -929,7 +992,12 @@
         "$id": "revokeActive",
         "intent": "Revoke Votes",
         "fields": [
-          { "path": "group", "label": "Validator Group", "format": "addressName", "params": { "types": ["contract"] } },
+          {
+            "path": "group",
+            "label": "Validator Group",
+            "format": "addressName",
+            "params": { "types": ["contract"] }
+          },
           { "path": "value", "label": "Votes to Revoke", "format": "raw" }
         ],
         "required": ["group", "value"],
@@ -938,7 +1006,14 @@
       "0xe0a2ab52": {
         "$id": "revokeAllActive",
         "intent": "Revoke Votes",
-        "fields": [{ "path": "group", "label": "Validator Group", "format": "addressName", "params": { "types": ["contract"] } }],
+        "fields": [
+          {
+            "path": "group",
+            "label": "Validator Group",
+            "format": "addressName",
+            "params": { "types": ["contract"] }
+          }
+        ],
         "required": ["group"],
         "excluded": ["lesser", "greater", "index"]
       },
@@ -947,7 +1022,12 @@
         "intent": "Revoke Votes",
         "fields": [
           { "path": "value", "label": "Votes to Revoke", "format": "raw" },
-          { "path": "group", "label": "Validator Group", "format": "addressName", "params": { "types": ["contract"] } }
+          {
+            "path": "group",
+            "label": "Validator Group",
+            "format": "addressName",
+            "params": { "types": ["contract"] }
+          }
         ],
         "required": ["value", "group", "@.from"],
         "excluded": ["lesser", "greater", "index"]
@@ -956,7 +1036,12 @@
         "$id": "vote",
         "intent": "Vote",
         "fields": [
-          { "path": "group", "label": "Validator Group", "format": "addressName", "params": { "types": ["contract"] } },
+          {
+            "path": "group",
+            "label": "Validator Group",
+            "format": "addressName",
+            "params": { "types": ["contract"] }
+          },
           { "path": "value", "label": "Gold to Vote", "format": "raw" }
         ],
         "required": ["group", "value"],

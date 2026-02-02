@@ -55,7 +55,11 @@
                 { "name": "toAmount", "type": "uint256", "internalType": "uint256" },
                 { "name": "quotedAmount", "type": "uint256", "internalType": "uint256" },
                 { "name": "metadata", "type": "bytes32", "internalType": "bytes32" },
-                { "name": "beneficiaryAndApproveFlag", "type": "uint256", "internalType": "uint256" }
+                {
+                  "name": "beneficiaryAndApproveFlag",
+                  "type": "uint256",
+                  "internalType": "uint256"
+                }
               ]
             },
             { "name": "partnerAndFee", "type": "uint256", "internalType": "uint256" },
@@ -233,7 +237,11 @@
                 { "name": "toAmount", "type": "uint256", "internalType": "uint256" },
                 { "name": "quotedAmount", "type": "uint256", "internalType": "uint256" },
                 { "name": "metadata", "type": "bytes32", "internalType": "bytes32" },
-                { "name": "beneficiaryAndApproveFlag", "type": "uint256", "internalType": "uint256" }
+                {
+                  "name": "beneficiaryAndApproveFlag",
+                  "type": "uint256",
+                  "internalType": "uint256"
+                }
               ]
             },
             { "name": "partnerAndFee", "type": "uint256", "internalType": "uint256" },
@@ -375,25 +383,53 @@
       "sendAmount": {
         "label": "Amount to Send",
         "format": "tokenAmount",
-        "params": { "nativeCurrencyAddress": ["$.metadata.constants.addressAsEth", "$.metadata.constants.addressAsNull"] }
+        "params": {
+          "nativeCurrencyAddress": [
+            "$.metadata.constants.addressAsEth",
+            "$.metadata.constants.addressAsNull"
+          ]
+        }
       },
       "minReceiveAmount": {
         "label": "Minimum to Receive",
         "format": "tokenAmount",
-        "params": { "nativeCurrencyAddress": ["$.metadata.constants.addressAsEth", "$.metadata.constants.addressAsNull"] }
+        "params": {
+          "nativeCurrencyAddress": [
+            "$.metadata.constants.addressAsEth",
+            "$.metadata.constants.addressAsNull"
+          ]
+        }
       },
       "maxSendAmount": {
         "label": "Maximum to Send",
         "format": "tokenAmount",
-        "params": { "nativeCurrencyAddress": ["$.metadata.constants.addressAsEth", "$.metadata.constants.addressAsNull"] }
+        "params": {
+          "nativeCurrencyAddress": [
+            "$.metadata.constants.addressAsEth",
+            "$.metadata.constants.addressAsNull"
+          ]
+        }
       },
       "receiveAmount": {
         "label": "Amount to Receive",
         "format": "tokenAmount",
-        "params": { "nativeCurrencyAddress": ["$.metadata.constants.addressAsEth", "$.metadata.constants.addressAsNull"] }
+        "params": {
+          "nativeCurrencyAddress": [
+            "$.metadata.constants.addressAsEth",
+            "$.metadata.constants.addressAsNull"
+          ]
+        }
       },
-      "beneficiary": { "label": "Beneficiary", "format": "addressName", "params": { "senderAddress": "$.metadata.constants.addressAsNull" } },
-      "balancerSelector": { "format": "enum", "label": "Swap type", "params": { "$ref": "$.metadata.enums.balancerSwapType" } }
+      "beneficiary": {
+        "label": "Beneficiary",
+        "format": "addressName",
+        "params": { "senderAddress": "$.metadata.constants.addressAsNull" }
+      },
+      "balancerSelector": {
+        "format": "enum",
+        "label": "Swap type",
+        "params": { "$ref": "$.metadata.enums.balancerSwapType" }
+      }
     },
     "formats": {
       "swapExactAmountIn(address,(address,address,uint256,uint256,uint256,bytes32,address),uint256,bytes,bytes)": {
@@ -402,14 +438,35 @@
           {
             "path": "#.swapData",
             "fields": [
-              { "path": "fromAmount", "$ref": "$.display.definitions.sendAmount", "params": { "tokenPath": "srcToken" } },
-              { "path": "toAmount", "$ref": "$.display.definitions.minReceiveAmount", "params": { "tokenPath": "destToken" } },
+              {
+                "path": "fromAmount",
+                "$ref": "$.display.definitions.sendAmount",
+                "params": { "tokenPath": "srcToken" }
+              },
+              {
+                "path": "toAmount",
+                "$ref": "$.display.definitions.minReceiveAmount",
+                "params": { "tokenPath": "destToken" }
+              },
               { "path": "beneficiary", "$ref": "$.display.definitions.beneficiary" }
             ]
           }
         ],
-        "required": ["#.swapData.srcToken", "#.swapData.destToken", "#.swapData.fromAmount", "#.swapData.toAmount", "#.swapData.beneficiary"],
-        "excluded": ["#.executor", "#.permit", "#.executorData", "#.swapData.quotedAmount", "#.swapData.metadata", "#.partnerAndFee"]
+        "required": [
+          "#.swapData.srcToken",
+          "#.swapData.destToken",
+          "#.swapData.fromAmount",
+          "#.swapData.toAmount",
+          "#.swapData.beneficiary"
+        ],
+        "excluded": [
+          "#.executor",
+          "#.permit",
+          "#.executorData",
+          "#.swapData.quotedAmount",
+          "#.swapData.metadata",
+          "#.partnerAndFee"
+        ]
       },
       "swapExactAmountOut(address,(address,address,uint256,uint256,uint256,bytes32,address),uint256,bytes,bytes)": {
         "intent": "Swap",
@@ -417,14 +474,35 @@
           {
             "path": "#.swapData",
             "fields": [
-              { "path": "fromAmount", "$ref": "$.display.definitions.maxSendAmount", "params": { "tokenPath": "srcToken" } },
-              { "path": "toAmount", "$ref": "$.display.definitions.receiveAmount", "params": { "tokenPath": "destToken" } },
+              {
+                "path": "fromAmount",
+                "$ref": "$.display.definitions.maxSendAmount",
+                "params": { "tokenPath": "srcToken" }
+              },
+              {
+                "path": "toAmount",
+                "$ref": "$.display.definitions.receiveAmount",
+                "params": { "tokenPath": "destToken" }
+              },
               { "path": "beneficiary", "$ref": "$.display.definitions.beneficiary" }
             ]
           }
         ],
-        "required": ["#.swapData.srcToken", "#.swapData.destToken", "#.swapData.fromAmount", "#.swapData.toAmount", "#.swapData.beneficiary"],
-        "excluded": ["#.executor", "#.swapData.metadata", "#.swapData.quotedAmount", "#.permit", "#.executorData", "#.partnerAndFee"]
+        "required": [
+          "#.swapData.srcToken",
+          "#.swapData.destToken",
+          "#.swapData.fromAmount",
+          "#.swapData.toAmount",
+          "#.swapData.beneficiary"
+        ],
+        "excluded": [
+          "#.executor",
+          "#.swapData.metadata",
+          "#.swapData.quotedAmount",
+          "#.permit",
+          "#.executorData",
+          "#.partnerAndFee"
+        ]
       },
       "swapExactAmountInOnUniswapV2((address,address,uint256,uint256,uint256,bytes32,address,bytes),uint256,bytes)": {
         "intent": "Swap",
@@ -432,14 +510,34 @@
           {
             "path": "#.uniData",
             "fields": [
-              { "path": "fromAmount", "$ref": "$.display.definitions.sendAmount", "params": { "tokenPath": "srcToken" } },
-              { "path": "toAmount", "$ref": "$.display.definitions.minReceiveAmount", "params": { "tokenPath": "destToken" } },
+              {
+                "path": "fromAmount",
+                "$ref": "$.display.definitions.sendAmount",
+                "params": { "tokenPath": "srcToken" }
+              },
+              {
+                "path": "toAmount",
+                "$ref": "$.display.definitions.minReceiveAmount",
+                "params": { "tokenPath": "destToken" }
+              },
               { "path": "beneficiary", "$ref": "$.display.definitions.beneficiary" }
             ]
           }
         ],
-        "required": ["#.uniData.srcToken", "#.uniData.destToken", "#.uniData.fromAmount", "#.uniData.toAmount", "#.uniData.beneficiary"],
-        "excluded": ["#.uniData.metadata", "#.uniData.pools", "#.uniData.quotedAmount", "#.permit", "#.partnerAndFee"]
+        "required": [
+          "#.uniData.srcToken",
+          "#.uniData.destToken",
+          "#.uniData.fromAmount",
+          "#.uniData.toAmount",
+          "#.uniData.beneficiary"
+        ],
+        "excluded": [
+          "#.uniData.metadata",
+          "#.uniData.pools",
+          "#.uniData.quotedAmount",
+          "#.permit",
+          "#.partnerAndFee"
+        ]
       },
       "swapExactAmountInOnUniswapV3((address,address,uint256,uint256,uint256,bytes32,address,bytes),uint256,bytes)": {
         "intent": "Swap",
@@ -447,14 +545,34 @@
           {
             "path": "#.uniData",
             "fields": [
-              { "path": "fromAmount", "$ref": "$.display.definitions.sendAmount", "params": { "tokenPath": "srcToken" } },
-              { "path": "toAmount", "$ref": "$.display.definitions.minReceiveAmount", "params": { "tokenPath": "destToken" } },
+              {
+                "path": "fromAmount",
+                "$ref": "$.display.definitions.sendAmount",
+                "params": { "tokenPath": "srcToken" }
+              },
+              {
+                "path": "toAmount",
+                "$ref": "$.display.definitions.minReceiveAmount",
+                "params": { "tokenPath": "destToken" }
+              },
               { "path": "beneficiary", "$ref": "$.display.definitions.beneficiary" }
             ]
           }
         ],
-        "required": ["#.uniData.srcToken", "#.uniData.destToken", "#.uniData.fromAmount", "#.uniData.toAmount", "#.uniData.beneficiary"],
-        "excluded": ["#.uniData.metadata", "#.uniData.pools", "#.uniData.quotedAmount", "#.permit", "#.partnerAndFee"]
+        "required": [
+          "#.uniData.srcToken",
+          "#.uniData.destToken",
+          "#.uniData.fromAmount",
+          "#.uniData.toAmount",
+          "#.uniData.beneficiary"
+        ],
+        "excluded": [
+          "#.uniData.metadata",
+          "#.uniData.pools",
+          "#.uniData.quotedAmount",
+          "#.permit",
+          "#.partnerAndFee"
+        ]
       },
       "swapExactAmountOutOnUniswapV2((address,address,uint256,uint256,uint256,bytes32,address,bytes),uint256,bytes)": {
         "intent": "Swap",
@@ -462,14 +580,34 @@
           {
             "path": "#.uniData",
             "fields": [
-              { "path": "fromAmount", "$ref": "$.display.definitions.maxSendAmount", "params": { "tokenPath": "srcToken" } },
-              { "path": "toAmount", "$ref": "$.display.definitions.receiveAmount", "params": { "tokenPath": "destToken" } },
+              {
+                "path": "fromAmount",
+                "$ref": "$.display.definitions.maxSendAmount",
+                "params": { "tokenPath": "srcToken" }
+              },
+              {
+                "path": "toAmount",
+                "$ref": "$.display.definitions.receiveAmount",
+                "params": { "tokenPath": "destToken" }
+              },
               { "path": "beneficiary", "$ref": "$.display.definitions.beneficiary" }
             ]
           }
         ],
-        "required": ["#.uniData.srcToken", "#.uniData.destToken", "#.uniData.fromAmount", "#.uniData.toAmount", "#.uniData.beneficiary"],
-        "excluded": ["#.uniData.metadata", "#.uniData.pools", "#.uniData.quotedAmount", "#.permit", "#.partnerAndFee"]
+        "required": [
+          "#.uniData.srcToken",
+          "#.uniData.destToken",
+          "#.uniData.fromAmount",
+          "#.uniData.toAmount",
+          "#.uniData.beneficiary"
+        ],
+        "excluded": [
+          "#.uniData.metadata",
+          "#.uniData.pools",
+          "#.uniData.quotedAmount",
+          "#.permit",
+          "#.partnerAndFee"
+        ]
       },
       "swapExactAmountOutOnUniswapV3((address,address,uint256,uint256,uint256,bytes32,address,bytes),uint256,bytes)": {
         "intent": "Swap",
@@ -477,14 +615,34 @@
           {
             "path": "#.uniData",
             "fields": [
-              { "path": "fromAmount", "$ref": "$.display.definitions.maxSendAmount", "params": { "tokenPath": "srcToken" } },
-              { "path": "toAmount", "$ref": "$.display.definitions.receiveAmount", "params": { "tokenPath": "destToken" } },
+              {
+                "path": "fromAmount",
+                "$ref": "$.display.definitions.maxSendAmount",
+                "params": { "tokenPath": "srcToken" }
+              },
+              {
+                "path": "toAmount",
+                "$ref": "$.display.definitions.receiveAmount",
+                "params": { "tokenPath": "destToken" }
+              },
               { "path": "beneficiary", "$ref": "$.display.definitions.beneficiary" }
             ]
           }
         ],
-        "required": ["#.uniData.srcToken", "#.uniData.destToken", "#.uniData.fromAmount", "#.uniData.toAmount", "#.uniData.beneficiary"],
-        "excluded": ["#.uniData.metadata", "#.uniData.pools", "#.uniData.quotedAmount", "#.permit", "#.partnerAndFee"]
+        "required": [
+          "#.uniData.srcToken",
+          "#.uniData.destToken",
+          "#.uniData.fromAmount",
+          "#.uniData.toAmount",
+          "#.uniData.beneficiary"
+        ],
+        "excluded": [
+          "#.uniData.metadata",
+          "#.uniData.pools",
+          "#.uniData.quotedAmount",
+          "#.permit",
+          "#.partnerAndFee"
+        ]
       },
       "swapExactAmountInOnCurveV1((uint256,uint256,address,address,uint256,uint256,uint256,bytes32,address),uint256,bytes)": {
         "intent": "Swap",
@@ -492,8 +650,16 @@
           {
             "path": "#.curveV1Data",
             "fields": [
-              { "path": "fromAmount", "$ref": "$.display.definitions.sendAmount", "params": { "tokenPath": "srcToken" } },
-              { "path": "toAmount", "$ref": "$.display.definitions.minReceiveAmount", "params": { "tokenPath": "destToken" } },
+              {
+                "path": "fromAmount",
+                "$ref": "$.display.definitions.sendAmount",
+                "params": { "tokenPath": "srcToken" }
+              },
+              {
+                "path": "toAmount",
+                "$ref": "$.display.definitions.minReceiveAmount",
+                "params": { "tokenPath": "destToken" }
+              },
               { "path": "beneficiary", "$ref": "$.display.definitions.beneficiary" }
             ]
           }
@@ -520,8 +686,16 @@
           {
             "path": "#.curveV2Data",
             "fields": [
-              { "path": "fromAmount", "$ref": "$.display.definitions.sendAmount", "params": { "tokenPath": "srcToken" } },
-              { "path": "toAmount", "$ref": "$.display.definitions.minReceiveAmount", "params": { "tokenPath": "destToken" } },
+              {
+                "path": "fromAmount",
+                "$ref": "$.display.definitions.sendAmount",
+                "params": { "tokenPath": "srcToken" }
+              },
+              {
+                "path": "toAmount",
+                "$ref": "$.display.definitions.minReceiveAmount",
+                "params": { "tokenPath": "destToken" }
+              },
               { "path": "beneficiary", "$ref": "$.display.definitions.beneficiary" }
             ]
           }
@@ -558,10 +732,23 @@
             "$ref": "$.display.definitions.minReceiveAmount",
             "params": { "tokenPath": "#.data.[324:356]" }
           },
-          { "path": "#.balancerData.beneficiaryAndApproveFlag.[-20:]", "$ref": "$.display.definitions.beneficiary" }
+          {
+            "path": "#.balancerData.beneficiaryAndApproveFlag.[-20:]",
+            "$ref": "$.display.definitions.beneficiary"
+          }
         ],
-        "required": ["#.balancerData.fromAmount", "#.balancerData.toAmount", "#.balancerData.beneficiaryAndApproveFlag", "#.data"],
-        "excluded": ["#.balancerData.metadata", "#.balancerData.quotedAmount", "#.permit", "#.partnerAndFee"]
+        "required": [
+          "#.balancerData.fromAmount",
+          "#.balancerData.toAmount",
+          "#.balancerData.beneficiaryAndApproveFlag",
+          "#.data"
+        ],
+        "excluded": [
+          "#.balancerData.metadata",
+          "#.balancerData.quotedAmount",
+          "#.permit",
+          "#.partnerAndFee"
+        ]
       },
       "swapExactAmountOutOnBalancerV2((uint256,uint256,uint256,bytes32,uint256),uint256,bytes,bytes)": {
         "intent": "Swap",
@@ -577,10 +764,23 @@
             "$ref": "$.display.definitions.receiveAmount",
             "params": { "tokenPath": "#.data.[324:356]" }
           },
-          { "path": "#.balancerData.beneficiaryAndApproveFlag.[-20:]", "$ref": "$.display.definitions.beneficiary" }
+          {
+            "path": "#.balancerData.beneficiaryAndApproveFlag.[-20:]",
+            "$ref": "$.display.definitions.beneficiary"
+          }
         ],
-        "required": ["#.balancerData.fromAmount", "#.balancerData.toAmount", "#.balancerData.beneficiaryAndApproveFlag", "#.data"],
-        "excluded": ["#.balancerData.metadata", "#.balancerData.quotedAmount", "#.permit", "#.partnerAndFee"]
+        "required": [
+          "#.balancerData.fromAmount",
+          "#.balancerData.toAmount",
+          "#.balancerData.beneficiaryAndApproveFlag",
+          "#.data"
+        ],
+        "excluded": [
+          "#.balancerData.metadata",
+          "#.balancerData.quotedAmount",
+          "#.permit",
+          "#.partnerAndFee"
+        ]
       },
       "swapOnAugustusRFQTryBatchFill((uint256,uint256,uint8,bytes32,address),((uint256,uint128,address,address,address,address,uint256,uint256),bytes,uint256,bytes,bytes)[],bytes)": {
         "intent": "Swap",

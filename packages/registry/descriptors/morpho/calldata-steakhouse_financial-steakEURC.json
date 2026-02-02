@@ -4,7 +4,15 @@
   "metadata": {
     "owner": "Steakhouse Financial",
     "info": { "legalName": "Steakhouse Financial", "url": "https://www.steakhouse.financial" },
-    "constants": { "underlyingToken": "0x60a3E35Cc302bFA44Cb288Bc5a4F316Fdb1adb42", "underlyingTicker": "EURC", "vaultTicker": "steakEURC" }
+    "constants": {
+      "underlyingToken": "0x60a3E35Cc302bFA44Cb288Bc5a4F316Fdb1adb42",
+      "underlyingTicker": "EURC",
+      "vaultTicker": "steakEURC"
+    }
   },
-  "context": { "contract": { "deployments": [{ "chainId": 8453, "address": "0xBeEF086b8807Dc5E5A1740C5E3a7C4c366eA6ab5" }] } }
+  "context": {
+    "contract": {
+      "deployments": [{ "chainId": 8453, "address": "0xBeEF086b8807Dc5E5A1740C5E3a7C4c366eA6ab5" }]
+    }
+  }
 }

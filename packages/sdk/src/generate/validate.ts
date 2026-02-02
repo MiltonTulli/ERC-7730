@@ -155,7 +155,11 @@ function validateDisplay(display: unknown, errors: ValidationError[]): void {
   }
 }
 
-function validateFunctionFormat(signature: string, format: unknown, errors: ValidationError[]): void {
+function validateFunctionFormat(
+  signature: string,
+  format: unknown,
+  errors: ValidationError[]
+): void {
   const path = `display.formats["${signature}"]`;
 
   if (typeof format !== 'object' || format === null) {

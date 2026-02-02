@@ -87,12 +87,12 @@ export const ERC721_DESCRIPTOR: ERC7730Descriptor = {
         intent: 'Approve NFT transfer',
         fields: [
           {
-            path: 'spender',  // Use same name as ERC20 for compatibility
+            path: 'spender', // Use same name as ERC20 for compatibility
             label: 'Approved Address',
             format: 'addressName',
           },
           {
-            path: 'amount',  // In ERC721 context this is tokenId
+            path: 'amount', // In ERC721 context this is tokenId
             label: 'Token ID',
             format: 'raw',
           },

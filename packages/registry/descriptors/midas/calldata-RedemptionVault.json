@@ -107,7 +107,16 @@
               "unit": null
             }
           ],
-          "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "nonpayable",
           "constant": null,
           "payable": null,
@@ -118,7 +127,14 @@
           "type": "function",
           "name": "redeemInstant",
           "inputs": [
-            { "name": "tokenOut", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null },
+            {
+              "name": "tokenOut",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
             {
               "name": "amountMTokenIn",
               "type": "uint256",
@@ -135,7 +151,14 @@
               "indexed": null,
               "unit": null
             },
-            { "name": "recipient", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null }
+            {
+              "name": "recipient",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
           "outputs": [],
           "stateMutability": "nonpayable",
@@ -148,7 +171,14 @@
           "type": "function",
           "name": "redeemInstant",
           "inputs": [
-            { "name": "tokenOut", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null },
+            {
+              "name": "tokenOut",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
             {
               "name": "amountMTokenIn",
               "type": "uint256",
@@ -177,7 +207,14 @@
           "type": "function",
           "name": "redeemRequest",
           "inputs": [
-            { "name": "tokenOut", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null },
+            {
+              "name": "tokenOut",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
             {
               "name": "amountMTokenIn",
               "type": "uint256",
@@ -186,9 +223,25 @@
               "indexed": null,
               "unit": null
             },
-            { "name": "recipient", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null }
+            {
+              "name": "recipient",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
-          "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "nonpayable",
           "constant": null,
           "payable": null,
@@ -199,7 +252,14 @@
           "type": "function",
           "name": "redeemRequest",
           "inputs": [
-            { "name": "tokenOut", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null },
+            {
+              "name": "tokenOut",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
             {
               "name": "amountMTokenIn",
               "type": "uint256",
@@ -209,7 +269,16 @@
               "unit": null
             }
           ],
-          "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "nonpayable",
           "constant": null,
           "payable": null,
@@ -227,7 +296,12 @@
       "redeemInstant(address,uint256,uint256,address)": {
         "intent": "instantly redeem",
         "fields": [
-          { "label": "You receive", "format": "addressName", "params": { "types": ["token"] }, "path": "#.tokenOut" },
+          {
+            "label": "You receive",
+            "format": "addressName",
+            "params": { "types": ["token"] },
+            "path": "#.tokenOut"
+          },
           {
             "label": "Amount to redeem",
             "format": "unit",
@@ -240,14 +314,24 @@
             "params": { "base": " ", "decimals": "18", "prefix": "false" },
             "path": "#.minReceiveAmount"
           },
-          { "label": "Receiver", "format": "addressName", "params": { "types": ["eoa", "wallet"] }, "path": "#.recipient" }
+          {
+            "label": "Receiver",
+            "format": "addressName",
+            "params": { "types": ["eoa", "wallet"] },
+            "path": "#.recipient"
+          }
         ],
         "required": ["#.tokenOut", "#.amountMTokenIn", "#.minReceiveAmount", "#.recipient"]
       },
       "redeemInstant(address,uint256,uint256)": {
         "intent": "instantly redeem",
         "fields": [
-          { "label": "You receive", "format": "addressName", "params": { "types": ["token"] }, "path": "#.tokenOut" },
+          {
+            "label": "You receive",
+            "format": "addressName",
+            "params": { "types": ["token"] },
+            "path": "#.tokenOut"
+          },
           {
             "label": "Amount to redeem",
             "format": "unit",
@@ -266,21 +350,36 @@
       "redeemRequest(address,uint256,address)": {
         "intent": "request a redemption",
         "fields": [
-          { "label": "You will receive", "format": "addressName", "params": { "types": ["token"] }, "path": "#.tokenOut" },
+          {
+            "label": "You will receive",
+            "format": "addressName",
+            "params": { "types": ["token"] },
+            "path": "#.tokenOut"
+          },
           {
             "label": "Amount to redeem",
             "format": "unit",
             "params": { "base": " ", "decimals": "18", "prefix": "false" },
             "path": "#.amountMTokenIn"
           },
-          { "label": "Receiver", "format": "addressName", "params": { "types": ["eoa", "wallet"] }, "path": "#.recipient" }
+          {
+            "label": "Receiver",
+            "format": "addressName",
+            "params": { "types": ["eoa", "wallet"] },
+            "path": "#.recipient"
+          }
         ],
         "required": ["#.tokenOut", "#.amountMTokenIn", "#.recipient"]
       },
       "redeemRequest(address,uint256)": {
         "intent": "request a redemption",
         "fields": [
-          { "label": "You will receive", "format": "addressName", "params": { "types": ["token"] }, "path": "#.tokenOut" },
+          {
+            "label": "You will receive",
+            "format": "addressName",
+            "params": { "types": ["token"] },
+            "path": "#.tokenOut"
+          },
           {
             "label": "Amount to redeem",
             "format": "unit",

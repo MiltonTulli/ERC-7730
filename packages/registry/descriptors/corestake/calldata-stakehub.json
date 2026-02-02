@@ -14,6 +14,11 @@
       "deployments": [{ "chainId": 1116, "address": "0x0000000000000000000000000000000000001010" }]
     }
   },
-  "metadata": { "owner": "CoreDAO", "info": { "legalName": "CoreDAO StakeHub Contract", "url": "https://coredao.org/" } },
-  "display": { "formats": { "claimReward()": { "intent": "Claim accumulated staking rewards", "fields": [] } } }
+  "metadata": {
+    "owner": "CoreDAO",
+    "info": { "legalName": "CoreDAO StakeHub Contract", "url": "https://coredao.org/" }
+  },
+  "display": {
+    "formats": { "claimReward()": { "intent": "Claim accumulated staking rewards", "fields": [] } }
+  }
 }

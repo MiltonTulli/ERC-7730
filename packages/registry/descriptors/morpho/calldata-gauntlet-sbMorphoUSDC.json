@@ -10,5 +10,9 @@
       "vaultTicker": "sbMorphoUSDC"
     }
   },
-  "context": { "contract": { "deployments": [{ "chainId": 1, "address": "0x4Ff4186188f8406917293A9e01A1ca16d3cf9E59" }] } }
+  "context": {
+    "contract": {
+      "deployments": [{ "chainId": 1, "address": "0x4Ff4186188f8406917293A9e01A1ca16d3cf9E59" }]
+    }
+  }
 }

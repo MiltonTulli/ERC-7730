@@ -25,7 +25,11 @@
               { "name": "additionalValidationContract", "type": "address" },
               { "name": "additionalValidationData", "type": "bytes" }
             ],
-            "OutputToken": [{ "name": "token", "type": "address" }, { "name": "amount", "type": "uint256" }, { "name": "recipient", "type": "address" }],
+            "OutputToken": [
+              { "name": "token", "type": "address" },
+              { "name": "amount", "type": "uint256" },
+              { "name": "recipient", "type": "address" }
+            ],
             "PermitWitnessTransferFrom": [
               { "name": "permitted", "type": "TokenPermissions" },
               { "name": "spender", "type": "address" },
@@ -33,7 +37,10 @@
               { "name": "deadline", "type": "uint256" },
               { "name": "witness", "type": "LimitOrder" }
             ],
-            "TokenPermissions": [{ "name": "token", "type": "address" }, { "name": "amount", "type": "uint256" }]
+            "TokenPermissions": [
+              { "name": "token", "type": "address" },
+              { "name": "amount", "type": "uint256" }
+            ]
           },
           "primaryType": "PermitWitnessTransferFrom"
         }
@@ -52,15 +59,30 @@
             "format": "tokenAmount",
             "params": { "tokenPath": "permitted.token" }
           },
-          { "path": "witness.inputAmount", "label": "Send", "format": "tokenAmount", "params": { "tokenPath": "witness.inputToken" } },
+          {
+            "path": "witness.inputAmount",
+            "label": "Send",
+            "format": "tokenAmount",
+            "params": { "tokenPath": "witness.inputToken" }
+          },
           {
             "path": "witness.outputs.[]",
             "fields": [
-              { "path": "amount", "label": "Min amount to receive", "format": "tokenAmount", "params": { "tokenPath": "token" } },
+              {
+                "path": "amount",
+                "label": "Min amount to receive",
+                "format": "tokenAmount",
+                "params": { "tokenPath": "token" }
+              },
               { "path": "recipient", "label": "On Address", "format": "raw" }
             ]
           },
-          { "path": "deadline", "label": "Approval expire", "format": "date", "params": { "encoding": "timestamp" } }
+          {
+            "path": "deadline",
+            "label": "Approval expire",
+            "format": "date",
+            "params": { "encoding": "timestamp" }
+          }
         ],
         "excluded": ["nonce", "witness.info"]
       }

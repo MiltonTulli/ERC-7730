@@ -4,7 +4,7 @@
     "owner": "Safe",
     "info": { "url": "https://app.safe.global/welcome", "legalName": "Safe{Wallet}" },
     "enums": { "operation": { "0": "Call", "1": "Delegate Call" } },
-    "constants": {"addressAsNull": "0x0000000000000000000000000000000000000000" }
+    "constants": { "addressAsNull": "0x0000000000000000000000000000000000000000" }
   },
   "display": {
     "formats": {
@@ -51,7 +51,16 @@
             "params": { "calleePath": "to" }
           }
         ],
-        "required": ["_owners", "_threshold", "to", "data", "fallbackHandler", "paymentToken", "payment", "paymentReceiver"]
+        "required": [
+          "_owners",
+          "_threshold",
+          "to",
+          "data",
+          "fallbackHandler",
+          "paymentToken",
+          "payment",
+          "paymentReceiver"
+        ]
       },
       "execTransaction(address to, uint256 value, bytes data, uint8 operation, uint256 safeTxGas, uint256 baseGas, uint256 gasPrice, address gasToken, address refundReceiver, bytes signatures)": {
         "$id": "execTransaction",

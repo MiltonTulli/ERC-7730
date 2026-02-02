@@ -17,7 +17,14 @@
               "indexed": null,
               "unit": null
             },
-            { "name": "_month", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }
+            {
+              "name": "_month",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
           "outputs": [],
           "stateMutability": "nonpayable",
@@ -29,7 +36,16 @@
         {
           "type": "function",
           "name": "cancelGovernanceCall",
-          "inputs": [{ "name": "_selector", "type": "bytes4", "internalType": "bytes4", "components": null, "indexed": null, "unit": null }],
+          "inputs": [
+            {
+              "name": "_selector",
+              "type": "bytes4",
+              "internalType": "bytes4",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "outputs": [],
           "stateMutability": "nonpayable",
           "constant": null,
@@ -41,13 +57,48 @@
           "type": "function",
           "name": "claim",
           "inputs": [
-            { "name": "_rewardOwner", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null },
-            { "name": "_recipient", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null },
-            { "name": "_month", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null },
-            { "name": "_wrap", "type": "bool", "internalType": "bool", "components": null, "indexed": null, "unit": null }
+            {
+              "name": "_rewardOwner",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "_recipient",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "_month",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "_wrap",
+              "type": "bool",
+              "internalType": "bool",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
           "outputs": [
-            { "name": "_rewardAmount", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }
+            {
+              "name": "_rewardAmount",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
           "stateMutability": "nonpayable",
           "constant": null,
@@ -119,7 +170,16 @@
           "type": "function",
           "name": "daemonize",
           "inputs": [],
-          "outputs": [{ "name": "", "type": "bool", "internalType": "bool", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "bool",
+              "internalType": "bool",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "nonpayable",
           "constant": null,
           "payable": null,
@@ -129,8 +189,26 @@
         {
           "type": "function",
           "name": "endBlockNumber",
-          "inputs": [{ "name": "", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }],
-          "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }],
+          "inputs": [
+            {
+              "name": "",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -141,7 +219,16 @@
           "type": "function",
           "name": "entitlementStartTs",
           "inputs": [],
-          "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -151,7 +238,16 @@
         {
           "type": "function",
           "name": "executeGovernanceCall",
-          "inputs": [{ "name": "_selector", "type": "bytes4", "internalType": "bytes4", "components": null, "indexed": null, "unit": null }],
+          "inputs": [
+            {
+              "name": "_selector",
+              "type": "bytes4",
+              "internalType": "bytes4",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "outputs": [],
           "stateMutability": "nonpayable",
           "constant": null,
@@ -164,7 +260,14 @@
           "name": "flareDaemon",
           "inputs": [],
           "outputs": [
-            { "name": "", "type": "address", "internalType": "contract FlareDaemon", "components": null, "indexed": null, "unit": null }
+            {
+              "name": "",
+              "type": "address",
+              "internalType": "contract FlareDaemon",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
           "stateMutability": "view",
           "constant": null,
@@ -195,8 +298,26 @@
         {
           "type": "function",
           "name": "getClaimableAmount",
-          "inputs": [{ "name": "_month", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }],
-          "outputs": [{ "name": "_amountWei", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }],
+          "inputs": [
+            {
+              "name": "_month",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
+          "outputs": [
+            {
+              "name": "_amountWei",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -207,10 +328,33 @@
           "type": "function",
           "name": "getClaimableAmountOf",
           "inputs": [
-            { "name": "_account", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null },
-            { "name": "_month", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }
+            {
+              "name": "_account",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "_month",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
-          "outputs": [{ "name": "_amountWei", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "_amountWei",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -222,8 +366,22 @@
           "name": "getClaimableMonths",
           "inputs": [],
           "outputs": [
-            { "name": "_startMonth", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null },
-            { "name": "_endMonth", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }
+            {
+              "name": "_startMonth",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "_endMonth",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
           "stateMutability": "view",
           "constant": null,
@@ -235,7 +393,16 @@
           "type": "function",
           "name": "getContractName",
           "inputs": [],
-          "outputs": [{ "name": "", "type": "string", "internalType": "string", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "string",
+              "internalType": "string",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "pure",
           "constant": null,
           "payable": null,
@@ -247,7 +414,14 @@
           "name": "getCurrentMonth",
           "inputs": [],
           "outputs": [
-            { "name": "_currentMonth", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }
+            {
+              "name": "_currentMonth",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
           "stateMutability": "view",
           "constant": null,
@@ -315,7 +489,16 @@
           "type": "function",
           "name": "governance",
           "inputs": [],
-          "outputs": [{ "name": "", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -366,7 +549,16 @@
           "type": "function",
           "name": "latestEntitlementStartTs",
           "inputs": [],
-          "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -377,7 +569,16 @@
           "type": "function",
           "name": "maxWaitForGoodRandomSeconds",
           "inputs": [],
-          "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -388,9 +589,25 @@
           "type": "function",
           "name": "nextClaimableMonth",
           "inputs": [
-            { "name": "_rewardOwner", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null }
+            {
+              "name": "_rewardOwner",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
-          "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -400,8 +617,26 @@
         {
           "type": "function",
           "name": "optOut",
-          "inputs": [{ "name": "", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null }],
-          "outputs": [{ "name": "", "type": "bool", "internalType": "bool", "components": null, "indexed": null, "unit": null }],
+          "inputs": [
+            {
+              "name": "",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
+          "outputs": [
+            {
+              "name": "",
+              "type": "bool",
+              "internalType": "bool",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -411,8 +646,26 @@
         {
           "type": "function",
           "name": "optOutAddresses",
-          "inputs": [{ "name": "", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }],
-          "outputs": [{ "name": "", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null }],
+          "inputs": [
+            {
+              "name": "",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
+          "outputs": [
+            {
+              "name": "",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -422,8 +675,26 @@
         {
           "type": "function",
           "name": "optOutCandidate",
-          "inputs": [{ "name": "", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null }],
-          "outputs": [{ "name": "", "type": "bool", "internalType": "bool", "components": null, "indexed": null, "unit": null }],
+          "inputs": [
+            {
+              "name": "",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
+          "outputs": [
+            {
+              "name": "",
+              "type": "bool",
+              "internalType": "bool",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -465,7 +736,16 @@
           "type": "function",
           "name": "productionMode",
           "inputs": [],
-          "outputs": [{ "name": "", "type": "bool", "internalType": "bool", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "bool",
+              "internalType": "bool",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -507,7 +787,14 @@
           "type": "function",
           "name": "setUseGoodRandom",
           "inputs": [
-            { "name": "_useGoodRandom", "type": "bool", "internalType": "bool", "components": null, "indexed": null, "unit": null },
+            {
+              "name": "_useGoodRandom",
+              "type": "bool",
+              "internalType": "bool",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
             {
               "name": "_maxWaitForGoodRandomSeconds",
               "type": "uint256",
@@ -527,8 +814,26 @@
         {
           "type": "function",
           "name": "startBlockNumber",
-          "inputs": [{ "name": "", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }],
-          "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }],
+          "inputs": [
+            {
+              "name": "",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -550,7 +855,16 @@
           "type": "function",
           "name": "stopped",
           "inputs": [],
-          "outputs": [{ "name": "", "type": "bool", "internalType": "bool", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "bool",
+              "internalType": "bool",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -561,7 +875,16 @@
           "type": "function",
           "name": "switchToFallbackMode",
           "inputs": [],
-          "outputs": [{ "name": "", "type": "bool", "internalType": "bool", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "bool",
+              "internalType": "bool",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -582,7 +905,16 @@
         {
           "type": "function",
           "name": "timelockedCalls",
-          "inputs": [{ "name": "", "type": "bytes4", "internalType": "bytes4", "components": null, "indexed": null, "unit": null }],
+          "inputs": [
+            {
+              "name": "",
+              "type": "bytes4",
+              "internalType": "bytes4",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "outputs": [
             {
               "name": "allowedAfterTimestamp",
@@ -592,7 +924,14 @@
               "indexed": null,
               "unit": null
             },
-            { "name": "encodedCall", "type": "bytes", "internalType": "bytes", "components": null, "indexed": null, "unit": null }
+            {
+              "name": "encodedCall",
+              "type": "bytes",
+              "internalType": "bytes",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
           "stateMutability": "view",
           "constant": null,
@@ -603,8 +942,26 @@
         {
           "type": "function",
           "name": "totalAvailableAmount",
-          "inputs": [{ "name": "", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }],
-          "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }],
+          "inputs": [
+            {
+              "name": "",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -615,7 +972,16 @@
           "type": "function",
           "name": "totalBurnedWei",
           "inputs": [],
-          "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -626,7 +992,16 @@
           "type": "function",
           "name": "totalClaimedWei",
           "inputs": [],
-          "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -637,7 +1012,16 @@
           "type": "function",
           "name": "totalDistributableAmount",
           "inputs": [],
-          "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -648,7 +1032,16 @@
           "type": "function",
           "name": "totalEntitlementWei",
           "inputs": [],
-          "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -658,8 +1051,26 @@
         {
           "type": "function",
           "name": "totalUnclaimedAmount",
-          "inputs": [{ "name": "", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }],
-          "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }],
+          "inputs": [
+            {
+              "name": "",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -669,8 +1080,26 @@
         {
           "type": "function",
           "name": "totalUnclaimedWeight",
-          "inputs": [{ "name": "", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }],
-          "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }],
+          "inputs": [
+            {
+              "name": "",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -740,7 +1169,16 @@
           "type": "function",
           "name": "useGoodRandom",
           "inputs": [],
-          "outputs": [{ "name": "", "type": "bool", "internalType": "bool", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "bool",
+              "internalType": "bool",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -751,10 +1189,33 @@
           "type": "function",
           "name": "votePowerBlockNumbers",
           "inputs": [
-            { "name": "", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null },
-            { "name": "", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }
+            {
+              "name": "",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
-          "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -765,7 +1226,16 @@
           "type": "function",
           "name": "wNat",
           "inputs": [],
-          "outputs": [{ "name": "", "type": "address", "internalType": "contract WNat", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "address",
+              "internalType": "contract WNat",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -776,7 +1246,16 @@
           "type": "function",
           "name": "waitingForGoodRandomSinceTs",
           "inputs": [],
-          "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -788,7 +1267,10 @@
       "factory": null
     }
   },
-  "metadata": { "owner": "Flare Network", "info": { "legalName": "Flare Labs", "url": "https://flare.network/" } },
+  "metadata": {
+    "owner": "Flare Network",
+    "info": { "legalName": "Flare Labs", "url": "https://flare.network/" }
+  },
   "display": {
     "formats": {
       "claim(address,address,uint256,bool)": {
@@ -812,8 +1294,22 @@
             "path": "#._recipient",
             "value": null
           },
-          { "$id": null, "label": "Month", "format": "raw", "params": null, "path": "#._month", "value": null },
-          { "$id": null, "label": "Wrap", "format": "raw", "params": null, "path": "#._wrap", "value": null }
+          {
+            "$id": null,
+            "label": "Month",
+            "format": "raw",
+            "params": null,
+            "path": "#._month",
+            "value": null
+          },
+          {
+            "$id": null,
+            "label": "Wrap",
+            "format": "raw",
+            "params": null,
+            "path": "#._wrap",
+            "value": null
+          }
         ],
         "required": ["#._rewardOwner", "#._recipient", "#._month", "#._wrap"],
         "excluded": null
@@ -831,7 +1327,14 @@
             "path": "#._rewardOwners.[]",
             "value": null
           },
-          { "$id": null, "label": "Month", "format": "raw", "params": null, "path": "#._month", "value": null }
+          {
+            "$id": null,
+            "label": "Month",
+            "format": "raw",
+            "params": null,
+            "path": "#._month",
+            "value": null
+          }
         ],
         "required": ["#._rewardOwners.[]", "#._month"],
         "excluded": null
@@ -845,7 +1348,10 @@
             "$id": null,
             "label": "Opt Out Address",
             "format": "addressName",
-            "params": { "types": ["wallet", "eoa", "contract", "token", "collection"], "sources": null },
+            "params": {
+              "types": ["wallet", "eoa", "contract", "token", "collection"],
+              "sources": null
+            },
             "path": "#._optOutAddresses.[]",
             "value": null
           }

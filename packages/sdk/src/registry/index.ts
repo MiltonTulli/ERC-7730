@@ -4,18 +4,18 @@
  * Manages both built-in descriptors and the external community registry.
  */
 
+import { computeSelector, registerSignature } from '../core/signatures.js';
+import { type ValidationResult, validateDescriptor } from '../generate/validate.js';
 import type { ERC7730Descriptor, FunctionFormat } from '../types/erc7730.js';
 import { ERC20_DESCRIPTOR } from './erc20.js';
 import { ERC721_DESCRIPTOR } from './erc721.js';
-import { WETH_DESCRIPTOR } from './weth.js';
 import {
-  findBySelector as findExternalBySelector,
   findByAddress as findExternalByAddress,
+  findBySelector as findExternalBySelector,
   getExternalDescriptors,
   getStats,
 } from './external.js';
-import { validateDescriptor, type ValidationResult } from '../generate/validate.js';
-import { registerSignature, computeSelector } from '../core/signatures.js';
+import { WETH_DESCRIPTOR } from './weth.js';
 
 // Built-in descriptors for common standards
 // These are always available and serve as fallbacks
@@ -27,10 +27,7 @@ export const BUILTIN_DESCRIPTORS: ERC7730Descriptor[] = [
 ];
 
 // Index by function signature for fast lookup
-type SignatureIndex = Map<
-  string,
-  { descriptor: ERC7730Descriptor; format: FunctionFormat }
->;
+type SignatureIndex = Map<string, { descriptor: ERC7730Descriptor; format: FunctionFormat }>;
 
 let signatureIndex: SignatureIndex | null = null;
 
@@ -240,7 +237,9 @@ export class Registry {
       results.push(validation);
 
       if (!validation.valid) {
-        const errorMessages = validation.errors.map((e) => `  - ${e.path}: ${e.message}`).join('\n');
+        const errorMessages = validation.errors
+          .map((e) => `  - ${e.path}: ${e.message}`)
+          .join('\n');
         console.error(
           `[ERC7730 SDK] Invalid descriptor at index ${i}, skipping:\n${errorMessages}`
         );
@@ -251,9 +250,7 @@ export class Registry {
       this.customDescriptors.push(descriptor);
 
       // Index by signature and register with decoder
-      for (const [signature, format] of Object.entries(
-        descriptor.display.formats
-      )) {
+      for (const [signature, format] of Object.entries(descriptor.display.formats)) {
         const normalized = normalizeSignature(signature);
         this.customIndex.set(normalized, { descriptor, format });
 

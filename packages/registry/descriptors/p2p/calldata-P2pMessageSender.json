@@ -12,7 +12,16 @@
         {
           "type": "function",
           "name": "send",
-          "inputs": [{ "name": "text", "type": "string", "internalType": "string", "components": null, "indexed": null, "unit": null }],
+          "inputs": [
+            {
+              "name": "text",
+              "type": "string",
+              "internalType": "string",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "outputs": [],
           "stateMutability": "nonpayable",
           "constant": null,
@@ -25,14 +34,26 @@
       "factory": null
     }
   },
-  "metadata": { "owner": "p2p", "info": { "legalName": "P2P Staking", "url": "https://www.p2p.org/" } },
+  "metadata": {
+    "owner": "p2p",
+    "info": { "legalName": "P2P Staking", "url": "https://www.p2p.org/" }
+  },
   "display": {
     "formats": {
       "send(string)": {
         "$id": null,
         "intent": "Withdraw validators",
         "screens": null,
-        "fields": [{ "$id": null, "label": "Public keys", "format": "raw", "params": null, "path": "#.text", "value": null }],
+        "fields": [
+          {
+            "$id": null,
+            "label": "Public keys",
+            "format": "raw",
+            "params": null,
+            "path": "#.text",
+            "value": null
+          }
+        ],
         "required": ["#.text"],
         "excluded": null
       }

@@ -50,10 +50,7 @@ export interface SourcifyResult {
  * @param address - The contract address
  * @returns Contract details including ABI if verified
  */
-export async function fetchFromSourcify(
-  chainId: number,
-  address: string
-): Promise<SourcifyResult> {
+export async function fetchFromSourcify(chainId: number, address: string): Promise<SourcifyResult> {
   try {
     // Only request the 'abi' field - 'name' is not a valid field in Sourcify API v2
     const url = `${SOURCIFY_API_V2_BASE}/v2/contract/${chainId}/${address}?fields=abi`;
@@ -137,10 +134,7 @@ function extractContractName(abi: ABI | undefined): string | null {
 /**
  * Check if a contract is verified on Sourcify (quick check without fetching ABI)
  */
-export async function isVerifiedOnSourcify(
-  chainId: number,
-  address: string
-): Promise<boolean> {
+export async function isVerifiedOnSourcify(chainId: number, address: string): Promise<boolean> {
   try {
     const url = `${SOURCIFY_API_V2_BASE}/v2/contract/${chainId}/${address}`;
     const response = await fetch(url, { method: 'HEAD' });

@@ -56,8 +56,18 @@
         "intent": "Authorize spending of token",
         "fields": [
           { "path": "spender", "label": "Spender", "format": "raw" },
-          { "path": "details.amount", "label": "Amount allowance", "format": "tokenAmount", "params": { "tokenPath": "details.token" } },
-          { "path": "details.expiration", "label": "Approval expires", "format": "date", "params": { "encoding": "timestamp" } }
+          {
+            "path": "details.amount",
+            "label": "Amount allowance",
+            "format": "tokenAmount",
+            "params": { "tokenPath": "details.token" }
+          },
+          {
+            "path": "details.expiration",
+            "label": "Approval expires",
+            "format": "date",
+            "params": { "encoding": "timestamp" }
+          }
         ],
         "required": ["spender", "details.amount"],
         "excluded": ["sigDeadline"],
@@ -71,8 +81,18 @@
           {
             "path": "details.[]",
             "fields": [
-              { "path": "amount", "label": "Amount allowance", "format": "tokenAmount", "params": { "tokenPath": "token" } },
-              { "path": "expiration", "label": "Approval expires", "format": "date", "params": { "encoding": "timestamp" } }
+              {
+                "path": "amount",
+                "label": "Amount allowance",
+                "format": "tokenAmount",
+                "params": { "tokenPath": "token" }
+              },
+              {
+                "path": "expiration",
+                "label": "Approval expires",
+                "format": "date",
+                "params": { "encoding": "timestamp" }
+              }
             ]
           }
         ],

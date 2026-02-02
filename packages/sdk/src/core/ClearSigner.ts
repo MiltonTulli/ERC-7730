@@ -2,32 +2,23 @@
  * ClearSigner - Main class for decoding transactions
  */
 
-import { createPublicClient, http } from 'viem';
-import type {
-  ClearSignerConfig,
-  ChainName,
-  Provider,
-  TransactionInput,
-} from '../types/index.js';
-import type {
-  DecodedTransaction,
-  DecodedField,
-  SecurityWarning,
-  FunctionFormat,
-  FieldDefinition,
-  ERC7730Descriptor,
-} from '../types/erc7730.js';
-import { decodeCalldata, type RawDecodedTransaction } from './decoder.js';
-import { Registry, type RegistryMatch } from '../registry/index.js';
-import {
-  getTokenInfo,
-  formatAmount,
-  isInfiniteApproval,
-} from '../formats/tokenAmount.js';
-import { resolveAddress, formatAddress } from '../formats/addressName.js';
-import { getChain, getDefaultRpc, chainNameToId } from '../providers/rpc.js';
-import { fetchFromSourcify } from '../providers/sourcify.js';
+import { http, createPublicClient } from 'viem';
+import { formatAddress, resolveAddress } from '../formats/addressName.js';
+import { formatAmount, getTokenInfo, isInfiniteApproval } from '../formats/tokenAmount.js';
 import { generateDescriptor } from '../generate/generate.js';
+import { chainNameToId, getChain, getDefaultRpc } from '../providers/rpc.js';
+import { fetchFromSourcify } from '../providers/sourcify.js';
+import { Registry, type RegistryMatch } from '../registry/index.js';
+import type {
+  DecodedField,
+  DecodedTransaction,
+  ERC7730Descriptor,
+  FieldDefinition,
+  FunctionFormat,
+  SecurityWarning,
+} from '../types/erc7730.js';
+import type { ChainName, ClearSignerConfig, Provider, TransactionInput } from '../types/index.js';
+import { type RawDecodedTransaction, decodeCalldata } from './decoder.js';
 
 export class ClearSigner {
   private provider: Provider | null;
@@ -127,11 +118,21 @@ export class ClearSigner {
     }
 
     // Step 4: Try Sourcify fallback if enabled and we have a valid contract
-    if (this.useSourcifyFallback && tx.to && tx.to !== '0x0000000000000000000000000000000000000000') {
+    if (
+      this.useSourcifyFallback &&
+      tx.to &&
+      tx.to !== '0x0000000000000000000000000000000000000000'
+    ) {
       const sourcifyResult = await this.trySourceify(tx);
       if (sourcifyResult) {
         // Use the updated raw (with signature resolved from ABI)
-        return this.buildFromDescriptor(tx, sourcifyResult.updatedRaw, sourcifyResult.match.format, provider, 'sourcify');
+        return this.buildFromDescriptor(
+          tx,
+          sourcifyResult.updatedRaw,
+          sourcifyResult.match.format,
+          provider,
+          'sourcify'
+        );
       }
     }
 
@@ -341,8 +342,6 @@ export class ClearSigner {
       case 'date':
         formattedValue = this.formatDate(rawValue);
         break;
-
-      case 'raw':
       default:
         formattedValue = this.formatRaw(rawValue);
         break;

@@ -4,19 +4,19 @@
  */
 
 import {
-  mainnet,
+  type Chain,
   arbitrum,
-  optimism,
-  base,
-  polygon,
-  bsc,
   avalanche,
+  base,
+  bsc,
   gnosis,
-  zkSync,
   linea,
+  mainnet,
+  optimism,
+  polygon,
   scroll,
   sepolia,
-  type Chain,
+  zkSync,
 } from 'viem/chains';
 
 /**
@@ -42,32 +42,12 @@ export const SUPPORTED_CHAINS: Record<number, Chain> = {
  * These are used as fallbacks or primary options
  */
 export const EXTRA_PUBLIC_RPCS: Record<number, string[]> = {
-  1: [
-    'https://eth.llamarpc.com',
-    'https://rpc.ankr.com/eth',
-    'https://1rpc.io/eth',
-  ],
-  42161: [
-    'https://rpc.ankr.com/arbitrum',
-    'https://1rpc.io/arb',
-  ],
-  10: [
-    'https://rpc.ankr.com/optimism',
-    'https://1rpc.io/op',
-  ],
-  8453: [
-    'https://rpc.ankr.com/base',
-    'https://1rpc.io/base',
-  ],
-  137: [
-    'https://polygon-rpc.com',
-    'https://rpc.ankr.com/polygon',
-    'https://1rpc.io/matic',
-  ],
-  56: [
-    'https://rpc.ankr.com/bsc',
-    'https://1rpc.io/bnb',
-  ],
+  1: ['https://eth.llamarpc.com', 'https://rpc.ankr.com/eth', 'https://1rpc.io/eth'],
+  42161: ['https://rpc.ankr.com/arbitrum', 'https://1rpc.io/arb'],
+  10: ['https://rpc.ankr.com/optimism', 'https://1rpc.io/op'],
+  8453: ['https://rpc.ankr.com/base', 'https://1rpc.io/base'],
+  137: ['https://polygon-rpc.com', 'https://rpc.ankr.com/polygon', 'https://1rpc.io/matic'],
+  56: ['https://rpc.ankr.com/bsc', 'https://1rpc.io/bnb'],
 };
 
 /**
@@ -166,7 +146,9 @@ const CHAIN_NAME_TO_ID: Record<string, number> = {
 export function chainNameToId(name: string): number {
   const chainId = CHAIN_NAME_TO_ID[name.toLowerCase()];
   if (!chainId) {
-    throw new Error(`Unknown chain name: ${name}. Supported: ${Object.keys(CHAIN_NAME_TO_ID).join(', ')}`);
+    throw new Error(
+      `Unknown chain name: ${name}. Supported: ${Object.keys(CHAIN_NAME_TO_ID).join(', ')}`
+    );
   }
   return chainId;
 }

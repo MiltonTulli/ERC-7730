@@ -2,8 +2,8 @@
  * Core calldata decoder
  */
 
-import { getSignatureBySelector, parseSignature } from './signatures.js';
 import type { TransactionInput } from '../types/index.js';
+import { getSignatureBySelector, parseSignature } from './signatures.js';
 
 export interface RawDecodedTransaction {
   selector: string;
@@ -55,7 +55,7 @@ function decodeParameter(type: string, data: string, offset: number): DecodeResu
   // Handle fixed arrays
   const fixedArrayMatch = type.match(/^(.+)\[(\d+)\]$/);
   if (fixedArrayMatch) {
-    return decodeFixedArray(fixedArrayMatch[1], parseInt(fixedArrayMatch[2]), data, offset);
+    return decodeFixedArray(fixedArrayMatch[1], Number.parseInt(fixedArrayMatch[2]), data, offset);
   }
 
   // Handle tuples
@@ -68,67 +68,67 @@ function decodeParameter(type: string, data: string, offset: number): DecodeResu
 
   if (type === 'address') {
     return {
-      value: '0x' + word.slice(24),
+      value: `0x${word.slice(24)}`,
       nextOffset: offset + 32,
     };
   }
 
   if (type.startsWith('uint') || type.startsWith('int')) {
     return {
-      value: BigInt('0x' + word),
+      value: BigInt(`0x${word}`),
       nextOffset: offset + 32,
     };
   }
 
   if (type === 'bool') {
     return {
-      value: BigInt('0x' + word) !== 0n,
+      value: BigInt(`0x${word}`) !== 0n,
       nextOffset: offset + 32,
     };
   }
 
   if (type.startsWith('bytes') && type !== 'bytes') {
     // Fixed bytes (bytes1 to bytes32)
-    const size = parseInt(type.slice(5));
+    const size = Number.parseInt(type.slice(5));
     return {
-      value: '0x' + word.slice(0, size * 2),
+      value: `0x${word.slice(0, size * 2)}`,
       nextOffset: offset + 32,
     };
   }
 
   if (type === 'bytes' || type === 'string') {
     // Dynamic types - read offset, then data
-    const dataOffset = Number(BigInt('0x' + word));
+    const dataOffset = Number(BigInt(`0x${word}`));
     const lengthWord = data.slice(dataOffset * 2, (dataOffset + 32) * 2);
-    const length = Number(BigInt('0x' + lengthWord));
+    const length = Number(BigInt(`0x${lengthWord}`));
     const content = data.slice((dataOffset + 32) * 2, (dataOffset + 32 + length) * 2);
 
     if (type === 'string') {
       return {
-        value: hexToString('0x' + content),
+        value: hexToString(`0x${content}`),
         nextOffset: offset + 32,
       };
     }
 
     return {
-      value: '0x' + content,
+      value: `0x${content}`,
       nextOffset: offset + 32,
     };
   }
 
   // Unknown type - return raw
   return {
-    value: '0x' + word,
+    value: `0x${word}`,
     nextOffset: offset + 32,
   };
 }
 
 function decodeDynamicArray(itemType: string, data: string, offset: number): DecodeResult {
   const word = data.slice(offset * 2, (offset + 32) * 2);
-  const dataOffset = Number(BigInt('0x' + word));
+  const dataOffset = Number(BigInt(`0x${word}`));
 
   const lengthWord = data.slice(dataOffset * 2, (dataOffset + 32) * 2);
-  const length = Number(BigInt('0x' + lengthWord));
+  const length = Number(BigInt(`0x${lengthWord}`));
 
   const items: unknown[] = [];
   let itemOffset = dataOffset + 32;
@@ -145,7 +145,12 @@ function decodeDynamicArray(itemType: string, data: string, offset: number): Dec
   };
 }
 
-function decodeFixedArray(itemType: string, length: number, data: string, offset: number): DecodeResult {
+function decodeFixedArray(
+  itemType: string,
+  length: number,
+  data: string,
+  offset: number
+): DecodeResult {
   const items: unknown[] = [];
   let currentOffset = offset;
 
@@ -200,7 +205,7 @@ function hexToString(hex: string): string {
   const bytes = hex.startsWith('0x') ? hex.slice(2) : hex;
   let str = '';
   for (let i = 0; i < bytes.length; i += 2) {
-    const code = parseInt(bytes.slice(i, i + 2), 16);
+    const code = Number.parseInt(bytes.slice(i, i + 2), 16);
     if (code === 0) break;
     str += String.fromCharCode(code);
   }

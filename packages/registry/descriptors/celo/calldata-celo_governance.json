@@ -136,7 +136,10 @@
             { "internalType": "uint256", "name": "_decimals", "type": "uint256" }
           ],
           "name": "fractionMulExp",
-          "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }, { "internalType": "uint256", "name": "", "type": "uint256" }],
+          "outputs": [
+            { "internalType": "uint256", "name": "", "type": "uint256" },
+            { "internalType": "uint256", "name": "", "type": "uint256" }
+          ],
           "payable": false,
           "stateMutability": "view",
           "type": "function"
@@ -353,7 +356,10 @@
           "constant": true,
           "inputs": [{ "internalType": "address", "name": "account", "type": "address" }],
           "name": "getUpvoteRecord",
-          "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }, { "internalType": "uint256", "name": "", "type": "uint256" }],
+          "outputs": [
+            { "internalType": "uint256", "name": "", "type": "uint256" },
+            { "internalType": "uint256", "name": "", "type": "uint256" }
+          ],
           "payable": false,
           "stateMutability": "view",
           "type": "function"
@@ -764,7 +770,9 @@
         },
         {
           "constant": false,
-          "inputs": [{ "internalType": "uint256", "name": "baselineQuorumFactor", "type": "uint256" }],
+          "inputs": [
+            { "internalType": "uint256", "name": "baselineQuorumFactor", "type": "uint256" }
+          ],
           "name": "setBaselineQuorumFactor",
           "outputs": [],
           "payable": false,
@@ -773,7 +781,9 @@
         },
         {
           "constant": false,
-          "inputs": [{ "internalType": "uint256", "name": "baselineUpdateFactor", "type": "uint256" }],
+          "inputs": [
+            { "internalType": "uint256", "name": "baselineUpdateFactor", "type": "uint256" }
+          ],
           "name": "setBaselineUpdateFactor",
           "outputs": [],
           "payable": false,
@@ -782,7 +792,9 @@
         },
         {
           "constant": false,
-          "inputs": [{ "internalType": "uint256", "name": "_concurrentProposals", "type": "uint256" }],
+          "inputs": [
+            { "internalType": "uint256", "name": "_concurrentProposals", "type": "uint256" }
+          ],
           "name": "setConcurrentProposals",
           "outputs": [],
           "payable": false,
@@ -813,7 +825,9 @@
         },
         {
           "constant": false,
-          "inputs": [{ "internalType": "uint256", "name": "executionStageDuration", "type": "uint256" }],
+          "inputs": [
+            { "internalType": "uint256", "name": "executionStageDuration", "type": "uint256" }
+          ],
           "name": "setExecutionStageDuration",
           "outputs": [],
           "payable": false,
@@ -840,7 +854,9 @@
         },
         {
           "constant": false,
-          "inputs": [{ "internalType": "uint256", "name": "participationBaseline", "type": "uint256" }],
+          "inputs": [
+            { "internalType": "uint256", "name": "participationBaseline", "type": "uint256" }
+          ],
           "name": "setParticipationBaseline",
           "outputs": [],
           "payable": false,
@@ -849,7 +865,9 @@
         },
         {
           "constant": false,
-          "inputs": [{ "internalType": "uint256", "name": "participationFloor", "type": "uint256" }],
+          "inputs": [
+            { "internalType": "uint256", "name": "participationFloor", "type": "uint256" }
+          ],
           "name": "setParticipationFloor",
           "outputs": [],
           "payable": false,
@@ -867,7 +885,9 @@
         },
         {
           "constant": false,
-          "inputs": [{ "internalType": "uint256", "name": "referendumStageDuration", "type": "uint256" }],
+          "inputs": [
+            { "internalType": "uint256", "name": "referendumStageDuration", "type": "uint256" }
+          ],
           "name": "setReferendumStageDuration",
           "outputs": [],
           "payable": false,
@@ -996,20 +1016,34 @@
         },
         {
           "anonymous": false,
-          "inputs": [{ "indexed": true, "internalType": "address", "name": "approver", "type": "address" }],
+          "inputs": [
+            { "indexed": true, "internalType": "address", "name": "approver", "type": "address" }
+          ],
           "name": "ApproverSet",
           "type": "event"
         },
         {
           "anonymous": false,
-          "inputs": [{ "indexed": false, "internalType": "uint256", "name": "concurrentProposals", "type": "uint256" }],
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "concurrentProposals",
+              "type": "uint256"
+            }
+          ],
           "name": "ConcurrentProposalsSet",
           "type": "event"
         },
         {
           "anonymous": false,
           "inputs": [
-            { "indexed": true, "internalType": "address", "name": "destination", "type": "address" },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "destination",
+              "type": "address"
+            },
             { "indexed": true, "internalType": "bytes4", "name": "functionId", "type": "bytes4" },
             { "indexed": false, "internalType": "uint256", "name": "threshold", "type": "uint256" }
           ],
@@ -1018,13 +1052,27 @@
         },
         {
           "anonymous": false,
-          "inputs": [{ "indexed": false, "internalType": "uint256", "name": "dequeueFrequency", "type": "uint256" }],
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "dequeueFrequency",
+              "type": "uint256"
+            }
+          ],
           "name": "DequeueFrequencySet",
           "type": "event"
         },
         {
           "anonymous": false,
-          "inputs": [{ "indexed": false, "internalType": "uint256", "name": "executionStageDuration", "type": "uint256" }],
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "executionStageDuration",
+              "type": "uint256"
+            }
+          ],
           "name": "ExecutionStageDurationSet",
           "type": "event"
         },
@@ -1039,13 +1087,17 @@
         },
         {
           "anonymous": false,
-          "inputs": [{ "indexed": true, "internalType": "bytes32", "name": "hash", "type": "bytes32" }],
+          "inputs": [
+            { "indexed": true, "internalType": "bytes32", "name": "hash", "type": "bytes32" }
+          ],
           "name": "HotfixExecuted",
           "type": "event"
         },
         {
           "anonymous": false,
-          "inputs": [{ "indexed": false, "internalType": "uint256", "name": "timeDelta", "type": "uint256" }],
+          "inputs": [
+            { "indexed": false, "internalType": "uint256", "name": "timeDelta", "type": "uint256" }
+          ],
           "name": "HotfixExecutionTimeWindowSet",
           "type": "event"
         },
@@ -1053,27 +1105,41 @@
           "anonymous": false,
           "inputs": [
             { "indexed": true, "internalType": "bytes32", "name": "hash", "type": "bytes32" },
-            { "indexed": true, "internalType": "uint256", "name": "executionLimit", "type": "uint256" }
+            {
+              "indexed": true,
+              "internalType": "uint256",
+              "name": "executionLimit",
+              "type": "uint256"
+            }
           ],
           "name": "HotfixPrepared",
           "type": "event"
         },
         {
           "anonymous": false,
-          "inputs": [{ "indexed": true, "internalType": "bytes32", "name": "hash", "type": "bytes32" }],
+          "inputs": [
+            { "indexed": true, "internalType": "bytes32", "name": "hash", "type": "bytes32" }
+          ],
           "name": "HotfixRecordReset",
           "type": "event"
         },
         {
           "anonymous": false,
-          "inputs": [{ "indexed": false, "internalType": "uint256", "name": "minDeposit", "type": "uint256" }],
+          "inputs": [
+            { "indexed": false, "internalType": "uint256", "name": "minDeposit", "type": "uint256" }
+          ],
           "name": "MinDepositSet",
           "type": "event"
         },
         {
           "anonymous": false,
           "inputs": [
-            { "indexed": true, "internalType": "address", "name": "previousOwner", "type": "address" },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "previousOwner",
+              "type": "address"
+            },
             { "indexed": true, "internalType": "address", "name": "newOwner", "type": "address" }
           ],
           "name": "OwnershipTransferred",
@@ -1081,31 +1147,61 @@
         },
         {
           "anonymous": false,
-          "inputs": [{ "indexed": false, "internalType": "uint256", "name": "baselineQuorumFactor", "type": "uint256" }],
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "baselineQuorumFactor",
+              "type": "uint256"
+            }
+          ],
           "name": "ParticipationBaselineQuorumFactorSet",
           "type": "event"
         },
         {
           "anonymous": false,
-          "inputs": [{ "indexed": false, "internalType": "uint256", "name": "baselineUpdateFactor", "type": "uint256" }],
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "baselineUpdateFactor",
+              "type": "uint256"
+            }
+          ],
           "name": "ParticipationBaselineUpdateFactorSet",
           "type": "event"
         },
         {
           "anonymous": false,
-          "inputs": [{ "indexed": false, "internalType": "uint256", "name": "participationBaseline", "type": "uint256" }],
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "participationBaseline",
+              "type": "uint256"
+            }
+          ],
           "name": "ParticipationBaselineUpdated",
           "type": "event"
         },
         {
           "anonymous": false,
-          "inputs": [{ "indexed": false, "internalType": "uint256", "name": "participationFloor", "type": "uint256" }],
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "participationFloor",
+              "type": "uint256"
+            }
+          ],
           "name": "ParticipationFloorSet",
           "type": "event"
         },
         {
           "anonymous": false,
-          "inputs": [{ "indexed": true, "internalType": "uint256", "name": "proposalId", "type": "uint256" }],
+          "inputs": [
+            { "indexed": true, "internalType": "uint256", "name": "proposalId", "type": "uint256" }
+          ],
           "name": "ProposalApproved",
           "type": "event"
         },
@@ -1120,13 +1216,17 @@
         },
         {
           "anonymous": false,
-          "inputs": [{ "indexed": true, "internalType": "uint256", "name": "proposalId", "type": "uint256" }],
+          "inputs": [
+            { "indexed": true, "internalType": "uint256", "name": "proposalId", "type": "uint256" }
+          ],
           "name": "ProposalExecuted",
           "type": "event"
         },
         {
           "anonymous": false,
-          "inputs": [{ "indexed": true, "internalType": "uint256", "name": "proposalId", "type": "uint256" }],
+          "inputs": [
+            { "indexed": true, "internalType": "uint256", "name": "proposalId", "type": "uint256" }
+          ],
           "name": "ProposalExpired",
           "type": "event"
         },
@@ -1135,7 +1235,12 @@
           "inputs": [
             { "indexed": true, "internalType": "uint256", "name": "proposalId", "type": "uint256" },
             { "indexed": true, "internalType": "address", "name": "proposer", "type": "address" },
-            { "indexed": false, "internalType": "uint256", "name": "transactionCount", "type": "uint256" },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "transactionCount",
+              "type": "uint256"
+            },
             { "indexed": false, "internalType": "uint256", "name": "deposit", "type": "uint256" },
             { "indexed": false, "internalType": "uint256", "name": "timestamp", "type": "uint256" }
           ],
@@ -1147,7 +1252,12 @@
           "inputs": [
             { "indexed": true, "internalType": "uint256", "name": "proposalId", "type": "uint256" },
             { "indexed": true, "internalType": "address", "name": "account", "type": "address" },
-            { "indexed": false, "internalType": "uint256", "name": "revokedUpvotes", "type": "uint256" }
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "revokedUpvotes",
+              "type": "uint256"
+            }
           ],
           "name": "ProposalUpvoteRevoked",
           "type": "event"
@@ -1180,7 +1290,12 @@
             { "indexed": true, "internalType": "address", "name": "account", "type": "address" },
             { "indexed": false, "internalType": "uint256", "name": "yesVotes", "type": "uint256" },
             { "indexed": false, "internalType": "uint256", "name": "noVotes", "type": "uint256" },
-            { "indexed": false, "internalType": "uint256", "name": "abstainVotes", "type": "uint256" }
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "abstainVotes",
+              "type": "uint256"
+            }
           ],
           "name": "ProposalVoteRevokedV2",
           "type": "event"
@@ -1203,32 +1318,60 @@
             { "indexed": true, "internalType": "address", "name": "account", "type": "address" },
             { "indexed": false, "internalType": "uint256", "name": "yesVotes", "type": "uint256" },
             { "indexed": false, "internalType": "uint256", "name": "noVotes", "type": "uint256" },
-            { "indexed": false, "internalType": "uint256", "name": "abstainVotes", "type": "uint256" }
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "abstainVotes",
+              "type": "uint256"
+            }
           ],
           "name": "ProposalVotedV2",
           "type": "event"
         },
         {
           "anonymous": false,
-          "inputs": [{ "indexed": false, "internalType": "uint256", "name": "queueExpiry", "type": "uint256" }],
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "queueExpiry",
+              "type": "uint256"
+            }
+          ],
           "name": "QueueExpirySet",
           "type": "event"
         },
         {
           "anonymous": false,
-          "inputs": [{ "indexed": false, "internalType": "uint256", "name": "referendumStageDuration", "type": "uint256" }],
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "referendumStageDuration",
+              "type": "uint256"
+            }
+          ],
           "name": "ReferendumStageDurationSet",
           "type": "event"
         },
         {
           "anonymous": false,
-          "inputs": [{ "indexed": true, "internalType": "address", "name": "registryAddress", "type": "address" }],
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "registryAddress",
+              "type": "address"
+            }
+          ],
           "name": "RegistrySet",
           "type": "event"
         },
         {
           "anonymous": false,
-          "inputs": [{ "indexed": true, "internalType": "address", "name": "council", "type": "address" }],
+          "inputs": [
+            { "indexed": true, "internalType": "address", "name": "council", "type": "address" }
+          ],
           "name": "SecurityCouncilSet",
           "type": "event"
         },
@@ -1257,7 +1400,13 @@
         "required": ["proposalId", "index"],
         "excluded": []
       },
-      "0x3bb0ed2b": { "$id": "dequeueProposalsIfReady", "intent": "Dequeue Proposals", "fields": [], "required": [], "excluded": [] },
+      "0x3bb0ed2b": {
+        "$id": "dequeueProposalsIfReady",
+        "intent": "Dequeue Proposals",
+        "fields": [],
+        "required": [],
+        "excluded": []
+      },
       "0x5601eaea": {
         "$id": "execute",
         "intent": "Execute Proposal",
@@ -1270,7 +1419,12 @@
         "intent": "Execute Hotfix",
         "fields": [
           { "path": "values.[]", "label": "CELO to Send", "format": "amount" },
-          { "path": "destinations.[]", "label": "Recipient", "format": "addressName", "params": { "types": ["eoa", "contract"] } }
+          {
+            "path": "destinations.[]",
+            "label": "Recipient",
+            "format": "addressName",
+            "params": { "types": ["eoa", "contract"] }
+          }
         ],
         "required": ["values", "destinations"],
         "excluded": ["data", "dataLengths", "salt"]
@@ -1287,14 +1441,24 @@
         "intent": "Propose",
         "fields": [
           { "path": "values.[]", "label": "Amount to Send", "format": "amount" },
-          { "path": "destinations.[]", "label": "Recipient", "format": "addressName", "params": { "types": ["eoa", "contract"] } },
+          {
+            "path": "destinations.[]",
+            "label": "Recipient",
+            "format": "addressName",
+            "params": { "types": ["eoa", "contract"] }
+          },
           { "path": "@.value", "label": "Deposit", "format": "amount" },
           { "path": "descriptionUrl", "label": "Description URL", "format": "raw" }
         ],
         "required": ["values", "destinations", "@.value"],
         "excluded": ["data", "dataLengths"]
       },
-      "0xaf108a0e": { "$id": "revokeUpvote", "intent": "Revoke Upvote", "fields": [], "excluded": ["lesser", "greater"] },
+      "0xaf108a0e": {
+        "$id": "revokeUpvote",
+        "intent": "Revoke Upvote",
+        "fields": [],
+        "excluded": ["lesser", "greater"]
+      },
       "0x9381ab25": {
         "$id": "revokeVotes",
         "intent": "Revoke Votes",
@@ -1326,7 +1490,12 @@
         "intent": "Vote",
         "fields": [
           { "path": "proposalId", "label": "Proposal ID", "format": "raw" },
-          { "path": "value", "label": "Vote", "format": "enum", "params": { "$ref": "$.metadata.enums.ProposalsVoteValue" } }
+          {
+            "path": "value",
+            "label": "Vote",
+            "format": "enum",
+            "params": { "$ref": "$.metadata.enums.ProposalsVoteValue" }
+          }
         ],
         "required": ["proposalId", "value"],
         "excluded": ["index"]
@@ -1346,7 +1515,14 @@
       "0x3ccfd60b": {
         "$id": "withdraw",
         "intent": "Withdraw",
-        "fields": [{ "path": "@.from", "label": "Beneficiary", "format": "addressName", "params": { "types": ["eoa"] } }],
+        "fields": [
+          {
+            "path": "@.from",
+            "label": "Beneficiary",
+            "format": "addressName",
+            "params": { "types": ["eoa"] }
+          }
+        ],
         "required": ["@.from"],
         "excluded": []
       }

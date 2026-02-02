@@ -7,9 +7,9 @@
 
 import type {
   ERC7730Descriptor,
-  FunctionFormat,
   FieldDefinition,
   FieldFormat,
+  FunctionFormat,
 } from '../types/erc7730.js';
 import { EMBEDDED_REGISTRY } from './embedded.js';
 
@@ -43,9 +43,7 @@ function convertField(field: any): FieldDefinition | null {
   }
 
   const format = field.format as string;
-  const normalizedFormat = SUPPORTED_FORMATS.has(format)
-    ? (format as FieldFormat)
-    : undefined;
+  const normalizedFormat = SUPPORTED_FORMATS.has(format) ? (format as FieldFormat) : undefined;
 
   return {
     path: field.path || '',
@@ -126,12 +124,12 @@ export function findBySelector(
   selector: string
 ): { descriptor: ERC7730Descriptor; format: FunctionFormat }[] {
   const normalizedSelector = selector.toLowerCase();
-  const ids = (registry.bySelector || {})[normalizedSelector] || [];
+  const ids = registry.bySelector?.[normalizedSelector] || [];
 
   const results: { descriptor: ERC7730Descriptor; format: FunctionFormat }[] = [];
 
   for (const id of ids) {
-    const entry = (registry.descriptors || {})[id];
+    const entry = registry.descriptors?.[id];
     if (!entry) continue;
 
     const descriptor = convertToDescriptor(entry);
@@ -151,18 +149,17 @@ export function findBySelector(
 /**
  * Find descriptors by contract address
  */
-export function findByAddress(
-  address: string,
-  chainId: number
-): ERC7730Descriptor[] {
+export function findByAddress(address: string, chainId: number): ERC7730Descriptor[] {
   const key = `${chainId}:${address.toLowerCase()}`;
-  const ids = (registry.byAddress || {})[key] || [];
+  const ids = registry.byAddress?.[key] || [];
 
-  return ids
-    .map((id: string) => (registry.descriptors || {})[id])
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .filter((entry: any) => !!entry)
-    .map(convertToDescriptor);
+  return (
+    ids
+      .map((id: string) => registry.descriptors?.[id])
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .filter((entry: any) => !!entry)
+      .map(convertToDescriptor)
+  );
 }
 
 /**

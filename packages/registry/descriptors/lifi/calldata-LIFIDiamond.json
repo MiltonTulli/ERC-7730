@@ -434,11 +434,26 @@
           "type": "event",
           "name": "AssetSwapped",
           "inputs": [
-            { "name": "transactionId", "type": "bytes32", "indexed": false, "internalType": "bytes32" },
+            {
+              "name": "transactionId",
+              "type": "bytes32",
+              "indexed": false,
+              "internalType": "bytes32"
+            },
             { "name": "dex", "type": "address", "indexed": false, "internalType": "address" },
-            { "name": "fromAssetId", "type": "address", "indexed": false, "internalType": "address" },
+            {
+              "name": "fromAssetId",
+              "type": "address",
+              "indexed": false,
+              "internalType": "address"
+            },
             { "name": "toAssetId", "type": "address", "indexed": false, "internalType": "address" },
-            { "name": "fromAmount", "type": "uint256", "indexed": false, "internalType": "uint256" },
+            {
+              "name": "fromAmount",
+              "type": "uint256",
+              "indexed": false,
+              "internalType": "uint256"
+            },
             { "name": "toAmount", "type": "uint256", "indexed": false, "internalType": "uint256" },
             { "name": "timestamp", "type": "uint256", "indexed": false, "internalType": "uint256" }
           ],
@@ -448,8 +463,18 @@
           "type": "event",
           "name": "BridgeToNonEVMChain",
           "inputs": [
-            { "name": "transactionId", "type": "bytes32", "indexed": true, "internalType": "bytes32" },
-            { "name": "destinationChainId", "type": "uint256", "indexed": true, "internalType": "uint256" },
+            {
+              "name": "transactionId",
+              "type": "bytes32",
+              "indexed": true,
+              "internalType": "bytes32"
+            },
+            {
+              "name": "destinationChainId",
+              "type": "uint256",
+              "indexed": true,
+              "internalType": "uint256"
+            },
             { "name": "receiver", "type": "bytes", "indexed": false, "internalType": "bytes" }
           ],
           "anonymous": false
@@ -458,8 +483,18 @@
           "type": "event",
           "name": "BridgeToNonEVMChainBytes32",
           "inputs": [
-            { "name": "transactionId", "type": "bytes32", "indexed": true, "internalType": "bytes32" },
-            { "name": "destinationChainId", "type": "uint256", "indexed": true, "internalType": "uint256" },
+            {
+              "name": "transactionId",
+              "type": "bytes32",
+              "indexed": true,
+              "internalType": "bytes32"
+            },
+            {
+              "name": "destinationChainId",
+              "type": "uint256",
+              "indexed": true,
+              "internalType": "uint256"
+            },
             { "name": "receiver", "type": "bytes32", "indexed": false, "internalType": "bytes32" }
           ],
           "anonymous": false
@@ -468,13 +503,28 @@
           "type": "event",
           "name": "LiFiGenericSwapCompleted",
           "inputs": [
-            { "name": "transactionId", "type": "bytes32", "indexed": true, "internalType": "bytes32" },
+            {
+              "name": "transactionId",
+              "type": "bytes32",
+              "indexed": true,
+              "internalType": "bytes32"
+            },
             { "name": "integrator", "type": "string", "indexed": false, "internalType": "string" },
             { "name": "referrer", "type": "string", "indexed": false, "internalType": "string" },
             { "name": "receiver", "type": "address", "indexed": false, "internalType": "address" },
-            { "name": "fromAssetId", "type": "address", "indexed": false, "internalType": "address" },
+            {
+              "name": "fromAssetId",
+              "type": "address",
+              "indexed": false,
+              "internalType": "address"
+            },
             { "name": "toAssetId", "type": "address", "indexed": false, "internalType": "address" },
-            { "name": "fromAmount", "type": "uint256", "indexed": false, "internalType": "uint256" },
+            {
+              "name": "fromAmount",
+              "type": "uint256",
+              "indexed": false,
+              "internalType": "uint256"
+            },
             { "name": "toAmount", "type": "uint256", "indexed": false, "internalType": "uint256" }
           ],
           "anonymous": false
@@ -483,12 +533,27 @@
           "type": "event",
           "name": "LiFiSwappedGeneric",
           "inputs": [
-            { "name": "transactionId", "type": "bytes32", "indexed": true, "internalType": "bytes32" },
+            {
+              "name": "transactionId",
+              "type": "bytes32",
+              "indexed": true,
+              "internalType": "bytes32"
+            },
             { "name": "integrator", "type": "string", "indexed": false, "internalType": "string" },
             { "name": "referrer", "type": "string", "indexed": false, "internalType": "string" },
-            { "name": "fromAssetId", "type": "address", "indexed": false, "internalType": "address" },
+            {
+              "name": "fromAssetId",
+              "type": "address",
+              "indexed": false,
+              "internalType": "address"
+            },
             { "name": "toAssetId", "type": "address", "indexed": false, "internalType": "address" },
-            { "name": "fromAmount", "type": "uint256", "indexed": false, "internalType": "uint256" },
+            {
+              "name": "fromAmount",
+              "type": "uint256",
+              "indexed": false,
+              "internalType": "uint256"
+            },
             { "name": "toAmount", "type": "uint256", "indexed": false, "internalType": "uint256" }
           ],
           "anonymous": false
@@ -497,8 +562,18 @@
           "type": "event",
           "name": "LiFiTransferCompleted",
           "inputs": [
-            { "name": "transactionId", "type": "bytes32", "indexed": true, "internalType": "bytes32" },
-            { "name": "receivingAssetId", "type": "address", "indexed": false, "internalType": "address" },
+            {
+              "name": "transactionId",
+              "type": "bytes32",
+              "indexed": true,
+              "internalType": "bytes32"
+            },
+            {
+              "name": "receivingAssetId",
+              "type": "address",
+              "indexed": false,
+              "internalType": "address"
+            },
             { "name": "receiver", "type": "address", "indexed": false, "internalType": "address" },
             { "name": "amount", "type": "uint256", "indexed": false, "internalType": "uint256" },
             { "name": "timestamp", "type": "uint256", "indexed": false, "internalType": "uint256" }
@@ -509,8 +584,18 @@
           "type": "event",
           "name": "LiFiTransferRecovered",
           "inputs": [
-            { "name": "transactionId", "type": "bytes32", "indexed": true, "internalType": "bytes32" },
-            { "name": "receivingAssetId", "type": "address", "indexed": false, "internalType": "address" },
+            {
+              "name": "transactionId",
+              "type": "bytes32",
+              "indexed": true,
+              "internalType": "bytes32"
+            },
+            {
+              "name": "receivingAssetId",
+              "type": "address",
+              "indexed": false,
+              "internalType": "address"
+            },
             { "name": "receiver", "type": "address", "indexed": false, "internalType": "address" },
             { "name": "amount", "type": "uint256", "indexed": false, "internalType": "uint256" },
             { "name": "timestamp", "type": "uint256", "indexed": false, "internalType": "uint256" }
@@ -691,7 +776,9 @@
           "type": "function",
           "name": "tokenMessaging",
           "inputs": [],
-          "outputs": [{ "name": "", "type": "address", "internalType": "contract ITokenMessaging" }],
+          "outputs": [
+            { "name": "", "type": "address", "internalType": "contract ITokenMessaging" }
+          ],
           "stateMutability": "view"
         },
         { "type": "error", "name": "CannotBridgeToSameNetwork", "inputs": [] },
@@ -835,7 +922,12 @@
           "name": "PeripheryContractRegistered",
           "inputs": [
             { "name": "name", "type": "string", "indexed": false, "internalType": "string" },
-            { "name": "contractAddress", "type": "address", "indexed": false, "internalType": "address" }
+            {
+              "name": "contractAddress",
+              "type": "address",
+              "indexed": false,
+              "internalType": "address"
+            }
           ],
           "anonymous": false
         },
@@ -1124,8 +1216,20 @@
           "outputs": [{ "name": "", "type": "bytes", "internalType": "bytes" }],
           "stateMutability": "view"
         },
-        { "type": "function", "name": "cancelOwnershipTransfer", "inputs": [], "outputs": [], "stateMutability": "nonpayable" },
-        { "type": "function", "name": "confirmOwnershipTransfer", "inputs": [], "outputs": [], "stateMutability": "nonpayable" },
+        {
+          "type": "function",
+          "name": "cancelOwnershipTransfer",
+          "inputs": [],
+          "outputs": [],
+          "stateMutability": "nonpayable"
+        },
+        {
+          "type": "function",
+          "name": "confirmOwnershipTransfer",
+          "inputs": [],
+          "outputs": [],
+          "stateMutability": "nonpayable"
+        },
         {
           "type": "function",
           "name": "decode_startBridgeTokensViaAcrossERC20Packed",
@@ -1260,7 +1364,9 @@
         {
           "type": "function",
           "name": "setApprovalForBridge",
-          "inputs": [{ "name": "tokensToApprove", "type": "address[]", "internalType": "address[]" }],
+          "inputs": [
+            { "name": "tokensToApprove", "type": "address[]", "internalType": "address[]" }
+          ],
           "outputs": [],
           "stateMutability": "nonpayable"
         },
@@ -1317,11 +1423,23 @@
           "outputs": [],
           "stateMutability": "nonpayable"
         },
-        { "type": "event", "name": "CallExecutedAndFundsWithdrawn", "inputs": [], "anonymous": false },
+        {
+          "type": "event",
+          "name": "CallExecutedAndFundsWithdrawn",
+          "inputs": [],
+          "anonymous": false
+        },
         {
           "type": "event",
           "name": "LiFiAcrossTransfer",
-          "inputs": [{ "name": "_transactionId", "type": "bytes8", "indexed": false, "internalType": "bytes8" }],
+          "inputs": [
+            {
+              "name": "_transactionId",
+              "type": "bytes8",
+              "indexed": false,
+              "internalType": "bytes8"
+            }
+          ],
           "anonymous": false
         },
         {
@@ -1337,7 +1455,12 @@
           "type": "event",
           "name": "OwnershipTransferred",
           "inputs": [
-            { "name": "previousOwner", "type": "address", "indexed": true, "internalType": "address" },
+            {
+              "name": "previousOwner",
+              "type": "address",
+              "indexed": true,
+              "internalType": "address"
+            },
             { "name": "newOwner", "type": "address", "indexed": true, "internalType": "address" }
           ],
           "anonymous": false
@@ -1374,7 +1497,11 @@
               "type": "tuple",
               "internalType": "struct SquidFacet.SquidData",
               "components": [
-                { "name": "routeType", "type": "uint8", "internalType": "enum SquidFacet.RouteType" },
+                {
+                  "name": "routeType",
+                  "type": "uint8",
+                  "internalType": "enum SquidFacet.RouteType"
+                },
                 { "name": "destinationChain", "type": "string", "internalType": "string" },
                 { "name": "destinationAddress", "type": "string", "internalType": "string" },
                 { "name": "bridgedTokenSymbol", "type": "string", "internalType": "string" },
@@ -1384,7 +1511,11 @@
                   "type": "tuple[]",
                   "internalType": "struct ISquidMulticall.Call[]",
                   "components": [
-                    { "name": "callType", "type": "uint8", "internalType": "enum ISquidMulticall.CallType" },
+                    {
+                      "name": "callType",
+                      "type": "uint8",
+                      "internalType": "enum ISquidMulticall.CallType"
+                    },
                     { "name": "target", "type": "address", "internalType": "address" },
                     { "name": "value", "type": "uint256", "internalType": "uint256" },
                     { "name": "callData", "type": "bytes", "internalType": "bytes" },
@@ -1440,7 +1571,11 @@
               "type": "tuple",
               "internalType": "struct SquidFacet.SquidData",
               "components": [
-                { "name": "routeType", "type": "uint8", "internalType": "enum SquidFacet.RouteType" },
+                {
+                  "name": "routeType",
+                  "type": "uint8",
+                  "internalType": "enum SquidFacet.RouteType"
+                },
                 { "name": "destinationChain", "type": "string", "internalType": "string" },
                 { "name": "destinationAddress", "type": "string", "internalType": "string" },
                 { "name": "bridgedTokenSymbol", "type": "string", "internalType": "string" },
@@ -1450,7 +1585,11 @@
                   "type": "tuple[]",
                   "internalType": "struct ISquidMulticall.Call[]",
                   "components": [
-                    { "name": "callType", "type": "uint8", "internalType": "enum ISquidMulticall.CallType" },
+                    {
+                      "name": "callType",
+                      "type": "uint8",
+                      "internalType": "enum ISquidMulticall.CallType"
+                    },
                     { "name": "target", "type": "address", "internalType": "address" },
                     { "name": "value", "type": "uint256", "internalType": "uint256" },
                     { "name": "callData", "type": "bytes", "internalType": "bytes" },
@@ -1485,7 +1624,9 @@
           "type": "function",
           "name": "SPOKEPOOL",
           "inputs": [],
-          "outputs": [{ "name": "", "type": "address", "internalType": "contract IAcrossSpokePoolV4" }],
+          "outputs": [
+            { "name": "", "type": "address", "internalType": "contract IAcrossSpokePoolV4" }
+          ],
           "stateMutability": "view"
         },
         {
@@ -1751,7 +1892,12 @@
           "type": "event",
           "name": "CBridgeRefund",
           "inputs": [
-            { "name": "_assetAddress", "type": "address", "indexed": true, "internalType": "address" },
+            {
+              "name": "_assetAddress",
+              "type": "address",
+              "indexed": true,
+              "internalType": "address"
+            },
             { "name": "_to", "type": "address", "indexed": true, "internalType": "address" },
             { "name": "amount", "type": "uint256", "indexed": false, "internalType": "uint256" }
           ],
@@ -1760,12 +1906,25 @@
         {
           "type": "event",
           "name": "LiFiCBridgeTransfer",
-          "inputs": [{ "name": "_transactionId", "type": "bytes8", "indexed": false, "internalType": "bytes8" }],
+          "inputs": [
+            {
+              "name": "_transactionId",
+              "type": "bytes8",
+              "indexed": false,
+              "internalType": "bytes8"
+            }
+          ],
           "anonymous": false
         },
         { "type": "error", "name": "ExternalCallFailed", "inputs": [] },
         { "type": "fallback", "stateMutability": "payable" },
-        { "type": "function", "name": "pauseDiamond", "inputs": [], "outputs": [], "stateMutability": "nonpayable" },
+        {
+          "type": "function",
+          "name": "pauseDiamond",
+          "inputs": [],
+          "outputs": [],
+          "stateMutability": "nonpayable"
+        },
         {
           "type": "function",
           "name": "pauserWallet",
@@ -1798,7 +1957,11 @@
               "internalType": "struct LibDiamond.FacetCut[]",
               "components": [
                 { "name": "facetAddress", "type": "address", "internalType": "address" },
-                { "name": "action", "type": "uint8", "internalType": "enum LibDiamond.FacetCutAction" },
+                {
+                  "name": "action",
+                  "type": "uint8",
+                  "internalType": "enum LibDiamond.FacetCutAction"
+                },
                 { "name": "functionSelectors", "type": "bytes4[]", "internalType": "bytes4[]" }
               ]
             },
@@ -1811,7 +1974,12 @@
           "type": "event",
           "name": "EmergencyFacetRemoved",
           "inputs": [
-            { "name": "facetAddress", "type": "address", "indexed": true, "internalType": "address" },
+            {
+              "name": "facetAddress",
+              "type": "address",
+              "indexed": true,
+              "internalType": "address"
+            },
             { "name": "msgSender", "type": "address", "indexed": true, "internalType": "address" }
           ],
           "anonymous": false
@@ -1819,13 +1987,17 @@
         {
           "type": "event",
           "name": "EmergencyPaused",
-          "inputs": [{ "name": "msgSender", "type": "address", "indexed": true, "internalType": "address" }],
+          "inputs": [
+            { "name": "msgSender", "type": "address", "indexed": true, "internalType": "address" }
+          ],
           "anonymous": false
         },
         {
           "type": "event",
           "name": "EmergencyUnpaused",
-          "inputs": [{ "name": "msgSender", "type": "address", "indexed": true, "internalType": "address" }],
+          "inputs": [
+            { "name": "msgSender", "type": "address", "indexed": true, "internalType": "address" }
+          ],
           "anonymous": false
         },
         { "type": "error", "name": "CalldataEmptyButInitNotZero", "inputs": [] },
@@ -2204,7 +2376,14 @@
         {
           "type": "event",
           "name": "LiFiHopTransfer",
-          "inputs": [{ "name": "_transactionId", "type": "bytes8", "indexed": false, "internalType": "bytes8" }],
+          "inputs": [
+            {
+              "name": "_transactionId",
+              "type": "bytes8",
+              "indexed": false,
+              "internalType": "bytes8"
+            }
+          ],
           "anonymous": false
         },
         { "type": "error", "name": "Invalid", "inputs": [] },
@@ -2382,7 +2561,9 @@
           "type": "function",
           "name": "spokePool",
           "inputs": [],
-          "outputs": [{ "name": "", "type": "address", "internalType": "contract IAcrossSpokePool" }],
+          "outputs": [
+            { "name": "", "type": "address", "internalType": "contract IAcrossSpokePool" }
+          ],
           "stateMutability": "view"
         },
         {
@@ -2522,7 +2703,9 @@
               "name": "_pioneerData",
               "type": "tuple",
               "internalType": "struct PioneerFacet.PioneerData",
-              "components": [{ "name": "refundAddress", "type": "address", "internalType": "address payable" }]
+              "components": [
+                { "name": "refundAddress", "type": "address", "internalType": "address payable" }
+              ]
             }
           ],
           "outputs": [],
@@ -2567,7 +2750,9 @@
               "name": "_pioneerData",
               "type": "tuple",
               "internalType": "struct PioneerFacet.PioneerData",
-              "components": [{ "name": "refundAddress", "type": "address", "internalType": "address payable" }]
+              "components": [
+                { "name": "refundAddress", "type": "address", "internalType": "address payable" }
+              ]
             }
           ],
           "outputs": [],
@@ -2576,7 +2761,9 @@
         {
           "type": "event",
           "name": "PioneerRefundAddressRegistered",
-          "inputs": [{ "name": "refundTo", "type": "address", "indexed": true, "internalType": "address" }],
+          "inputs": [
+            { "name": "refundTo", "type": "address", "indexed": true, "internalType": "address" }
+          ],
           "anonymous": false
         },
         {
@@ -2770,7 +2957,9 @@
           "type": "function",
           "name": "getDestinationChainsValue",
           "inputs": [{ "name": "_chainIds", "type": "uint8[]", "internalType": "uint8[]" }],
-          "outputs": [{ "name": "destinationChains", "type": "uint256", "internalType": "uint256" }],
+          "outputs": [
+            { "name": "destinationChains", "type": "uint256", "internalType": "uint256" }
+          ],
           "stateMutability": "pure"
         },
         {
@@ -2977,7 +3166,11 @@
               "internalType": "struct LibDiamond.FacetCut[]",
               "components": [
                 { "name": "facetAddress", "type": "address", "internalType": "address" },
-                { "name": "action", "type": "uint8", "internalType": "enum LibDiamond.FacetCutAction" },
+                {
+                  "name": "action",
+                  "type": "uint8",
+                  "internalType": "enum LibDiamond.FacetCutAction"
+                },
                 { "name": "functionSelectors", "type": "bytes4[]", "internalType": "bytes4[]" }
               ]
             },
@@ -3000,7 +3193,11 @@
                 { "name": "bridge", "type": "address", "internalType": "address" }
               ]
             },
-            { "name": "standardBridge", "type": "address", "internalType": "contract IL1StandardBridge" }
+            {
+              "name": "standardBridge",
+              "type": "address",
+              "internalType": "contract IL1StandardBridge"
+            }
           ],
           "outputs": [],
           "stateMutability": "nonpayable"
@@ -3142,7 +3339,12 @@
           "type": "event",
           "name": "LogWithdraw",
           "inputs": [
-            { "name": "_assetAddress", "type": "address", "indexed": true, "internalType": "address" },
+            {
+              "name": "_assetAddress",
+              "type": "address",
+              "indexed": true,
+              "internalType": "address"
+            },
             { "name": "_to", "type": "address", "indexed": false, "internalType": "address" },
             { "name": "amount", "type": "uint256", "indexed": false, "internalType": "uint256" }
           ],
@@ -3846,7 +4048,11 @@
                 { "name": "fees", "type": "uint256", "internalType": "uint256" },
                 { "name": "receiveToken", "type": "bytes32", "internalType": "bytes32" },
                 { "name": "nonce", "type": "uint256", "internalType": "uint256" },
-                { "name": "messenger", "type": "uint8", "internalType": "enum IAllBridge.MessengerProtocol" },
+                {
+                  "name": "messenger",
+                  "type": "uint8",
+                  "internalType": "enum IAllBridge.MessengerProtocol"
+                },
                 { "name": "payFeeWithSendingAsset", "type": "bool", "internalType": "bool" }
               ]
             }
@@ -3898,7 +4104,11 @@
                 { "name": "fees", "type": "uint256", "internalType": "uint256" },
                 { "name": "receiveToken", "type": "bytes32", "internalType": "bytes32" },
                 { "name": "nonce", "type": "uint256", "internalType": "uint256" },
-                { "name": "messenger", "type": "uint8", "internalType": "enum IAllBridge.MessengerProtocol" },
+                {
+                  "name": "messenger",
+                  "type": "uint8",
+                  "internalType": "enum IAllBridge.MessengerProtocol"
+                },
                 { "name": "payFeeWithSendingAsset", "type": "bool", "internalType": "bool" }
               ]
             }
@@ -4220,7 +4430,9 @@
           "type": "function",
           "name": "CHAINFLIP_VAULT",
           "inputs": [],
-          "outputs": [{ "name": "", "type": "address", "internalType": "contract IChainflipVault" }],
+          "outputs": [
+            { "name": "", "type": "address", "internalType": "contract IChainflipVault" }
+          ],
           "stateMutability": "view"
         },
         {
@@ -4497,20 +4709,29 @@
         {
           "type": "event",
           "name": "DexAdded",
-          "inputs": [{ "name": "dexAddress", "type": "address", "indexed": true, "internalType": "address" }],
+          "inputs": [
+            { "name": "dexAddress", "type": "address", "indexed": true, "internalType": "address" }
+          ],
           "anonymous": false
         },
         {
           "type": "event",
           "name": "DexRemoved",
-          "inputs": [{ "name": "dexAddress", "type": "address", "indexed": true, "internalType": "address" }],
+          "inputs": [
+            { "name": "dexAddress", "type": "address", "indexed": true, "internalType": "address" }
+          ],
           "anonymous": false
         },
         {
           "type": "event",
           "name": "FunctionSignatureApprovalChanged",
           "inputs": [
-            { "name": "functionSignature", "type": "bytes4", "indexed": true, "internalType": "bytes4" },
+            {
+              "name": "functionSignature",
+              "type": "bytes4",
+              "indexed": true,
+              "internalType": "bytes4"
+            },
             { "name": "approved", "type": "bool", "indexed": true, "internalType": "bool" }
           ],
           "anonymous": false
@@ -4526,14 +4747,18 @@
           "type": "function",
           "name": "facetAddresses",
           "inputs": [],
-          "outputs": [{ "name": "facetAddresses_", "type": "address[]", "internalType": "address[]" }],
+          "outputs": [
+            { "name": "facetAddresses_", "type": "address[]", "internalType": "address[]" }
+          ],
           "stateMutability": "view"
         },
         {
           "type": "function",
           "name": "facetFunctionSelectors",
           "inputs": [{ "name": "_facet", "type": "address", "internalType": "address" }],
-          "outputs": [{ "name": "facetFunctionSelectors_", "type": "bytes4[]", "internalType": "bytes4[]" }],
+          "outputs": [
+            { "name": "facetFunctionSelectors_", "type": "bytes4[]", "internalType": "bytes4[]" }
+          ],
           "stateMutability": "view"
         },
         {
@@ -4774,7 +4999,12 @@
           "name": "DeBridgeChainIdSet",
           "inputs": [
             { "name": "chainId", "type": "uint256", "indexed": true, "internalType": "uint256" },
-            { "name": "deBridgeChainId", "type": "uint256", "indexed": false, "internalType": "uint256" }
+            {
+              "name": "deBridgeChainId",
+              "type": "uint256",
+              "indexed": false,
+              "internalType": "uint256"
+            }
           ],
           "anonymous": false
         },
@@ -4798,7 +5028,9 @@
         {
           "type": "event",
           "name": "DlnOrderCreated",
-          "inputs": [{ "name": "orderId", "type": "bytes32", "indexed": true, "internalType": "bytes32" }],
+          "inputs": [
+            { "name": "orderId", "type": "bytes32", "indexed": true, "internalType": "bytes32" }
+          ],
           "anonymous": false
         },
         { "type": "error", "name": "EmptyNonEVMAddress", "inputs": [] },
@@ -5139,12 +5371,22 @@
       "fromAmount": {
         "label": "Amount info",
         "format": "tokenAmount",
-        "params": { "nativeCurrencyAddress": ["$.metadata.constants.addressAsEth", "$.metadata.constants.addressAsNull"] }
+        "params": {
+          "nativeCurrencyAddress": [
+            "$.metadata.constants.addressAsEth",
+            "$.metadata.constants.addressAsNull"
+          ]
+        }
       },
       "_minAmountOut": {
         "label": "Minimum Amount to receive",
         "format": "tokenAmount",
-        "params": { "nativeCurrencyAddress": ["$.metadata.constants.addressAsEth", "$.metadata.constants.addressAsNull"] }
+        "params": {
+          "nativeCurrencyAddress": [
+            "$.metadata.constants.addressAsEth",
+            "$.metadata.constants.addressAsNull"
+          ]
+        }
       }
     },
     "formats": {
@@ -5171,7 +5413,12 @@
             "params": { "types": ["eoa", "contract"], "sources": ["local", "ens"] }
           }
         ],
-        "required": ["_swapData.[0].fromAmount", "_swapData.[-1].receivingAssetId", "_minAmountOut", "_receiver"],
+        "required": [
+          "_swapData.[0].fromAmount",
+          "_swapData.[-1].receivingAssetId",
+          "_minAmountOut",
+          "_receiver"
+        ],
         "excluded": [
           "_transactionId",
           "_integrator",
@@ -5200,7 +5447,12 @@
             "params": { "types": ["eoa", "contract"], "sources": ["local", "ens"] }
           }
         ],
-        "required": ["_swapData.[0].fromAmount", "_swapData.[-1].receivingAssetId", "_minAmountOut", "_receiver"],
+        "required": [
+          "_swapData.[0].fromAmount",
+          "_swapData.[-1].receivingAssetId",
+          "_minAmountOut",
+          "_receiver"
+        ],
         "excluded": [
           "_transactionId",
           "_integrator",
@@ -5229,7 +5481,12 @@
             "params": { "types": ["eoa", "contract"], "sources": ["local", "ens"] }
           }
         ],
-        "required": ["_swapData.[0].fromAmount", "_swapData.[-1].receivingAssetId", "_minAmountOut", "_receiver"],
+        "required": [
+          "_swapData.[0].fromAmount",
+          "_swapData.[-1].receivingAssetId",
+          "_minAmountOut",
+          "_receiver"
+        ],
         "excluded": [
           "_transactionId",
           "_integrator",
@@ -5263,8 +5520,19 @@
             "params": { "types": ["eoa", "contract"], "sources": ["local", "ens"] }
           }
         ],
-        "required": ["_swapData.fromAmount", "_minAmountOut", "_receiver", "_swapData.receivingAssetId"],
-        "excluded": ["_transactionId", "_integrator", "_referrer", "_swapData.callData", "_swapData.requiresDeposit"]
+        "required": [
+          "_swapData.fromAmount",
+          "_minAmountOut",
+          "_receiver",
+          "_swapData.receivingAssetId"
+        ],
+        "excluded": [
+          "_transactionId",
+          "_integrator",
+          "_referrer",
+          "_swapData.callData",
+          "_swapData.requiresDeposit"
+        ]
       },
       "0x733214a3": {
         "$id": "swapTokensSingleV3ERC20ToNative",
@@ -5314,7 +5582,14 @@
           }
         ],
         "required": ["_swapData.fromAmount", "_minAmountOut", "_receiver"],
-        "excluded": ["_transactionId", "_integrator", "_referrer", "_swapData.callData", "_swapData.requiresDeposit", "_swapData.approveTo"]
+        "excluded": [
+          "_transactionId",
+          "_integrator",
+          "_referrer",
+          "_swapData.callData",
+          "_swapData.requiresDeposit",
+          "_swapData.approveTo"
+        ]
       },
       "0x4630a0d8": {
         "$id": "swapTokensGeneric",

@@ -9,10 +9,10 @@
  * 3. Creates an index for fast lookups by selector and address
  */
 
-import { readdir, readFile, writeFile, mkdir } from 'fs/promises';
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
-import { createHash } from 'crypto';
+import { createHash } from 'node:crypto';
+import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
@@ -45,7 +45,7 @@ function computeSelector(signature) {
 
   // Compute keccak256 hash and take first 4 bytes
   const hash = createHash('sha3-256').update(signature).digest('hex');
-  return '0x' + hash.slice(0, 8);
+  return `0x${hash.slice(0, 8)}`;
 }
 
 async function build() {
@@ -86,7 +86,7 @@ async function build() {
       const descriptor = JSON.parse(content);
 
       // Get relative path for identification
-      const relativePath = file.replace(DESCRIPTORS_DIR + '/', '');
+      const relativePath = file.replace(`${DESCRIPTORS_DIR}/`, '');
       const protocol = relativePath.split('/')[0];
       protocols.add(protocol);
 
@@ -141,16 +141,10 @@ async function build() {
   registry.stats.addresses = Object.keys(registry.byAddress).length;
 
   // Write full registry (for SDK embedding)
-  await writeFile(
-    join(DIST_DIR, 'registry.json'),
-    JSON.stringify(registry, null, 2)
-  );
+  await writeFile(join(DIST_DIR, 'registry.json'), JSON.stringify(registry, null, 2));
 
   // Write minified version
-  await writeFile(
-    join(DIST_DIR, 'registry.min.json'),
-    JSON.stringify(registry)
-  );
+  await writeFile(join(DIST_DIR, 'registry.min.json'), JSON.stringify(registry));
 
   // Write TypeScript module for SDK import
   const tsContent = `// Auto-generated - do not edit
@@ -166,7 +160,7 @@ export default REGISTRY;
   await writeFile(join(DIST_DIR, 'registry.ts'), tsContent);
 
   // Write stats
-  console.log('\n' + '='.repeat(50));
+  console.log(`\n${'='.repeat(50)}`);
   console.log(`✓ Protocols: ${registry.stats.protocols}`);
   console.log(`✓ Descriptors: ${registry.stats.descriptors}`);
   console.log(`✓ Selectors indexed: ${registry.stats.selectors}`);
@@ -176,13 +170,13 @@ export default REGISTRY;
   const fullSize = (await readFile(join(DIST_DIR, 'registry.json'))).length;
   const minSize = (await readFile(join(DIST_DIR, 'registry.min.json'))).length;
 
-  console.log(`\nOutput files:`);
+  console.log('\nOutput files:');
   console.log(`  dist/registry.json     ${(fullSize / 1024).toFixed(1)} KB`);
   console.log(`  dist/registry.min.json ${(minSize / 1024).toFixed(1)} KB`);
-  console.log(`  dist/registry.ts       (for SDK embedding)`);
+  console.log('  dist/registry.ts       (for SDK embedding)');
 }
 
-build().catch(err => {
+build().catch((err) => {
   console.error('Build failed:', err);
   process.exit(1);
 });

@@ -20,7 +20,16 @@
           "type": "function",
           "name": "active",
           "inputs": [],
-          "outputs": [{ "name": "", "type": "bool", "internalType": "bool", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "bool",
+              "internalType": "bool",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -39,22 +48,54 @@
               "indexed": null,
               "unit": null
             },
-            { "name": "_rewardEpochId", "type": "uint24", "internalType": "uint24", "components": null, "indexed": null, "unit": null },
+            {
+              "name": "_rewardEpochId",
+              "type": "uint24",
+              "internalType": "uint24",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
             {
               "name": "_proofs",
               "type": "tuple[]",
               "internalType": "struct RewardsV2Interface.RewardClaimWithProof[]",
               "components": [
-                { "name": "merkleProof", "type": "bytes32[]", "internalType": "bytes32[]", "components": null },
+                {
+                  "name": "merkleProof",
+                  "type": "bytes32[]",
+                  "internalType": "bytes32[]",
+                  "components": null
+                },
                 {
                   "name": "body",
                   "type": "tuple",
                   "internalType": "struct RewardsV2Interface.RewardClaim",
                   "components": [
-                    { "name": "rewardEpochId", "type": "uint24", "internalType": "uint24", "components": null },
-                    { "name": "beneficiary", "type": "bytes20", "internalType": "bytes20", "components": null },
-                    { "name": "amount", "type": "uint120", "internalType": "uint120", "components": null },
-                    { "name": "claimType", "type": "uint8", "internalType": "enum RewardsV2Interface.ClaimType", "components": null }
+                    {
+                      "name": "rewardEpochId",
+                      "type": "uint24",
+                      "internalType": "uint24",
+                      "components": null
+                    },
+                    {
+                      "name": "beneficiary",
+                      "type": "bytes20",
+                      "internalType": "bytes20",
+                      "components": null
+                    },
+                    {
+                      "name": "amount",
+                      "type": "uint120",
+                      "internalType": "uint120",
+                      "components": null
+                    },
+                    {
+                      "name": "claimType",
+                      "type": "uint8",
+                      "internalType": "enum RewardsV2Interface.ClaimType",
+                      "components": null
+                    }
                   ]
                 }
               ],
@@ -93,7 +134,16 @@
           "type": "function",
           "name": "cChainStakeEnabled",
           "inputs": [],
-          "outputs": [{ "name": "", "type": "bool", "internalType": "bool", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "bool",
+              "internalType": "bool",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -103,7 +153,16 @@
         {
           "type": "function",
           "name": "cancelGovernanceCall",
-          "inputs": [{ "name": "_selector", "type": "bytes4", "internalType": "bytes4", "components": null, "indexed": null, "unit": null }],
+          "inputs": [
+            {
+              "name": "_selector",
+              "type": "bytes4",
+              "internalType": "bytes4",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "outputs": [],
           "stateMutability": "nonpayable",
           "constant": null,
@@ -115,7 +174,14 @@
           "type": "function",
           "name": "claim",
           "inputs": [
-            { "name": "_rewardOwner", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null },
+            {
+              "name": "_rewardOwner",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
             {
               "name": "_recipient",
               "type": "address",
@@ -124,23 +190,62 @@
               "indexed": null,
               "unit": null
             },
-            { "name": "_rewardEpochId", "type": "uint24", "internalType": "uint24", "components": null, "indexed": null, "unit": null },
-            { "name": "_wrap", "type": "bool", "internalType": "bool", "components": null, "indexed": null, "unit": null },
+            {
+              "name": "_rewardEpochId",
+              "type": "uint24",
+              "internalType": "uint24",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "_wrap",
+              "type": "bool",
+              "internalType": "bool",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
             {
               "name": "_proofs",
               "type": "tuple[]",
               "internalType": "struct RewardsV2Interface.RewardClaimWithProof[]",
               "components": [
-                { "name": "merkleProof", "type": "bytes32[]", "internalType": "bytes32[]", "components": null },
+                {
+                  "name": "merkleProof",
+                  "type": "bytes32[]",
+                  "internalType": "bytes32[]",
+                  "components": null
+                },
                 {
                   "name": "body",
                   "type": "tuple",
                   "internalType": "struct RewardsV2Interface.RewardClaim",
                   "components": [
-                    { "name": "rewardEpochId", "type": "uint24", "internalType": "uint24", "components": null },
-                    { "name": "beneficiary", "type": "bytes20", "internalType": "bytes20", "components": null },
-                    { "name": "amount", "type": "uint120", "internalType": "uint120", "components": null },
-                    { "name": "claimType", "type": "uint8", "internalType": "enum RewardsV2Interface.ClaimType", "components": null }
+                    {
+                      "name": "rewardEpochId",
+                      "type": "uint24",
+                      "internalType": "uint24",
+                      "components": null
+                    },
+                    {
+                      "name": "beneficiary",
+                      "type": "bytes20",
+                      "internalType": "bytes20",
+                      "components": null
+                    },
+                    {
+                      "name": "amount",
+                      "type": "uint120",
+                      "internalType": "uint120",
+                      "components": null
+                    },
+                    {
+                      "name": "claimType",
+                      "type": "uint8",
+                      "internalType": "enum RewardsV2Interface.ClaimType",
+                      "components": null
+                    }
                   ]
                 }
               ],
@@ -168,8 +273,22 @@
           "type": "function",
           "name": "claimProxy",
           "inputs": [
-            { "name": "_msgSender", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null },
-            { "name": "_rewardOwner", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null },
+            {
+              "name": "_msgSender",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "_rewardOwner",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
             {
               "name": "_recipient",
               "type": "address",
@@ -178,23 +297,62 @@
               "indexed": null,
               "unit": null
             },
-            { "name": "_rewardEpochId", "type": "uint24", "internalType": "uint24", "components": null, "indexed": null, "unit": null },
-            { "name": "_wrap", "type": "bool", "internalType": "bool", "components": null, "indexed": null, "unit": null },
+            {
+              "name": "_rewardEpochId",
+              "type": "uint24",
+              "internalType": "uint24",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "_wrap",
+              "type": "bool",
+              "internalType": "bool",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
             {
               "name": "_proofs",
               "type": "tuple[]",
               "internalType": "struct RewardsV2Interface.RewardClaimWithProof[]",
               "components": [
-                { "name": "merkleProof", "type": "bytes32[]", "internalType": "bytes32[]", "components": null },
+                {
+                  "name": "merkleProof",
+                  "type": "bytes32[]",
+                  "internalType": "bytes32[]",
+                  "components": null
+                },
                 {
                   "name": "body",
                   "type": "tuple",
                   "internalType": "struct RewardsV2Interface.RewardClaim",
                   "components": [
-                    { "name": "rewardEpochId", "type": "uint24", "internalType": "uint24", "components": null },
-                    { "name": "beneficiary", "type": "bytes20", "internalType": "bytes20", "components": null },
-                    { "name": "amount", "type": "uint120", "internalType": "uint120", "components": null },
-                    { "name": "claimType", "type": "uint8", "internalType": "enum RewardsV2Interface.ClaimType", "components": null }
+                    {
+                      "name": "rewardEpochId",
+                      "type": "uint24",
+                      "internalType": "uint24",
+                      "components": null
+                    },
+                    {
+                      "name": "beneficiary",
+                      "type": "bytes20",
+                      "internalType": "bytes20",
+                      "components": null
+                    },
+                    {
+                      "name": "amount",
+                      "type": "uint120",
+                      "internalType": "uint120",
+                      "components": null
+                    },
+                    {
+                      "name": "claimType",
+                      "type": "uint8",
+                      "internalType": "enum RewardsV2Interface.ClaimType",
+                      "components": null
+                    }
                   ]
                 }
               ],
@@ -242,7 +400,16 @@
           "type": "function",
           "name": "cleanupBlockNumber",
           "inputs": [],
-          "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -316,7 +483,16 @@
         {
           "type": "function",
           "name": "executeGovernanceCall",
-          "inputs": [{ "name": "_selector", "type": "bytes4", "internalType": "bytes4", "components": null, "indexed": null, "unit": null }],
+          "inputs": [
+            {
+              "name": "_selector",
+              "type": "bytes4",
+              "internalType": "bytes4",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "outputs": [],
           "stateMutability": "nonpayable",
           "constant": null,
@@ -328,7 +504,16 @@
           "type": "function",
           "name": "firstClaimableRewardEpochId",
           "inputs": [],
-          "outputs": [{ "name": "", "type": "uint24", "internalType": "uint24", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint24",
+              "internalType": "uint24",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -379,7 +564,16 @@
           "type": "function",
           "name": "ftsoRewardManagerProxy",
           "inputs": [],
-          "outputs": [{ "name": "", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -410,7 +604,16 @@
           "type": "function",
           "name": "getCurrentRewardEpochId",
           "inputs": [],
-          "outputs": [{ "name": "", "type": "uint24", "internalType": "uint24", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint24",
+              "internalType": "uint24",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -421,7 +624,16 @@
           "type": "function",
           "name": "getExpectedBalance",
           "inputs": [],
-          "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -432,7 +644,16 @@
           "type": "function",
           "name": "getInitialRewardEpochId",
           "inputs": [],
-          "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -443,9 +664,25 @@
           "type": "function",
           "name": "getNextClaimableRewardEpochId",
           "inputs": [
-            { "name": "_rewardOwner", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null }
+            {
+              "name": "_rewardOwner",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
-          "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -456,7 +693,16 @@
           "type": "function",
           "name": "getRewardEpochIdToExpireNext",
           "inputs": [],
-          "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -468,8 +714,22 @@
           "name": "getRewardEpochIdsWithClaimableRewards",
           "inputs": [],
           "outputs": [
-            { "name": "_startEpochId", "type": "uint24", "internalType": "uint24", "components": null, "indexed": null, "unit": null },
-            { "name": "_endEpochId", "type": "uint24", "internalType": "uint24", "components": null, "indexed": null, "unit": null }
+            {
+              "name": "_startEpochId",
+              "type": "uint24",
+              "internalType": "uint24",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "_endEpochId",
+              "type": "uint24",
+              "internalType": "uint24",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
           "stateMutability": "view",
           "constant": null,
@@ -481,7 +741,14 @@
           "type": "function",
           "name": "getRewardEpochTotals",
           "inputs": [
-            { "name": "_rewardEpochId", "type": "uint24", "internalType": "uint24", "components": null, "indexed": null, "unit": null }
+            {
+              "name": "_rewardEpochId",
+              "type": "uint24",
+              "internalType": "uint24",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
           "outputs": [
             {
@@ -535,7 +802,16 @@
           "type": "function",
           "name": "getRewardOffersManagerList",
           "inputs": [],
-          "outputs": [{ "name": "", "type": "address[]", "internalType": "address[]", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "address[]",
+              "internalType": "address[]",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -546,7 +822,14 @@
           "type": "function",
           "name": "getStateOfRewards",
           "inputs": [
-            { "name": "_rewardOwner", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null }
+            {
+              "name": "_rewardOwner",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
           "outputs": [
             {
@@ -554,11 +837,36 @@
               "type": "tuple[][]",
               "internalType": "struct RewardsV2Interface.RewardState[][]",
               "components": [
-                { "name": "rewardEpochId", "type": "uint24", "internalType": "uint24", "components": null },
-                { "name": "beneficiary", "type": "bytes20", "internalType": "bytes20", "components": null },
-                { "name": "amount", "type": "uint120", "internalType": "uint120", "components": null },
-                { "name": "claimType", "type": "uint8", "internalType": "enum RewardsV2Interface.ClaimType", "components": null },
-                { "name": "initialised", "type": "bool", "internalType": "bool", "components": null }
+                {
+                  "name": "rewardEpochId",
+                  "type": "uint24",
+                  "internalType": "uint24",
+                  "components": null
+                },
+                {
+                  "name": "beneficiary",
+                  "type": "bytes20",
+                  "internalType": "bytes20",
+                  "components": null
+                },
+                {
+                  "name": "amount",
+                  "type": "uint120",
+                  "internalType": "uint120",
+                  "components": null
+                },
+                {
+                  "name": "claimType",
+                  "type": "uint8",
+                  "internalType": "enum RewardsV2Interface.ClaimType",
+                  "components": null
+                },
+                {
+                  "name": "initialised",
+                  "type": "bool",
+                  "internalType": "bool",
+                  "components": null
+                }
               ],
               "indexed": null,
               "unit": null
@@ -574,8 +882,22 @@
           "type": "function",
           "name": "getStateOfRewardsAt",
           "inputs": [
-            { "name": "_rewardOwner", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null },
-            { "name": "_rewardEpochId", "type": "uint24", "internalType": "uint24", "components": null, "indexed": null, "unit": null }
+            {
+              "name": "_rewardOwner",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "_rewardEpochId",
+              "type": "uint24",
+              "internalType": "uint24",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
           "outputs": [
             {
@@ -583,11 +905,36 @@
               "type": "tuple[]",
               "internalType": "struct RewardsV2Interface.RewardState[]",
               "components": [
-                { "name": "rewardEpochId", "type": "uint24", "internalType": "uint24", "components": null },
-                { "name": "beneficiary", "type": "bytes20", "internalType": "bytes20", "components": null },
-                { "name": "amount", "type": "uint120", "internalType": "uint120", "components": null },
-                { "name": "claimType", "type": "uint8", "internalType": "enum RewardsV2Interface.ClaimType", "components": null },
-                { "name": "initialised", "type": "bool", "internalType": "bool", "components": null }
+                {
+                  "name": "rewardEpochId",
+                  "type": "uint24",
+                  "internalType": "uint24",
+                  "components": null
+                },
+                {
+                  "name": "beneficiary",
+                  "type": "bytes20",
+                  "internalType": "bytes20",
+                  "components": null
+                },
+                {
+                  "name": "amount",
+                  "type": "uint120",
+                  "internalType": "uint120",
+                  "components": null
+                },
+                {
+                  "name": "claimType",
+                  "type": "uint8",
+                  "internalType": "enum RewardsV2Interface.ClaimType",
+                  "components": null
+                },
+                {
+                  "name": "initialised",
+                  "type": "bool",
+                  "internalType": "bool",
+                  "components": null
+                }
               ],
               "indexed": null,
               "unit": null
@@ -683,8 +1030,22 @@
           "type": "function",
           "name": "getUnclaimedRewardState",
           "inputs": [
-            { "name": "_beneficiary", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null },
-            { "name": "_rewardEpochId", "type": "uint24", "internalType": "uint24", "components": null, "indexed": null, "unit": null },
+            {
+              "name": "_beneficiary",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "_rewardEpochId",
+              "type": "uint24",
+              "internalType": "uint24",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
             {
               "name": "_claimType",
               "type": "uint8",
@@ -700,9 +1061,24 @@
               "type": "tuple",
               "internalType": "struct IRewardManager.UnclaimedRewardState",
               "components": [
-                { "name": "initialised", "type": "bool", "internalType": "bool", "components": null },
-                { "name": "amount", "type": "uint120", "internalType": "uint120", "components": null },
-                { "name": "weight", "type": "uint128", "internalType": "uint128", "components": null }
+                {
+                  "name": "initialised",
+                  "type": "bool",
+                  "internalType": "bool",
+                  "components": null
+                },
+                {
+                  "name": "amount",
+                  "type": "uint120",
+                  "internalType": "uint120",
+                  "components": null
+                },
+                {
+                  "name": "weight",
+                  "type": "uint128",
+                  "internalType": "uint128",
+                  "components": null
+                }
               ],
               "indexed": null,
               "unit": null
@@ -718,7 +1094,16 @@
           "type": "function",
           "name": "governance",
           "inputs": [],
-          "outputs": [{ "name": "", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -782,16 +1167,41 @@
               "type": "tuple[]",
               "internalType": "struct RewardsV2Interface.RewardClaimWithProof[]",
               "components": [
-                { "name": "merkleProof", "type": "bytes32[]", "internalType": "bytes32[]", "components": null },
+                {
+                  "name": "merkleProof",
+                  "type": "bytes32[]",
+                  "internalType": "bytes32[]",
+                  "components": null
+                },
                 {
                   "name": "body",
                   "type": "tuple",
                   "internalType": "struct RewardsV2Interface.RewardClaim",
                   "components": [
-                    { "name": "rewardEpochId", "type": "uint24", "internalType": "uint24", "components": null },
-                    { "name": "beneficiary", "type": "bytes20", "internalType": "bytes20", "components": null },
-                    { "name": "amount", "type": "uint120", "internalType": "uint120", "components": null },
-                    { "name": "claimType", "type": "uint8", "internalType": "enum RewardsV2Interface.ClaimType", "components": null }
+                    {
+                      "name": "rewardEpochId",
+                      "type": "uint24",
+                      "internalType": "uint24",
+                      "components": null
+                    },
+                    {
+                      "name": "beneficiary",
+                      "type": "bytes20",
+                      "internalType": "bytes20",
+                      "components": null
+                    },
+                    {
+                      "name": "amount",
+                      "type": "uint120",
+                      "internalType": "uint120",
+                      "components": null
+                    },
+                    {
+                      "name": "claimType",
+                      "type": "uint8",
+                      "internalType": "enum RewardsV2Interface.ClaimType",
+                      "components": null
+                    }
                   ]
                 }
               ],
@@ -809,8 +1219,26 @@
         {
           "type": "function",
           "name": "isExecutor",
-          "inputs": [{ "name": "_address", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null }],
-          "outputs": [{ "name": "", "type": "bool", "internalType": "bool", "components": null, "indexed": null, "unit": null }],
+          "inputs": [
+            {
+              "name": "_address",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
+          "outputs": [
+            {
+              "name": "",
+              "type": "bool",
+              "internalType": "bool",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -821,7 +1249,16 @@
           "type": "function",
           "name": "newRewardManager",
           "inputs": [],
-          "outputs": [{ "name": "", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -832,9 +1269,25 @@
           "type": "function",
           "name": "noOfInitialisedWeightBasedClaims",
           "inputs": [
-            { "name": "rewardEpochId", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }
+            {
+              "name": "rewardEpochId",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
-          "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -845,7 +1298,16 @@
           "type": "function",
           "name": "oldRewardManager",
           "inputs": [],
-          "outputs": [{ "name": "", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -876,7 +1338,16 @@
           "type": "function",
           "name": "pChainStakeMirrorEnabled",
           "inputs": [],
-          "outputs": [{ "name": "", "type": "bool", "internalType": "bool", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "bool",
+              "internalType": "bool",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -887,7 +1358,16 @@
           "type": "function",
           "name": "productionMode",
           "inputs": [],
-          "outputs": [{ "name": "", "type": "bool", "internalType": "bool", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "bool",
+              "internalType": "bool",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -898,8 +1378,22 @@
           "type": "function",
           "name": "receiveRewards",
           "inputs": [
-            { "name": "_rewardEpochId", "type": "uint24", "internalType": "uint24", "components": null, "indexed": null, "unit": null },
-            { "name": "_inflation", "type": "bool", "internalType": "bool", "components": null, "indexed": null, "unit": null }
+            {
+              "name": "_rewardEpochId",
+              "type": "uint24",
+              "internalType": "uint24",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "_inflation",
+              "type": "bool",
+              "internalType": "bool",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
           "outputs": [],
           "stateMutability": "payable",
@@ -912,7 +1406,16 @@
           "type": "function",
           "name": "rewardManagerId",
           "inputs": [],
-          "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -984,7 +1487,16 @@
         {
           "type": "function",
           "name": "timelockedCalls",
-          "inputs": [{ "name": "selector", "type": "bytes4", "internalType": "bytes4", "components": null, "indexed": null, "unit": null }],
+          "inputs": [
+            {
+              "name": "selector",
+              "type": "bytes4",
+              "internalType": "bytes4",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "outputs": [
             {
               "name": "allowedAfterTimestamp",
@@ -994,7 +1506,14 @@
               "indexed": null,
               "unit": null
             },
-            { "name": "encodedCall", "type": "bytes", "internalType": "bytes", "components": null, "indexed": null, "unit": null }
+            {
+              "name": "encodedCall",
+              "type": "bytes",
+              "internalType": "bytes",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
           "stateMutability": "view",
           "constant": null,
@@ -1034,7 +1553,16 @@
           "type": "function",
           "name": "wNat",
           "inputs": [],
-          "outputs": [{ "name": "", "type": "address", "internalType": "contract IWNat", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "address",
+              "internalType": "contract IWNat",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -1046,7 +1574,10 @@
       "factory": null
     }
   },
-  "metadata": { "owner": "Flare Network", "info": { "legalName": "Flare Labs", "url": "https://flare.network/" } },
+  "metadata": {
+    "owner": "Flare Network",
+    "info": { "legalName": "Flare Labs", "url": "https://flare.network/" }
+  },
   "display": {
     "formats": {
       "0x15f253fb": {
@@ -1070,16 +1601,46 @@
                 "path": "body",
                 "value": null,
                 "fields": [
-                  { "$id": null, "label": "Beneficiary", "format": "raw", "params": null, "path": "beneficiary", "value": null },
-                  { "$id": null, "label": "Amount", "format": "amount", "params": null, "path": "amount", "value": null },
-                  { "$id": null, "label": "Claim Type", "format": "raw", "params": null, "path": "claimType", "value": null }
+                  {
+                    "$id": null,
+                    "label": "Beneficiary",
+                    "format": "raw",
+                    "params": null,
+                    "path": "beneficiary",
+                    "value": null
+                  },
+                  {
+                    "$id": null,
+                    "label": "Amount",
+                    "format": "amount",
+                    "params": null,
+                    "path": "amount",
+                    "value": null
+                  },
+                  {
+                    "$id": null,
+                    "label": "Claim Type",
+                    "format": "raw",
+                    "params": null,
+                    "path": "claimType",
+                    "value": null
+                  }
                 ]
               }
             ]
           }
         ],
-        "required": ["#._rewardOwners.[]", "#._proofs.[].body.beneficiary", "#._proofs.[].body.amount", "#._proofs.[].body.claimType"],
-        "excluded": ["#._proofs.[].merkleProof.[]", "#._rewardEpochId", "#._proofs.[].body.rewardEpochId"]
+        "required": [
+          "#._rewardOwners.[]",
+          "#._proofs.[].body.beneficiary",
+          "#._proofs.[].body.amount",
+          "#._proofs.[].body.claimType"
+        ],
+        "excluded": [
+          "#._proofs.[].merkleProof.[]",
+          "#._rewardEpochId",
+          "#._proofs.[].body.rewardEpochId"
+        ]
       },
       "0x3ce7522a": {
         "$id": null,
@@ -1094,15 +1655,40 @@
                 "path": "body",
                 "value": null,
                 "fields": [
-                  { "$id": null, "label": "Beneficiary", "format": "raw", "params": null, "path": "beneficiary", "value": null },
-                  { "$id": null, "label": "Amount", "format": "amount", "params": null, "path": "amount", "value": null },
-                  { "$id": null, "label": "Claim Type", "format": "raw", "params": null, "path": "claimType", "value": null }
+                  {
+                    "$id": null,
+                    "label": "Beneficiary",
+                    "format": "raw",
+                    "params": null,
+                    "path": "beneficiary",
+                    "value": null
+                  },
+                  {
+                    "$id": null,
+                    "label": "Amount",
+                    "format": "amount",
+                    "params": null,
+                    "path": "amount",
+                    "value": null
+                  },
+                  {
+                    "$id": null,
+                    "label": "Claim Type",
+                    "format": "raw",
+                    "params": null,
+                    "path": "claimType",
+                    "value": null
+                  }
                 ]
               }
             ]
           }
         ],
-        "required": ["#._proofs.[].body.beneficiary", "#._proofs.[].body.amount", "#._proofs.[].body.claimType"],
+        "required": [
+          "#._proofs.[].body.beneficiary",
+          "#._proofs.[].body.amount",
+          "#._proofs.[].body.claimType"
+        ],
         "excluded": ["#._proofs.[].merkleProof.[]", "#._proofs.[].body.rewardEpochId"]
       }
     }

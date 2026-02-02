@@ -17,7 +17,14 @@
               "indexed": null,
               "unit": null
             },
-            { "name": "timestamp", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null },
+            {
+              "name": "timestamp",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
             {
               "name": "exitQueueIndex",
               "type": "uint256",
@@ -38,10 +45,33 @@
           "type": "function",
           "name": "deposit",
           "inputs": [
-            { "name": "receiver", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null },
-            { "name": "referrer", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null }
+            {
+              "name": "receiver",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "referrer",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
-          "outputs": [{ "name": "shares", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "shares",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "payable",
           "constant": null,
           "payable": null,
@@ -52,8 +82,22 @@
           "type": "function",
           "name": "enterExitQueue",
           "inputs": [
-            { "name": "shares", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null },
-            { "name": "receiver", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null }
+            {
+              "name": "shares",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "receiver",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
           "outputs": [
             {
@@ -74,8 +118,26 @@
         {
           "type": "function",
           "name": "multicall",
-          "inputs": [{ "name": "data", "type": "bytes[]", "internalType": "bytes[]", "components": null, "indexed": null, "unit": null }],
-          "outputs": [{ "name": "results", "type": "bytes[]", "internalType": "bytes[]", "components": null, "indexed": null, "unit": null }],
+          "inputs": [
+            {
+              "name": "data",
+              "type": "bytes[]",
+              "internalType": "bytes[]",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
+          "outputs": [
+            {
+              "name": "results",
+              "type": "bytes[]",
+              "internalType": "bytes[]",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "nonpayable",
           "constant": null,
           "payable": null,
@@ -91,10 +153,30 @@
               "type": "tuple",
               "internalType": "struct IKeeperRewards.HarvestParams",
               "components": [
-                { "name": "rewardsRoot", "type": "bytes32", "internalType": "bytes32", "components": null },
-                { "name": "reward", "type": "int160", "internalType": "int160", "components": null },
-                { "name": "unlockedMevReward", "type": "uint160", "internalType": "uint160", "components": null },
-                { "name": "proof", "type": "bytes32[]", "internalType": "bytes32[]", "components": null }
+                {
+                  "name": "rewardsRoot",
+                  "type": "bytes32",
+                  "internalType": "bytes32",
+                  "components": null
+                },
+                {
+                  "name": "reward",
+                  "type": "int160",
+                  "internalType": "int160",
+                  "components": null
+                },
+                {
+                  "name": "unlockedMevReward",
+                  "type": "uint160",
+                  "internalType": "uint160",
+                  "components": null
+                },
+                {
+                  "name": "proof",
+                  "type": "bytes32[]",
+                  "internalType": "bytes32[]",
+                  "components": null
+                }
               ],
               "indexed": null,
               "unit": null
@@ -111,23 +193,66 @@
           "type": "function",
           "name": "updateStateAndDeposit",
           "inputs": [
-            { "name": "receiver", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null },
-            { "name": "referrer", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null },
+            {
+              "name": "receiver",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "referrer",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
             {
               "name": "harvestParams",
               "type": "tuple",
               "internalType": "struct IKeeperRewards.HarvestParams",
               "components": [
-                { "name": "rewardsRoot", "type": "bytes32", "internalType": "bytes32", "components": null },
-                { "name": "reward", "type": "int160", "internalType": "int160", "components": null },
-                { "name": "unlockedMevReward", "type": "uint160", "internalType": "uint160", "components": null },
-                { "name": "proof", "type": "bytes32[]", "internalType": "bytes32[]", "components": null }
+                {
+                  "name": "rewardsRoot",
+                  "type": "bytes32",
+                  "internalType": "bytes32",
+                  "components": null
+                },
+                {
+                  "name": "reward",
+                  "type": "int160",
+                  "internalType": "int160",
+                  "components": null
+                },
+                {
+                  "name": "unlockedMevReward",
+                  "type": "uint160",
+                  "internalType": "uint160",
+                  "components": null
+                },
+                {
+                  "name": "proof",
+                  "type": "bytes32[]",
+                  "internalType": "bytes32[]",
+                  "components": null
+                }
               ],
               "indexed": null,
               "unit": null
             }
           ],
-          "outputs": [{ "name": "shares", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "shares",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "payable",
           "constant": null,
           "payable": null,
@@ -139,7 +264,10 @@
       "factory": null
     }
   },
-  "metadata": { "owner": "Serenita", "info": { "legalName": "Serenita B.V.", "url": "https://serenita.io/" } },
+  "metadata": {
+    "owner": "Serenita",
+    "info": { "legalName": "Serenita B.V.", "url": "https://serenita.io/" }
+  },
   "display": {
     "formats": {
       "claimExitedAssets(uint256,uint256,uint256)": {
@@ -177,14 +305,26 @@
       },
       "multicall(bytes[])": {
         "intent": "call multiple methods",
-        "fields": [{ "label": "Call", "path": "#.data.[]", "format": "calldata", "params": { "calleePath": "@.to" } }],
+        "fields": [
+          {
+            "label": "Call",
+            "path": "#.data.[]",
+            "format": "calldata",
+            "params": { "calleePath": "@.to" }
+          }
+        ],
         "required": ["#.data.[]"]
       },
       "updateState((bytes32,int160,uint160,bytes32[]))": {
         "intent": "update vault's internal state",
         "fields": [],
         "required": [],
-        "excluded": ["#.harvestParams.rewardsRoot", "#.harvestParams.reward", "#.harvestParams.unlockedMevReward", "#.harvestParams.proof.[]"]
+        "excluded": [
+          "#.harvestParams.rewardsRoot",
+          "#.harvestParams.reward",
+          "#.harvestParams.unlockedMevReward",
+          "#.harvestParams.proof.[]"
+        ]
       },
       "updateStateAndDeposit(address,address,(bytes32,int160,uint160,bytes32[]))": {
         "intent": "deposit and stake ETH",

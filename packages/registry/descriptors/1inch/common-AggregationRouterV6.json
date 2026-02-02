@@ -2,7 +2,11 @@
   "$schema": "../../specs/erc7730-v1.schema.json",
   "metadata": {
     "owner": "1inch",
-    "info": { "url": "https://1inch.io/", "legalName": "1inch Network", "deploymentDate": "2024-02-12T03:44:35Z" },
+    "info": {
+      "url": "https://1inch.io/",
+      "legalName": "1inch Network",
+      "deploymentDate": "2024-02-12T03:44:35Z"
+    },
     "enums": {
       "takerTraits": {
         "0": "None",
@@ -23,27 +27,52 @@
       "sendAmount": {
         "label": "Amount to Send",
         "format": "tokenAmount",
-        "params": { "nativeCurrencyAddress": ["$.metadata.constants.addressAsEth", "$.metadata.constants.addressAsNull"] }
+        "params": {
+          "nativeCurrencyAddress": [
+            "$.metadata.constants.addressAsEth",
+            "$.metadata.constants.addressAsNull"
+          ]
+        }
       },
       "minReceiveAmount": {
         "label": "Minimum to Receive",
         "format": "tokenAmount",
-        "params": { "nativeCurrencyAddress": ["$.metadata.constants.addressAsEth", "$.metadata.constants.addressAsNull"] }
+        "params": {
+          "nativeCurrencyAddress": [
+            "$.metadata.constants.addressAsEth",
+            "$.metadata.constants.addressAsNull"
+          ]
+        }
       },
       "makingAmount": {
         "label": "Order purchasing amt",
         "format": "tokenAmount",
-        "params": { "nativeCurrencyAddress": ["$.metadata.constants.addressAsEth", "$.metadata.constants.addressAsNull"] }
+        "params": {
+          "nativeCurrencyAddress": [
+            "$.metadata.constants.addressAsEth",
+            "$.metadata.constants.addressAsNull"
+          ]
+        }
       },
       "takingAmount": {
         "label": "Order selling amount",
         "format": "tokenAmount",
-        "params": { "nativeCurrencyAddress": ["$.metadata.constants.addressAsEth", "$.metadata.constants.addressAsNull"] }
+        "params": {
+          "nativeCurrencyAddress": [
+            "$.metadata.constants.addressAsEth",
+            "$.metadata.constants.addressAsNull"
+          ]
+        }
       },
       "fillAmount": {
         "label": "Amount to sell",
         "format": "tokenAmount",
-        "params": { "nativeCurrencyAddress": ["$.metadata.constants.addressAsEth", "$.metadata.constants.addressAsNull"] }
+        "params": {
+          "nativeCurrencyAddress": [
+            "$.metadata.constants.addressAsEth",
+            "$.metadata.constants.addressAsNull"
+          ]
+        }
       },
       "takerTraits": {
         "format": "enum",
@@ -51,15 +80,28 @@
         "params": { "$ref": "$.metadata.enums.takerTraits" }
       },
       "beneficiary": { "label": "Beneficiary", "format": "addressName" },
-      "lastPool": { "label": "Last pool", "format": "addressName", "params": { "types": ["contract"] } },
-      "expirationTime": { "label": "Expiration time", "format": "date", "params": { "encoding": "timestamp" } }
+      "lastPool": {
+        "label": "Last pool",
+        "format": "addressName",
+        "params": { "types": ["contract"] }
+      },
+      "expirationTime": {
+        "label": "Expiration time",
+        "format": "date",
+        "params": { "encoding": "timestamp" }
+      }
     },
     "formats": {
       "permitAndCall(bytes permit, bytes action)": {
         "$id": "permitAndCall",
         "intent": "Execute with permit",
         "fields": [
-          { "path": "action", "label": "Swap", "format": "calldata", "params": { "calleePath": "@.to" } }
+          {
+            "path": "action",
+            "label": "Swap",
+            "format": "calldata",
+            "params": { "calleePath": "@.to" }
+          }
         ],
         "required": ["action"],
         "excluded": ["permit"]
@@ -68,7 +110,11 @@
         "$id": "swap",
         "intent": "Swap",
         "fields": [
-          { "path": "desc.amount", "$ref": "$.display.definitions.sendAmount", "params": { "tokenPath": "desc.srcToken" } },
+          {
+            "path": "desc.amount",
+            "$ref": "$.display.definitions.sendAmount",
+            "params": { "tokenPath": "desc.srcToken" }
+          },
           {
             "path": "desc.minReturnAmount",
             "$ref": "$.display.definitions.minReceiveAmount",
@@ -83,7 +129,11 @@
         "$id": "unoswap",
         "intent": "Swap",
         "fields": [
-          { "path": "amount", "$ref": "$.display.definitions.sendAmount", "params": { "tokenPath": "token.[-20:]" } },
+          {
+            "path": "amount",
+            "$ref": "$.display.definitions.sendAmount",
+            "params": { "tokenPath": "token.[-20:]" }
+          },
           { "path": "minReturn", "$ref": "$.display.definitions.minReceiveAmount" },
           { "path": "@.from", "$ref": "$.display.definitions.beneficiary" },
           { "path": "dex.[-20:]", "$ref": "$.display.definitions.lastPool" }
@@ -94,7 +144,11 @@
         "$id": "unoswap2",
         "intent": "Swap",
         "fields": [
-          { "path": "amount", "$ref": "$.display.definitions.sendAmount", "params": { "tokenPath": "token.[-20:]" } },
+          {
+            "path": "amount",
+            "$ref": "$.display.definitions.sendAmount",
+            "params": { "tokenPath": "token.[-20:]" }
+          },
           { "path": "minReturn", "$ref": "$.display.definitions.minReceiveAmount" },
           { "path": "@.from", "$ref": "$.display.definitions.beneficiary" },
           { "path": "dex2.[-20:]", "$ref": "$.display.definitions.lastPool" }
@@ -106,7 +160,11 @@
         "$id": "unoswap3",
         "intent": "Swap",
         "fields": [
-          { "path": "amount", "$ref": "$.display.definitions.sendAmount", "params": { "tokenPath": "token.[-20:]" } },
+          {
+            "path": "amount",
+            "$ref": "$.display.definitions.sendAmount",
+            "params": { "tokenPath": "token.[-20:]" }
+          },
           { "path": "minReturn", "$ref": "$.display.definitions.minReceiveAmount" },
           { "path": "@.from", "$ref": "$.display.definitions.beneficiary" },
           { "path": "dex3.[-20:]", "$ref": "$.display.definitions.lastPool" }
@@ -118,7 +176,11 @@
         "$id": "unoswapTo",
         "intent": "Swap",
         "fields": [
-          { "path": "amount", "$ref": "$.display.definitions.sendAmount", "params": { "tokenPath": "token.[-20:]" } },
+          {
+            "path": "amount",
+            "$ref": "$.display.definitions.sendAmount",
+            "params": { "tokenPath": "token.[-20:]" }
+          },
           { "path": "minReturn", "$ref": "$.display.definitions.minReceiveAmount" },
           { "path": "to.[-20:]", "$ref": "$.display.definitions.beneficiary" },
           { "path": "dex.[-20:]", "$ref": "$.display.definitions.lastPool" }
@@ -129,7 +191,11 @@
         "$id": "unoswapTo2",
         "intent": "Swap",
         "fields": [
-          { "path": "amount", "$ref": "$.display.definitions.sendAmount", "params": { "tokenPath": "token.[-20:]" } },
+          {
+            "path": "amount",
+            "$ref": "$.display.definitions.sendAmount",
+            "params": { "tokenPath": "token.[-20:]" }
+          },
           { "path": "minReturn", "$ref": "$.display.definitions.minReceiveAmount" },
           { "path": "to.[-20:]", "$ref": "$.display.definitions.beneficiary" },
           { "path": "dex2.[-20:]", "$ref": "$.display.definitions.lastPool" }
@@ -141,7 +207,11 @@
         "$id": "unoswapTo3",
         "intent": "Swap",
         "fields": [
-          { "path": "amount", "$ref": "$.display.definitions.sendAmount", "params": { "tokenPath": "token.[-20:]" } },
+          {
+            "path": "amount",
+            "$ref": "$.display.definitions.sendAmount",
+            "params": { "tokenPath": "token.[-20:]" }
+          },
           { "path": "minReturn", "$ref": "$.display.definitions.minReceiveAmount" },
           { "path": "to.[-20:]", "$ref": "$.display.definitions.beneficiary" },
           { "path": "dex3.[-20:]", "$ref": "$.display.definitions.lastPool" }
@@ -149,7 +219,7 @@
         "required": ["amount", "minReturn", "to", "dex3"],
         "excluded": ["dex", "dex2"]
       },
-      "ethUnoswap(uint256 minReturn, uint256 dex)" : {
+      "ethUnoswap(uint256 minReturn, uint256 dex)": {
         "$id": "ethUnoswap",
         "intent": "Swap",
         "fields": [
@@ -160,7 +230,7 @@
         ],
         "required": ["minReturn", "@.value", "@.from", "dex"]
       },
-      "ethUnoswap2(uint256 minReturn, uint256 dex, uint256 dex2)" : {
+      "ethUnoswap2(uint256 minReturn, uint256 dex, uint256 dex2)": {
         "$id": "ethUnoswap2",
         "intent": "Swap",
         "fields": [
@@ -172,7 +242,7 @@
         "required": ["minReturn", "@.value", "@.from", "dex2"],
         "excluded": ["dex"]
       },
-      "ethUnoswap3(uint256 minReturn, uint256 dex, uint256 dex2, uint256 dex3)" : {
+      "ethUnoswap3(uint256 minReturn, uint256 dex, uint256 dex2, uint256 dex3)": {
         "$id": "ethUnoswap3",
         "intent": "Swap",
         "fields": [
@@ -184,7 +254,7 @@
         "required": ["minReturn", "@.value", "@.from", "dex3"],
         "excluded": ["dex", "dex2"]
       },
-      "ethUnoswapTo(uint256 to, uint256 minReturn, uint256 dex)" : {
+      "ethUnoswapTo(uint256 to, uint256 minReturn, uint256 dex)": {
         "$id": "ethUnoswapTo",
         "intent": "Swap",
         "fields": [
@@ -195,7 +265,7 @@
         ],
         "required": ["minReturn", "to", "@.value", "dex"]
       },
-      "ethUnoswapTo2(uint256 to, uint256 minReturn, uint256 dex, uint256 dex2)" : {
+      "ethUnoswapTo2(uint256 to, uint256 minReturn, uint256 dex, uint256 dex2)": {
         "$id": "ethUnoswapTo2",
         "intent": "Swap",
         "fields": [
@@ -207,7 +277,7 @@
         "required": ["minReturn", "to", "@.value", "dex2"],
         "excluded": ["dex"]
       },
-      "ethUnoswapTo3(uint256 to, uint256 minReturn, uint256 dex, uint256 dex2, uint256 dex3)" : {
+      "ethUnoswapTo3(uint256 to, uint256 minReturn, uint256 dex, uint256 dex2, uint256 dex3)": {
         "$id": "ethUnoswapTo3",
         "intent": "Swap",
         "fields": [
@@ -219,30 +289,24 @@
         "required": ["minReturn", "to", "@.value", "dex3"],
         "excluded": ["dex", "dex2"]
       },
-      "cancelOrder(uint256 makerTraits, bytes32 orderHash)" : {
+      "cancelOrder(uint256 makerTraits, bytes32 orderHash)": {
         "$id": "cancelOrder",
         "intent": "Cancel limit order",
-        "fields": [
-          { "path": "orderHash", "label": "Order", "format": "raw" }
-        ],
+        "fields": [{ "path": "orderHash", "label": "Order", "format": "raw" }],
         "required": ["orderHash"],
         "excluded": ["makerTraits"]
       },
-      "cancelOrders(uint256[] makerTraits, bytes32[] orderHashes)" : {
+      "cancelOrders(uint256[] makerTraits, bytes32[] orderHashes)": {
         "$id": "cancelOrders",
         "intent": "Cancel limit orders",
-        "fields": [
-          { "path": "orderHashes.[]", "label": "Order", "format": "raw" }
-        ],
+        "fields": [{ "path": "orderHashes.[]", "label": "Order", "format": "raw" }],
         "required": ["orderHashes"],
         "excluded": ["makerTraits"]
       },
-      "increaseEpoch(uint96 series)" : {
+      "increaseEpoch(uint96 series)": {
         "$id": "increaseEpoch",
         "intent": "Cancel all limit orders",
-        "fields": [
-          { "path": "@.from", "label": "Orders maker", "format": "raw" }
-        ],
+        "fields": [{ "path": "@.from", "label": "Orders maker", "format": "raw" }],
         "required": ["@.from"],
         "excluded": ["series"]
       },
@@ -267,8 +331,21 @@
           },
           { "path": "takerTraits.[:1]", "$ref": "$.display.definitions.takerTraits" }
         ],
-        "required": ["order.makingAmount", "order.makerAsset", "order.takingAmount", "order.takerAsset", "amount", "takerTraits"],
-        "excluded": ["signature", "order.salt", "order.maker", "order.receiver", "order.makerTraits"]
+        "required": [
+          "order.makingAmount",
+          "order.makerAsset",
+          "order.takingAmount",
+          "order.takerAsset",
+          "amount",
+          "takerTraits"
+        ],
+        "excluded": [
+          "signature",
+          "order.salt",
+          "order.maker",
+          "order.receiver",
+          "order.makerTraits"
+        ]
       },
       "fillContractOrderArgs((uint256 salt, uint256 maker, uint256 receiver, uint256 makerAsset, uint256 takerAsset, uint256 makingAmount, uint256 takingAmount, uint256 makerTraits) order, bytes signature, uint256 amount, uint256 takerTraits, bytes args)": {
         "$id": "fillContractOrder",
@@ -291,8 +368,22 @@
           },
           { "path": "takerTraits.[:1]", "$ref": "$.display.definitions.takerTraits" }
         ],
-        "required": ["order.makingAmount", "order.makerAsset", "order.takingAmount", "order.takerAsset", "amount", "takerTraits"],
-        "excluded": ["signature", "args", "order.salt", "order.maker", "order.receiver", "order.makerTraits"]
+        "required": [
+          "order.makingAmount",
+          "order.makerAsset",
+          "order.takingAmount",
+          "order.takerAsset",
+          "amount",
+          "takerTraits"
+        ],
+        "excluded": [
+          "signature",
+          "args",
+          "order.salt",
+          "order.maker",
+          "order.receiver",
+          "order.makerTraits"
+        ]
       },
       "fillOrder((uint256 salt, uint256 maker, uint256 receiver, uint256 makerAsset, uint256 takerAsset, uint256 makingAmount, uint256 takingAmount, uint256 makerTraits) order, bytes32 r, bytes32 vs, uint256 amount, uint256 takerTraits)": {
         "$id": "fillContractOrder",
@@ -315,7 +406,14 @@
           },
           { "path": "takerTraits.[:1]", "$ref": "$.display.definitions.takerTraits" }
         ],
-        "required": ["order.makingAmount", "order.makerAsset", "order.takingAmount", "order.takerAsset", "amount", "takerTraits"],
+        "required": [
+          "order.makingAmount",
+          "order.makerAsset",
+          "order.takingAmount",
+          "order.takerAsset",
+          "amount",
+          "takerTraits"
+        ],
         "excluded": ["r", "vs", "order.salt", "order.maker", "order.receiver", "order.makerTraits"]
       },
       "fillOrderArgs((uint256 salt, uint256 maker, uint256 receiver, uint256 makerAsset, uint256 takerAsset, uint256 makingAmount, uint256 takingAmount, uint256 makerTraits) order, bytes32 r, bytes32 vs, uint256 amount, uint256 takerTraits, bytes args)": {
@@ -339,8 +437,23 @@
           },
           { "path": "takerTraits.[:1]", "$ref": "$.display.definitions.takerTraits" }
         ],
-        "required": ["order.makingAmount", "order.makerAsset", "order.takingAmount", "order.takerAsset", "amount", "takerTraits"],
-        "excluded": ["r", "vs", "args", "order.salt", "order.maker", "order.receiver", "order.makerTraits"]
+        "required": [
+          "order.makingAmount",
+          "order.makerAsset",
+          "order.takingAmount",
+          "order.takerAsset",
+          "amount",
+          "takerTraits"
+        ],
+        "excluded": [
+          "r",
+          "vs",
+          "args",
+          "order.salt",
+          "order.maker",
+          "order.receiver",
+          "order.makerTraits"
+        ]
       }
     }
   }

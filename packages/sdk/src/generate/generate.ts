@@ -2,11 +2,7 @@
  * Generate ERC-7730 descriptors from ABI
  */
 
-import type {
-  ERC7730Descriptor,
-  FieldDefinition,
-  FunctionFormat,
-} from '../types/erc7730.js';
+import type { ERC7730Descriptor, FieldDefinition, FunctionFormat } from '../types/erc7730.js';
 import { inferFormat, inferLabel } from './inferFormat.js';
 import { inferIntent } from './inferIntent.js';
 
@@ -87,9 +83,7 @@ export function generateDescriptor(options: GenerateOptions): ERC7730Descriptor 
 
   // Skip read-only functions if specified
   const writeFunctions = skipReadOnly
-    ? filteredFunctions.filter(
-        (f) => f.stateMutability !== 'view' && f.stateMutability !== 'pure'
-      )
+    ? filteredFunctions.filter((f) => f.stateMutability !== 'view' && f.stateMutability !== 'pure')
     : filteredFunctions;
 
   // Generate formats for each function

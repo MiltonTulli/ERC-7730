@@ -1,12 +1,12 @@
 import {
+  type ABI,
   ClearSigner,
-  getDefaultRpc,
-  SUPPORTED_CHAINS,
-  generateDescriptor,
-  fetchFromSourcify,
   type DecodedTransaction,
   type ERC7730Descriptor,
-  type ABI,
+  SUPPORTED_CHAINS,
+  fetchFromSourcify,
+  generateDescriptor,
+  getDefaultRpc,
 } from '@erc7730/sdk';
 
 // GitHub repository configuration
@@ -57,8 +57,12 @@ const customAbiInput = document.getElementById('custom-abi') as HTMLTextAreaElem
 const applyAbiBtn = document.getElementById('apply-abi-btn') as HTMLButtonElement;
 const decodeBtn = document.getElementById('decode-btn') as HTMLButtonElement;
 const resultDiv = document.getElementById('result') as HTMLDivElement;
-const customDescriptorIndicator = document.getElementById('custom-descriptor-indicator') as HTMLDivElement;
-const clearCustomDescriptorBtn = document.getElementById('clear-custom-descriptor') as HTMLButtonElement;
+const customDescriptorIndicator = document.getElementById(
+  'custom-descriptor-indicator'
+) as HTMLDivElement;
+const clearCustomDescriptorBtn = document.getElementById(
+  'clear-custom-descriptor'
+) as HTMLButtonElement;
 
 // ============================================================================
 // DOM Elements - Generate Tab
@@ -105,7 +109,7 @@ function populateChainSelect(selectElement: HTMLSelectElement) {
 }
 
 function updateRpcPlaceholder() {
-  const chainId = parseInt(chainSelect.value);
+  const chainId = Number.parseInt(chainSelect.value);
   const defaultRpc = getDefaultRpc(chainId);
   rpcInput.placeholder = defaultRpc || 'No default RPC available';
 }
@@ -135,7 +139,7 @@ clearCustomDescriptorBtn.addEventListener('click', clearCustomDescriptor);
 applyAbiBtn.addEventListener('click', () => {
   const abiText = customAbiInput.value.trim();
   const address = contractInput.value.trim();
-  const chainId = parseInt(chainSelect.value);
+  const chainId = Number.parseInt(chainSelect.value);
 
   if (!abiText) {
     alert('Please enter an ABI');
@@ -177,7 +181,7 @@ document.querySelectorAll('.example-btn').forEach((btn) => {
 // ============================================================================
 decodeBtn.addEventListener('click', async () => {
   const calldata = calldataInput.value.trim();
-  const chainId = parseInt(chainSelect.value);
+  const chainId = Number.parseInt(chainSelect.value);
   const contract = contractInput.value.trim() || '0x0000000000000000000000000000000000000000';
   const customRpcUrl = rpcInput.value.trim();
 
@@ -193,9 +197,7 @@ decodeBtn.addEventListener('click', async () => {
 
   try {
     // Create signer with custom RPC if provided
-    const signer = customRpcUrl
-      ? new ClearSigner({ rpcUrl: customRpcUrl })
-      : new ClearSigner();
+    const signer = customRpcUrl ? new ClearSigner({ rpcUrl: customRpcUrl }) : new ClearSigner();
 
     // Add custom descriptor if set
     if (customDescriptor) {
@@ -222,7 +224,7 @@ decodeBtn.addEventListener('click', async () => {
 // ============================================================================
 generateBtn.addEventListener('click', () => {
   const abiText = genAbiInput.value.trim();
-  const chainId = parseInt(genChainSelect.value);
+  const chainId = Number.parseInt(genChainSelect.value);
   const address = genAddressInput.value.trim();
   const owner = genOwnerInput.value.trim();
 
@@ -249,7 +251,7 @@ generateBtn.addEventListener('click', () => {
 
 // Fetch ABI from Sourcify
 fetchSourcifyBtn.addEventListener('click', async () => {
-  const chainId = parseInt(genChainSelect.value);
+  const chainId = Number.parseInt(genChainSelect.value);
   const address = genAddressInput.value.trim();
 
   if (!address) {
@@ -270,7 +272,9 @@ fetchSourcifyBtn.addEventListener('click', async () => {
     const result = await fetchFromSourcify(chainId, address);
 
     if (!result.verified || !result.abi) {
-      showGenerateError(`Contract not found on Sourcify. Make sure the contract is verified on chain ${chainId}.`);
+      showGenerateError(
+        `Contract not found on Sourcify. Make sure the contract is verified on chain ${chainId}.`
+      );
       return;
     }
 
@@ -518,9 +522,10 @@ function renderResult(result: DecodedTransaction) {
     : '';
 
   // Show contribute button for sourcify results
-  const contributeButton = result.source === 'sourcify' && !customDescriptor
-    ? '<button class="contribute-btn" id="contribute-sourcify-btn">📤 Contribute to Registry</button>'
-    : '';
+  const contributeButton =
+    result.source === 'sourcify' && !customDescriptor
+      ? '<button class="contribute-btn" id="contribute-sourcify-btn">📤 Contribute to Registry</button>'
+      : '';
 
   const warningsHtml = result.warnings
     .map(
@@ -564,12 +569,13 @@ function renderResult(result: DecodedTransaction) {
   const codeSnippet = generateCodeSnippet(result);
 
   // Show Sourcify info banner when source is sourcify
-  const sourcifyBanner = result.source === 'sourcify'
-    ? `<div class="sourcify-banner">
+  const sourcifyBanner =
+    result.source === 'sourcify'
+      ? `<div class="sourcify-banner">
         <span>✨ This contract was verified on <a href="https://sourcify.dev" target="_blank">Sourcify</a>. The descriptor was auto-generated from its ABI.</span>
         ${contributeButton}
       </div>`
-    : '';
+      : '';
 
   resultDiv.innerHTML = `
     <div class="card">
@@ -654,12 +660,15 @@ function renderResult(result: DecodedTransaction) {
       // We need to fetch the ABI from Sourcify to generate the full descriptor
       try {
         const { fetchFromSourcify } = await import('@erc7730/sdk');
-        const sourcifyResult = await fetchFromSourcify(currentInput!.chainId, currentInput!.contract);
+        const sourcifyResult = await fetchFromSourcify(
+          currentInput?.chainId,
+          currentInput?.contract
+        );
 
         if (sourcifyResult.verified && sourcifyResult.abi) {
           const descriptor = generateDescriptor({
-            chainId: currentInput!.chainId,
-            address: currentInput!.contract,
+            chainId: currentInput?.chainId,
+            address: currentInput?.contract,
             abi: sourcifyResult.abi,
             owner: sourcifyResult.name || undefined,
           });
@@ -674,13 +683,11 @@ function renderResult(result: DecodedTransaction) {
   resultDiv.style.display = 'block';
 }
 
-function renderGenerateResult(descriptor: ERC7730Descriptor, fromSourcify: boolean = false) {
+function renderGenerateResult(descriptor: ERC7730Descriptor, fromSourcify = false) {
   const functionCount = Object.keys(descriptor.display.formats).length;
   const functions = Object.keys(descriptor.display.formats);
 
-  const sourcifyBadge = fromSourcify
-    ? '<span class="badge badge-sourcify">Sourcify</span>'
-    : '';
+  const sourcifyBadge = fromSourcify ? '<span class="badge badge-sourcify">Sourcify</span>' : '';
 
   const sourcifyBanner = fromSourcify
     ? `<div class="sourcify-banner">
@@ -728,7 +735,7 @@ function renderGenerateResult(descriptor: ERC7730Descriptor, fromSourcify: boole
           </div>
           <div class="field">
             <span class="field-label">Functions</span>
-            <span class="field-value">${functions.map(f => f.split('(')[0]).join(', ')}</span>
+            <span class="field-value">${functions.map((f) => f.split('(')[0]).join(', ')}</span>
           </div>
         </div>
 
@@ -772,7 +779,9 @@ function renderGenerateResult(descriptor: ERC7730Descriptor, fromSourcify: boole
       generateResultDiv.querySelectorAll('.tab').forEach((t) => t.classList.remove('active'));
       tab.classList.add('active');
 
-      generateResultDiv.querySelectorAll('.tab-content').forEach((c) => c.classList.remove('active'));
+      generateResultDiv
+        .querySelectorAll('.tab-content')
+        .forEach((c) => c.classList.remove('active'));
       generateResultDiv.querySelector(`#tab-${tabId}`)?.classList.add('active');
     });
   });

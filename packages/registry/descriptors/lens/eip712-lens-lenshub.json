@@ -3,7 +3,11 @@
   "context": {
     "eip712": {
       "deployments": [{ "chainId": 137, "address": "0xdb46d1dc155634fbc732f92e853b10b288ad5a1d" }],
-      "domain": { "name": "LensHub", "chainId": 137, "verifyingContract": "0xdb46d1dc155634fbc732f92e853b10b288ad5a1d" },
+      "domain": {
+        "name": "LensHub",
+        "chainId": 137,
+        "verifyingContract": "0xdb46d1dc155634fbc732f92e853b10b288ad5a1d"
+      },
       "schemas": [
         {
           "primaryType": "act",
@@ -144,7 +148,10 @@
               { "name": "chainId", "type": "uint256" },
               { "name": "verifyingContract", "type": "address" }
             ],
-            "create_profile": [{ "name": "to", "type": "address" }, { "name": "followModule", "type": "address" }]
+            "create_profile": [
+              { "name": "to", "type": "address" },
+              { "name": "followModule", "type": "address" }
+            ]
           }
         },
         {
@@ -175,7 +182,10 @@
               { "name": "chainId", "type": "uint256" },
               { "name": "verifyingContract", "type": "address" }
             ],
-            "follow_with_sign": [{ "name": "followerProfileId", "type": "uint256" }, { "name": "signatureDeadline", "type": "uint256" }]
+            "follow_with_sign": [
+              { "name": "followerProfileId", "type": "uint256" },
+              { "name": "signatureDeadline", "type": "uint256" }
+            ]
           }
         },
         {
@@ -187,7 +197,10 @@
               { "name": "chainId", "type": "uint256" },
               { "name": "verifyingContract", "type": "address" }
             ],
-            "link": [{ "name": "handle_id", "type": "uint256" }, { "name": "profile_id", "type": "uint256" }]
+            "link": [
+              { "name": "handle_id", "type": "uint256" },
+              { "name": "profile_id", "type": "uint256" }
+            ]
           }
         },
         {
@@ -292,7 +305,10 @@
               { "name": "chainId", "type": "uint256" },
               { "name": "verifyingContract", "type": "address" }
             ],
-            "post_with_sign": [{ "name": "profile_id", "type": "uint256" }, { "name": "signatureDeadline", "type": "uint256" }]
+            "post_with_sign": [
+              { "name": "profile_id", "type": "uint256" },
+              { "name": "signatureDeadline", "type": "uint256" }
+            ]
           }
         },
         {
@@ -340,7 +356,10 @@
               { "name": "chainId", "type": "uint256" },
               { "name": "verifyingContract", "type": "address" }
             ],
-            "set_block_status": [{ "name": "byProfileId", "type": "uint256" }, { "name": "signatureDeadline", "type": "uint256" }]
+            "set_block_status": [
+              { "name": "byProfileId", "type": "uint256" },
+              { "name": "signatureDeadline", "type": "uint256" }
+            ]
           }
         },
         {
@@ -369,7 +388,10 @@
               { "name": "chainId", "type": "uint256" },
               { "name": "verifyingContract", "type": "address" }
             ],
-            "set_block_status_with_sig": [{ "name": "byProfileId", "type": "uint256" }, { "name": "signatureDeadline", "type": "uint256" }]
+            "set_block_status_with_sig": [
+              { "name": "byProfileId", "type": "uint256" },
+              { "name": "signatureDeadline", "type": "uint256" }
+            ]
           }
         },
         {
@@ -399,7 +421,10 @@
               { "name": "chainId", "type": "uint256" },
               { "name": "verifyingContract", "type": "address" }
             ],
-            "set_profile_metadata_with_sign": [{ "name": "profileId", "type": "uint256" }, { "name": "signatureDeadline", "type": "uint256" }]
+            "set_profile_metadata_with_sign": [
+              { "name": "profileId", "type": "uint256" },
+              { "name": "signatureDeadline", "type": "uint256" }
+            ]
           }
         },
         {
@@ -428,7 +453,10 @@
               { "name": "chainId", "type": "uint256" },
               { "name": "verifyingContract", "type": "address" }
             ],
-            "unfollow_with_sign": [{ "name": "unfollowerProfileId", "type": "uint256" }, { "name": "signatureDeadline", "type": "uint256" }]
+            "unfollow_with_sign": [
+              { "name": "unfollowerProfileId", "type": "uint256" },
+              { "name": "signatureDeadline", "type": "uint256" }
+            ]
           }
         }
       ]
@@ -442,11 +470,24 @@
         "fields": [
           { "path": "actorProfileId", "label": "actorProfileId", "format": "raw" },
           { "path": "publicationActedId", "label": "publicationActedId", "format": "raw" },
-          { "path": "publicationActedProfileId", "label": "publicationActedProfileId", "format": "raw" }
+          {
+            "path": "publicationActedProfileId",
+            "label": "publicationActedProfileId",
+            "format": "raw"
+          }
         ],
-        "excluded": ["deadline", "actionModuleAddress", "referrerProfileIds.[]", "actionModuleData", "referrerPubIds.[]"]
+        "excluded": [
+          "deadline",
+          "actionModuleAddress",
+          "referrerProfileIds.[]",
+          "actionModuleData",
+          "referrerPubIds.[]"
+        ]
       },
-      "burn": { "intent": "burn", "fields": [{ "path": "tokenId", "label": "tokenId", "format": "raw" }] },
+      "burn": {
+        "intent": "burn",
+        "fields": [{ "path": "tokenId", "label": "tokenId", "format": "raw" }]
+      },
       "ChangeDelegatedExecutorsConfig": {
         "intent": "ChangeDelegatedExecutorsConfig",
         "fields": [
@@ -462,7 +503,11 @@
       "collect": {
         "intent": "collect",
         "fields": [
-          { "path": "publicationCollectedProfileId", "label": "Publication Collected ProfileId", "format": "raw" },
+          {
+            "path": "publicationCollectedProfileId",
+            "label": "Publication Collected ProfileId",
+            "format": "raw"
+          },
           { "path": "publicationCollectedId", "label": "Publication CollectedId", "format": "raw" },
           { "path": "collectorProfileId", "label": "collector ProfileId", "format": "raw" }
         ]
@@ -470,7 +515,11 @@
       "collect_with_sign": {
         "intent": "collect_with_sign",
         "fields": [
-          { "path": "publicationCollectedProfileId", "label": "publicationCollectedProfileId", "format": "raw" },
+          {
+            "path": "publicationCollectedProfileId",
+            "label": "publicationCollectedProfileId",
+            "format": "raw"
+          },
           { "path": "publicationCollectedId", "label": "publicationCollectedId", "format": "raw" },
           { "path": "collectorProfileId", "label": "collectorProfileId", "format": "raw" },
           { "path": "signatureDeadline", "label": "signatureDeadline", "format": "raw" }
@@ -507,13 +556,20 @@
       },
       "create_profile": {
         "intent": "create_profile",
-        "fields": [{ "path": "to", "label": "to", "format": "raw" }, { "path": "followModule", "label": "followModule", "format": "raw" }]
+        "fields": [
+          { "path": "to", "label": "to", "format": "raw" },
+          { "path": "followModule", "label": "followModule", "format": "raw" }
+        ]
       },
       "Follow": {
         "intent": "Follow",
         "fields": [
           { "path": "followerProfileId", "label": "follower ProfileId", "format": "raw" },
-          { "path": "idsOfProfilesToFollow.[]", "label": "ids Of Profiles To Follow", "format": "raw" },
+          {
+            "path": "idsOfProfilesToFollow.[]",
+            "label": "ids Of Profiles To Follow",
+            "format": "raw"
+          },
           { "path": "followTokenIds.[]", "label": "follow TokenIds", "format": "raw" },
           { "path": "datas.[]", "label": "datas", "format": "raw" },
           { "path": "nonce", "label": "nonce", "format": "raw" }
@@ -559,7 +615,13 @@
           { "path": "pointedProfileId", "label": "pointedProfileId", "format": "raw" },
           { "path": "nonce", "label": "nonce", "format": "raw" }
         ],
-        "excluded": ["deadline", "pointedPubId", "referenceModuleData", "referrerProfileIds", "referrerPubIds"]
+        "excluded": [
+          "deadline",
+          "pointedPubId",
+          "referenceModuleData",
+          "referrerProfileIds",
+          "referrerPubIds"
+        ]
       },
       "mirror_with_sig": {
         "intent": "mirror_with_sig",
@@ -577,7 +639,13 @@
           { "path": "contentURI", "label": "Post URI", "format": "raw" },
           { "path": "nonce", "label": "nonce", "format": "raw" }
         ],
-        "excluded": ["referenceModuleInitData", "actionModules", "deadline", "referenceModule", "actionModulesInitDatas"]
+        "excluded": [
+          "referenceModuleInitData",
+          "actionModules",
+          "deadline",
+          "referenceModule",
+          "actionModulesInitDatas"
+        ]
       },
       "post_with_sign": {
         "intent": "post_with_sign",
@@ -649,7 +717,11 @@
         "intent": "Unfollow",
         "fields": [
           { "path": "unfollowerProfileId", "label": "Unfollower ProfileId", "format": "raw" },
-          { "path": "idsOfProfilesToUnfollow.[]", "label": "ids Of Profiles To Unfollow", "format": "raw" },
+          {
+            "path": "idsOfProfilesToUnfollow.[]",
+            "label": "ids Of Profiles To Unfollow",
+            "format": "raw"
+          },
           { "path": "nonce", "label": "nonce", "format": "raw" },
           { "path": "deadline", "label": "deadline", "format": "raw" }
         ]

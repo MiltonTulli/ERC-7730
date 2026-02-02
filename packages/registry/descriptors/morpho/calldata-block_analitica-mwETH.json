@@ -4,7 +4,15 @@
   "metadata": {
     "owner": "Block Analitica",
     "info": { "legalName": "Block Analitica", "url": "https://morpho.blockanalitica.com/" },
-    "constants": { "underlyingToken": "0x4200000000000000000000000000000000000006", "underlyingTicker": "WETH", "vaultTicker": "mwETH" }
+    "constants": {
+      "underlyingToken": "0x4200000000000000000000000000000000000006",
+      "underlyingTicker": "WETH",
+      "vaultTicker": "mwETH"
+    }
   },
-  "context": { "contract": { "deployments": [{ "chainId": 8453, "address": "0xa0E430870c4604CcfC7B38Ca7845B1FF653D0ff1" }] } }
+  "context": {
+    "contract": {
+      "deployments": [{ "chainId": 8453, "address": "0xa0E430870c4604CcfC7B38Ca7845B1FF653D0ff1" }]
+    }
+  }
 }

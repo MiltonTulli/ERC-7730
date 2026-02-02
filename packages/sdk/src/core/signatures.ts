@@ -108,7 +108,8 @@ export const COMMON_SIGNATURES: Record<string, FunctionSignature> = {
   },
   '0xdb3e2198': {
     selector: '0xdb3e2198',
-    signature: 'exactOutputSingle((address,address,uint24,address,uint256,uint256,uint256,uint160))',
+    signature:
+      'exactOutputSingle((address,address,uint24,address,uint256,uint256,uint256,uint160))',
     name: 'exactOutputSingle',
   },
   '0x5ae401dc': {
@@ -156,7 +157,8 @@ export const COMMON_SIGNATURES: Record<string, FunctionSignature> = {
   // Gnosis Safe
   '0x6a761202': {
     selector: '0x6a761202',
-    signature: 'execTransaction(address,uint256,bytes,uint8,uint256,uint256,uint256,address,address,bytes)',
+    signature:
+      'execTransaction(address,uint256,bytes,uint8,uint256,uint256,uint256,address,address,bytes)',
     name: 'execTransaction',
   },
 };

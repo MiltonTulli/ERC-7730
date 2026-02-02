@@ -12,10 +12,33 @@
           "type": "function",
           "name": "addShares",
           "inputs": [
-            { "name": "podOwner", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null },
-            { "name": "shares", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }
+            {
+              "name": "podOwner",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "shares",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
-          "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "nonpayable",
           "constant": null,
           "payable": null,
@@ -26,7 +49,16 @@
           "type": "function",
           "name": "beaconChainETHStrategy",
           "inputs": [],
-          "outputs": [{ "name": "", "type": "address", "internalType": "contract IStrategy", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "address",
+              "internalType": "contract IStrategy",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -37,7 +69,16 @@
           "type": "function",
           "name": "createPod",
           "inputs": [],
-          "outputs": [{ "name": "", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "nonpayable",
           "constant": null,
           "payable": null,
@@ -68,7 +109,16 @@
           "type": "function",
           "name": "eigenPodBeacon",
           "inputs": [],
-          "outputs": [{ "name": "", "type": "address", "internalType": "contract IBeacon", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "address",
+              "internalType": "contract IBeacon",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -98,8 +148,26 @@
         {
           "type": "function",
           "name": "getPod",
-          "inputs": [{ "name": "podOwner", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null }],
-          "outputs": [{ "name": "", "type": "address", "internalType": "contract IEigenPod", "components": null, "indexed": null, "unit": null }],
+          "inputs": [
+            {
+              "name": "podOwner",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
+          "outputs": [
+            {
+              "name": "",
+              "type": "address",
+              "internalType": "contract IEigenPod",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -109,8 +177,26 @@
         {
           "type": "function",
           "name": "hasPod",
-          "inputs": [{ "name": "podOwner", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null }],
-          "outputs": [{ "name": "", "type": "bool", "internalType": "bool", "components": null, "indexed": null, "unit": null }],
+          "inputs": [
+            {
+              "name": "podOwner",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
+          "outputs": [
+            {
+              "name": "",
+              "type": "bool",
+              "internalType": "bool",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -121,7 +207,14 @@
           "type": "function",
           "name": "initialize",
           "inputs": [
-            { "name": "initialOwner", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null },
+            {
+              "name": "initialOwner",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
             {
               "name": "_pauserRegistry",
               "type": "address",
@@ -150,7 +243,16 @@
           "type": "function",
           "name": "numPods",
           "inputs": [],
-          "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -161,7 +263,16 @@
           "type": "function",
           "name": "owner",
           "inputs": [],
-          "outputs": [{ "name": "", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -171,8 +282,26 @@
         {
           "type": "function",
           "name": "ownerToPod",
-          "inputs": [{ "name": "", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null }],
-          "outputs": [{ "name": "", "type": "address", "internalType": "contract IEigenPod", "components": null, "indexed": null, "unit": null }],
+          "inputs": [
+            {
+              "name": "",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
+          "outputs": [
+            {
+              "name": "",
+              "type": "address",
+              "internalType": "contract IEigenPod",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -213,8 +342,26 @@
         {
           "type": "function",
           "name": "paused",
-          "inputs": [{ "name": "index", "type": "uint8", "internalType": "uint8", "components": null, "indexed": null, "unit": null }],
-          "outputs": [{ "name": "", "type": "bool", "internalType": "bool", "components": null, "indexed": null, "unit": null }],
+          "inputs": [
+            {
+              "name": "index",
+              "type": "uint8",
+              "internalType": "uint8",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
+          "outputs": [
+            {
+              "name": "",
+              "type": "bool",
+              "internalType": "bool",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -225,7 +372,16 @@
           "type": "function",
           "name": "paused",
           "inputs": [],
-          "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -255,8 +411,26 @@
         {
           "type": "function",
           "name": "podOwnerShares",
-          "inputs": [{ "name": "", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null }],
-          "outputs": [{ "name": "", "type": "int256", "internalType": "int256", "components": null, "indexed": null, "unit": null }],
+          "inputs": [
+            {
+              "name": "",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
+          "outputs": [
+            {
+              "name": "",
+              "type": "int256",
+              "internalType": "int256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -267,8 +441,22 @@
           "type": "function",
           "name": "recordBeaconChainETHBalanceUpdate",
           "inputs": [
-            { "name": "podOwner", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null },
-            { "name": "sharesDelta", "type": "int256", "internalType": "int256", "components": null, "indexed": null, "unit": null }
+            {
+              "name": "podOwner",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "sharesDelta",
+              "type": "int256",
+              "internalType": "int256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
           "outputs": [],
           "stateMutability": "nonpayable",
@@ -281,8 +469,22 @@
           "type": "function",
           "name": "removeShares",
           "inputs": [
-            { "name": "podOwner", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null },
-            { "name": "shares", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }
+            {
+              "name": "podOwner",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "shares",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
           "outputs": [],
           "stateMutability": "nonpayable",
@@ -326,7 +528,16 @@
           "type": "function",
           "name": "slasher",
           "inputs": [],
-          "outputs": [{ "name": "", "type": "address", "internalType": "contract ISlasher", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "address",
+              "internalType": "contract ISlasher",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "view",
           "constant": null,
           "payable": null,
@@ -337,8 +548,22 @@
           "type": "function",
           "name": "stake",
           "inputs": [
-            { "name": "pubkey", "type": "bytes", "internalType": "bytes", "components": null, "indexed": null, "unit": null },
-            { "name": "signature", "type": "bytes", "internalType": "bytes", "components": null, "indexed": null, "unit": null },
+            {
+              "name": "pubkey",
+              "type": "bytes",
+              "internalType": "bytes",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "signature",
+              "type": "bytes",
+              "internalType": "bytes",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
             {
               "name": "depositDataRoot",
               "type": "bytes32",
@@ -378,7 +603,16 @@
         {
           "type": "function",
           "name": "transferOwnership",
-          "inputs": [{ "name": "newOwner", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null }],
+          "inputs": [
+            {
+              "name": "newOwner",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "outputs": [],
           "stateMutability": "nonpayable",
           "constant": null,
@@ -410,9 +644,30 @@
           "type": "function",
           "name": "withdrawSharesAsTokens",
           "inputs": [
-            { "name": "podOwner", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null },
-            { "name": "destination", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null },
-            { "name": "shares", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null }
+            {
+              "name": "podOwner",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "destination",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "shares",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
           "outputs": [],
           "stateMutability": "nonpayable",
@@ -426,10 +681,20 @@
       "factory": null
     }
   },
-  "metadata": { "owner": "EigenLayer", "info": { "legalName": "Eigen Labs, Inc.", "url": "https://www.eigencloud.xyz/" } },
+  "metadata": {
+    "owner": "EigenLayer",
+    "info": { "legalName": "Eigen Labs, Inc.", "url": "https://www.eigencloud.xyz/" }
+  },
   "display": {
     "formats": {
-      "createPod()": { "$id": null, "intent": "Create EigenLayerPod", "screens": null, "fields": [], "required": [], "excluded": null }
+      "createPod()": {
+        "$id": null,
+        "intent": "Create EigenLayerPod",
+        "screens": null,
+        "fields": [],
+        "required": [],
+        "excluded": null
+      }
     }
   }
 }

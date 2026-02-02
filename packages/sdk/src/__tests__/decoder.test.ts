@@ -1,10 +1,11 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { ClearSigner } from '../core/ClearSigner.js';
 import { decodeCalldata, extractSelector } from '../core/decoder.js';
 
 describe('extractSelector', () => {
   it('extracts selector from calldata', () => {
-    const calldata = '0xa9059cbb000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa960450000000000000000000000000000000000000000000000000000000005f5e100';
+    const calldata =
+      '0xa9059cbb000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa960450000000000000000000000000000000000000000000000000000000005f5e100';
     expect(extractSelector(calldata)).toBe('0xa9059cbb');
   });
 
@@ -66,12 +67,12 @@ describe('ClearSigner', () => {
     expect(result.fields).toHaveLength(2);
 
     // Check amount field - should be formatted with USDC decimals
-    const amountField = result.fields.find(f => f.label === 'Amount');
+    const amountField = result.fields.find((f) => f.label === 'Amount');
     expect(amountField).toBeDefined();
     expect(amountField?.value).toBe('100 USDC');
 
     // Check recipient field
-    const recipientField = result.fields.find(f => f.label === 'Recipient');
+    const recipientField = result.fields.find((f) => f.label === 'Recipient');
     expect(recipientField).toBeDefined();
   });
 
@@ -118,9 +119,7 @@ describe('ClearSigner', () => {
         formats: {
           'myFunction(uint256)': {
             intent: 'Do something cool',
-            fields: [
-              { path: 'value', label: 'Value', format: 'raw' },
-            ],
+            fields: [{ path: 'value', label: 'Value', format: 'raw' }],
           },
         },
       },

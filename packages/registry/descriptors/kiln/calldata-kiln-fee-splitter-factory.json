@@ -23,9 +23,30 @@
           "type": "function",
           "name": "createOperator",
           "inputs": [
-            { "name": "_owner", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null },
-            { "name": "_name", "type": "string", "internalType": "string", "components": null, "indexed": null, "unit": null },
-            { "name": "_operatorFee", "type": "uint256", "internalType": "uint256", "components": null, "indexed": null, "unit": null },
+            {
+              "name": "_owner",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "_name",
+              "type": "string",
+              "internalType": "string",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "_operatorFee",
+              "type": "uint256",
+              "internalType": "uint256",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
             {
               "name": "_maximumOperatorFee",
               "type": "uint256",
@@ -42,7 +63,14 @@
               "indexed": null,
               "unit": null
             },
-            { "name": "_percents", "type": "uint256[]", "internalType": "uint256[]", "components": null, "indexed": null, "unit": null }
+            {
+              "name": "_percents",
+              "type": "uint256[]",
+              "internalType": "uint256[]",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
           "outputs": [
             {
@@ -72,9 +100,25 @@
               "indexed": null,
               "unit": null
             },
-            { "name": "salt", "type": "bytes32", "internalType": "bytes32", "components": null, "indexed": null, "unit": null }
+            {
+              "name": "salt",
+              "type": "bytes32",
+              "internalType": "bytes32",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
-          "outputs": [{ "name": "", "type": "address", "internalType": "contract Splitter", "components": null, "indexed": null, "unit": null }],
+          "outputs": [
+            {
+              "name": "",
+              "type": "address",
+              "internalType": "contract Splitter",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "stateMutability": "nonpayable",
           "constant": null,
           "payable": null,
@@ -93,9 +137,30 @@
               "indexed": null,
               "unit": null
             },
-            { "name": "salt", "type": "bytes32", "internalType": "bytes32", "components": null, "indexed": null, "unit": null },
-            { "name": "callAddress", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null },
-            { "name": "data", "type": "bytes", "internalType": "bytes", "components": null, "indexed": null, "unit": null }
+            {
+              "name": "salt",
+              "type": "bytes32",
+              "internalType": "bytes32",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "callAddress",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            },
+            {
+              "name": "data",
+              "type": "bytes",
+              "internalType": "bytes",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
           ],
           "outputs": [
             {
@@ -127,7 +192,16 @@
         {
           "type": "function",
           "name": "transferOwnership",
-          "inputs": [{ "name": "newOwner", "type": "address", "internalType": "address", "components": null, "indexed": null, "unit": null }],
+          "inputs": [
+            {
+              "name": "newOwner",
+              "type": "address",
+              "internalType": "address",
+              "components": null,
+              "indexed": null,
+              "unit": null
+            }
+          ],
           "outputs": [],
           "stateMutability": "nonpayable",
           "constant": null,
@@ -153,7 +227,12 @@
             "path": "#._owner"
           },
           { "label": "Name", "format": "raw", "path": "#._name" },
-          { "label": "Operator Fee", "format": "unit", "params": { "base": "%", "decimals": "2" }, "path": "#._operatorFee" },
+          {
+            "label": "Operator Fee",
+            "format": "unit",
+            "params": { "base": "%", "decimals": "2" },
+            "path": "#._operatorFee"
+          },
           {
             "label": "Maximum Operator Fee",
             "format": "unit",
@@ -166,9 +245,21 @@
             "params": { "types": ["eoa", "wallet", "contract"], "sources": ["local", "ens"] },
             "path": "#._recipients.[]"
           },
-          { "label": "Percentages", "format": "unit", "params": { "base": "%", "decimals": "2" }, "path": "#._percents.[]" }
+          {
+            "label": "Percentages",
+            "format": "unit",
+            "params": { "base": "%", "decimals": "2" },
+            "path": "#._percents.[]"
+          }
         ],
-        "required": ["#._owner", "#._name", "#._operatorFee", "#._maximumOperatorFee", "#._recipients.[]", "#._percents.[]"]
+        "required": [
+          "#._owner",
+          "#._name",
+          "#._operatorFee",
+          "#._maximumOperatorFee",
+          "#._recipients.[]",
+          "#._percents.[]"
+        ]
       },
       "createSplitter(address,bytes32)": {
         "intent": "Create Splitter",
@@ -199,7 +290,12 @@
             "params": { "types": ["contract"], "sources": ["local", "ens"] },
             "path": "#.callAddress"
           },
-          { "label": "Transaction", "format": "calldata", "params": { "calleePath": "#.callAddress" }, "path": "#.data" }
+          {
+            "label": "Transaction",
+            "format": "calldata",
+            "params": { "calleePath": "#.callAddress" },
+            "path": "#.data"
+          }
         ],
         "required": ["#.operator", "#.data"]
       },

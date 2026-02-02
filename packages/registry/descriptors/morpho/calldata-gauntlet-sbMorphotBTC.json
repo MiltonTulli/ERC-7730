@@ -10,5 +10,9 @@
       "vaultTicker": "sbMorphotBTC"
     }
   },
-  "context": { "contract": { "deployments": [{ "chainId": 1, "address": "0x059Fc6723b9bF77DbF4283C8d7C90eA8Af44EF10" }] } }
+  "context": {
+    "contract": {
+      "deployments": [{ "chainId": 1, "address": "0x059Fc6723b9bF77DbF4283C8d7C90eA8Af44EF10" }]
+    }
+  }
 }

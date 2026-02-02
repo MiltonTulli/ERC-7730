@@ -109,7 +109,6 @@ export type {
   Provider,
   TransactionInput,
   ChainName,
-
   // ERC-7730 types
   ERC7730Descriptor,
   ERC7730Context,
@@ -120,7 +119,6 @@ export type {
   FunctionFormat,
   FieldDefinition,
   FieldFormat,
-
   // Result types
   DecodedTransaction,
   DecodedField,

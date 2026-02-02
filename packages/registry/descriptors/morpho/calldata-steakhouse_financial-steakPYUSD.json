@@ -10,5 +10,9 @@
       "vaultTicker": "steakPYUSD"
     }
   },
-  "context": { "contract": { "deployments": [{ "chainId": 1, "address": "0xbEEF02e5E13584ab96848af90261f0C8Ee04722a" }] } }
+  "context": {
+    "contract": {
+      "deployments": [{ "chainId": 1, "address": "0xbEEF02e5E13584ab96848af90261f0C8Ee04722a" }]
+    }
+  }
 }

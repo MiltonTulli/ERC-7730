@@ -11,8 +11,14 @@
         {
           "primaryType": "Order",
           "types": {
-            "Asset": [{ "name": "assetType", "type": "AssetType" }, { "name": "value", "type": "uint256" }],
-            "AssetType": [{ "name": "assetClass", "type": "bytes4" }, { "name": "data", "type": "bytes" }],
+            "Asset": [
+              { "name": "assetType", "type": "AssetType" },
+              { "name": "value", "type": "uint256" }
+            ],
+            "AssetType": [
+              { "name": "assetClass", "type": "bytes4" },
+              { "name": "data", "type": "bytes" }
+            ],
             "EIP712Domain": [
               { "name": "name", "type": "string" },
               { "name": "version", "type": "string" },

@@ -3,7 +3,11 @@
   "context": {
     "eip712": {
       "deployments": [{ "chainId": 1, "address": "0x72e9d9038ce484ee986fea183f8d8df93f9ada13" }],
-      "domain": { "name": "SmartCredit.io", "chainId": 1, "verifyingContract": "0x72e9d9038ce484ee986fea183f8d8df93f9ada13" },
+      "domain": {
+        "name": "SmartCredit.io",
+        "chainId": 1,
+        "verifyingContract": "0x72e9d9038ce484ee986fea183f8d8df93f9ada13"
+      },
       "schemas": [
         {
           "primaryType": "LoanRequest",
@@ -35,7 +39,11 @@
         "intent": "SmartCredit.io",
         "fields": [
           { "path": "collateralAddress", "label": "Collateral address", "format": "raw" },
-          { "path": "initialCollateralAmount", "label": "Initial Collateral Amount", "format": "raw" },
+          {
+            "path": "initialCollateralAmount",
+            "label": "Initial Collateral Amount",
+            "format": "raw"
+          },
           { "path": "loanAmount", "label": "Loan Amount", "format": "raw" },
           { "path": "loanId", "label": "Loan ID", "format": "raw" },
           { "path": "loanInterestRate", "label": "Loan interest rate", "format": "raw" },
