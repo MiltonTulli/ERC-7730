@@ -1,0 +1,65 @@
+{
+  "name": "@erc7730/sdk",
+  "version": "0.1.0",
+  "description": "Decode blockchain transactions into human-readable format using ERC-7730 standard",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./lite": {
+      "types": "./dist/lite.d.ts",
+      "import": "./dist/lite.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "node scripts/build.js",
+    "dev": "tsc --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist src/registry/embedded.ts"
+  },
+  "dependencies": {
+    "abitype": "^1.0.0"
+  },
+  "peerDependencies": {
+    "viem": "^2.0.0"
+  },
+  "peerDependenciesMeta": {
+    "viem": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@vitest/coverage-v8": "^1.2.0",
+    "typescript": "^5.3.3",
+    "viem": "^2.21.0",
+    "vitest": "^1.2.0"
+  },
+  "keywords": [
+    "ethereum",
+    "erc7730",
+    "clear-signing",
+    "transaction",
+    "decoder",
+    "human-readable",
+    "web3",
+    "blockchain"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YOUR_USERNAME/erc7730-sdk"
+  },
+  "homepage": "https://erc7730.github.io"
+}

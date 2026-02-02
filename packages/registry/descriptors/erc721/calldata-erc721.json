@@ -1,0 +1,103 @@
+{
+  "$schema": "../../specs/erc7730-v1.schema.json",
+  "context": {
+    "$id": "ERC721",
+    "contract": {
+      "deployments": []
+    }
+  },
+  "metadata": {
+    "owner": "Community",
+    "info": {
+      "legalName": "ERC-721 Non-Fungible Token Standard",
+      "url": "https://eips.ethereum.org/EIPS/eip-721"
+    }
+  },
+  "display": {
+    "formats": {
+      "safeTransferFrom(address,address,uint256)": {
+        "$id": "safeTransferFrom",
+        "intent": "Transfer NFT",
+        "fields": [
+          {
+            "path": "from",
+            "format": "addressName",
+            "label": "From"
+          },
+          {
+            "path": "to",
+            "format": "addressName",
+            "label": "To"
+          },
+          {
+            "path": "tokenId",
+            "format": "raw",
+            "label": "Token ID"
+          }
+        ],
+        "required": ["from", "to", "tokenId"]
+      },
+      "safeTransferFrom(address,address,uint256,bytes)": {
+        "$id": "safeTransferFromWithData",
+        "intent": "Transfer NFT with data",
+        "fields": [
+          {
+            "path": "from",
+            "format": "addressName",
+            "label": "From"
+          },
+          {
+            "path": "to",
+            "format": "addressName",
+            "label": "To"
+          },
+          {
+            "path": "tokenId",
+            "format": "raw",
+            "label": "Token ID"
+          }
+        ],
+        "required": ["from", "to", "tokenId"]
+      },
+      "transferFrom(address,address,uint256)": {
+        "$id": "transferFrom",
+        "intent": "Transfer NFT (unsafe)",
+        "fields": [
+          {
+            "path": "from",
+            "format": "addressName",
+            "label": "From"
+          },
+          {
+            "path": "to",
+            "format": "addressName",
+            "label": "To"
+          },
+          {
+            "path": "tokenId",
+            "format": "raw",
+            "label": "Token ID"
+          }
+        ],
+        "required": ["from", "to", "tokenId"]
+      },
+      "setApprovalForAll(address,bool)": {
+        "$id": "setApprovalForAll",
+        "intent": "Set operator approval",
+        "fields": [
+          {
+            "path": "operator",
+            "format": "addressName",
+            "label": "Operator"
+          },
+          {
+            "path": "approved",
+            "format": "raw",
+            "label": "Approved"
+          }
+        ],
+        "required": ["operator", "approved"]
+      }
+    }
+  }
+}

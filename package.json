@@ -1,0 +1,30 @@
+{
+  "name": "erc7730-sdk-monorepo",
+  "private": true,
+  "description": "ERC-7730 Clear Signing SDK - Decode blockchain transactions into human-readable format",
+  "scripts": {
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "test": "turbo test",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "format": "biome format --write .",
+    "clean": "turbo clean && rm -rf node_modules/.cache",
+    "typecheck": "tsc -b",
+    "prepare": "simple-git-hooks"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.0",
+    "simple-git-hooks": "^2.11.0",
+    "turbo": "^2.0.0",
+    "typescript": "^5.3.3",
+    "tsx": "^4.7.0"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "npx biome check --staged --no-errors-on-unmatched"
+  },
+  "packageManager": "pnpm@10.28.0",
+  "engines": {
+    "node": ">=18"
+  }
+}

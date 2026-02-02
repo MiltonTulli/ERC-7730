@@ -1,0 +1,148 @@
+{
+  "$schema": "../../specs/erc7730-v1.schema.json",
+  "context": {
+    "$id": "ERC20",
+    "contract": {
+      "deployments": []
+    }
+  },
+  "metadata": {
+    "owner": "Community",
+    "info": {
+      "legalName": "ERC-20 Token Standard",
+      "url": "https://eips.ethereum.org/EIPS/eip-20"
+    },
+    "constants": {
+      "max": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    }
+  },
+  "display": {
+    "formats": {
+      "transfer(address,uint256)": {
+        "$id": "transfer",
+        "intent": "Send tokens",
+        "fields": [
+          {
+            "path": "to",
+            "format": "addressName",
+            "label": "Recipient",
+            "params": {
+              "types": ["eoa", "contract"],
+              "sources": ["local", "ens"]
+            }
+          },
+          {
+            "path": "amount",
+            "format": "tokenAmount",
+            "label": "Amount",
+            "params": {
+              "tokenPath": "@.to",
+              "threshold": "$.metadata.constants.max",
+              "message": "Unlimited"
+            }
+          }
+        ],
+        "required": ["to", "amount"]
+      },
+      "approve(address,uint256)": {
+        "$id": "approve",
+        "intent": "Approve spending",
+        "fields": [
+          {
+            "path": "spender",
+            "format": "addressName",
+            "label": "Spender",
+            "params": {
+              "types": ["eoa", "contract"],
+              "sources": ["local", "ens"]
+            }
+          },
+          {
+            "path": "amount",
+            "format": "tokenAmount",
+            "label": "Amount",
+            "params": {
+              "tokenPath": "@.to",
+              "threshold": "$.metadata.constants.max",
+              "message": "Unlimited"
+            }
+          }
+        ],
+        "required": ["spender", "amount"]
+      },
+      "transferFrom(address,address,uint256)": {
+        "$id": "transferFrom",
+        "intent": "Transfer tokens from",
+        "fields": [
+          {
+            "path": "from",
+            "format": "addressName",
+            "label": "From",
+            "params": {
+              "types": ["eoa", "contract"],
+              "sources": ["local", "ens"]
+            }
+          },
+          {
+            "path": "to",
+            "format": "addressName",
+            "label": "To",
+            "params": {
+              "types": ["eoa", "contract"],
+              "sources": ["local", "ens"]
+            }
+          },
+          {
+            "path": "amount",
+            "format": "tokenAmount",
+            "label": "Amount",
+            "params": {
+              "tokenPath": "@.to"
+            }
+          }
+        ],
+        "required": ["from", "to", "amount"]
+      },
+      "increaseAllowance(address,uint256)": {
+        "$id": "increaseAllowance",
+        "intent": "Increase spending allowance",
+        "fields": [
+          {
+            "path": "spender",
+            "format": "addressName",
+            "label": "Spender"
+          },
+          {
+            "path": "addedValue",
+            "format": "tokenAmount",
+            "label": "Additional amount",
+            "params": {
+              "tokenPath": "@.to"
+            }
+          }
+        ],
+        "required": ["spender", "addedValue"]
+      },
+      "decreaseAllowance(address,uint256)": {
+        "$id": "decreaseAllowance",
+        "intent": "Decrease spending allowance",
+        "fields": [
+          {
+            "path": "spender",
+            "format": "addressName",
+            "label": "Spender"
+          },
+          {
+            "path": "subtractedValue",
+            "format": "tokenAmount",
+            "label": "Reduced amount",
+            "params": {
+              "tokenPath": "@.to"
+            }
+          }
+        ],
+        "required": ["spender", "subtractedValue"]
+      }
+    }
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "name": "@erc7730/registry",
+  "version": "0.1.0",
+  "description": "Community-driven ERC-7730 descriptor registry",
+  "type": "module",
+  "main": "./dist/registry.json",
+  "types": "./types/registry.d.ts",
+  "exports": {
+    ".": {
+      "types": "./types/registry.d.ts",
+      "import": "./dist/registry.json"
+    },
+    "./types": {
+      "types": "./types/registry.d.ts",
+      "import": "./types/registry.js"
+    }
+  },
+  "scripts": {
+    "build": "node scripts/build.js",
+    "validate": "node scripts/validate.js",
+    "import:ledger": "node scripts/import-ledger.js",
+    "clean": "rm -rf dist",
+    "serve": "npx serve dist"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "ajv": "^8.12.0",
+    "serve": "^14.2.0"
+  },
+  "files": [
+    "dist",
+    "descriptors",
+    "types"
+  ]
+}
