@@ -41,7 +41,8 @@
       "packages/sdk/src/registry/embedded.ts",
       "packages/sdk/src/schema/official/**",
       "packages/sdk/src/__tests__/fixtures/**",
-      "packages/registry/dist"
+      "packages/registry/dist",
+      "**/CHANGELOG.md"
     ]
   },
   "vcs": {
