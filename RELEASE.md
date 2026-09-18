@@ -55,7 +55,7 @@ Do not run `npm publish` or `pnpm release` from a laptop unless recovering from 
 
 ## What the tag workflow does
 
-On `push` of tags matching `v*`:
+On `push` of tags matching `v[0-9]+.[0-9]+.[0-9]+` (e.g. `v0.1.4`, not `vnext`):
 
 1. `pnpm install --frozen-lockfile`
 2. `pnpm build` / `typecheck` / `test`
@@ -75,7 +75,7 @@ The first tag publish **will fail** until Trusted Publishing and the GitHub Envi
 1. Repo **Settings → Environments → New environment**
 2. Name: `npm` (must match the workflow `environment:` value exactly)
 3. Add a **required reviewer** (yourself, or a release owner)
-4. Optional: restrict to tags / selected branches. The workflow only runs on `v*` tags.
+4. Optional: restrict to tags / selected branches. The workflow only runs on `vX.Y.Z` tags.
 
 The workflow file can reference `environment: npm` before the Environment exists. GitHub may auto-create an unprotected one on first run; add the reviewer before you cut a real release.
 

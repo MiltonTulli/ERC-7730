@@ -66,10 +66,10 @@ jobs:
       - name: publint + attw
         working-directory: packages/sdk
         run: |
-          pnpm dlx publint
+          pnpm exec publint
           # SDK is ESM-only (type: module, export conditions are import/types).
           # attw 0.18 has no optional-peer-dependency rule; esm-only skips node10/CJS.
-          pnpm dlx @arethetypeswrong/cli --pack . --profile esm-only
+          pnpm exec attw --pack . --profile esm-only
 
   changeset:
     name: Changeset (when SDK source changes)
