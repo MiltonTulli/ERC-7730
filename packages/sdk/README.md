@@ -142,6 +142,28 @@ signer.extend([{
 }]);
 ```
 
+## Resolve includes and `$ref`
+
+Official descriptors often split shared formats into `common-*.json` and point fields at `$.display.definitions.*`. `resolveDescriptor()` merges those files and inlines field `$ref`s. Inject an `IncludeLoader` for filesystem (CLI) or fetch (runtime).
+
+```typescript
+import { resolveDescriptor, createMemoryIncludeLoader } from '@erc7730/sdk';
+
+const loader = createMemoryIncludeLoader({ 'common-Safe.json': commonSafe });
+const resolved = await resolveDescriptor(input, loader);
+// resolved.merged — includes merged, field $ref inlined, addresses lowercased
+// resolved.hash   — keccak256 of canonical JSON (sorted keys, no extra whitespace)
+```
+
+`descriptorHash()` is deterministic in Node and browsers: UTF-8 JSON, sorted keys, checksum addresses lowercased.
+
+Divergences vs Ledger `python-erc7730` resolved form:
+
+- Format keys stay ABI fragments (not 4-byte selectors).
+- Constants and enum `params.$ref` are not inlined.
+- Nested field groups are not flattened; ABI HTTP URLs are not fetched.
+- `fields` arrays merge by `path` as in EIP-7730 (python-erc7730 overwrites the array).
+
 ## API Reference
 
 ### `ClearSigner`
