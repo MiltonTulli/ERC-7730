@@ -1,4 +1,6 @@
 export * from './erc7730.js';
+export * from './descriptor.js';
+export * from './v2.js';
 
 /**
  * Transaction input for decoding

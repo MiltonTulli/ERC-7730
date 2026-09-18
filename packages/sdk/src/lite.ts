@@ -37,12 +37,22 @@ export {
 } from './formats/addressName.js';
 
 // Types
+export { validateDescriptor } from './schema/index.js';
+
+export type {
+  DescriptorVersion,
+  InputDescriptor,
+  ValidationIssue,
+  ValidationResult,
+} from './schema/index.js';
+
 export type {
   ClearSignerConfig,
   RegistryConfig,
   Provider,
   TransactionInput,
   ERC7730Descriptor,
+  ERC7730V2Descriptor,
   DecodedTransaction,
   DecodedField,
   SecurityWarning,
