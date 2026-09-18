@@ -339,10 +339,14 @@ interface DecodedOperation {
     protocolUrl?: string;
     chainId: number;
     contractAddress?: string;
+    descriptorId?: string;
+    registryPath?: string;
   };
   raw: {
     selector?: string;
     args?: readonly unknown[];
+    /** Reserved for non-transaction decoders; not returned by `decodeTransaction`. */
+    message?: Record<string, unknown>;
   };
 }
 
