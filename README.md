@@ -4,7 +4,7 @@ TypeScript runtime for [ERC-7730](https://eips.ethereum.org/EIPS/eip-7730) clear
 
 See [ROADMAP.md](./ROADMAP.md) for v0.2–v0.5, the official-registry strategy, and the public API sketch.
 
-See [RELEASE.md](./RELEASE.md) to version `@erc7730/sdk` with Changesets and cut an npm release from a `vX.Y.Z` tag.
+See [RELEASE.md](./RELEASE.md) to version `@erc7730/sdk` with Changesets. Merging the Version PR publishes to npm after Environment `npm` approval.
 
 [![npm version](https://img.shields.io/npm/v/@erc7730/sdk.svg)](https://www.npmjs.com/package/@erc7730/sdk)
 [![ERC-7730](https://img.shields.io/badge/schema-v1%20%2B%20v2-3b82f6)](https://eips.ethereum.org/EIPS/eip-7730)
