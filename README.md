@@ -2,6 +2,8 @@
 
 See [ROADMAP.md](./ROADMAP.md) for v0.2–v0.5, official registry strategy, and the public API sketch.
 
+See [RELEASE.md](./RELEASE.md) to version `@erc7730/sdk` with Changesets and cut an npm release from a `vX.Y.Z` tag.
+
 > TypeScript SDK for decoding blockchain transactions into human-readable format using the [ERC-7730](https://eips.ethereum.org/EIPS/eip-7730) standard.
 
 [![npm version](https://img.shields.io/npm/v/@erc7730/sdk.svg)](https://www.npmjs.com/package/@erc7730/sdk)

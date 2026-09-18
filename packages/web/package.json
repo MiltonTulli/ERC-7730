@@ -8,7 +8,8 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "test": "node -e \"console.log('no tests')\""
   },
   "dependencies": {
     "@erc7730/sdk": "workspace:*",

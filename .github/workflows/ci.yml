@@ -27,8 +27,12 @@ jobs:
         run: biome ci .
 
   build-and-test:
-    name: Build & Test
+    name: Build & Test (Node ${{ matrix.node }})
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [20, 22]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -39,11 +43,11 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: ${{ matrix.node }}
           cache: pnpm
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
       - name: Build all packages
         run: pnpm build
@@ -52,9 +56,41 @@ jobs:
         run: pnpm typecheck
 
       - name: Run tests
-        run: pnpm --filter @erc7730/sdk test
+        run: pnpm test
 
       - name: Check package exports
         run: |
           cd packages/sdk
           node -e "import('@erc7730/sdk').then(m => console.log('SDK exports:', Object.keys(m)))"
+
+      - name: publint + attw
+        working-directory: packages/sdk
+        run: |
+          pnpm dlx publint
+          # SDK is ESM-only (type: module, export conditions are import/types).
+          # attw 0.18 has no optional-peer-dependency rule; esm-only skips node10/CJS.
+          pnpm dlx @arethetypeswrong/cli --pack . --profile esm-only
+
+  changeset:
+    name: Changeset (when SDK source changes)
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Require a changeset for SDK source or package.json changes
+        run: |
+          git fetch origin main --depth=1
+          CHANGED=$(git diff --name-only origin/main...HEAD)
+          echo "Changed files:"
+          echo "$CHANGED"
+          SDK_TOUCHED=$(echo "$CHANGED" | grep -E '^(packages/sdk/src/|packages/sdk/package.json$)' || true)
+          CHANGESETS=$(echo "$CHANGED" | grep -E '^\.changeset/.+\.md$' | grep -v 'README.md' || true)
+          if [ -n "$SDK_TOUCHED" ] && [ -z "$CHANGESETS" ]; then
+            echo "::error::SDK source or package.json changed without a .changeset/*.md file. Run: pnpm changeset"
+            exit 1
+          fi
+          echo "Changeset check passed."

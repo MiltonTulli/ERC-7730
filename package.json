@@ -11,14 +11,18 @@
     "format": "biome format --write .",
     "clean": "turbo clean && rm -rf node_modules/.cache",
     "typecheck": "tsc -b",
-    "prepare": "simple-git-hooks"
+    "prepare": "simple-git-hooks",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "release": "changeset publish"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.0",
+    "@changesets/cli": "^2.29.7",
     "simple-git-hooks": "^2.11.0",
+    "tsx": "^4.7.0",
     "turbo": "^2.0.0",
-    "typescript": "^5.3.3",
-    "tsx": "^4.7.0"
+    "typescript": "^5.3.3"
   },
   "simple-git-hooks": {
     "pre-commit": "npx biome check --staged --no-errors-on-unmatched"

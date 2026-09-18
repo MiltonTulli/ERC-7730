@@ -3,6 +3,12 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
+    paths:
+      - "packages/web/**"
+      - "packages/sdk/**"
+      - "packages/registry/**"
+      - ".github/workflows/deploy.yml"
+      - "pnpm-lock.yaml"
   workflow_dispatch:
 
 permissions:
@@ -31,7 +37,7 @@ jobs:
           cache: pnpm
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
       - name: Build all packages
         run: pnpm build
