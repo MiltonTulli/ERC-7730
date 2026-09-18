@@ -76,7 +76,6 @@ jobs:
     needs: version
     if: needs.version.outputs.has_changesets == 'false'
     runs-on: ubuntu-latest
-    environment: npm
     permissions:
       contents: write
       id-token: write
