@@ -100,6 +100,8 @@ export {
   DescriptorResolveError,
 } from './resolve/index.js';
 
+export { resolvePath, PathResolveError } from './path/index.js';
+
 export {
   createOfficialRegistry,
   createMemoryDescriptorCache,
@@ -138,6 +140,8 @@ export type {
   OfficialRegistryConfig,
   RegistryLookupKey,
 } from './official-registry/index.js';
+
+export type { PathContext, PathEnvelope, PathResolveErrorCode } from './path/index.js';
 
 // Types
 export type {

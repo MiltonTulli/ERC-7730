@@ -46,6 +46,8 @@ export {
   DescriptorResolveError,
 } from './resolve/index.js';
 
+export { resolvePath, PathResolveError } from './path/index.js';
+
 export {
   createOfficialRegistry,
   createMemoryDescriptorCache,
@@ -67,6 +69,8 @@ export type {
   ValidationIssue,
   ValidationResult,
 } from './types/descriptor.js';
+
+export type { PathContext, PathEnvelope, PathResolveErrorCode } from './path/index.js';
 
 export type {
   Caip10,
