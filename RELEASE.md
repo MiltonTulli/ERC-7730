@@ -50,7 +50,7 @@ Filename stays **`release.yml`** so npm Trusted Publishing (OIDC) keeps matching
 
 On `push` to `main` (and optional `workflow_dispatch` of this same file):
 
-1. Job **Open Version PR** (no Environment). If `.changeset/*.md` files exist besides `README.md`, `changesets/action` opens or updates PR `chore: version packages` (`pnpm version-packages`). If there are pending changesets, the publish job is skipped.
+1. Job **Open Version PR** (no Environment). If `.changeset/*.md` files exist besides `README.md`, `changesets/action` opens or updates PR `chore: version packages` (`pnpm version-packages`, then `biome check --write` on `packages/sdk/package.json` and `CHANGELOG.md` so Lint & Format stays green). If there are pending changesets, the publish job is skipped.
 2. Job **Publish @erc7730/sdk** (`environment: npm`) runs only when there are **no** pending changesets (typical after merging the Version PR).
 3. `pnpm install --frozen-lockfile`, then `pnpm build` / `typecheck` / `test`.
 4. If `packages/sdk/package.json` version is **already on npm**, the job succeeds without publishing. Docs-only merges to `main` stay green.
@@ -109,7 +109,7 @@ Use this only if the Release workflow cannot open a Version PR or cannot publish
 
 1. Re-run the failed **Release** workflow, or approve the `npm` Environment if the publish job is waiting.
 2. **Run workflow** (`workflow_dispatch`) on `.github/workflows/release.yml` from `main`. Same filename, same publish job, same Trusted Publisher. If pending changesets exist, it opens/updates the Version PR instead of publishing.
-3. If Actions cannot open PRs: from a clean `main`, run `pnpm version-packages`, commit `chore: version packages`, open that PR yourself, merge, then dispatch the Release workflow.
+3. If Actions cannot open PRs: from a clean `main`, run `pnpm version-packages && npx biome check --write packages/sdk/package.json packages/sdk/CHANGELOG.md`, commit `chore: version packages`, open that PR yourself, merge, then dispatch the Release workflow.
 4. Last resort, from a trusted machine after `pnpm build` (bypasses OIDC provenance):
 
 ```bash
