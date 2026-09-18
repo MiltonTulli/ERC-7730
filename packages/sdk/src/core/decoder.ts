@@ -2,6 +2,7 @@
  * Core calldata decoder
  */
 
+import { type Hex, decodeAbiParameters, parseAbiParameters } from 'viem';
 import type { TransactionInput } from '../types/index.js';
 import { getSignatureBySelector, parseSignature } from './signatures.js';
 
@@ -23,193 +24,48 @@ export function extractSelector(data: string): string {
   return data.slice(0, 10).toLowerCase();
 }
 
+function toHex(data: string): Hex {
+  return (data.startsWith('0x') ? data : `0x${data}`) as Hex;
+}
+
+function isAddressString(value: string): boolean {
+  return /^0x[0-9a-fA-F]{40}$/.test(value);
+}
+
 /**
- * Decode ABI-encoded parameters
- * This is a simplified decoder for common types
+ * Keep the historical decodeParameters contract: lowercase addresses and
+ * bigint integers (viem uses checksums and JS numbers for small ints).
+ */
+function normalizeDecoded(value: unknown): unknown {
+  if (typeof value === 'string') {
+    return isAddressString(value) ? value.toLowerCase() : value;
+  }
+  if (typeof value === 'number' && Number.isInteger(value)) {
+    return BigInt(value);
+  }
+  if (Array.isArray(value)) {
+    return value.map(normalizeDecoded);
+  }
+  if (value && typeof value === 'object') {
+    const out: Record<string, unknown> = {};
+    for (const [key, inner] of Object.entries(value)) {
+      out[key] = normalizeDecoded(inner);
+    }
+    return out;
+  }
+  return value;
+}
+
+/**
+ * Decode ABI-encoded parameters.
  */
 export function decodeParameters(types: string[], data: string): unknown[] {
-  const bytes = data.startsWith('0x') ? data.slice(2) : data;
-  const results: unknown[] = [];
-  let offset = 0;
-
-  for (const type of types) {
-    const decoded = decodeParameter(type, bytes, offset);
-    results.push(decoded.value);
-    offset = decoded.nextOffset;
+  if (types.length === 0) {
+    return [];
   }
-
-  return results;
-}
-
-interface DecodeResult {
-  value: unknown;
-  nextOffset: number;
-}
-
-function decodeParameter(type: string, data: string, offset: number): DecodeResult {
-  // Handle arrays
-  if (type.endsWith('[]')) {
-    return decodeDynamicArray(type.slice(0, -2), data, offset);
-  }
-
-  // Handle fixed arrays
-  const fixedArrayMatch = type.match(/^(.+)\[(\d+)\]$/);
-  if (fixedArrayMatch) {
-    return decodeFixedArray(fixedArrayMatch[1], Number.parseInt(fixedArrayMatch[2]), data, offset);
-  }
-
-  // Handle tuples
-  if (type.startsWith('(') && type.endsWith(')')) {
-    return decodeTuple(type, data, offset);
-  }
-
-  // Static types (32 bytes each)
-  const word = data.slice(offset * 2, (offset + 32) * 2);
-
-  if (type === 'address') {
-    return {
-      value: `0x${word.slice(24)}`,
-      nextOffset: offset + 32,
-    };
-  }
-
-  if (type.startsWith('uint') || type.startsWith('int')) {
-    return {
-      value: BigInt(`0x${word}`),
-      nextOffset: offset + 32,
-    };
-  }
-
-  if (type === 'bool') {
-    return {
-      value: BigInt(`0x${word}`) !== 0n,
-      nextOffset: offset + 32,
-    };
-  }
-
-  if (type.startsWith('bytes') && type !== 'bytes') {
-    // Fixed bytes (bytes1 to bytes32)
-    const size = Number.parseInt(type.slice(5));
-    return {
-      value: `0x${word.slice(0, size * 2)}`,
-      nextOffset: offset + 32,
-    };
-  }
-
-  if (type === 'bytes' || type === 'string') {
-    // Dynamic types - read offset, then data
-    const dataOffset = Number(BigInt(`0x${word}`));
-    const lengthWord = data.slice(dataOffset * 2, (dataOffset + 32) * 2);
-    const length = Number(BigInt(`0x${lengthWord}`));
-    const content = data.slice((dataOffset + 32) * 2, (dataOffset + 32 + length) * 2);
-
-    if (type === 'string') {
-      return {
-        value: hexToString(`0x${content}`),
-        nextOffset: offset + 32,
-      };
-    }
-
-    return {
-      value: `0x${content}`,
-      nextOffset: offset + 32,
-    };
-  }
-
-  // Unknown type - return raw
-  return {
-    value: `0x${word}`,
-    nextOffset: offset + 32,
-  };
-}
-
-function decodeDynamicArray(itemType: string, data: string, offset: number): DecodeResult {
-  const word = data.slice(offset * 2, (offset + 32) * 2);
-  const dataOffset = Number(BigInt(`0x${word}`));
-
-  const lengthWord = data.slice(dataOffset * 2, (dataOffset + 32) * 2);
-  const length = Number(BigInt(`0x${lengthWord}`));
-
-  const items: unknown[] = [];
-  let itemOffset = dataOffset + 32;
-
-  for (let i = 0; i < length; i++) {
-    const decoded = decodeParameter(itemType, data, itemOffset);
-    items.push(decoded.value);
-    itemOffset = decoded.nextOffset;
-  }
-
-  return {
-    value: items,
-    nextOffset: offset + 32,
-  };
-}
-
-function decodeFixedArray(
-  itemType: string,
-  length: number,
-  data: string,
-  offset: number
-): DecodeResult {
-  const items: unknown[] = [];
-  let currentOffset = offset;
-
-  for (let i = 0; i < length; i++) {
-    const decoded = decodeParameter(itemType, data, currentOffset);
-    items.push(decoded.value);
-    currentOffset = decoded.nextOffset;
-  }
-
-  return {
-    value: items,
-    nextOffset: currentOffset,
-  };
-}
-
-function decodeTuple(type: string, data: string, offset: number): DecodeResult {
-  // Parse tuple types: (address,uint256,bool) -> ['address', 'uint256', 'bool']
-  const inner = type.slice(1, -1);
-  const types: string[] = [];
-  let depth = 0;
-  let current = '';
-
-  for (const char of inner) {
-    if (char === '(') depth++;
-    else if (char === ')') depth--;
-
-    if (char === ',' && depth === 0) {
-      types.push(current.trim());
-      current = '';
-    } else {
-      current += char;
-    }
-  }
-  if (current.trim()) types.push(current.trim());
-
-  const values: unknown[] = [];
-  let currentOffset = offset;
-
-  for (const itemType of types) {
-    const decoded = decodeParameter(itemType, data, currentOffset);
-    values.push(decoded.value);
-    currentOffset = decoded.nextOffset;
-  }
-
-  return {
-    value: values,
-    nextOffset: currentOffset,
-  };
-}
-
-function hexToString(hex: string): string {
-  const bytes = hex.startsWith('0x') ? hex.slice(2) : hex;
-  let str = '';
-  for (let i = 0; i < bytes.length; i += 2) {
-    const code = Number.parseInt(bytes.slice(i, i + 2), 16);
-    if (code === 0) break;
-    str += String.fromCharCode(code);
-  }
-  return str;
+  const params = parseAbiParameters(types.join(','));
+  const decoded = decodeAbiParameters(params, toHex(data));
+  return decoded.map(normalizeDecoded);
 }
 
 /**
@@ -248,7 +104,7 @@ export function decodeCalldata(tx: TransactionInput): RawDecodedTransaction {
   let args: unknown[] = [];
   try {
     args = decodeParameters(inputs, paramsData);
-  } catch (e) {
+  } catch {
     // Fallback to raw if decoding fails
     args = [paramsData];
   }

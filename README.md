@@ -287,6 +287,43 @@ Default confidence (until TrustPolicy in #11):
 ### Response Types
 
 ```typescript
+/** Result of `decodeTransaction`. */
+interface DecodedOperation {
+  confidence: 'high' | 'medium' | 'low';
+  source:
+    | 'official-registry'
+    | 'attested'
+    | 'local-override'
+    | 'sourcify'
+    | 'generated'
+    | 'inferred'
+    | 'basic';
+  intent: string;
+  functionName?: string;
+  signature?: string;
+  selector?: string;
+  fields: DecodedField[];
+  excluded: string[];
+  warnings: SecurityWarning[];
+  trust: {
+    accepted: boolean;
+    policy: string;
+    reasons: string[];
+  };
+  metadata: {
+    owner?: string;
+    contractName?: string;
+    protocolUrl?: string;
+    chainId: number;
+    contractAddress?: string;
+  };
+  raw: {
+    selector?: string;
+    args?: readonly unknown[];
+  };
+}
+
+/** Result of `ClearSigner.decode`. */
 interface DecodedTransaction {
   confidence: 'high' | 'medium' | 'low';
   source: 'registry' | 'sourcify' | 'inferred' | 'basic';

@@ -228,7 +228,7 @@ async function formatTokenAmount(
   ctx: PathContext,
   tx: TransactionInput,
   options: FormatOptions
-): Promise<{ value: string; infinite: boolean }> {
+): Promise<{ value: string; infinite: boolean; missingMetadata?: boolean }> {
   const amount = toBigInt(rawValue);
   if (amount === undefined) {
     return { value: formatRaw(rawValue), infinite: false };
@@ -251,7 +251,8 @@ async function formatTokenAmount(
 
   const info = await resolveTokenInfo(params, ctx, tx, options);
   if (!info) {
-    return { value: formatAmount(amount, 0), infinite: false };
+    // Decimals are unknown: show the raw base-unit value, not a human amount.
+    return { value: `${amount.toString()} (raw)`, infinite: false, missingMetadata: true };
   }
   return { value: formatAmount(amount, info.decimals, info.symbol), infinite: false };
 }
@@ -376,6 +377,14 @@ export async function formatDisplayField(
           type: 'infinite_approval',
           severity: 'high',
           message: 'This approval grants unlimited spending access to your tokens',
+          path,
+        });
+      }
+      if (formatted.missingMetadata) {
+        warnings.push({
+          type: 'missing_metadata',
+          severity: 'medium',
+          message: 'Token decimals are unknown; amount is shown in raw base units',
           path,
         });
       }

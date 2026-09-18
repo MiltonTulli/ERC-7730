@@ -175,6 +175,21 @@ describe('decodeTransaction', () => {
     expect(result.trust.policy).toBe('unspecified');
   });
 
+  it('returns source basic for calldata shorter than a selector', async () => {
+    const result = await decodeTransaction(
+      {
+        to: '0x1234567890123456789012345678901234567890',
+        data: '0x1234',
+        chainId: 1,
+      },
+      { provider: null, useSourcifyFallback: false }
+    );
+
+    expect(result.source).toBe('basic');
+    expect(result.confidence).toBe('low');
+    expect(result.selector).toBeUndefined();
+  });
+
   it('sets source official-registry for a WETH deposit from the registry client', async () => {
     const registry = createOfficialRegistry({
       pin: PIN,
@@ -347,5 +362,41 @@ describe('decodeTransaction formats', () => {
 
     expect(result.fields.find((field) => field.label === 'To')?.rawValue).toBe(`0x${VITALIK}`);
     expect(result.fields.find((field) => field.label === 'Amount')?.value).toBe('100 USDC');
+  });
+
+  it('shows raw base units when token decimals are unknown', async () => {
+    const descriptor: InputDescriptor = {
+      $schema: 'https://eips.ethereum.org/assets/eip-7730/erc7730-v2.schema.json',
+      context: {
+        contract: {
+          deployments: [{ chainId: 1, address: '0x1111111111111111111111111111111111111111' }],
+        },
+      },
+      metadata: {
+        owner: 'Unknown',
+        info: { url: 'https://example.invalid/', deploymentDate: '2020-01-01T00:00:00Z' },
+      },
+      display: {
+        formats: {
+          'transfer(address to,uint256 value)': {
+            intent: 'Send',
+            fields: [
+              {
+                path: 'value',
+                label: 'Amount',
+                format: 'tokenAmount',
+                params: { tokenPath: '@.to' },
+              },
+            ],
+          },
+        },
+      },
+    };
+
+    const result = await decodeWith(descriptor, TRANSFER_100_USDC);
+    const amount = result.fields.find((field) => field.label === 'Amount');
+    expect(amount?.value).toBe('100000000 (raw)');
+    expect(amount?.value).not.toBe('100,000,000');
+    expect(result.warnings.some((warning) => warning.type === 'missing_metadata')).toBe(true);
   });
 });

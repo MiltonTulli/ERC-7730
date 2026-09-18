@@ -294,7 +294,7 @@ function fallbackOperation(
   options: DecodeOptions | undefined
 ): Promise<DecodedOperation> {
   const selector = selectorFromTx(tx);
-  const raw = tx.data && tx.data !== '0x' ? decodeCalldata(tx) : null;
+  const raw = selector ? decodeCalldata(tx) : null;
   const known = selector ? getSignatureBySelector(selector) : null;
   const source: DecodeSource = known || raw?.signature ? 'inferred' : 'basic';
   const fields: DecodedField[] = [];

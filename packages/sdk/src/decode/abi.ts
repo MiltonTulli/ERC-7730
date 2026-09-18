@@ -1,3 +1,5 @@
+import type { AbiParameter } from 'abitype';
+import { parseAbiParameter, parseAbiParameters } from 'abitype';
 import { decodeParameters } from '../core/decoder.js';
 import { computeSelector } from '../core/signatures.js';
 
@@ -13,6 +15,15 @@ export interface ParsedDeclaration {
   canonical: string;
   selector: string;
 }
+
+const DATA_LOCATIONS = new Set(['calldata', 'memory', 'storage']);
+
+const TYPE_ALIASES: Record<string, string> = {
+  uint: 'uint256',
+  int: 'int256',
+  ufixed: 'ufixed128x18',
+  fixed: 'fixed128x18',
+};
 
 const WELL_KNOWN_NAMES: Record<string, string[]> = {
   'transfer(address,uint256)': ['to', 'amount'],
@@ -75,12 +86,50 @@ function parseArraySuffix(src: string): { type: string; rest: string } {
   return { type: match[1], rest: match[2].trim() };
 }
 
+function abiParamToParsed(param: AbiParameter): ParsedParam {
+  const name = param.name || undefined;
+  if (param.type.startsWith('tuple') && 'components' in param && param.components) {
+    const components = param.components.map(abiParamToParsed);
+    const innerTypes = components.map((item) => item.type).join(',');
+    const suffix = param.type.slice('tuple'.length);
+    return {
+      type: `(${innerTypes})${suffix}`,
+      name,
+      components,
+    };
+  }
+  return { type: param.type, name };
+}
+
+function canonicalizeType(type: string): string {
+  const arrayMatch = type.match(/^(.*?)((?:\[\d*\])+)$/);
+  const base = arrayMatch ? arrayMatch[1] : type;
+  const suffix = arrayMatch ? arrayMatch[2] : '';
+  return `${TYPE_ALIASES[base] ?? base}${suffix}`;
+}
+
 export function parseParams(src: string): ParsedParam[] {
-  return splitTopLevel(src).map(parseParam);
+  const trimmed = src.trim();
+  if (!trimmed) {
+    return [];
+  }
+  try {
+    return [...parseAbiParameters(trimmed)].map(abiParamToParsed);
+  } catch {
+    return splitTopLevel(trimmed).map(parseParam);
+  }
 }
 
 function parseParam(raw: string): ParsedParam {
   const src = raw.trim();
+  try {
+    return abiParamToParsed(parseAbiParameter(src));
+  } catch {
+    return parseParamFallback(src);
+  }
+}
+
+function parseParamFallback(src: string): ParsedParam {
   if (src.startsWith('(')) {
     const close = findMatchingParen(src, 0);
     if (close === -1) {
@@ -89,17 +138,18 @@ function parseParam(raw: string): ParsedParam {
     const inner = src.slice(1, close);
     const after = src.slice(close + 1).trim();
     const { type: suffix, rest } = parseArraySuffix(after);
+    const tokens = rest.split(/\s+/).filter((token) => token && !DATA_LOCATIONS.has(token));
     const components = parseParams(inner);
     const innerTypes = components.map((item) => item.type).join(',');
     return {
       type: `(${innerTypes})${suffix}`,
-      name: rest || undefined,
+      name: tokens.join(' ') || undefined,
       components,
     };
   }
 
-  const tokens = src.split(/\s+/);
-  const type = tokens[0] ?? src;
+  const tokens = src.split(/\s+/).filter((token) => token && !DATA_LOCATIONS.has(token));
+  const type = canonicalizeType(tokens[0] ?? src);
   const name = tokens.slice(1).join(' ') || undefined;
   return { type, name: name || undefined };
 }
@@ -145,8 +195,10 @@ function nestValue(value: unknown, param: ParsedParam): unknown {
   if (!param.components || param.components.length === 0) {
     return value;
   }
-  if (param.type.endsWith('[]') && Array.isArray(value)) {
-    return value.map((item) => nestValue(item, { ...param, type: param.type.slice(0, -2) }));
+  const arraySuffix = param.type.match(/\[(\d*)\]$/);
+  if (arraySuffix && Array.isArray(value)) {
+    const innerType = param.type.slice(0, -arraySuffix[0].length);
+    return value.map((item) => nestValue(item, { ...param, type: innerType }));
   }
   if (Array.isArray(value)) {
     return zipNamedArgs(value, param.components);
@@ -188,7 +240,10 @@ export function decodeNamedArgs(
     try {
       positional = decodeParameters(types, paramsData);
     } catch {
-      positional = [paramsData];
+      return {
+        positional: [paramsData],
+        named: {},
+      };
     }
   }
   const aliases = WELL_KNOWN_NAMES[declaration.canonical];
