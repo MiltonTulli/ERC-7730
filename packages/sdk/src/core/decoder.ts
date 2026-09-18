@@ -27,7 +27,7 @@ export function extractSelector(data: string): string {
  * Decode ABI-encoded parameters
  * This is a simplified decoder for common types
  */
-function decodeParameters(types: string[], data: string): unknown[] {
+export function decodeParameters(types: string[], data: string): unknown[] {
   const bytes = data.startsWith('0x') ? data.slice(2) : data;
   const results: unknown[] = [];
   let offset = 0;

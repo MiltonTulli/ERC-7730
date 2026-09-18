@@ -52,7 +52,8 @@ The v1 `ClearSigner.decode` path still reports `confidence: "high"` for some Sou
 - **Schema v1 + v2** — `validateDescriptor()` against official JSON Schema
 - **Official registry client** — pin `ethereum/clear-signing-erc7730-registry` by commit SHA
 - **Resolve** — merge `includes` and inline field `$ref` (`resolveDescriptor`)
-- **v1 calldata decode** — `ClearSigner.decode` (legacy; v2 path engine is on the roadmap)
+- **`decodeTransaction`** — apply official (or override) `display.formats` to calldata (`#` / `$` / `@` paths)
+- **v1 calldata decode** — `ClearSigner.decode` (legacy; still pretty-prints known ABIs)
 - **Untrusted fallback** — Sourcify / `generateDescriptor` are labeled by `source`, never trusted
 - **Warnings** — infinite approvals and similar risks
 - **Tree-shakeable** — no heavy default network catalog in the published tarball
@@ -66,22 +67,30 @@ npm install @erc7730/sdk
 ## Quick Start
 
 ```typescript
-import { ClearSigner } from '@erc7730/sdk';
+import { createOfficialRegistry, decodeTransaction } from '@erc7730/sdk';
 
-const signer = new ClearSigner();
-
-const result = await signer.decode({
-  to: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', // USDC
-  data: '0xa9059cbb000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa960450000000000000000000000000000000000000000000000000000000005f5e100',
-  chainId: 1
+const registry = createOfficialRegistry({
+  pin: '9f37816afde954ff6617fb5baa346133e5af26c5',
 });
 
-console.log(result.intent);       // "Send tokens"
-console.log(result.source);       // "registry" | "sourcify" | "inferred" | "basic"
-console.log(result.confidence);   // treat "high" only for trusted registry metadata
-console.log(result.fields[0]);    // { label: "Recipient", value: "vitalik.eth" }
-console.log(result.warnings);
+const result = await decodeTransaction(
+  {
+    to: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', // USDC
+    data: '0xa9059cbb000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa960450000000000000000000000000000000000000000000000000000000005f5e100',
+    chainId: 1,
+  },
+  { registry, useSourcifyFallback: false }
+);
+
+console.log(result.intent);       // "Send" + formatted fields when a descriptor matches
+console.log(result.source);       // "official-registry" | "sourcify" | "inferred" | "basic"
+console.log(result.confidence);   // "high" only for official-registry / attested
+console.log(result.trust);        // stub until TrustPolicy (#11): { policy: "unspecified", accepted }
+console.log(result.fields);       // [{ label: "Amount", value: "100 USDC", format: "tokenAmount" }, ...]
+console.log(result.warnings);     // e.g. infinite_approval
 ```
+
+`ClearSigner.decode` remains the v1 pretty-printer. Prefer `decodeTransaction` for descriptor-backed clear signing.
 
 Production lookups should use `createOfficialRegistry({ pin })`, not the v1 embedded snapshot.
 
@@ -251,7 +260,29 @@ interface ClearSignerConfig {
 - `registry.extend(descriptor): void` - Add local overrides
 - `registry.find(signature): RegistryMatch | null` - Find descriptor by signature
 
-Also exported: `createOfficialRegistry`, `validateDescriptor`, `resolveDescriptor`, `generateDescriptor`.
+Also exported: `decodeTransaction`, `resolvePath`, `createOfficialRegistry`, `validateDescriptor`, `resolveDescriptor`, `generateDescriptor`.
+
+### `decodeTransaction`
+
+```typescript
+const result = await decodeTransaction(tx, {
+  registry,                 // OfficialRegistry (or any { findCalldata })
+  provider: null,           // no RPC; pass a viem PublicClient for ENS / token metadata
+  useSourcifyFallback: true // default; never confidence "high"
+});
+```
+
+Format keys match by 4-byte selector, canonical signature, or Solidity declaration. Paths use `#` (decoded args), `$` (merged descriptor), `@` (envelope: `to` / `value` / `chainId` / `from`).
+
+Formats in this release: `raw`, `amount`, `tokenAmount`, `date`, `duration`, `addressName` (alias `addressOrName`), `enum`, `nftName`.
+
+Default confidence (until TrustPolicy in #11):
+
+| source | `trust.accepted` | confidence |
+| --- | --- | --- |
+| official-registry / attested | `true` | `high` |
+| local-override | `true` | `medium` |
+| sourcify / generated / inferred / basic | `false` | `low` |
 
 ### Response Types
 

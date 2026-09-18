@@ -44,7 +44,8 @@ Separate **trusted metadata** from **ABI guesses**. Sourcify and `generateDescri
 - **Schema v1 + v2** — `validateDescriptor()` against official JSON Schema
 - **Official registry client** — pin `ethereum/clear-signing-erc7730-registry` by commit SHA
 - **Resolve** — merge `includes` and inline field `$ref`
-- **v1 calldata decode** — `ClearSigner.decode` (legacy; v2 path engine is on the roadmap)
+- **`decodeTransaction`** — apply official (or override) `display.formats` to calldata
+- **v1 calldata decode** — `ClearSigner.decode` (legacy)
 - **Untrusted fallback** — Sourcify / `generateDescriptor`, labeled by `source`
 - **Warnings** — infinite approvals and similar risks
 - **Tree-shakeable** — minimal dependencies
@@ -58,22 +59,29 @@ npm install @erc7730/sdk
 ## Quick Start
 
 ```typescript
-import { ClearSigner } from '@erc7730/sdk';
+import { createOfficialRegistry, decodeTransaction } from '@erc7730/sdk';
 
-const signer = new ClearSigner();
-
-const result = await signer.decode({
-  to: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', // USDC
-  data: '0xa9059cbb000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa960450000000000000000000000000000000000000000000000000000000005f5e100',
-  chainId: 1
+const registry = createOfficialRegistry({
+  pin: '9f37816afde954ff6617fb5baa346133e5af26c5',
 });
 
-console.log(result.intent);       // "Send tokens"
-console.log(result.source);       // "registry" | "sourcify" | "inferred" | "basic"
-console.log(result.confidence);   // treat "high" only for trusted registry metadata
-console.log(result.fields[0]);    // { label: "Recipient", value: "vitalik.eth" }
-console.log(result.warnings);
+const result = await decodeTransaction(
+  {
+    to: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+    data: '0xa9059cbb000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa960450000000000000000000000000000000000000000000000000000000005f5e100',
+    chainId: 1,
+  },
+  { registry, useSourcifyFallback: false }
+);
+
+console.log(result.intent);
+console.log(result.source);     // "official-registry" when the client matches
+console.log(result.confidence); // "high" only for official-registry / attested
+console.log(result.trust);      // stub { policy: "unspecified", accepted } until #11
+console.log(result.fields);
 ```
+
+`ClearSigner.decode` remains the v1 pretty-printer. Prefer `decodeTransaction` for descriptor-backed clear signing.
 
 Production lookups should use `createOfficialRegistry({ pin })`, not the v1 embedded snapshot.
 
