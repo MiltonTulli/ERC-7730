@@ -93,7 +93,7 @@ export {
 
 export { validateDescriptor } from './schema/index.js';
 
-export { decodeTransaction } from './decode/index.js';
+export { decodeTransaction, decodeTypedData } from './decode/index.js';
 
 export {
   resolveDescriptor,
@@ -163,6 +163,7 @@ export type {
   RegistryConfig,
   Provider,
   TransactionInput,
+  TypedDataInput,
   ChainName,
   // ERC-7730 types
   ERC7730Descriptor,

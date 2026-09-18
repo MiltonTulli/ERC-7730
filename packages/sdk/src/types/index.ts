@@ -19,6 +19,23 @@ export interface TransactionInput {
 }
 
 /**
+ * EIP-712 typed-data payload for `decodeTypedData`.
+ */
+export interface TypedDataInput {
+  chainId?: number;
+  domain: {
+    name?: string;
+    version?: string;
+    chainId?: number | bigint;
+    verifyingContract?: `0x${string}`;
+    salt?: `0x${string}`;
+  };
+  types: Record<string, Array<{ name: string; type: string }>>;
+  primaryType: string;
+  message: Record<string, unknown>;
+}
+
+/**
  * Provider interface - compatible with viem's PublicClient
  */
 export interface Provider {

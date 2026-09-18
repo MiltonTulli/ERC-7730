@@ -54,9 +54,10 @@ The v1 `ClearSigner.decode` path still reports `confidence: "high"` for some Sou
 - **Resolve** — merge `includes` and inline field `$ref` (`resolveDescriptor`)
 - **Path engine** — `resolvePath()` for `#.` / `$.` / `@.` roots (structs, arrays, slices)
 - **`decodeTransaction`** — apply official (or override) `display.formats` to calldata (`#` / `$` / `@` paths)
+- **`decodeTypedData`** — apply official EIP-712 descriptors (`index.eip712.json`, Permit + `encodeType` hash)
 - **v1 calldata decode** — `ClearSigner.decode` (legacy; still pretty-prints known ABIs)
 - **Untrusted fallback** — Sourcify / `generateDescriptor` are labeled by `source`, never trusted
-- **Warnings** — infinite approvals and similar risks
+- **Warnings** — infinite approvals, expired typed-data deadlines, and similar risks
 - **Tree-shakeable** — no heavy default network catalog in the published tarball
 
 ## Installation
@@ -283,7 +284,7 @@ interface ClearSignerConfig {
 - `registry.extend(descriptor): void` - Add local overrides
 - `registry.find(signature): RegistryMatch | null` - Find descriptor by signature
 
-Also exported: `decodeTransaction`, `resolvePath`, `createOfficialRegistry`, `validateDescriptor`, `resolveDescriptor`, `generateDescriptor`.
+Also exported: `decodeTransaction`, `decodeTypedData`, `resolvePath`, `createOfficialRegistry`, `validateDescriptor`, `resolveDescriptor`, `generateDescriptor`.
 
 ### `decodeTransaction`
 
@@ -299,6 +300,36 @@ Format keys match by 4-byte selector, canonical signature, or Solidity declarati
 
 Formats in this release: `raw`, `amount`, `tokenAmount`, `date`, `duration`, `addressName` (alias `addressOrName`), `enum`, `nftName`.
 
+### `decodeTypedData`
+
+```typescript
+const result = await decodeTypedData(
+  {
+    chainId: 1,
+    domain: {
+      name: 'USD Coin',
+      version: '2',
+      chainId: 1,
+      verifyingContract: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+    },
+    types: {
+      Permit: [
+        { name: 'owner', type: 'address' },
+        { name: 'spender', type: 'address' },
+        { name: 'value', type: 'uint256' },
+        { name: 'nonce', type: 'uint256' },
+        { name: 'deadline', type: 'uint256' },
+      ],
+    },
+    primaryType: 'Permit',
+    message: { owner, spender, value, nonce, deadline },
+  },
+  { registry, now: 1_735_689_600 } // unix seconds; inject in tests for expired_deadline
+);
+```
+
+Lookup is CAIP-10 `eip155:{chainId}:{verifyingContract}`. When several files share `primaryType`, keccak256 of EIP-712 `encodeType` picks the descriptor. `@.to` is the verifying contract. `raw.message` is the normalized payload.
+
 Default confidence (until TrustPolicy in #11):
 
 | source | `trust.accepted` | confidence |
@@ -310,7 +341,7 @@ Default confidence (until TrustPolicy in #11):
 ### Response Types
 
 ```typescript
-/** Result of `decodeTransaction`. */
+/** Result of `decodeTransaction` / `decodeTypedData`. */
 interface DecodedOperation {
   confidence: 'high' | 'medium' | 'low';
   source:
@@ -345,7 +376,7 @@ interface DecodedOperation {
   raw: {
     selector?: string;
     args?: readonly unknown[];
-    /** Reserved for non-transaction decoders; not returned by `decodeTransaction`. */
+    /** Set by `decodeTypedData`; `decodeTransaction` does not set this. */
     message?: Record<string, unknown>;
   };
 }
@@ -386,7 +417,7 @@ interface SecurityWarning {
 }
 ```
 
-`metadata.descriptorId` is the descriptor `context.$id` when a format matches. `raw.message` is optional on the type and reserved for typed data; `decodeTransaction` does not set it. Descriptor input may use `addressOrName`; the field `format` on the result is `addressName`.
+`metadata.descriptorId` is the descriptor `context.$id` when a format matches. `raw.message` is the normalized EIP-712 payload from `decodeTypedData`; `decodeTransaction` does not set it. Descriptor input may use `addressOrName`; the field `format` on the result is `addressName`.
 
 `ClearSigner.decode` may also set `source: 'sourcify'`. See the [trust model](#trust-model).
 

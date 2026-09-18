@@ -75,3 +75,43 @@ export function matchFormat(merged: unknown, selector: string): MatchedFormat | 
 
   return null;
 }
+
+/**
+ * Match a descriptor format key by EIP-712 `encodeType` string, primaryType
+ * name, or a Solidity-style declaration whose name is `primaryType`.
+ */
+export function matchEip712Format(
+  merged: unknown,
+  primaryType: string,
+  encoded: string
+): MatchedFormat | null {
+  if (!isPlainObject(merged)) {
+    return null;
+  }
+  const formats = asFormats(merged.display);
+  if (!formats) {
+    return null;
+  }
+
+  let byPrimary: MatchedFormat | null = null;
+  let byName: MatchedFormat | null = null;
+
+  for (const [key, value] of Object.entries(formats)) {
+    if (!isPlainObject(value)) {
+      continue;
+    }
+    const format = value as MatchedFormat['format'];
+    const declaration = parseDeclaration(key);
+    if (key === encoded) {
+      return { key, format, declaration };
+    }
+    if (key === primaryType && !byPrimary) {
+      byPrimary = { key, format, declaration };
+    }
+    if (declaration?.name === primaryType && !byName) {
+      byName = { key, format, declaration };
+    }
+  }
+
+  return byPrimary ?? byName;
+}

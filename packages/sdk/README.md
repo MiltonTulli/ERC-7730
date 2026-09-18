@@ -45,6 +45,7 @@ Separate **trusted metadata** from **ABI guesses**. Sourcify and `generateDescri
 - **Official registry client** — pin `ethereum/clear-signing-erc7730-registry` by commit SHA
 - **Resolve** — merge `includes` and inline field `$ref`
 - **`decodeTransaction`** — apply official (or override) `display.formats` to calldata
+- **`decodeTypedData`** — apply official EIP-712 descriptors (`index.eip712.json`)
 - **v1 calldata decode** — `ClearSigner.decode` (legacy)
 - **Untrusted fallback** — Sourcify / `generateDescriptor`, labeled by `source`
 - **Warnings** — infinite approvals and similar risks
@@ -81,7 +82,7 @@ console.log(result.trust);      // stub { policy: "unspecified", accepted } unti
 console.log(result.fields);
 ```
 
-`ClearSigner.decode` remains the v1 pretty-printer. Prefer `decodeTransaction` for descriptor-backed clear signing.
+`ClearSigner.decode` remains the v1 pretty-printer. Prefer `decodeTransaction` / `decodeTypedData` for descriptor-backed clear signing.
 
 Production lookups should use `createOfficialRegistry({ pin })`, not the v1 embedded snapshot.
 
@@ -90,7 +91,7 @@ Production lookups should use `createOfficialRegistry({ pin })`, not the v1 embe
 The product catalog is [`ethereum/clear-signing-erc7730-registry`](https://github.com/ethereum/clear-signing-erc7730-registry). Pin a commit SHA in production — never `master`.
 
 ```typescript
-import { createOfficialRegistry } from '@erc7730/sdk';
+import { createOfficialRegistry, decodeTypedData } from '@erc7730/sdk';
 
 const registry = createOfficialRegistry({
   pin: '9f37816afde954ff6617fb5baa346133e5af26c5',
@@ -106,6 +107,8 @@ const usdcPermit = await registry.findEip712({
   address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
   signature: 'Permit',
 });
+
+const decoded = await decodeTypedData(typedData, { registry });
 ```
 
 `extend()` is for local overrides only. Submit new protocol metadata to the official registry, not this repository.
@@ -250,7 +253,7 @@ interface ClearSignerConfig {
 - `decode(tx): Promise<DecodedTransaction>` - Decode a transaction
 - `extend(descriptors): void` - Add local overrides
 
-Also exported: `createOfficialRegistry`, `validateDescriptor`, `resolveDescriptor`, `generateDescriptor`.
+Also exported: `decodeTransaction`, `decodeTypedData`, `createOfficialRegistry`, `validateDescriptor`, `resolveDescriptor`, `generateDescriptor`.
 
 ### Response Types
 
