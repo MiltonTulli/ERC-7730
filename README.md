@@ -1,19 +1,22 @@
 # ERC-7730 SDK
 
-See [ROADMAP.md](./ROADMAP.md) for v0.2–v0.5, official registry strategy, and the public API sketch.
+TypeScript runtime for [ERC-7730](https://eips.ethereum.org/EIPS/eip-7730) clear signing: validate descriptors, pin the official registry, resolve includes/`$ref`, and render human-readable calls.
+
+See [ROADMAP.md](./ROADMAP.md) for v0.2–v0.5, the official-registry strategy, and the public API sketch.
 
 See [RELEASE.md](./RELEASE.md) to version `@erc7730/sdk` with Changesets and cut an npm release from a `vX.Y.Z` tag.
 
-> TypeScript SDK for decoding blockchain transactions into human-readable format using the [ERC-7730](https://eips.ethereum.org/EIPS/eip-7730) standard.
-
 [![npm version](https://img.shields.io/npm/v/@erc7730/sdk.svg)](https://www.npmjs.com/package/@erc7730/sdk)
+[![ERC-7730](https://img.shields.io/badge/schema-v1%20%2B%20v2-3b82f6)](https://eips.ethereum.org/EIPS/eip-7730)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+This package is **not** a descriptor catalog. The source of truth is [`ethereum/clear-signing-erc7730-registry`](https://github.com/ethereum/clear-signing-erc7730-registry). New protocol metadata belongs there, not in this repo.
 
 ## Why ERC-7730?
 
-When you sign a transaction, your wallet shows you raw calldata like `0xa9059cbb000000...`. This is unreadable and dangerous—users can't verify what they're actually signing.
+Wallets still show raw calldata like `0xa9059cbb000000...`. Users cannot verify what they sign.
 
-ERC-7730 is a standard that provides **human-readable descriptions** for smart contract calls. This SDK implements the standard for TypeScript/JavaScript applications.
+ERC-7730 is the clear-signing standard ([clearsigning.org](https://clearsigning.org)): curated JSON that maps a contract call or typed-data payload to an intent and labeled fields.
 
 **Before:**
 ```
@@ -29,14 +32,30 @@ Send tokens
 └── Recipient: vitalik.eth
 ```
 
+## Trust model
+
+Integrators must separate **trusted metadata** from **ABI guesses**. Shipping the latter as “clear signing” is false confidence.
+
+| `source` | What it is | `trust.accepted` (documented default) | `confidence` |
+| --- | --- | --- | --- |
+| Official registry (commit SHA pin) or attestation | Curated ERC-7730 | `true` | `"high"` |
+| Local `extend()` override | App-supplied | policy-defined | medium / high |
+| Sourcify / `generateDescriptor` | ABI-generated fallback | **`false`** | **never `"high"`** |
+| Inferred / basic selector decode | Guess from 4-byte + types | **`false`** | `"medium"` / `"low"` |
+
+`TrustPolicy` (pluggable `trust.accepted`) is not wired yet — see [ROADMAP.md](./ROADMAP.md) and [#11](https://github.com/MiltonTulli/ERC-7730/issues/11). Until then, **`source` is the signal**. Do not treat Sourcify or generated descriptors as high-confidence.
+
+The v1 `ClearSigner.decode` path still reports `confidence: "high"` for some Sourcify matches. That is a known gap, not the product rule.
+
 ## Features
 
-- 🔍 **Decode any calldata** into human-readable format
-- 📦 **Zero config** - works out of the box with common standards (ERC-20, ERC-721, etc.)
-- 🔌 **Extensible** - add your own contract descriptors
-- 🌐 **Official registry client** - pin `ethereum/clear-signing-erc7730-registry` by commit SHA
-- 🔒 **Security warnings** - detects infinite approvals and other risks
-- ⚡ **Lightweight** - tree-shakeable, no heavy dependencies
+- **Schema v1 + v2** — `validateDescriptor()` against official JSON Schema
+- **Official registry client** — pin `ethereum/clear-signing-erc7730-registry` by commit SHA
+- **Resolve** — merge `includes` and inline field `$ref` (`resolveDescriptor`)
+- **v1 calldata decode** — `ClearSigner.decode` (legacy; v2 path engine is on the roadmap)
+- **Untrusted fallback** — Sourcify / `generateDescriptor` are labeled by `source`, never trusted
+- **Warnings** — infinite approvals and similar risks
+- **Tree-shakeable** — no heavy default network catalog in the published tarball
 
 ## Installation
 
@@ -58,14 +77,84 @@ const result = await signer.decode({
 });
 
 console.log(result.intent);       // "Send tokens"
+console.log(result.source);       // "registry" | "sourcify" | "inferred" | "basic"
+console.log(result.confidence);   // treat "high" only for trusted registry metadata
 console.log(result.fields[0]);    // { label: "Recipient", value: "vitalik.eth" }
-console.log(result.fields[1]);    // { label: "Amount", value: "100 USDC" }
-console.log(result.confidence);   // "high"
+console.log(result.warnings);
+```
+
+Production lookups should use `createOfficialRegistry({ pin })`, not the v1 embedded snapshot.
+
+## Official registry
+
+The canonical catalog is [`ethereum/clear-signing-erc7730-registry`](https://github.com/ethereum/clear-signing-erc7730-registry). Production lookups pin a **commit SHA** (never floating `master` / `main`).
+
+```ts
+import { createOfficialRegistry } from '@erc7730/sdk';
+
+const registry = createOfficialRegistry({
+  pin: '9f37816afde954ff6617fb5baa346133e5af26c5',
+});
+
+const weth = await registry.findCalldata({
+  chainId: 1,
+  address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+});
+
+const usdcPermit = await registry.findEip712({
+  chainId: 1,
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  signature: 'Permit',
+});
+
+// App-local overrides only — not a contribution path
+registry.extend([myDescriptor]);
+```
+
+Indexes are CAIP-10 `eip155:{chainId}:{address}`. `index.calldata.json` maps to a descriptor path. `index.eip712.json` maps to primaryType + `encodeType` keccak; pass `signature` (primaryType) and/or `encodeTypeHash` when several files apply.
+
+JSON is fetched on miss into an in-memory cache. Pass `cache` for optional fs / IndexedDB.
+
+**New protocol descriptors:** open a PR on the [official registry](https://github.com/ethereum/clear-signing-erc7730-registry), not this repo. `packages/registry` is a historical snapshot used by the v1 `ClearSigner` embed and as test fixtures.
+
+CLI later (#15): `ERC7730_REGISTRY_PATH` pointing at a local clone, and an `update` helper that fetches a pin (Cyfrin `clearsig update` model).
+
+## Schema v2
+
+`validateDescriptor(input)` compiles the official v1 and v2 JSON Schema. Version comes from `$schema` (`erc7730-v1` / `erc7730-v2`); if omitted, v2 is tried first, then v1.
+
+```ts
+import { validateDescriptor, resolveDescriptor } from '@erc7730/sdk';
+
+const validated = validateDescriptor(input);
+if (!validated.ok) {
+  console.error(validated.errors); // { path, message, rule? }[]
+}
+
+const resolved = await resolveDescriptor(input, loader);
+// resolved.merged — includes merged, field $ref inlined
+// resolved.hash   — keccak256 of canonical JSON
+```
+
+## Untrusted fallback
+
+Sourcify and `generateDescriptor` exist so an unknown contract can still show *something*. They are **not** clear signing.
+
+```ts
+import { generateDescriptor } from '@erc7730/sdk';
+
+const draft = generateDescriptor({
+  chainId: 1,
+  address: '0x...',
+  abi: contractABI,
+  owner: 'My Protocol',
+});
+// draft is a starting point for an upstream registry PR — never confidence: "high"
 ```
 
 ## Security Warnings
 
-The SDK automatically detects dangerous patterns:
+The SDK flags dangerous patterns on decoded fields:
 
 ```typescript
 const result = await signer.decode({
@@ -82,9 +171,9 @@ console.log(result.warnings);
 // }]
 ```
 
-## Extending with Custom Descriptors
+## Local overrides
 
-Add support for your own contracts:
+`extend()` is for app-local descriptors only (tests, unpublished contracts). It is not how protocols join the catalog.
 
 ```typescript
 const signer = new ClearSigner();
@@ -123,48 +212,14 @@ erc7730-sdk/
 ├── packages/
 │   ├── sdk/           # Core TypeScript SDK (npm package)
 │   ├── registry/      # Legacy snapshot / test fixtures (not the product catalog)
-│   └── web/           # Demo web application
+│   └── web/           # Demo: always shows source + warnings
 ```
-
-## Official registry
-
-The canonical catalog is [`ethereum/clear-signing-erc7730-registry`](https://github.com/ethereum/clear-signing-erc7730-registry). Production lookups pin a **commit SHA** (never floating `master`).
-
-```ts
-import { createOfficialRegistry } from '@erc7730/sdk';
-
-const registry = createOfficialRegistry({
-  pin: '9f37816afde954ff6617fb5baa346133e5af26c5',
-});
-
-const weth = await registry.findCalldata({
-  chainId: 1,
-  address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-});
-
-const usdcPermit = await registry.findEip712({
-  chainId: 1,
-  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-  signature: 'Permit',
-});
-
-// App-local overrides only
-registry.extend([myDescriptor]);
-```
-
-Indexes are CAIP-10 `eip155:{chainId}:{address}`. `index.calldata.json` maps to a descriptor path. `index.eip712.json` maps to primaryType + `encodeType` keccak; pass `signature` (primaryType) and/or `encodeTypeHash` when several files apply.
-
-JSON is fetched on miss into an in-memory cache. Pass `cache` for optional fs / IndexedDB.
-
-**New protocol descriptors:** open a PR on the [official registry](https://github.com/ethereum/clear-signing-erc7730-registry), not this repo. `packages/registry` is a historical snapshot used by the v1 `ClearSigner` embed and as test fixtures.
-
-CLI later (#15): `ERC7730_REGISTRY_PATH` pointing at a local clone, and an `update` helper that fetches a pin (Cyfrin `clearsig update` model).
 
 ## Web Demo
 
 Try it online: [miltontulli.github.io/ERC-7730](https://miltontulli.github.io/ERC-7730/)
 
-Or run locally:
+Every decode shows `source`, `warnings`, and a `trust.accepted` placeholder (TrustPolicy comes later). Sourcify / generated output is labeled untrusted.
 
 ```bash
 pnpm install
@@ -193,15 +248,17 @@ interface ClearSignerConfig {
 #### Methods
 
 - `decode(tx: TransactionInput): Promise<DecodedTransaction>` - Decode a transaction
-- `registry.extend(descriptor): void` - Add custom descriptors
+- `registry.extend(descriptor): void` - Add local overrides
 - `registry.find(signature): RegistryMatch | null` - Find descriptor by signature
+
+Also exported: `createOfficialRegistry`, `validateDescriptor`, `resolveDescriptor`, `generateDescriptor`.
 
 ### Response Types
 
 ```typescript
 interface DecodedTransaction {
   confidence: 'high' | 'medium' | 'low';
-  source: 'registry' | 'inferred' | 'basic';
+  source: 'registry' | 'sourcify' | 'inferred' | 'basic';
   intent: string;
   functionName: string;
   signature: string;
@@ -230,21 +287,27 @@ interface SecurityWarning {
 }
 ```
 
-## Related Projects
+`ClearSigner.decode` may also set `source: 'sourcify'`. See the [trust model](#trust-model).
 
-- [ERC-7730 Specification](https://eips.ethereum.org/EIPS/eip-7730)
+## vs Ledger python-erc7730
+
+| | `@erc7730/sdk` | Ledger [`python-erc7730`](https://github.com/LedgerHQ/python-erc7730) |
+| --- | --- | --- |
+| Language | TypeScript / JavaScript | Python |
+| Role | **Runtime** for wallets and dApps (validate, resolve, decode) | **Authoring and firmware** tooling (lint, convert, device clear-signing) |
+| Catalog | Consumes the official registry, pin by commit SHA | Same official catalog |
+| Schema | v1 read + v2 validate | v1 / v2 |
+
+Divergences in the resolved form (until golden tests in #18): format keys stay ABI fragments (not 4-byte selectors); enum `params.$ref` is kept; `fields` merge by `path` as in EIP-7730 (python-erc7730 overwrites the array).
+
+## Related
+
+- [EIP-7730](https://eips.ethereum.org/EIPS/eip-7730)
+- [clearsigning.org](https://clearsigning.org)
 - [Official ERC-7730 registry](https://github.com/ethereum/clear-signing-erc7730-registry)
-- [python-erc7730](https://github.com/LedgerHQ/python-erc7730) - Python SDK by Ledger
+- [Ledger python-erc7730](https://github.com/LedgerHQ/python-erc7730)
 - [Cyfrin clearsig](https://github.com/Cyfrin/clearsig)
-
-## Differences from Ledger's Implementation
-
-| Feature | This SDK | Ledger python-erc7730 |
-|---------|----------|----------------------|
-| Language | TypeScript | Python |
-| Use case | dApps, frontends | Wallet firmware |
-| Registry | Official GitHub registry, pin by SHA | Same catalog (Python tooling) |
-| Runtime | Browser & Node.js | Python 3.12+ |
+- [ROADMAP.md](./ROADMAP.md)
 
 ## License
 

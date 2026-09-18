@@ -63,6 +63,40 @@
       font-size: 0.95rem;
     }
 
+    .header-links {
+      margin-top: 0.5rem;
+      font-size: 0.8rem;
+    }
+
+    .header-links a {
+      color: var(--accent);
+    }
+
+    .trust-legend {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.75rem 1rem;
+      margin-bottom: 1.5rem;
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .trust-legend code,
+    header code,
+    .help-text code {
+      font-size: 0.75rem;
+      background: var(--bg-tertiary);
+      padding: 0.1rem 0.35rem;
+      border-radius: 4px;
+    }
+
+    .trust-legend a,
+    .help-text a {
+      color: var(--accent);
+    }
+
     /* Main tabs navigation */
     .main-tabs {
       display: flex;
@@ -200,11 +234,12 @@
 
     .btn-row {
       display: flex;
+      flex-wrap: wrap;
       gap: 0.5rem;
     }
 
     .btn-row button {
-      flex: 1;
+      flex: 1 1 8rem;
     }
 
     .result {
@@ -214,6 +249,7 @@
     .result-header {
       display: flex;
       align-items: center;
+      flex-wrap: wrap;
       gap: 0.5rem;
       margin-bottom: 1rem;
     }
@@ -538,15 +574,16 @@
       color: #00bfa5;
     }
 
-    /* Sourcify banner */
-    .sourcify-banner {
-      background: rgba(0, 191, 165, 0.1);
-      border: 1px solid rgba(0, 191, 165, 0.3);
+    /* Sourcify banner (legacy class; untrusted copy) */
+    .sourcify-banner,
+    .untrusted-banner {
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.35);
       border-radius: var(--radius);
       padding: 0.75rem 1rem;
       margin-bottom: 1rem;
       font-size: 0.875rem;
-      color: #00bfa5;
+      color: var(--warning);
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -554,9 +591,16 @@
       gap: 0.5rem;
     }
 
-    .sourcify-banner a {
-      color: #00bfa5;
+    .sourcify-banner a,
+    .untrusted-banner a {
+      color: var(--warning);
       text-decoration: underline;
+    }
+
+    .trust-note {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.75rem;
     }
 
     /* Contribute button */
@@ -772,8 +816,29 @@
   <div class="container">
     <header>
       <h1>🔍 ERC-7730 SDK</h1>
-      <p>Decode transactions & generate descriptors</p>
+      <p>Decode transactions. <code>source</code> tells you whether the metadata is trusted.</p>
+      <p class="header-links">
+        <a href="https://eips.ethereum.org/EIPS/eip-7730" target="_blank" rel="noreferrer">EIP-7730</a>
+        ·
+        <a href="https://clearsigning.org" target="_blank" rel="noreferrer">clearsigning.org</a>
+        ·
+        <a href="https://github.com/ethereum/clear-signing-erc7730-registry" target="_blank" rel="noreferrer">official registry</a>
+        ·
+        <a href="https://github.com/LedgerHQ/python-erc7730" target="_blank" rel="noreferrer">python-erc7730</a>
+        ·
+        <a href="https://github.com/MiltonTulli/ERC-7730/blob/main/ROADMAP.md" target="_blank" rel="noreferrer">ROADMAP</a>
+      </p>
     </header>
+
+    <div class="trust-legend">
+      <strong>Trusted:</strong> curated descriptors from
+      <a href="https://github.com/ethereum/clear-signing-erc7730-registry" target="_blank" rel="noreferrer">ethereum/clear-signing-erc7730-registry</a>
+      (pin a commit SHA).
+      <strong>Untrusted:</strong> Sourcify and <code>generateDescriptor</code> — never
+      <code>confidence: "high"</code>.
+      New protocol metadata goes to the official registry, not this repo.
+      <code>trust.accepted</code> is a placeholder until TrustPolicy ships.
+    </div>
 
     <!-- Main Tabs -->
     <div class="main-tabs">
@@ -785,7 +850,7 @@
     <div id="main-tab-decode" class="main-tab-content active">
       <!-- Custom Descriptor Indicator (hidden by default) -->
       <div id="custom-descriptor-indicator" class="custom-descriptor-indicator" style="display: none;">
-        <span>📋 Using custom descriptor</span>
+        <span>📋 Using local override (untrusted until TrustPolicy)</span>
         <button id="clear-custom-descriptor">Clear</button>
       </div>
 
@@ -913,7 +978,11 @@
         </div>
 
         <p class="help-text">
-          💡 No ABI? Enter the contract address and click "Fetch from Sourcify" to auto-fetch verified contract ABI.
+          Generated JSON is an <strong>untrusted ABI draft</strong> — never
+          <code>confidence: "high"</code>.
+          Curated descriptors belong in
+          <a href="https://github.com/ethereum/clear-signing-erc7730-registry" target="_blank" rel="noreferrer">ethereum/clear-signing-erc7730-registry</a>,
+          not this repository.
         </p>
       </div>
 
@@ -924,8 +993,11 @@
 
     <footer>
       <p>
-        Open source on <a href="https://github.com/MiltonTulli/ERC-7730" target="_blank">GitHub</a>
-        · Built with <a href="https://eips.ethereum.org/EIPS/eip-7730" target="_blank">ERC-7730</a>
+        Open source on <a href="https://github.com/MiltonTulli/ERC-7730" target="_blank" rel="noreferrer">GitHub</a>
+        · <a href="https://eips.ethereum.org/EIPS/eip-7730" target="_blank" rel="noreferrer">EIP-7730</a>
+        · <a href="https://clearsigning.org" target="_blank" rel="noreferrer">clearsigning.org</a>
+        · <a href="https://github.com/ethereum/clear-signing-erc7730-registry" target="_blank" rel="noreferrer">official registry</a>
+        · <a href="https://github.com/LedgerHQ/python-erc7730" target="_blank" rel="noreferrer">python-erc7730</a>
       </p>
     </footer>
   </div>

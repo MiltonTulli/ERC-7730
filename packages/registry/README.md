@@ -5,86 +5,22 @@
 > Submit new protocol descriptors there. This package is a historical snapshot
 > used as test fixtures and by the v1 `ClearSigner` embed.
 
-Community-driven registry of ERC-7730 descriptors for human-readable transaction decoding.
+Do not open descriptor PRs against this repository. For app-local overrides, use `createOfficialRegistry({ pin }).extend()` in `@erc7730/sdk`.
 
-## Structure
+## Fixture layout
 
 ```
 descriptors/
 ├── erc20/
-│   └── calldata-erc20.json       # ERC-20 token standard
+│   └── calldata-erc20.json
 ├── erc721/
-│   └── calldata-erc721.json      # ERC-721 NFT standard
+│   └── calldata-erc721.json
 ├── weth/
-│   └── calldata-weth.json        # Wrapped Ether
-├── uniswap/
-│   └── calldata-SwapRouter02.json
-├── aave/
-│   └── calldata-PoolV3.json
-└── YOUR_PROTOCOL/
-    └── calldata-YourContract.json
+│   └── calldata-weth.json
+└── …
 ```
 
-## Adding a New Protocol
-
-Do not add protocol metadata here. Open a pull request on
-[ethereum/clear-signing-erc7730-registry](https://github.com/ethereum/clear-signing-erc7730-registry).
-Use `createOfficialRegistry({ pin }).extend()` in the SDK for app-local overrides.
-
-### Legacy layout (fixtures only)
-
-### 1. Create Directory
-
-```bash
-mkdir -p descriptors/myprotocol
-```
-
-### 2. Create Descriptor File
-
-Name it `calldata-ContractName.json`:
-
-```json
-{
-  "$schema": "../../specs/erc7730-v1.schema.json",
-  "context": {
-    "$id": "MyProtocol",
-    "contract": {
-      "deployments": [
-        { "chainId": 1, "address": "0x..." },
-        { "chainId": 42161, "address": "0x..." }
-      ]
-    }
-  },
-  "metadata": {
-    "owner": "Protocol Team",
-    "info": {
-      "legalName": "My Protocol",
-      "url": "https://myprotocol.xyz"
-    }
-  },
-  "display": {
-    "formats": {
-      "functionSignature(type1,type2)": {
-        "$id": "functionName",
-        "intent": "What this function does",
-        "fields": [
-          { "path": "param1", "label": "Label", "format": "tokenAmount" }
-        ]
-      }
-    }
-  }
-}
-```
-
-### 3. Validate
-
-```bash
-pnpm validate
-```
-
-### 4. Submit PR
-
-## Naming Conventions
+Naming (fixtures only):
 
 - **Directory**: lowercase protocol name (`uniswap`, `aave`, `lido`)
 - **File**: `calldata-ContractName.json` for contract calls
@@ -100,20 +36,13 @@ pnpm validate
 | `date` | Timestamps | "Jan 30, 2024" |
 | `enum` | Mapped values | "stable" / "variable" |
 
-## Compatible Registries
-
-This registry follows the same JSON format as:
-- [Ledger Clear Signing Registry](https://github.com/LedgerHQ/clear-signing-erc7730-registry)
-
-Descriptors can be shared between registries.
-
 ## Building
 
 ```bash
 pnpm build
 ```
 
-This generates `dist/index.json` with an index of all descriptors.
+This generates `dist/index.json` with an index of all descriptors. That index is a snapshot, not the live CAIP-10 maps (`index.calldata.json` / `index.eip712.json`) wallets should pin.
 
 ## License
 
