@@ -41,11 +41,11 @@ Integrators must separate **trusted metadata** from **ABI guesses**. Shipping th
 | Official registry (commit SHA pin) or attestation | Curated ERC-7730 | `true` | `"high"` |
 | Local `extend()` override | App-supplied | policy-defined | medium / high |
 | Sourcify / `generateDescriptor` | ABI-generated fallback | **`false`** | **never `"high"`** |
-| Inferred / basic selector decode | Guess from 4-byte + types | **`false`** | `"medium"` / `"low"` |
+| Inferred / basic selector decode | Guess from 4-byte + types | **`false`** | **`"low"`** |
 
 `TrustPolicy` (pluggable `trust.accepted`) is not wired yet — see [ROADMAP.md](./ROADMAP.md) and [#11](https://github.com/MiltonTulli/ERC-7730/issues/11). Until then, **`source` is the signal**. Do not treat Sourcify or generated descriptors as high-confidence.
 
-The v1 `ClearSigner.decode` path still reports `confidence: "high"` for some Sourcify matches. That is a known gap, not the product rule.
+The v1 `ClearSigner.decode` path still reports `confidence: "high"` for some Sourcify matches and `"medium"` for inferred (known 4-byte) calls. That is a known gap, not the product rule. `decodeTransaction` uses the table above: inferred and basic are `"low"`.
 
 ## Features
 
@@ -365,6 +365,10 @@ interface DecodedTransaction {
     chainId: number;
     contractAddress: string;
   };
+  raw: {
+    selector: string;
+    args: readonly unknown[];
+  };
 }
 
 interface DecodedField {
@@ -372,7 +376,7 @@ interface DecodedField {
   value: string;
   rawValue: unknown;
   path: string;
-  format: 'raw' | 'tokenAmount' | 'addressName' | 'date';
+  format: 'raw' | 'amount' | 'tokenAmount' | 'date' | 'duration' | 'addressName' | 'enum' | 'nftName';
 }
 
 interface SecurityWarning {
@@ -382,7 +386,7 @@ interface SecurityWarning {
 }
 ```
 
-`metadata.descriptorId` is the descriptor `context.$id` when a format matches. `raw.message` is optional on the type and reserved for typed data; `decodeTransaction` does not set it.
+`metadata.descriptorId` is the descriptor `context.$id` when a format matches. `raw.message` is optional on the type and reserved for typed data; `decodeTransaction` does not set it. Descriptor input may use `addressOrName`; the field `format` on the result is `addressName`.
 
 `ClearSigner.decode` may also set `source: 'sourcify'`. See the [trust model](#trust-model).
 
