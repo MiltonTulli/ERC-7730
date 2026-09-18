@@ -1,5 +1,11 @@
 # @erc7730/sdk
 
+## 0.2.1
+
+### Patch Changes
+
+- ae5f34a: Dummy release to verify unattended publish.
+
 ## 0.2.0
 
 ### Minor Changes
