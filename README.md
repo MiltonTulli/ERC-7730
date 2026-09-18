@@ -52,6 +52,7 @@ The v1 `ClearSigner.decode` path still reports `confidence: "high"` for some Sou
 - **Schema v1 + v2** — `validateDescriptor()` against official JSON Schema
 - **Official registry client** — pin `ethereum/clear-signing-erc7730-registry` by commit SHA
 - **Resolve** — merge `includes` and inline field `$ref` (`resolveDescriptor`)
+- **Path engine** — `resolvePath()` for `#.` / `$.` / `@.` roots (structs, arrays, slices)
 - **`decodeTransaction`** — apply official (or override) `display.formats` to calldata (`#` / `$` / `@` paths)
 - **v1 calldata decode** — `ClearSigner.decode` (legacy; still pretty-prints known ABIs)
 - **Untrusted fallback** — Sourcify / `generateDescriptor` are labeled by `source`, never trusted
@@ -144,6 +145,28 @@ const resolved = await resolveDescriptor(input, loader);
 // resolved.merged — includes merged, field $ref inlined
 // resolved.hash   — keccak256 of canonical JSON
 ```
+
+## Path engine
+
+ERC-7730 field paths are not plain ABI names. `resolvePath()` reads three roots against decoded data, the merged descriptor, and the transaction envelope:
+
+| Root | Means | Example |
+| --- | --- | --- |
+| `#.` | Structured data (decoded args or EIP-712 message) | `#.amount`, `#.tupleField.child` |
+| `$.` | Merged descriptor document | `$.metadata.enums.interestRateMode` |
+| `@.` | Envelope | `@.to`, `@.value`, `@.chainId`, `@.from` |
+
+Rootless paths (`amount`, `asset`) are relative to the structured data, or to `base` for nested `tokenPath` / `collectionPath`. Missing paths throw `PathResolveError` (`not_found` / `invalid` / `missing_data`) — they do not return `undefined`.
+
+```ts
+import { resolvePath } from '@erc7730/sdk';
+
+resolvePath('#._amount', { args, descriptor, envelope });
+resolvePath('@.value', { args, descriptor, envelope }); // Lido submit() native stake
+resolvePath('token', { args, descriptor, envelope, base: '#.details.[0]' });
+```
+
+Token metadata fetching belongs to formatters ([#8](https://github.com/MiltonTulli/ERC-7730/issues/8)), not this function.
 
 ## Untrusted fallback
 

@@ -93,11 +93,7 @@ export {
 
 export { validateDescriptor } from './schema/index.js';
 
-export {
-  decodeTransaction,
-  resolvePath,
-  PathResolveError,
-} from './decode/index.js';
+export { decodeTransaction } from './decode/index.js';
 
 export {
   resolveDescriptor,
@@ -105,6 +101,8 @@ export {
   createMemoryIncludeLoader,
   DescriptorResolveError,
 } from './resolve/index.js';
+
+export { resolvePath, PathResolveError } from './path/index.js';
 
 export {
   createOfficialRegistry,
@@ -144,6 +142,8 @@ export type {
   OfficialRegistryConfig,
   RegistryLookupKey,
 } from './official-registry/index.js';
+
+export type { PathContext, PathEnvelope, PathResolveErrorCode } from './path/index.js';
 
 export type {
   Confidence,
