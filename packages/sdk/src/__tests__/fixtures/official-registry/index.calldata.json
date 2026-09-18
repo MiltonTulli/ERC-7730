@@ -1,0 +1,4 @@
+{
+  "eip155:1:0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2": "registry/weth/calldata-weth.json",
+  "eip155:1:0x41675c099f32341bf84bfc5382af534df5c7461a": "registry/safe/calldata-Safe-1.4.1.json"
+}

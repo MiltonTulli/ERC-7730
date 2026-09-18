@@ -28,7 +28,7 @@ Send tokens
 ## Features
 
 - 🔍 **Decode any calldata** into human-readable format
-- 📦 **Zero config** - works out of the box with 354 descriptors from 44 protocols
+- 📦 **Official registry client** - pin `ethereum/clear-signing-erc7730-registry` by commit SHA
 - 🌐 **Sourcify integration** - auto-fetch ABIs for verified contracts
 - 🔌 **Extensible** - add your own contract descriptors
 - 🔒 **Security warnings** - detects infinite approvals and other risks
@@ -157,6 +157,35 @@ const resolved = await resolveDescriptor(input, loader);
 
 `descriptorHash()` is deterministic in Node and browsers: UTF-8 JSON, sorted keys, checksum addresses lowercased.
 
+## Official registry
+
+The product catalog is [`ethereum/clear-signing-erc7730-registry`](https://github.com/ethereum/clear-signing-erc7730-registry). Pin a commit SHA in production — never `master`.
+
+```typescript
+import { createOfficialRegistry } from '@erc7730/sdk';
+
+const registry = createOfficialRegistry({
+  pin: '9f37816afde954ff6617fb5baa346133e5af26c5',
+});
+
+const weth = await registry.findCalldata({
+  chainId: 1,
+  address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+});
+
+const usdcPermit = await registry.findEip712({
+  chainId: 1,
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  signature: 'Permit',
+});
+```
+
+`extend()` is for local overrides only. Submit new protocol metadata to the official registry, not this repository.
+
+The v1 `ClearSigner` still ships a small built-in fallback (ERC-20 / ERC-721 / WETH) plus a legacy embed; that embed is not the live catalog.
+
+CLI later (#15): `ERC7730_REGISTRY_PATH` for a local clone, and an `update` helper in the Cyfrin `clearsig update` style.
+
 Divergences vs Ledger `python-erc7730` resolved form:
 
 - Format keys stay ABI fragments (not 4-byte selectors).
@@ -229,11 +258,9 @@ Try it online: [miltontulli.github.io/ERC-7730](https://miltontulli.github.io/ER
 
 ## Contributing
 
-We welcome contributions! See the [main repository](https://github.com/MiltonTulli/ERC-7730) for:
+Protocol descriptors belong in [`ethereum/clear-signing-erc7730-registry`](https://github.com/ethereum/clear-signing-erc7730-registry).
 
-- Contributing new descriptors
-- Reporting issues
-- Feature requests
+SDK issues and features: [MiltonTulli/ERC-7730](https://github.com/MiltonTulli/ERC-7730).
 
 ## License
 

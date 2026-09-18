@@ -1,0 +1,16 @@
+{
+  "eip155:1:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48": {
+    "Permit": [
+      {
+        "path": "registry/permit/eip712-permit-ethereum-usdc.json",
+        "encodeTypeHashes": ["0x6e71edae12b1b97f4d1f60370fef10105fa2faae0126114a169c64845d6126c9"]
+      }
+    ],
+    "ReceiveWithAuthorization": [
+      {
+        "path": "registry/circle/eip712-ReceiveWithAuthorization.json",
+        "encodeTypeHashes": ["0xd099cc98ef71107a616c4f0f941f04c322d8e254fe26b3c6668db87aae413de8"]
+      }
+    ]
+  }
+}

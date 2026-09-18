@@ -34,7 +34,7 @@ Send tokens
 - 🔍 **Decode any calldata** into human-readable format
 - 📦 **Zero config** - works out of the box with common standards (ERC-20, ERC-721, etc.)
 - 🔌 **Extensible** - add your own contract descriptors
-- 🌐 **Community registry** - contribute descriptors for any protocol
+- 🌐 **Official registry client** - pin `ethereum/clear-signing-erc7730-registry` by commit SHA
 - 🔒 **Security warnings** - detects infinite approvals and other risks
 - ⚡ **Lightweight** - tree-shakeable, no heavy dependencies
 
@@ -122,115 +122,43 @@ signer.registry.extend({
 erc7730-sdk/
 ├── packages/
 │   ├── sdk/           # Core TypeScript SDK (npm package)
-│   ├── registry/      # Community-driven descriptor registry
+│   ├── registry/      # Legacy snapshot / test fixtures (not the product catalog)
 │   └── web/           # Demo web application
 ```
 
-## Contributing Descriptors
+## Official registry
 
-Want to add support for a protocol? We welcome contributions!
+The canonical catalog is [`ethereum/clear-signing-erc7730-registry`](https://github.com/ethereum/clear-signing-erc7730-registry). Production lookups pin a **commit SHA** (never floating `master`).
 
-### 1. Fork and Clone
+```ts
+import { createOfficialRegistry } from '@erc7730/sdk';
 
-```bash
-git clone https://github.com/YOUR_USERNAME/erc7730-sdk.git
-cd erc7730-sdk
-pnpm install
+const registry = createOfficialRegistry({
+  pin: '9f37816afde954ff6617fb5baa346133e5af26c5',
+});
+
+const weth = await registry.findCalldata({
+  chainId: 1,
+  address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+});
+
+const usdcPermit = await registry.findEip712({
+  chainId: 1,
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  signature: 'Permit',
+});
+
+// App-local overrides only
+registry.extend([myDescriptor]);
 ```
 
-### 2. Create a Descriptor
+Indexes are CAIP-10 `eip155:{chainId}:{address}`. `index.calldata.json` maps to a descriptor path. `index.eip712.json` maps to primaryType + `encodeType` keccak; pass `signature` (primaryType) and/or `encodeTypeHash` when several files apply.
 
-Create a new file in `packages/registry/descriptors/YOUR_PROTOCOL/`:
+JSON is fetched on miss into an in-memory cache. Pass `cache` for optional fs / IndexedDB.
 
-```bash
-mkdir -p packages/registry/descriptors/myprotocol
-touch packages/registry/descriptors/myprotocol/calldata-MyContract.json
-```
+**New protocol descriptors:** open a PR on the [official registry](https://github.com/ethereum/clear-signing-erc7730-registry), not this repo. `packages/registry` is a historical snapshot used by the v1 `ClearSigner` embed and as test fixtures.
 
-### 3. Write Your Descriptor
-
-Follow the [ERC-7730 specification](https://eips.ethereum.org/EIPS/eip-7730):
-
-```json
-{
-  "$schema": "../../specs/erc7730-v1.schema.json",
-  "context": {
-    "$id": "MyProtocol",
-    "contract": {
-      "deployments": [
-        { "chainId": 1, "address": "0x..." },
-        { "chainId": 137, "address": "0x..." }
-      ]
-    }
-  },
-  "metadata": {
-    "owner": "My Protocol Team",
-    "info": {
-      "legalName": "My Protocol",
-      "url": "https://myprotocol.xyz",
-      "deploymentDate": "2024-01-01T00:00:00Z"
-    }
-  },
-  "display": {
-    "formats": {
-      "functionName(type1,type2)": {
-        "$id": "functionName",
-        "intent": "Human-readable description of what this does",
-        "fields": [
-          {
-            "path": "paramName",
-            "format": "tokenAmount",
-            "label": "User-friendly label",
-            "params": { "tokenPath": "@.to" }
-          }
-        ],
-        "required": ["paramName"]
-      }
-    }
-  }
-}
-```
-
-### 4. Field Formats
-
-| Format | Description | Params |
-|--------|-------------|--------|
-| `raw` | Display value as-is | - |
-| `tokenAmount` | Format as token amount with decimals | `tokenPath`: path to token address |
-| `addressName` | Resolve to ENS or display shortened | `types`, `sources` |
-| `date` | Unix timestamp to date | - |
-| `enum` | Map value to label | `$ref` to enum definition |
-
-### 5. Test Your Descriptor
-
-```bash
-# Validate JSON
-pnpm --filter @erc7730/registry validate
-
-# Run the demo app
-pnpm dev
-
-# Test with your calldata
-```
-
-### 6. Submit a PR
-
-```bash
-git checkout -b add-myprotocol-descriptor
-git add packages/registry/descriptors/myprotocol/
-git commit -m "feat: add MyProtocol descriptor"
-git push origin add-myprotocol-descriptor
-```
-
-Then open a Pull Request!
-
-## Descriptor Guidelines
-
-1. **Use the official schema**: Always include `"$schema": "../../specs/erc7730-v1.schema.json"`
-2. **Include all deployments**: List the contract address for every chain it's deployed on
-3. **Write clear intents**: Use action verbs like "Swap tokens", "Stake ETH", "Approve spending"
-4. **Label fields clearly**: Use terminology users will understand
-5. **Mark required fields**: Help users know what's essential
+CLI later (#15): `ERC7730_REGISTRY_PATH` pointing at a local clone, and an `update` helper that fetches a pin (Cyfrin `clearsig update` model).
 
 ## Web Demo
 
@@ -305,8 +233,9 @@ interface SecurityWarning {
 ## Related Projects
 
 - [ERC-7730 Specification](https://eips.ethereum.org/EIPS/eip-7730)
-- [Ledger Clear Signing Registry](https://github.com/LedgerHQ/clear-signing-erc7730-registry) - Official Ledger registry (Python)
+- [Official ERC-7730 registry](https://github.com/ethereum/clear-signing-erc7730-registry)
 - [python-erc7730](https://github.com/LedgerHQ/python-erc7730) - Python SDK by Ledger
+- [Cyfrin clearsig](https://github.com/Cyfrin/clearsig)
 
 ## Differences from Ledger's Implementation
 
@@ -314,7 +243,7 @@ interface SecurityWarning {
 |---------|----------|----------------------|
 | Language | TypeScript | Python |
 | Use case | dApps, frontends | Wallet firmware |
-| Registry | Community JSON files | Ledger-curated |
+| Registry | Official GitHub registry, pin by SHA | Same catalog (Python tooling) |
 | Runtime | Browser & Node.js | Python 3.12+ |
 
 ## License

@@ -100,6 +100,17 @@ export {
   DescriptorResolveError,
 } from './resolve/index.js';
 
+export {
+  createOfficialRegistry,
+  createMemoryDescriptorCache,
+  OfficialRegistryError,
+  isCommitSha,
+  toCaip10,
+  DEFAULT_OFFICIAL_REGISTRY_BASE_URL,
+  OFFICIAL_REGISTRY_REPO,
+  VENDORED_REGISTRY_COMMIT,
+} from './official-registry/index.js';
+
 export type {
   GenerateOptions,
   ABI,
@@ -118,6 +129,15 @@ export type {
   ValidationIssue as ValidationError,
   ValidationResult,
 } from './schema/index.js';
+
+export type {
+  Address as RegistryAddress,
+  Caip10,
+  DescriptorCache,
+  OfficialRegistry,
+  OfficialRegistryConfig,
+  RegistryLookupKey,
+} from './official-registry/index.js';
 
 // Types
 export type {

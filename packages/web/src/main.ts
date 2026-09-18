@@ -10,8 +10,8 @@ import {
 } from '@erc7730/sdk';
 
 // GitHub repository configuration
-const GITHUB_REPO = 'MiltonTulli/ERC-7730';
-const GITHUB_REGISTRY_PATH = 'packages/registry/descriptors';
+const GITHUB_REPO = 'ethereum/clear-signing-erc7730-registry';
+const GITHUB_REGISTRY_PATH = 'registry';
 
 // Example transactions
 const EXAMPLES = {

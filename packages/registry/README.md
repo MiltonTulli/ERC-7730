@@ -1,5 +1,10 @@
 # @erc7730/registry
 
+> **Not the product catalog.** The canonical source is
+> [`ethereum/clear-signing-erc7730-registry`](https://github.com/ethereum/clear-signing-erc7730-registry).
+> Submit new protocol descriptors there. This package is a historical snapshot
+> used as test fixtures and by the v1 `ClearSigner` embed.
+
 Community-driven registry of ERC-7730 descriptors for human-readable transaction decoding.
 
 ## Structure
@@ -21,6 +26,12 @@ descriptors/
 ```
 
 ## Adding a New Protocol
+
+Do not add protocol metadata here. Open a pull request on
+[ethereum/clear-signing-erc7730-registry](https://github.com/ethereum/clear-signing-erc7730-registry).
+Use `createOfficialRegistry({ pin }).extend()` in the SDK for app-local overrides.
+
+### Legacy layout (fixtures only)
 
 ### 1. Create Directory
 
