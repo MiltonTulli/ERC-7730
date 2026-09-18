@@ -1,0 +1,45 @@
+{
+  "$schema": "https://eips.ethereum.org/assets/eip-7730/erc7730-v1.schema.json",
+  "context": {
+    "$id": "Example ERC-20",
+    "contract": {
+      "deployments": [
+        {
+          "chainId": 1,
+          "address": "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+        }
+      ]
+    }
+  },
+  "metadata": {
+    "owner": "Example",
+    "info": {
+      "legalName": "Example Token Inc.",
+      "url": "https://example.com"
+    },
+    "token": {
+      "name": "Example USD",
+      "ticker": "EXUSD",
+      "decimals": 6
+    }
+  },
+  "display": {
+    "formats": {
+      "transfer(address to, uint256 amount)": {
+        "intent": "Send tokens",
+        "fields": [
+          {
+            "path": "to",
+            "label": "To",
+            "format": "addressName"
+          },
+          {
+            "path": "amount",
+            "label": "Amount",
+            "format": "tokenAmount"
+          }
+        ]
+      }
+    }
+  }
+}

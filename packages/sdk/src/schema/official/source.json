@@ -1,0 +1,5 @@
+{
+  "repository": "https://github.com/ethereum/clear-signing-erc7730-registry",
+  "commit": "9f37816afde954ff6617fb5baa346133e5af26c5",
+  "schemas": ["specs/erc7730-v2.schema.json", "specs/erc7730-v1.schema.json"]
+}

@@ -86,20 +86,27 @@ export {
 export {
   generateDescriptor,
   generateFunctionDescriptor,
-  validateDescriptor,
   inferIntent,
   inferFormat,
   inferLabel,
 } from './generate/index.js';
+
+export { validateDescriptor } from './schema/index.js';
 
 export type {
   GenerateOptions,
   ABI,
   ABIFunction,
   ABIParameter,
-  ValidationResult,
-  ValidationError,
 } from './generate/index.js';
+
+export type {
+  DescriptorVersion,
+  InputDescriptor,
+  ValidationIssue,
+  ValidationIssue as ValidationError,
+  ValidationResult,
+} from './schema/index.js';
 
 // Types
 export type {
@@ -119,6 +126,11 @@ export type {
   FunctionFormat,
   FieldDefinition,
   FieldFormat,
+  ERC7730V2Descriptor,
+  ERC7730V2Context,
+  ERC7730V2Metadata,
+  ERC7730V2Display,
+  ERC7730V2FieldFormat,
   // Result types
   DecodedTransaction,
   DecodedField,

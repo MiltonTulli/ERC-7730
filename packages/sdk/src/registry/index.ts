@@ -5,7 +5,7 @@
  */
 
 import { computeSelector, registerSignature } from '../core/signatures.js';
-import { type ValidationResult, validateDescriptor } from '../generate/validate.js';
+import { type ValidationResult, validateDescriptor } from '../schema/index.js';
 import type { ERC7730Descriptor, FunctionFormat } from '../types/erc7730.js';
 import { ERC20_DESCRIPTOR } from './erc20.js';
 import { ERC721_DESCRIPTOR } from './erc721.js';
@@ -236,7 +236,7 @@ export class Registry {
       const validation = validateDescriptor(descriptor);
       results.push(validation);
 
-      if (!validation.valid) {
+      if (!validation.ok) {
         const errorMessages = validation.errors
           .map((e) => `  - ${e.path}: ${e.message}`)
           .join('\n');
@@ -249,8 +249,13 @@ export class Registry {
       // Add valid descriptor
       this.customDescriptors.push(descriptor);
 
+      const formats = descriptor.display?.formats;
+      if (!formats) {
+        continue;
+      }
+
       // Index by signature and register with decoder
-      for (const [signature, format] of Object.entries(descriptor.display.formats)) {
+      for (const [signature, format] of Object.entries(formats)) {
         const normalized = normalizeSignature(signature);
         this.customIndex.set(normalized, { descriptor, format });
 
