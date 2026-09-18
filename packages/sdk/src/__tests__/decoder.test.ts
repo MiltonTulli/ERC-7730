@@ -1,6 +1,7 @@
+import { encodeAbiParameters, parseAbiParameters } from 'viem';
 import { describe, expect, it } from 'vitest';
 import { ClearSigner } from '../core/ClearSigner.js';
-import { decodeCalldata, extractSelector } from '../core/decoder.js';
+import { decodeCalldata, decodeParameters, extractSelector } from '../core/decoder.js';
 
 describe('extractSelector', () => {
   it('extracts selector from calldata', () => {
@@ -11,6 +12,23 @@ describe('extractSelector', () => {
 
   it('throws on invalid calldata', () => {
     expect(() => extractSelector('0x1234')).toThrow();
+  });
+});
+
+describe('decodeParameters', () => {
+  it('decodes negative int256 values as signed integers', () => {
+    const data = encodeAbiParameters(parseAbiParameters('int256'), [-1n]);
+    expect(decodeParameters(['int256'], data)).toEqual([-1n]);
+  });
+
+  it('decodes dynamic tuples from relative offsets', () => {
+    const data = encodeAbiParameters(parseAbiParameters('(string,uint256)'), [['hello', 42n]]);
+    expect(decodeParameters(['(string,uint256)'], data)).toEqual([['hello', 42n]]);
+  });
+
+  it('decodes nested dynamic arrays', () => {
+    const data = encodeAbiParameters(parseAbiParameters('uint256[][]'), [[[1n, 2n], [3n]]]);
+    expect(decodeParameters(['uint256[][]'], data)).toEqual([[[1n, 2n], [3n]]]);
   });
 });
 

@@ -39,6 +39,8 @@ export {
 // Types
 export { validateDescriptor } from './schema/index.js';
 
+export { decodeTransaction } from './decode/index.js';
+
 export {
   resolveDescriptor,
   descriptorHash,
@@ -79,6 +81,17 @@ export type {
   OfficialRegistryConfig,
   RegistryLookupKey,
 } from './official-registry/index.js';
+
+export type {
+  Confidence,
+  DecodedOperation,
+  DecodeOptions,
+  DecodeRegistry,
+  DecodeSource,
+  TrustContext,
+  TrustPolicy,
+  TrustReport,
+} from './decode/index.js';
 
 export type {
   ClearSignerConfig,

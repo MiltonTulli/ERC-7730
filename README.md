@@ -41,11 +41,11 @@ Integrators must separate **trusted metadata** from **ABI guesses**. Shipping th
 | Official registry (commit SHA pin) or attestation | Curated ERC-7730 | `true` | `"high"` |
 | Local `extend()` override | App-supplied | policy-defined | medium / high |
 | Sourcify / `generateDescriptor` | ABI-generated fallback | **`false`** | **never `"high"`** |
-| Inferred / basic selector decode | Guess from 4-byte + types | **`false`** | `"medium"` / `"low"` |
+| Inferred / basic selector decode | Guess from 4-byte + types | **`false`** | **`"low"`** |
 
 `TrustPolicy` (pluggable `trust.accepted`) is not wired yet — see [ROADMAP.md](./ROADMAP.md) and [#11](https://github.com/MiltonTulli/ERC-7730/issues/11). Until then, **`source` is the signal**. Do not treat Sourcify or generated descriptors as high-confidence.
 
-The v1 `ClearSigner.decode` path still reports `confidence: "high"` for some Sourcify matches. That is a known gap, not the product rule.
+The v1 `ClearSigner.decode` path still reports `confidence: "high"` for some Sourcify matches and `"medium"` for inferred (known 4-byte) calls. That is a known gap, not the product rule. `decodeTransaction` uses the table above: inferred and basic are `"low"`.
 
 ## Features
 
@@ -53,7 +53,8 @@ The v1 `ClearSigner.decode` path still reports `confidence: "high"` for some Sou
 - **Official registry client** — pin `ethereum/clear-signing-erc7730-registry` by commit SHA
 - **Resolve** — merge `includes` and inline field `$ref` (`resolveDescriptor`)
 - **Path engine** — `resolvePath()` for `#.` / `$.` / `@.` roots (structs, arrays, slices)
-- **v1 calldata decode** — `ClearSigner.decode` (legacy; v2 decode is on the roadmap)
+- **`decodeTransaction`** — apply official (or override) `display.formats` to calldata (`#` / `$` / `@` paths)
+- **v1 calldata decode** — `ClearSigner.decode` (legacy; still pretty-prints known ABIs)
 - **Untrusted fallback** — Sourcify / `generateDescriptor` are labeled by `source`, never trusted
 - **Warnings** — infinite approvals and similar risks
 - **Tree-shakeable** — no heavy default network catalog in the published tarball
@@ -67,22 +68,30 @@ npm install @erc7730/sdk
 ## Quick Start
 
 ```typescript
-import { ClearSigner } from '@erc7730/sdk';
+import { createOfficialRegistry, decodeTransaction } from '@erc7730/sdk';
 
-const signer = new ClearSigner();
-
-const result = await signer.decode({
-  to: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', // USDC
-  data: '0xa9059cbb000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa960450000000000000000000000000000000000000000000000000000000005f5e100',
-  chainId: 1
+const registry = createOfficialRegistry({
+  pin: '9f37816afde954ff6617fb5baa346133e5af26c5',
 });
 
-console.log(result.intent);       // "Send tokens"
-console.log(result.source);       // "registry" | "sourcify" | "inferred" | "basic"
-console.log(result.confidence);   // treat "high" only for trusted registry metadata
-console.log(result.fields[0]);    // { label: "Recipient", value: "vitalik.eth" }
-console.log(result.warnings);
+const result = await decodeTransaction(
+  {
+    to: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', // USDC
+    data: '0xa9059cbb000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa960450000000000000000000000000000000000000000000000000000000005f5e100',
+    chainId: 1,
+  },
+  { registry, useSourcifyFallback: false }
+);
+
+console.log(result.intent);       // "Send" + formatted fields when a descriptor matches
+console.log(result.source);       // "official-registry" | "sourcify" | "inferred" | "basic"
+console.log(result.confidence);   // "high" only for official-registry / attested
+console.log(result.trust);        // stub until TrustPolicy (#11): { policy: "unspecified", accepted }
+console.log(result.fields);       // [{ label: "Amount", value: "100 USDC", format: "tokenAmount" }, ...]
+console.log(result.warnings);     // e.g. infinite_approval
 ```
+
+`ClearSigner.decode` remains the v1 pretty-printer. Prefer `decodeTransaction` for descriptor-backed clear signing.
 
 Production lookups should use `createOfficialRegistry({ pin })`, not the v1 embedded snapshot.
 
@@ -274,11 +283,74 @@ interface ClearSignerConfig {
 - `registry.extend(descriptor): void` - Add local overrides
 - `registry.find(signature): RegistryMatch | null` - Find descriptor by signature
 
-Also exported: `createOfficialRegistry`, `validateDescriptor`, `resolveDescriptor`, `generateDescriptor`.
+Also exported: `decodeTransaction`, `resolvePath`, `createOfficialRegistry`, `validateDescriptor`, `resolveDescriptor`, `generateDescriptor`.
+
+### `decodeTransaction`
+
+```typescript
+const result = await decodeTransaction(tx, {
+  registry,                 // OfficialRegistry (or any { findCalldata })
+  provider: null,           // no RPC; pass a viem PublicClient for ENS / token metadata
+  useSourcifyFallback: true // default; never confidence "high"
+});
+```
+
+Format keys match by 4-byte selector, canonical signature, or Solidity declaration. Paths use `#` (decoded args), `$` (merged descriptor), `@` (envelope: `to` / `value` / `chainId` / `from`).
+
+Formats in this release: `raw`, `amount`, `tokenAmount`, `date`, `duration`, `addressName` (alias `addressOrName`), `enum`, `nftName`.
+
+Default confidence (until TrustPolicy in #11):
+
+| source | `trust.accepted` | confidence |
+| --- | --- | --- |
+| official-registry / attested | `true` | `high` |
+| local-override | `true` | `medium` |
+| sourcify / generated / inferred / basic | `false` | `low` |
 
 ### Response Types
 
 ```typescript
+/** Result of `decodeTransaction`. */
+interface DecodedOperation {
+  confidence: 'high' | 'medium' | 'low';
+  source:
+    | 'official-registry'
+    | 'attested'
+    | 'local-override'
+    | 'sourcify'
+    | 'generated'
+    | 'inferred'
+    | 'basic';
+  intent: string;
+  functionName?: string;
+  signature?: string;
+  selector?: string;
+  fields: DecodedField[];
+  excluded: string[];
+  warnings: SecurityWarning[];
+  trust: {
+    accepted: boolean;
+    policy: string;
+    reasons: string[];
+  };
+  metadata: {
+    owner?: string;
+    contractName?: string;
+    protocolUrl?: string;
+    chainId: number;
+    contractAddress?: string;
+    descriptorId?: string;
+    registryPath?: string;
+  };
+  raw: {
+    selector?: string;
+    args?: readonly unknown[];
+    /** Reserved for non-transaction decoders; not returned by `decodeTransaction`. */
+    message?: Record<string, unknown>;
+  };
+}
+
+/** Result of `ClearSigner.decode`. */
 interface DecodedTransaction {
   confidence: 'high' | 'medium' | 'low';
   source: 'registry' | 'sourcify' | 'inferred' | 'basic';
@@ -293,6 +365,10 @@ interface DecodedTransaction {
     chainId: number;
     contractAddress: string;
   };
+  raw: {
+    selector: string;
+    args: readonly unknown[];
+  };
 }
 
 interface DecodedField {
@@ -300,7 +376,7 @@ interface DecodedField {
   value: string;
   rawValue: unknown;
   path: string;
-  format: 'raw' | 'tokenAmount' | 'addressName' | 'date';
+  format: 'raw' | 'amount' | 'tokenAmount' | 'date' | 'duration' | 'addressName' | 'enum' | 'nftName';
 }
 
 interface SecurityWarning {
@@ -309,6 +385,8 @@ interface SecurityWarning {
   message: string;
 }
 ```
+
+`metadata.descriptorId` is the descriptor `context.$id` when a format matches. `raw.message` is optional on the type and reserved for typed data; `decodeTransaction` does not set it. Descriptor input may use `addressOrName`; the field `format` on the result is `addressName`.
 
 `ClearSigner.decode` may also set `source: 'sourcify'`. See the [trust model](#trust-model).
 
