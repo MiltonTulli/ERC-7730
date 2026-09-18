@@ -360,19 +360,19 @@ function showClipboardInstructions(fileName: string) {
   overlay.innerHTML = `
     <div class="modal">
       <div class="modal-header">
-        <h3>📋 Descriptor Copied!</h3>
+        <h3>Draft copied</h3>
         <button class="modal-close">&times;</button>
       </div>
       <div class="modal-body">
-        <p>The descriptor JSON has been <strong>copied to your clipboard</strong>.</p>
+        <p>The generated JSON is on your clipboard. This is an untrusted draft — review it before proposing a file on
+        <strong>ethereum/clear-signing-erc7730-registry</strong> (not this SDK repo).</p>
 
         <div class="instructions-box">
-          <p><strong>In the GitHub tab that just opened:</strong></p>
+          <p><strong>In the official-registry tab that just opened:</strong></p>
           <ol>
             <li>Paste the content (<kbd>Ctrl+V</kbd> or <kbd>Cmd+V</kbd>)</li>
-            <li>Add a commit message describing the contract</li>
-            <li>Click "Propose new file"</li>
-            <li>Click "Create pull request"</li>
+            <li>Review labels and formats — do not submit raw ABI guesses as curated metadata</li>
+            <li>Propose the file on the official registry</li>
           </ol>
         </div>
 
@@ -405,11 +405,13 @@ function showContributePopup(descriptor: ERC7730Descriptor) {
   overlay.innerHTML = `
     <div class="modal">
       <div class="modal-header">
-        <h3>🎉 Contribute to Registry</h3>
+        <h3>Official registry — not this repo</h3>
         <button class="modal-close">&times;</button>
       </div>
       <div class="modal-body">
-        <p>This descriptor was auto-generated. Help the community by adding it to the official registry!</p>
+        <p>This JSON is an <strong>untrusted ABI draft</strong>. Curated ERC-7730 metadata belongs in
+        <a href="https://github.com/ethereum/clear-signing-erc7730-registry" target="_blank" rel="noreferrer">ethereum/clear-signing-erc7730-registry</a>,
+        not MiltonTulli/ERC-7730. Review it before proposing a file upstream.</p>
 
         <div class="modal-preview">
           <div class="field">
@@ -425,16 +427,11 @@ function showContributePopup(descriptor: ERC7730Descriptor) {
             <span class="field-value">${Object.keys(descriptor.display.formats).length}</span>
           </div>
         </div>
-
-        <p class="modal-note">Clicking the button below will open GitHub where you can submit a Pull Request with just 2 clicks.</p>
       </div>
       <div class="modal-footer">
-        <button class="btn-secondary modal-cancel">Maybe Later</button>
-        <button class="btn-primary modal-contribute">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style="margin-right: 6px;">
-            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
-          </svg>
-          Open GitHub PR
+        <button class="btn-secondary modal-cancel">Close</button>
+        <button class="btn-secondary modal-contribute">
+          Open official registry
         </button>
       </div>
     </div>
@@ -471,7 +468,7 @@ function generateCodeSnippet(result: DecodedTransaction): string {
 
   const customDescriptorCode = customDescriptor
     ? `
-// Custom descriptor (generated or imported)
+// Local override (untrusted until TrustPolicy)
 const customDescriptor = ${JSON.stringify(customDescriptor, replacer, 2)};
 
 signer.extend([customDescriptor]);
@@ -488,44 +485,82 @@ const result = await signer.decode({
   chainId: ${currentInput.chainId},
 });
 
-console.log(result.intent);      // "${result.intent}"
-console.log(result.confidence);  // "${result.confidence}"
-console.log(result.fields);      // Formatted fields`;
+console.log(result.intent);       // "${result.intent}"
+console.log(result.source);       // "${result.source}"
+console.log(result.confidence);   // "${result.confidence}" — treat "high" only for trusted registry metadata
+console.log(result.warnings);`;
+}
+
+type TrustDisplay = {
+  accepted: boolean;
+  label: string;
+  note: string;
+};
+
+function getTrustDisplay(source: string, custom: boolean): TrustDisplay {
+  if (
+    source === 'sourcify' ||
+    source === 'inferred' ||
+    source === 'basic' ||
+    source === 'generated' ||
+    custom
+  ) {
+    return {
+      accepted: false,
+      label: 'false',
+      note: 'Sourcify / generateDescriptor / inferred is an untrusted fallback. Never confidence: "high". TrustPolicy will set trust.accepted.',
+    };
+  }
+  return {
+    accepted: false,
+    label: 'pending',
+    note: 'TrustPolicy is not wired yet. v1 ClearSigner uses an embedded catalog — pin createOfficialRegistry({ pin }) in production.',
+  };
 }
 
 function getSourceBadge(source: string): string {
   switch (source) {
     case 'registry':
-      return '<span class="badge badge-success">Registry</span>';
+      return '<span class="badge badge-success">source: registry</span>';
     case 'sourcify':
-      return '<span class="badge badge-sourcify">Sourcify</span>';
+      return '<span class="badge badge-warning">source: sourcify</span>';
     case 'inferred':
-      return '<span class="badge badge-warning">Inferred</span>';
+      return '<span class="badge badge-warning">source: inferred</span>';
     case 'basic':
-      return '<span class="badge badge-error">Basic</span>';
+      return '<span class="badge badge-error">source: basic</span>';
     default:
-      return `<span class="badge" style="background: var(--bg-tertiary); color: var(--text-muted);">${escapeHtml(source)}</span>`;
+      return `<span class="badge" style="background: var(--bg-tertiary); color: var(--text-muted);">source: ${escapeHtml(source)}</span>`;
   }
 }
 
-function renderResult(result: DecodedTransaction) {
-  const confidenceBadge = {
-    high: '<span class="badge badge-success">Clear Signing</span>',
-    medium: '<span class="badge badge-warning">Inferred</span>',
-    low: '<span class="badge badge-error">Basic</span>',
-  }[result.confidence];
+function getConfidenceBadge(result: DecodedTransaction, custom: boolean): string {
+  if (result.source === 'sourcify' || custom) {
+    return '<span class="badge badge-warning">Untrusted fallback</span>';
+  }
+  if (result.source === 'inferred') {
+    return '<span class="badge badge-warning">Inferred</span>';
+  }
+  if (result.source === 'basic') {
+    return '<span class="badge badge-error">Basic</span>';
+  }
+  if (result.confidence === 'high') {
+    return '<span class="badge badge-success">Registry metadata</span>';
+  }
+  if (result.confidence === 'medium') {
+    return '<span class="badge badge-warning">Medium confidence</span>';
+  }
+  return '<span class="badge badge-error">Low confidence</span>';
+}
 
+function renderResult(result: DecodedTransaction) {
+  const trust = getTrustDisplay(result.source, Boolean(customDescriptor));
+  const confidenceBadge = getConfidenceBadge(result, Boolean(customDescriptor));
   const sourceBadge = getSourceBadge(result.source);
+  const trustBadge = `<span class="badge ${trust.label === 'false' ? 'badge-warning' : 'badge-error'}">trust.accepted: ${trust.label}</span>`;
 
   const customBadge = customDescriptor
-    ? '<span class="badge" style="background: rgba(59, 130, 246, 0.2); color: var(--accent);">Custom</span>'
+    ? '<span class="badge" style="background: rgba(59, 130, 246, 0.2); color: var(--accent);">Local override</span>'
     : '';
-
-  // Show contribute button for sourcify results
-  const contributeButton =
-    result.source === 'sourcify' && !customDescriptor
-      ? '<button class="contribute-btn" id="contribute-sourcify-btn">📤 Contribute to Registry</button>'
-      : '';
 
   const warningsHtml = result.warnings
     .map(
@@ -553,6 +588,7 @@ function renderResult(result: DecodedTransaction) {
     intent: result.intent,
     confidence: result.confidence,
     source: result.source,
+    trust: { accepted: trust.accepted, status: trust.label },
     functionName: result.functionName,
     signature: result.signature,
     fields: result.fields.map((f) => ({
@@ -568,24 +604,23 @@ function renderResult(result: DecodedTransaction) {
 
   const codeSnippet = generateCodeSnippet(result);
 
-  // Show Sourcify info banner when source is sourcify
-  const sourcifyBanner =
-    result.source === 'sourcify'
-      ? `<div class="sourcify-banner">
-        <span>✨ This contract was verified on <a href="https://sourcify.dev" target="_blank">Sourcify</a>. The descriptor was auto-generated from its ABI.</span>
-        ${contributeButton}
+  const untrustedBanner =
+    result.source === 'sourcify' || result.source === 'inferred' || result.source === 'basic'
+      ? `<div class="untrusted-banner">
+        <span>${escapeHtml(trust.note)}</span>
       </div>`
       : '';
 
   resultDiv.innerHTML = `
     <div class="card">
       <div class="result-header">
-        ${confidenceBadge}
         ${sourceBadge}
+        ${trustBadge}
+        ${confidenceBadge}
         ${customBadge}
       </div>
 
-      ${sourcifyBanner}
+      ${untrustedBanner}
 
       <div class="intent">
         ✨ ${escapeHtml(result.intent)}
@@ -601,6 +636,14 @@ function renderResult(result: DecodedTransaction) {
       <!-- Tab Content -->
       <div class="tab-content active" id="tab-human">
         <div class="fields">
+          <div class="field">
+            <span class="field-label">source</span>
+            <span class="field-value">${escapeHtml(result.source)}</span>
+          </div>
+          <div class="field">
+            <span class="field-label">trust.accepted</span>
+            <span class="field-value">${escapeHtml(trust.label)}</span>
+          </div>
           ${fieldsHtml}
           <div class="field">
             <span class="field-label">Contract</span>
@@ -612,6 +655,7 @@ function renderResult(result: DecodedTransaction) {
           </div>
         </div>
         ${warningsHtml}
+        <p class="trust-note">${escapeHtml(trust.note)}</p>
       </div>
 
       <div class="tab-content" id="tab-json">
@@ -629,7 +673,7 @@ function renderResult(result: DecodedTransaction) {
         </div>
         <pre class="code-block" id="code-output">${escapeHtml(codeSnippet)}</pre>
         <p class="code-note">
-          Install the SDK: <code>npm install @erc7730/sdk viem</code>
+          Install the SDK: <code>npm install @erc7730/sdk</code>
         </p>
       </div>
     </div>
@@ -652,60 +696,34 @@ function renderResult(result: DecodedTransaction) {
   // Setup copy buttons
   setupCopyButtons(resultDiv, jsonOutput, codeSnippet);
 
-  // Setup contribute button for Sourcify results
-  const contributeBtn = resultDiv.querySelector('#contribute-sourcify-btn');
-  if (contributeBtn && currentInput) {
-    // Capture values to avoid null check issues in async callback
-    const capturedChainId = currentInput.chainId;
-    const capturedContract = currentInput.contract;
-    contributeBtn.addEventListener('click', async () => {
-      // Generate descriptor from the current decode result
-      // We need to fetch the ABI from Sourcify to generate the full descriptor
-      try {
-        const { fetchFromSourcify } = await import('@erc7730/sdk');
-        const sourcifyResult = await fetchFromSourcify(capturedChainId, capturedContract);
-
-        if (sourcifyResult.verified && sourcifyResult.abi) {
-          const descriptor = generateDescriptor({
-            chainId: capturedChainId,
-            address: capturedContract,
-            abi: sourcifyResult.abi,
-            owner: sourcifyResult.name || undefined,
-          });
-          showContributePopup(descriptor);
-        }
-      } catch (error) {
-        console.error('Failed to fetch from Sourcify:', error);
-      }
-    });
-  }
-
   resultDiv.style.display = 'block';
 }
 
 function renderGenerateResult(descriptor: ERC7730Descriptor, fromSourcify = false) {
   const functionCount = Object.keys(descriptor.display.formats).length;
   const functions = Object.keys(descriptor.display.formats);
+  const trust = getTrustDisplay('generated', true);
 
-  const sourcifyBadge = fromSourcify ? '<span class="badge badge-sourcify">Sourcify</span>' : '';
-
-  const sourcifyBanner = fromSourcify
-    ? `<div class="sourcify-banner">
-        <span>✨ ABI fetched from <a href="https://sourcify.dev" target="_blank">Sourcify</a>. Consider contributing this descriptor to the registry!</span>
-      </div>`
+  const sourcifyBadge = fromSourcify
+    ? '<span class="badge badge-warning">source: sourcify</span>'
     : '';
+
+  const untrustedBanner = `<div class="untrusted-banner">
+        <span>This is an ABI-generated draft. Untrusted fallback — never confidence: "high". Curated metadata belongs in the <a href="https://github.com/ethereum/clear-signing-erc7730-registry" target="_blank" rel="noreferrer">official registry</a>, not this repo.</span>
+      </div>`;
 
   generateResultDiv.innerHTML = `
     <div class="card">
       <div class="result-header">
-        <span class="badge badge-success">Generated</span>
+        <span class="badge badge-warning">Untrusted draft</span>
+        <span class="badge badge-warning">trust.accepted: false</span>
         ${sourcifyBadge}
         <span class="badge" style="background: var(--bg-tertiary); color: var(--text-muted);">
           ${functionCount} function${functionCount !== 1 ? 's' : ''}
         </span>
       </div>
 
-      ${sourcifyBanner}
+      ${untrustedBanner}
 
       <div class="intent">
         📋 ${escapeHtml(descriptor.metadata?.owner || 'Custom')} Descriptor
@@ -721,6 +739,14 @@ function renderGenerateResult(descriptor: ERC7730Descriptor, fromSourcify = fals
       <!-- Tab Content -->
       <div class="tab-content active" id="tab-gen-overview">
         <div class="fields">
+          <div class="field">
+            <span class="field-label">source</span>
+            <span class="field-value">${fromSourcify ? 'sourcify' : 'generated'}</span>
+          </div>
+          <div class="field">
+            <span class="field-label">trust.accepted</span>
+            <span class="field-value">${escapeHtml(trust.label)}</span>
+          </div>
           <div class="field">
             <span class="field-label">Schema</span>
             <span class="field-value">${escapeHtml(descriptor.$schema || 'ERC-7730')}</span>
@@ -738,15 +764,12 @@ function renderGenerateResult(descriptor: ERC7730Descriptor, fromSourcify = fals
             <span class="field-value">${functions.map((f) => f.split('(')[0]).join(', ')}</span>
           </div>
         </div>
-
-        <div class="action-buttons">
-          <button class="btn-secondary" id="contribute-generated-btn">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style="margin-right: 6px; vertical-align: -2px;">
-              <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
-            </svg>
-            Contribute to Registry
-          </button>
-        </div>
+        <p class="trust-note">${escapeHtml(trust.note)}</p>
+        <p class="help-text">
+          Optional: propose a <em>reviewed</em> file on the
+          <button class="contribute-btn" id="contribute-generated-btn" type="button">official registry</button>
+          — never on this SDK repo.
+        </p>
       </div>
 
       <div class="tab-content" id="tab-gen-json">
@@ -764,7 +787,7 @@ function renderGenerateResult(descriptor: ERC7730Descriptor, fromSourcify = fals
         </div>
         <pre class="code-block" id="gen-code-output">${escapeHtml(generateDescriptorUsageCode(descriptor))}</pre>
         <p class="code-note">
-          Install the SDK: <code>npm install @erc7730/sdk viem</code>
+          Install the SDK: <code>npm install @erc7730/sdk</code>
         </p>
       </div>
     </div>
@@ -819,7 +842,8 @@ function renderGenerateResult(descriptor: ERC7730Descriptor, fromSourcify = fals
 function generateDescriptorUsageCode(descriptor: ERC7730Descriptor): string {
   return `import { ClearSigner, generateDescriptor } from '@erc7730/sdk';
 
-// Option 1: Use the pre-generated descriptor
+// Generated / Sourcify drafts are untrusted — never confidence: "high".
+// Option 1: local override (not a registry contribution)
 const descriptor = ${JSON.stringify(descriptor, replacer, 2)};
 
 const signer = new ClearSigner();

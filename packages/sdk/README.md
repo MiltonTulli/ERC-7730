@@ -1,15 +1,16 @@
 # @erc7730/sdk
 
-> TypeScript SDK for decoding blockchain transactions into human-readable format using the [ERC-7730](https://eips.ethereum.org/EIPS/eip-7730) standard.
+TypeScript runtime for [ERC-7730](https://eips.ethereum.org/EIPS/eip-7730) clear signing.
 
 [![npm version](https://img.shields.io/npm/v/@erc7730/sdk.svg)](https://www.npmjs.com/package/@erc7730/sdk)
+[![ERC-7730](https://img.shields.io/badge/schema-v1%20%2B%20v2-3b82f6)](https://eips.ethereum.org/EIPS/eip-7730)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+This package is **not** a descriptor catalog. The source of truth is [`ethereum/clear-signing-erc7730-registry`](https://github.com/ethereum/clear-signing-erc7730-registry). Product direction: [ROADMAP.md](https://github.com/MiltonTulli/ERC-7730/blob/main/ROADMAP.md).
 
 ## Why ERC-7730?
 
-When you sign a transaction, your wallet shows you raw calldata like `0xa9059cbb000000...`. This is unreadable and dangerous—users can't verify what they're actually signing.
-
-ERC-7730 provides **human-readable descriptions** for smart contract calls.
+Wallets still show raw calldata like `0xa9059cbb000000...`. [ERC-7730](https://eips.ethereum.org/EIPS/eip-7730) / [clearsigning.org](https://clearsigning.org) maps a call or typed-data payload to an intent and labeled fields.
 
 **Before:**
 ```
@@ -25,14 +26,28 @@ Send tokens
 └── Recipient: vitalik.eth
 ```
 
+## Trust model
+
+Separate **trusted metadata** from **ABI guesses**. Sourcify and `generateDescriptor` are untrusted fallbacks — **never** `confidence: "high"`.
+
+| `source` | `trust.accepted` (documented default) | `confidence` |
+| --- | --- | --- |
+| Official registry (commit SHA pin) or attestation | `true` | `"high"` |
+| Local `extend()` override | policy-defined | medium / high |
+| Sourcify / `generateDescriptor` | **`false`** | **never `"high"`** |
+| Inferred / basic | **`false`** | `"medium"` / `"low"` |
+
+`TrustPolicy` is not wired yet. Until then, **`source` is the signal**. The v1 `ClearSigner.decode` path may still report `confidence: "high"` for some Sourcify matches — that is a known gap, not the product rule.
+
 ## Features
 
-- 🔍 **Decode any calldata** into human-readable format
-- 📦 **Official registry client** - pin `ethereum/clear-signing-erc7730-registry` by commit SHA
-- 🌐 **Sourcify integration** - auto-fetch ABIs for verified contracts
-- 🔌 **Extensible** - add your own contract descriptors
-- 🔒 **Security warnings** - detects infinite approvals and other risks
-- ⚡ **Lightweight** - tree-shakeable, minimal dependencies
+- **Schema v1 + v2** — `validateDescriptor()` against official JSON Schema
+- **Official registry client** — pin `ethereum/clear-signing-erc7730-registry` by commit SHA
+- **Resolve** — merge `includes` and inline field `$ref`
+- **v1 calldata decode** — `ClearSigner.decode` (legacy; v2 path engine is on the roadmap)
+- **Untrusted fallback** — Sourcify / `generateDescriptor`, labeled by `source`
+- **Warnings** — infinite approvals and similar risks
+- **Tree-shakeable** — minimal dependencies
 
 ## Installation
 
@@ -54,108 +69,13 @@ const result = await signer.decode({
 });
 
 console.log(result.intent);       // "Send tokens"
+console.log(result.source);       // "registry" | "sourcify" | "inferred" | "basic"
+console.log(result.confidence);   // treat "high" only for trusted registry metadata
 console.log(result.fields[0]);    // { label: "Recipient", value: "vitalik.eth" }
-console.log(result.fields[1]);    // { label: "Amount", value: "100 USDC" }
-console.log(result.confidence);   // "high"
-```
-
-## Sourcify Fallback
-
-The SDK automatically fetches ABIs from [Sourcify](https://sourcify.dev) for verified contracts not in the registry:
-
-```typescript
-const signer = new ClearSigner(); // Sourcify enabled by default
-
-// Even if this contract isn't in the registry, if it's verified on Sourcify,
-// the SDK will fetch the ABI and generate a descriptor automatically
-const result = await signer.decode({
-  to: '0x6590cBBCCbE6B83eF3774Ef1904D86A7B02c2fCC',
-  data: '0x2e17de78...',
-  chainId: 1
-});
-
-console.log(result.source); // "sourcify"
-```
-
-## Security Warnings
-
-The SDK automatically detects dangerous patterns:
-
-```typescript
-const result = await signer.decode({
-  to: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-  data: '0x095ea7b3...ffffffffffffffffffffffffffffffffffffffff', // Infinite approval
-  chainId: 1
-});
-
 console.log(result.warnings);
-// [{
-//   type: 'infinite_approval',
-//   severity: 'high',
-//   message: 'This approval grants unlimited spending access to your tokens'
-// }]
 ```
 
-## Generate Descriptors from ABI
-
-```typescript
-import { generateDescriptor } from '@erc7730/sdk';
-
-const descriptor = generateDescriptor({
-  chainId: 1,
-  address: '0x...',
-  abi: contractABI,
-  owner: 'My Protocol'
-});
-
-// Use it with ClearSigner
-const signer = new ClearSigner();
-signer.extend([descriptor]);
-```
-
-## Custom Descriptors
-
-Add support for your own contracts:
-
-```typescript
-const signer = new ClearSigner();
-
-signer.extend([{
-  context: {
-    contract: {
-      deployments: [{ chainId: 1, address: '0x...' }]
-    }
-  },
-  metadata: {
-    owner: 'My Protocol'
-  },
-  display: {
-    formats: {
-      'stake(uint256)': {
-        intent: 'Stake tokens',
-        fields: [
-          { path: '[0]', label: 'Amount', format: 'tokenAmount' }
-        ]
-      }
-    }
-  }
-}]);
-```
-
-## Resolve includes and `$ref`
-
-Official descriptors often split shared formats into `common-*.json` and point fields at `$.display.definitions.*`. `resolveDescriptor()` merges those files and inlines field `$ref`s. Inject an `IncludeLoader` for filesystem (CLI) or fetch (runtime).
-
-```typescript
-import { resolveDescriptor, createMemoryIncludeLoader } from '@erc7730/sdk';
-
-const loader = createMemoryIncludeLoader({ 'common-Safe.json': commonSafe });
-const resolved = await resolveDescriptor(input, loader);
-// resolved.merged — includes merged, field $ref inlined, addresses lowercased
-// resolved.hash   — keccak256 of canonical JSON (sorted keys, no extra whitespace)
-```
-
-`descriptorHash()` is deterministic in Node and browsers: UTF-8 JSON, sorted keys, checksum addresses lowercased.
+Production lookups should use `createOfficialRegistry({ pin })`, not the v1 embedded snapshot.
 
 ## Official registry
 
@@ -193,6 +113,102 @@ Divergences vs Ledger `python-erc7730` resolved form:
 - Nested field groups are not flattened; ABI HTTP URLs are not fetched.
 - `fields` arrays merge by `path` as in EIP-7730 (python-erc7730 overwrites the array).
 
+## Schema v2
+
+```typescript
+import { validateDescriptor, resolveDescriptor, createMemoryIncludeLoader } from '@erc7730/sdk';
+
+const validated = validateDescriptor(input);
+if (!validated.ok) {
+  console.error(validated.errors);
+}
+
+const loader = createMemoryIncludeLoader({ 'common-Safe.json': commonSafe });
+const resolved = await resolveDescriptor(input, loader);
+// resolved.merged — includes merged, field $ref inlined, addresses lowercased
+// resolved.hash   — keccak256 of canonical JSON (sorted keys, no extra whitespace)
+```
+
+Official descriptors often split shared formats into `common-*.json` and point fields at `$.display.definitions.*`. Inject an `IncludeLoader` for filesystem (CLI) or fetch (runtime).
+
+## Untrusted fallback (Sourcify / generate)
+
+Sourcify is **on by default** for `ClearSigner.decode` so unknown verified contracts still render something. That output is not curated metadata.
+
+```typescript
+const signer = new ClearSigner(); // Sourcify enabled by default
+
+const result = await signer.decode({
+  to: '0x6590cBBCCbE6B83eF3774Ef1904D86A7B02c2fCC',
+  data: '0x2e17de78...',
+  chainId: 1
+});
+
+console.log(result.source);      // "sourcify" — untrusted
+console.log(result.confidence);  // do not treat as "high"
+```
+
+Pass `useSourcifyFallback: false` to disable.
+
+```typescript
+import { generateDescriptor } from '@erc7730/sdk';
+
+const draft = generateDescriptor({
+  chainId: 1,
+  address: '0x...',
+  abi: contractABI,
+  owner: 'My Protocol'
+});
+// Starting point for an upstream registry PR — never confidence: "high"
+
+const signer = new ClearSigner();
+signer.extend([draft]);
+```
+
+## Security Warnings
+
+```typescript
+const result = await signer.decode({
+  to: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  data: '0x095ea7b3...ffffffffffffffffffffffffffffffffffffffff', // Infinite approval
+  chainId: 1
+});
+
+console.log(result.warnings);
+// [{
+//   type: 'infinite_approval',
+//   severity: 'high',
+//   message: 'This approval grants unlimited spending access to your tokens'
+// }]
+```
+
+## Local overrides
+
+```typescript
+const signer = new ClearSigner();
+
+signer.extend([{
+  context: {
+    contract: {
+      deployments: [{ chainId: 1, address: '0x...' }]
+    }
+  },
+  metadata: {
+    owner: 'My Protocol'
+  },
+  display: {
+    formats: {
+      'stake(uint256)': {
+        intent: 'Stake tokens',
+        fields: [
+          { path: '[0]', label: 'Amount', format: 'tokenAmount' }
+        ]
+      }
+    }
+  }
+}]);
+```
+
 ## API Reference
 
 ### `ClearSigner`
@@ -211,10 +227,10 @@ interface ClearSignerConfig {
   // Provider for ENS resolution and token metadata
   provider?: Provider | null;
 
-  // Enable/disable Sourcify fallback (default: true)
+  // Enable/disable Sourcify fallback (default: true). Untrusted when used.
   useSourcifyFallback?: boolean;
 
-  // Custom descriptors
+  // Local overrides
   registry?: {
     custom?: ERC7730Descriptor[];
   };
@@ -224,7 +240,9 @@ interface ClearSignerConfig {
 #### Methods
 
 - `decode(tx): Promise<DecodedTransaction>` - Decode a transaction
-- `extend(descriptors): void` - Add custom descriptors
+- `extend(descriptors): void` - Add local overrides
+
+Also exported: `createOfficialRegistry`, `validateDescriptor`, `resolveDescriptor`, `generateDescriptor`.
 
 ### Response Types
 
@@ -248,6 +266,15 @@ interface DecodedTransaction {
 }
 ```
 
+## vs Ledger python-erc7730
+
+| | `@erc7730/sdk` | Ledger [`python-erc7730`](https://github.com/LedgerHQ/python-erc7730) |
+| --- | --- | --- |
+| Language | TypeScript / JavaScript | Python |
+| Role | **Runtime** for wallets and dApps (validate, resolve, decode) | **Authoring and firmware** tooling (lint, convert, device clear-signing) |
+| Catalog | Consumes the official registry, pin by commit SHA | Same official catalog |
+| Schema | v1 read + v2 validate | v1 / v2 |
+
 ## Supported Chains
 
 Ethereum, Arbitrum, Optimism, Base, Polygon, BSC, Avalanche, and more.
@@ -255,6 +282,8 @@ Ethereum, Arbitrum, Optimism, Base, Polygon, BSC, Avalanche, and more.
 ## Web Demo
 
 Try it online: [miltontulli.github.io/ERC-7730](https://miltontulli.github.io/ERC-7730/)
+
+The demo shows `source`, `warnings`, and a `trust.accepted` placeholder on every decode.
 
 ## Contributing
 
