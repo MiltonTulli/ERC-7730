@@ -1,5 +1,5 @@
 /**
- * Public descriptor types for validateDescriptor().
+ * Public descriptor types for validateDescriptor() and resolveDescriptor().
  *
  * `InputDescriptor` is the loaded JSON document (includes unresolved).
  * Detailed v2 shapes live in `./v2.js` and follow erc7730-v2.schema.json.
@@ -7,11 +7,13 @@
 
 export type DescriptorVersion = '1' | '2';
 
+export type Hex = `0x${string}`;
+
 /**
  * Unresolved ERC-7730 document.
  *
  * Official files may omit `context`, `metadata`, or `display` when those
- * sections come from `includes`. Include/`$ref` merge is out of scope here.
+ * sections come from `includes`.
  */
 export interface InputDescriptor {
   $schema?: string;
@@ -20,6 +22,35 @@ export interface InputDescriptor {
   context?: unknown;
   metadata?: unknown;
   display?: unknown;
+}
+
+export interface IncludeLoader {
+  /**
+   * Load the document referenced by `includes`.
+   *
+   * `ref` is the raw URI from the including file (relative path or URL).
+   * `from` is the including descriptor.
+   */
+  load(ref: string, from: InputDescriptor): Promise<unknown>;
+}
+
+export interface ResolvedDeployment {
+  chainId: number;
+  address: `0x${string}`;
+}
+
+/**
+ * Descriptor after includes are merged and field `$ref`s are inlined.
+ *
+ * `merged` stays an InputDescriptor-shaped JSON document (format keys are
+ * not converted to 4-byte selectors).
+ */
+export interface ResolvedDescriptor {
+  version: DescriptorVersion;
+  hash: Hex;
+  input: InputDescriptor;
+  merged: InputDescriptor;
+  deployments: ResolvedDeployment[];
 }
 
 export interface ValidationIssue {

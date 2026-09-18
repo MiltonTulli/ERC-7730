@@ -93,6 +93,13 @@ export {
 
 export { validateDescriptor } from './schema/index.js';
 
+export {
+  resolveDescriptor,
+  descriptorHash,
+  createMemoryIncludeLoader,
+  DescriptorResolveError,
+} from './resolve/index.js';
+
 export type {
   GenerateOptions,
   ABI,
@@ -102,7 +109,11 @@ export type {
 
 export type {
   DescriptorVersion,
+  Hex,
   InputDescriptor,
+  IncludeLoader,
+  ResolvedDescriptor,
+  ResolvedDeployment,
   ValidationIssue,
   ValidationIssue as ValidationError,
   ValidationResult,

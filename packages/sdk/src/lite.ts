@@ -39,12 +39,23 @@ export {
 // Types
 export { validateDescriptor } from './schema/index.js';
 
+export {
+  resolveDescriptor,
+  descriptorHash,
+  createMemoryIncludeLoader,
+  DescriptorResolveError,
+} from './resolve/index.js';
+
 export type {
   DescriptorVersion,
+  Hex,
   InputDescriptor,
+  IncludeLoader,
+  ResolvedDescriptor,
+  ResolvedDeployment,
   ValidationIssue,
   ValidationResult,
-} from './schema/index.js';
+} from './types/descriptor.js';
 
 export type {
   ClearSignerConfig,
