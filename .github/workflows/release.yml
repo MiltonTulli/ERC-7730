@@ -65,7 +65,7 @@ jobs:
         with:
           title: "chore: version packages"
           commit: "chore: version packages"
-          version: "pnpm version-packages && npx biome check --write packages/sdk/package.json"
+          version: pnpm version-packages
           createGithubReleases: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
