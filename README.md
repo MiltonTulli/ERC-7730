@@ -382,6 +382,8 @@ interface SecurityWarning {
 }
 ```
 
+`metadata.descriptorId` is the descriptor `context.$id` when a format matches. `raw.message` is optional on the type and reserved for typed data; `decodeTransaction` does not set it.
+
 `ClearSigner.decode` may also set `source: 'sourcify'`. See the [trust model](#trust-model).
 
 ## vs Ledger python-erc7730
