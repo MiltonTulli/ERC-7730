@@ -2,7 +2,7 @@
 
 See [ROADMAP.md](./ROADMAP.md) for v0.2–v0.5, official registry strategy, and the public API sketch.
 
-See [RELEASE.md](./RELEASE.md) to version `@erc7730/sdk` with Changesets and cut an npm release from a `vX.Y.Z` tag.
+See [RELEASE.md](./RELEASE.md) to version `@erc7730/sdk` with Changesets. Merging the Version PR publishes to npm after Environment `npm` approval.
 
 > TypeScript SDK for decoding blockchain transactions into human-readable format using the [ERC-7730](https://eips.ethereum.org/EIPS/eip-7730) standard.
 
