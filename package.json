@@ -13,7 +13,7 @@
     "typecheck": "tsc -b",
     "prepare": "simple-git-hooks",
     "changeset": "changeset",
-    "version-packages": "changeset version",
+    "version-packages": "changeset version && biome check --write packages/sdk/package.json",
     "release": "changeset publish"
   },
   "devDependencies": {
