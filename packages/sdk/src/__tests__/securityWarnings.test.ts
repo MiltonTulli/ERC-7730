@@ -266,6 +266,156 @@ describe('decode security warnings', () => {
     expect(result.warnings.some((warning) => warning.type === 'untrusted_spender')).toBe(true);
   });
 
+  it('still warns untrusted_spender when the descriptor hides spender', async () => {
+    const descriptor: InputDescriptor = {
+      ...usdcDescriptor,
+      display: {
+        formats: {
+          'approve(address spender,uint256 value)': {
+            intent: 'Approve',
+            fields: [
+              { path: 'spender', label: 'Spender', format: 'addressName', visible: 'never' },
+              {
+                path: 'value',
+                label: 'Amount',
+                format: 'tokenAmount',
+                params: { tokenPath: '@.to' },
+              },
+            ],
+          },
+        },
+      },
+    };
+    const resolved = await resolveDescriptor(descriptor, createMemoryIncludeLoader({}));
+    const hidden = await decodeTransaction(
+      { to: USDC, data: APPROVE_MAX, chainId: 1 },
+      { registry: registryFrom(resolved), provider: null, useSourcifyFallback: false }
+    );
+    expect(hidden.fields.some((field) => field.path === 'spender')).toBe(false);
+    expect(hidden.warnings.some((warning) => warning.type === 'untrusted_spender')).toBe(true);
+
+    const merged: InputDescriptor = {
+      context: { contract: { deployments: [{ chainId: 1, address: USDC }] } },
+      display: {
+        formats: {
+          'approve(address spender,uint256 value)': {
+            intent: 'Approve',
+            fields: [
+              { path: 'spender', label: 'Spender', format: 'addressName' },
+              { path: 'value', label: 'Amount', format: 'raw' },
+            ],
+            excluded: ['spender'],
+          },
+        },
+      },
+    };
+    const excluded: ResolvedDescriptor = {
+      version: '2',
+      hash: `0x${'ab'.repeat(32)}`,
+      input: merged,
+      merged,
+      deployments: [{ chainId: 1, address: USDC }],
+    };
+    const result = await decodeTransaction(
+      { to: USDC, data: APPROVE_MAX, chainId: 1 },
+      { registry: registryFrom(excluded), provider: null, useSourcifyFallback: false }
+    );
+    expect(result.excluded).toEqual(['spender']);
+    expect(result.warnings.some((warning) => warning.type === 'untrusted_spender')).toBe(true);
+  });
+
+  it('still warns untrusted_spender when the descriptor omits the spender field', async () => {
+    const descriptor: InputDescriptor = {
+      ...usdcDescriptor,
+      display: {
+        formats: {
+          'approve(address spender,uint256 value)': {
+            intent: 'Approve',
+            fields: [
+              {
+                path: 'value',
+                label: 'Amount',
+                format: 'tokenAmount',
+                params: { tokenPath: '@.to' },
+              },
+            ],
+          },
+        },
+      },
+    };
+    const resolved = await resolveDescriptor(descriptor, createMemoryIncludeLoader({}));
+    const result = await decodeTransaction(
+      { to: USDC, data: APPROVE_MAX, chainId: 1 },
+      { registry: registryFrom(resolved), provider: null, useSourcifyFallback: false }
+    );
+    expect(result.fields.some((field) => /spender/i.test(field.path))).toBe(false);
+    expect(result.warnings.some((warning) => warning.type === 'untrusted_spender')).toBe(true);
+  });
+
+  it('uses permit argument index 1 as spender, not the owner', async () => {
+    const registry = createOfficialRegistry({
+      pin: PIN,
+      fetch: mockFetch(officialFiles()),
+    });
+    const selector = computeSelector(
+      'permit(address,address,uint256,uint256,uint8,bytes32,bytes32)'
+    );
+    expect(selector).toBe('0xd505accf');
+    const zero = '00'.repeat(32);
+    const data =
+      `${selector}${padAddress(WETH)}${padAddress(RANDOM)}${zero}${zero}${zero}${zero}${zero}` as `0x${string}`;
+    const result = await decodeTransaction(
+      { to: USDC, data, chainId: 1 },
+      { registry, provider: null, useSourcifyFallback: false }
+    );
+    expect(result.functionName).toBe('permit');
+    const warning = result.warnings.find((item) => item.type === 'untrusted_spender');
+    expect(warning).toBeDefined();
+    expect(warning?.path).not.toBe('[0]');
+  });
+
+  it('still warns expired_deadline when typed data hides the deadline field', async () => {
+    const descriptor: InputDescriptor = {
+      ...permitDescriptor,
+      display: {
+        formats: {
+          'Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)': {
+            intent: 'Authorize spending of tokens',
+            fields: [
+              { path: 'spender', label: 'Spender', format: 'addressName' },
+              {
+                path: 'deadline',
+                label: 'Deadline',
+                format: 'date',
+                params: { encoding: 'timestamp' },
+                visible: 'never',
+              },
+            ],
+          },
+        },
+      },
+    };
+    const resolved = await resolveDescriptor(descriptor, createMemoryIncludeLoader({}));
+    const result = await decodeTypedData(permitPayload(), {
+      registry: {
+        async findCalldata() {
+          return null;
+        },
+        async findEip712(key) {
+          if (key.address.toLowerCase() !== USDC.toLowerCase()) {
+            return null;
+          }
+          return { ...resolved, source: 'official-registry' };
+        },
+      },
+      provider: null,
+      now: DEADLINE + 1,
+    });
+    expect(result.fields.some((field) => field.path === 'deadline')).toBe(false);
+    const warning = result.warnings.find((item) => item.type === 'expired_deadline');
+    expect(warning?.path).toBe('deadline');
+  });
+
   it('adds ownership_change for transferOwnership(address) 0xf2fde38b', async () => {
     expect(computeSelector('transferOwnership(address)')).toBe('0xf2fde38b');
     const result = await decodeTransaction(

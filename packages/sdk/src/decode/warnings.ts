@@ -1,6 +1,7 @@
 import { computeSelector, getSignatureBySelector } from '../core/signatures.js';
 import type { ABI, ABIParameter } from '../generate/generate.js';
 import type { Hex, ResolvedDescriptor } from '../types/descriptor.js';
+import { parseDeclaration, wellKnownAliases } from './abi.js';
 import { asAddress, nowSeconds, resolveTrust, sourceFromResolved } from './common.js';
 import type {
   Address,
@@ -38,10 +39,27 @@ export interface WarningScan {
   signature?: string;
   selector?: Hex;
   fields: DecodedField[];
+  /** Positional decoded args; not filtered by display `excluded`. */
+  args?: readonly unknown[];
+  /** EIP-712 message; not filtered by display `excluded`. */
+  message?: Record<string, unknown>;
   source: DecodeSource;
   chainId: number;
   selectorMismatch?: boolean;
 }
+
+/** Spender argument index when the display fields omit a named spender. */
+const SPENDER_ARG_INDEX: Record<string, number> = {
+  approve: 0,
+  permit: 1,
+  setapprovalforall: 0,
+  increaseallowance: 0,
+  decreaseallowance: 0,
+};
+
+const DEADLINE_ARG_INDEX: Record<string, number> = {
+  permit: 3,
+};
 
 function hasWarning(
   warnings: SecurityWarning[],
@@ -136,16 +154,58 @@ export function sourcifySelectorMismatch(abi: ABI, selector: string): boolean {
   return known !== null;
 }
 
-function expiredDeadlineWarning(field: DecodedField, now: number): SecurityWarning | undefined {
-  if (!DEADLINE_PATH.test(field.path)) {
+interface NamedValue {
+  path: string;
+  value: unknown;
+}
+
+function collectNamedValues(scan: WarningScan): NamedValue[] {
+  const out: NamedValue[] = [];
+  const seen = new Set<string>();
+  const push = (path: string, value: unknown) => {
+    const key = path.toLowerCase();
+    if (!path || seen.has(key)) {
+      return;
+    }
+    seen.add(key);
+    out.push({ path, value });
+  };
+
+  for (const field of scan.fields) {
+    push(field.path, field.rawValue);
+  }
+  if (scan.message) {
+    for (const [key, value] of Object.entries(scan.message)) {
+      push(key, value);
+    }
+  }
+  if (scan.args) {
+    const declaration = scan.signature ? parseDeclaration(scan.signature) : null;
+    const aliases = declaration ? wellKnownAliases(declaration.canonical) : undefined;
+    for (let i = 0; i < scan.args.length; i++) {
+      const name = declaration?.params[i]?.name ?? aliases?.[i];
+      if (name) {
+        push(name, scan.args[i]);
+      }
+      push(`[${i}]`, scan.args[i]);
+    }
+  }
+  return out;
+}
+
+function expiredDeadlineWarning(
+  path: string,
+  value: unknown,
+  now: number,
+  encoding?: string
+): SecurityWarning | undefined {
+  if (!DEADLINE_PATH.test(path)) {
     return undefined;
   }
-  const encoding =
-    field.params && typeof field.params.encoding === 'string' ? field.params.encoding : undefined;
   if (encoding === 'blockheight') {
     return undefined;
   }
-  const ts = toBigInt(field.rawValue);
+  const ts = toBigInt(value);
   if (ts === undefined) {
     return undefined;
   }
@@ -156,19 +216,25 @@ function expiredDeadlineWarning(field: DecodedField, now: number): SecurityWarni
     type: 'expired_deadline',
     severity: 'medium',
     message: 'This deadline has already passed',
-    path: field.path,
+    path,
   };
 }
 
-function spenderField(
-  fields: DecodedField[],
+function spenderFromScan(
+  scan: WarningScan,
   functionName?: string
 ): { address: Address; path: string } | undefined {
-  for (const field of fields) {
-    if (
-      SPENDER_PATH.test(field.path) ||
-      (typeof field.label === 'string' && /^(spender|operator)$/i.test(field.label))
-    ) {
+  const values = collectNamedValues(scan);
+  for (const item of values) {
+    if (SPENDER_PATH.test(item.path)) {
+      const address = addressOf(item.value);
+      if (address) {
+        return { address, path: item.path };
+      }
+    }
+  }
+  for (const field of scan.fields) {
+    if (typeof field.label === 'string' && /^(spender|operator)$/i.test(field.label)) {
       const address = addressOf(field.rawValue);
       if (address) {
         return { address, path: field.path };
@@ -178,13 +244,14 @@ function spenderField(
   if (!functionName || !SPENDER_FUNCTIONS.test(functionName)) {
     return undefined;
   }
-  for (const field of fields) {
-    const address = addressOf(field.rawValue);
-    if (address) {
-      return { address, path: field.path };
-    }
+  const index = SPENDER_ARG_INDEX[functionName.toLowerCase()] ?? 0;
+  const fromArgs = addressOf(scan.args?.[index]);
+  if (fromArgs) {
+    return { address: fromArgs, path: `[${index}]` };
   }
-  return undefined;
+  const field = scan.fields[index];
+  const fromField = field ? addressOf(field.rawValue) : undefined;
+  return field && fromField ? { address: fromField, path: field.path } : undefined;
 }
 
 function descriptorCoversAddress(
@@ -241,12 +308,12 @@ async function lookupSpender(
 }
 
 async function untrustedSpenderWarning(
-  fields: DecodedField[],
+  scan: WarningScan,
   functionName: string | undefined,
   chainId: number,
   options: DecodeOptions | undefined
 ): Promise<SecurityWarning | undefined> {
-  const spender = spenderField(fields, functionName);
+  const spender = spenderFromScan(scan, functionName);
   if (!spender) {
     return undefined;
   }
@@ -303,15 +370,35 @@ export async function appendSecurityWarnings(
   }
 
   const now = nowSeconds(options);
+  const encodingByPath = new Map<string, string>();
   for (const field of scan.fields) {
-    const expired = expiredDeadlineWarning(field, now);
+    if (field.params && typeof field.params.encoding === 'string') {
+      encodingByPath.set(field.path, field.params.encoding);
+    }
+  }
+  const deadlineValues = collectNamedValues(scan);
+  const deadlineIndex = name ? DEADLINE_ARG_INDEX[name.toLowerCase()] : undefined;
+  if (
+    deadlineIndex !== undefined &&
+    scan.args &&
+    !deadlineValues.some((item) => DEADLINE_PATH.test(item.path))
+  ) {
+    deadlineValues.push({ path: 'deadline', value: scan.args[deadlineIndex] });
+  }
+  for (const item of deadlineValues) {
+    const expired = expiredDeadlineWarning(
+      item.path,
+      item.value,
+      now,
+      encodingByPath.get(item.path)
+    );
     if (expired && !hasWarning(warnings, 'expired_deadline', expired.path)) {
       warnings.push(expired);
     }
   }
 
   if (!hasWarning(warnings, 'untrusted_spender')) {
-    const spender = await untrustedSpenderWarning(scan.fields, name, scan.chainId, options);
+    const spender = await untrustedSpenderWarning(scan, name, scan.chainId, options);
     if (spender) {
       warnings.push(spender);
     }
@@ -349,6 +436,8 @@ export async function finalizeDecodedWarnings(
       signature: operation.signature,
       selector: operation.selector,
       fields: operation.fields,
+      args: operation.raw.args,
+      message: operation.raw.message,
       source: operation.source,
       chainId: operation.metadata.chainId,
       selectorMismatch: extra?.selectorMismatch,
