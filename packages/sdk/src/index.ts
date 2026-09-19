@@ -166,10 +166,14 @@ export type {
   TrustReport,
 } from './decode/index.js';
 
+/**
+ * @deprecated Use {@link DecodeOptions} with {@link createClearSigner}.
+ */
+export type { DecodeOptions as ClearSignerConfig } from './decode/index.js';
+
 // Types
 export type {
   // Config
-  ClearSignerConfig,
   RegistryConfig,
   LogBlockTag,
   Provider,

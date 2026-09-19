@@ -125,10 +125,15 @@ function createBoundRegistry(base?: DecodeRegistry | OfficialRegistry): BoundReg
     extend(descriptors) {
       for (let i = 0; i < descriptors.length; i++) {
         const descriptor = descriptors[i];
-        const validation = validateDescriptor(descriptor);
         const hasIncludes =
           typeof descriptor.includes === 'string' ? descriptor.includes.length > 0 : false;
-        if (!validation.ok && !hasIncludes) {
+        if (hasIncludes) {
+          throw new Error(
+            `Descriptor at index ${i} uses includes; the local overlay has no include loader. Pass createOfficialRegistry({ pin }) or resolve includes first.`
+          );
+        }
+        const validation = validateDescriptor(descriptor);
+        if (!validation.ok) {
           const details = validation.errors
             .map((error) => `${error.path}: ${error.message}`)
             .join('; ');

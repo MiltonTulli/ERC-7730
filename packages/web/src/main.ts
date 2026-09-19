@@ -48,7 +48,8 @@ const EXAMPLES = {
 };
 
 // Current state
-let currentInput: { calldata: string; contract: string; chainId: number } | null = null;
+let currentInput: { calldata: string; contract: string; chainId: number; rpcUrl: string } | null =
+  null;
 let customDescriptor: ERC7730Descriptor | null = null;
 let lastGeneratedDescriptor: ERC7730Descriptor | null = null;
 
@@ -196,14 +197,14 @@ decodeBtn.addEventListener('click', async () => {
     return;
   }
 
-  currentInput = { calldata, contract, chainId };
+  const chain = getChain(chainId);
+  const rpcUrl = customRpcUrl || getDefaultRpc(chainId) || '';
+  currentInput = { calldata, contract, chainId, rpcUrl };
 
   decodeBtn.disabled = true;
   decodeBtn.textContent = 'Decoding...';
 
   try {
-    const chain = getChain(chainId);
-    const rpcUrl = customRpcUrl || getDefaultRpc(chainId);
     const provider =
       chain && rpcUrl
         ? createPublicClient({
@@ -494,11 +495,26 @@ signer.extend([customDescriptor]);
 `
     : '';
 
-  return `import {
+  const rpcUrl = currentInput.rpcUrl || 'https://eth.llamarpc.com';
+  const rpcNote = currentInput.rpcUrl
+    ? ''
+    : `
+// No RPC was selected in the demo. Replace this URL with your provider.
+`;
+
+  return `import { createPublicClient, http } from 'viem';
+import {
   createClearSigner,
   createOfficialRegistry,
+  getChain,
   officialOrLocalPolicy,
 } from '@erc7730/sdk';
+${rpcNote}
+const chain = getChain(${currentInput.chainId});
+const rpcUrl = '${rpcUrl}';
+const provider = chain
+  ? createPublicClient({ chain, transport: http(rpcUrl) })
+  : null;
 
 const registry = createOfficialRegistry({
   pin: '${VENDORED_REGISTRY_COMMIT}',
@@ -506,6 +522,7 @@ const registry = createOfficialRegistry({
 
 const signer = createClearSigner({
   registry,
+  provider,
   trust: officialOrLocalPolicy(),
   useSourcifyFallback: true,
 });
@@ -529,14 +546,13 @@ type TrustDisplay = {
   note: string;
 };
 
-function getTrustDisplay(result: DecodedOperation, custom: boolean): TrustDisplay {
+function getTrustDisplay(result: DecodedOperation): TrustDisplay {
   const accepted = result.trust.accepted;
   if (
     result.source === 'sourcify' ||
     result.source === 'inferred' ||
     result.source === 'basic' ||
-    result.source === 'generated' ||
-    custom
+    result.source === 'generated'
   ) {
     return {
       accepted: false,
@@ -571,8 +587,8 @@ function getSourceBadge(source: string): string {
   }
 }
 
-function getConfidenceBadge(result: DecodedOperation, custom: boolean): string {
-  if (result.source === 'sourcify' || custom) {
+function getConfidenceBadge(result: DecodedOperation): string {
+  if (result.source === 'sourcify' || result.source === 'generated') {
     return '<span class="badge badge-warning">Untrusted fallback</span>';
   }
   if (result.source === 'inferred') {
@@ -591,10 +607,10 @@ function getConfidenceBadge(result: DecodedOperation, custom: boolean): string {
 }
 
 function renderResult(result: DecodedOperation) {
-  const trust = getTrustDisplay(result, Boolean(customDescriptor));
-  const confidenceBadge = getConfidenceBadge(result, Boolean(customDescriptor));
+  const trust = getTrustDisplay(result);
+  const confidenceBadge = getConfidenceBadge(result);
   const sourceBadge = getSourceBadge(result.source);
-  const trustBadge = `<span class="badge ${trust.label === 'false' ? 'badge-warning' : 'badge-error'}">trust.accepted: ${trust.label}</span>`;
+  const trustBadge = `<span class="badge ${trust.accepted ? 'badge-success' : 'badge-warning'}">trust.accepted: ${trust.label}</span>`;
 
   const customBadge = customDescriptor
     ? '<span class="badge" style="background: rgba(59, 130, 246, 0.2); color: var(--accent);">Local override</span>'

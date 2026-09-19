@@ -223,4 +223,19 @@ describe('createClearSigner', () => {
     expect('extend' in base).toBe(false);
     expect(() => signer.extend(usdcDescriptor)).not.toThrow();
   });
+
+  it('rejects overlay descriptors that use includes', async () => {
+    const signer = createClearSigner({ provider: null, useSourcifyFallback: false });
+    expect(() =>
+      signer.extend({
+        includes: 'common-Safe.json',
+        context: {
+          contract: { deployments: [{ chainId: 1, address: USDC }] },
+        },
+      })
+    ).toThrow(/include loader/i);
+
+    const result = await signer.decodeTransaction(transferTx);
+    expect(result.source).toBe('inferred');
+  });
 });
