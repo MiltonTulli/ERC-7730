@@ -278,6 +278,56 @@ describe('extend', () => {
     expect(found?.merged.metadata).toMatchObject({ owner: 'Safe clone' });
   });
 
+  it('does not return an EIP-712 override from findCalldata', async () => {
+    const client = registry();
+    client.extend([
+      {
+        $schema: '../../specs/erc7730-v2.schema.json',
+        context: {
+          eip712: {
+            deployments: [{ chainId: 1, address: WETH }],
+            domain: { name: 'WETH' },
+          },
+        },
+        metadata: { owner: 'WETH Permit' },
+        display: {
+          formats: {
+            'Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)': {
+              intent: 'Authorize',
+            },
+          },
+        },
+      } as InputDescriptor,
+    ]);
+
+    const found = await client.findCalldata({ chainId: 1, address: WETH });
+    expect(found?.merged.metadata).toMatchObject({ owner: 'WETH', contractName: 'WETH' });
+  });
+
+  it('does not return a contract override from findEip712', async () => {
+    const client = registry();
+    client.extend([
+      {
+        $schema: '../../specs/erc7730-v2.schema.json',
+        context: {
+          contract: {
+            deployments: [{ chainId: 1, address: USDC }],
+          },
+        },
+        metadata: { owner: 'Local USDC calldata' },
+        display: { formats: { 'transfer(address to,uint256 value)': { intent: 'Send' } } },
+      } as InputDescriptor,
+    ]);
+
+    const found = await client.findEip712({
+      chainId: 1,
+      address: USDC,
+      signature: 'Permit',
+    });
+    expect(found?.merged.metadata).toMatchObject({ owner: 'USDC' });
+    expect(found?.merged.metadata).not.toMatchObject({ owner: 'Local USDC calldata' });
+  });
+
   it('returns a local override before the remote index', async () => {
     const client = registry();
     client.extend([

@@ -211,11 +211,31 @@ export function createOfficialRegistry(config: OfficialRegistryConfig): Official
     );
   }
 
-  async function findOverride(key: RegistryLookupKey): Promise<ResolvedDescriptor | null> {
+  function overrideKind(resolved: ResolvedDescriptor): 'calldata' | 'eip712' | null {
+    const context = isPlainObject(resolved.merged.context) ? resolved.merged.context : undefined;
+    if (!context) {
+      return null;
+    }
+    if (isPlainObject(context.contract)) {
+      return 'calldata';
+    }
+    if (isPlainObject(context.eip712)) {
+      return 'eip712';
+    }
+    return null;
+  }
+
+  async function findOverride(
+    key: RegistryLookupKey,
+    kind: 'calldata' | 'eip712'
+  ): Promise<ResolvedDescriptor | null> {
     const address = normalizeAddress(key.address);
     const impl = await resolveImplementation(address, key.provider);
     for (const input of overrides) {
       const resolved = await resolveOverride(input);
+      if (overrideKind(resolved) !== kind) {
+        continue;
+      }
       if (deploymentsHit(resolved, key.chainId, address)) {
         return resolved;
       }
@@ -223,6 +243,9 @@ export function createOfficialRegistry(config: OfficialRegistryConfig): Official
       // address when verifyingContract is a proxy of a listed deployment.
       if (impl && impl !== address && deploymentsHit(resolved, key.chainId, impl)) {
         return resolved;
+      }
+      if (kind !== 'calldata') {
+        continue;
       }
       const bound = await matchContext(
         resolved,
@@ -238,7 +261,7 @@ export function createOfficialRegistry(config: OfficialRegistryConfig): Official
 
   return {
     async findCalldata(key) {
-      const local = await findOverride(key);
+      const local = await findOverride(key, 'calldata');
       if (local) {
         return local;
       }
@@ -266,7 +289,7 @@ export function createOfficialRegistry(config: OfficialRegistryConfig): Official
     },
 
     async findEip712(key) {
-      const local = await findOverride(key);
+      const local = await findOverride(key, 'eip712');
       if (local) {
         return local;
       }
