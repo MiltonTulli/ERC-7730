@@ -103,7 +103,7 @@ export interface RegistryConfig {
 export type ChainName = 'ethereum' | 'mainnet' | 'arbitrum' | 'optimism' | 'base' | 'polygon';
 
 /**
- * ClearSigner configuration
+ * Legacy constructor config. Prefer `DecodeOptions` with `createClearSigner`.
  */
 export interface ClearSignerConfig {
   /**

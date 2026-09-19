@@ -6,19 +6,15 @@
  *
  * @example
  * ```typescript
- * import { ClearSignerLite } from '@erc7730/sdk/lite';
- * import myDescriptors from './my-descriptors.json';
+ * import { createClearSigner, decodeTransaction } from '@erc7730/sdk/lite';
  *
- * const signer = new ClearSignerLite({ provider });
+ * const signer = createClearSigner({ provider, registry });
  * signer.extend(myDescriptors);
- *
- * const result = await signer.decode(tx);
+ * const result = await signer.decodeTransaction(tx);
  * ```
  */
 
-// Re-export ClearSigner as ClearSignerLite
-// In future, this could be a stripped-down version without built-in registry
-export { ClearSigner as ClearSignerLite } from './core/ClearSigner.js';
+export { ClearSigner as ClearSignerLite, createClearSigner } from './core/ClearSigner.js';
 
 // Core utilities only (no registry)
 export { decodeCalldata, extractSelector } from './core/decoder.js';

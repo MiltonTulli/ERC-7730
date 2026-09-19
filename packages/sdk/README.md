@@ -39,7 +39,7 @@ Separate **trusted metadata** from **ABI guesses**. Sourcify and `generateDescri
 
 **Clear signing is not ABI pretty-printing.** Inject `officialOnlyPolicy()`, `officialOrLocalPolicy()`, or `composePolicies()`. Sourcify never returns `trust.accepted: true` under `officialOnlyPolicy`. When `trust` is omitted, decode uses a stub (`policy: "unspecified"`) with the same accept/reject rows as `officialOrLocalPolicy`.
 
-The v1 `ClearSigner.decode` path may still report `confidence: "high"` for some Sourcify matches — that is a known gap, not the product rule.
+`decodeTransaction`, `decodeTypedData`, and the deprecated `ClearSigner.decode` alias follow the table above. Sourcify is never `confidence: "high"`.
 
 ## Features
 
@@ -49,7 +49,7 @@ The v1 `ClearSigner.decode` path may still report `confidence: "high"` for some 
 - **`decodeTransaction`** — apply official (or override) `display.formats` to calldata
 - **Context matchers** — `matchContext()` for `deployments`, `factory.deployEvent`, and EIP-1967 / EIP-1167 proxies
 - **`decodeTypedData`** — apply official EIP-712 descriptors (`index.eip712.json`)
-- **v1 calldata decode** — `ClearSigner.decode` (legacy)
+- **`createClearSigner`** — bind `DecodeOptions` (`ClearSigner.decode` is a deprecated alias of `decodeTransaction`)
 - **TrustPolicy** — `officialOnlyPolicy` / `officialOrLocalPolicy` / `composePolicies`
 - **Untrusted fallback** — Sourcify / `generateDescriptor`, labeled by `source`
 - **Warnings** — untrusted descriptors, infinite approvals, and similar risks
@@ -90,7 +90,7 @@ console.log(result.trust);      // { accepted, policy: "official-only", descript
 console.log(result.fields);
 ```
 
-`ClearSigner.decode` remains the v1 pretty-printer. Prefer `decodeTransaction` / `decodeTypedData` for descriptor-backed clear signing.
+`ClearSigner.decode` is a deprecated alias of `decodeTransaction` (one minor). Prefer the functions, or `createClearSigner(options)` to bind registry / trust / provider.
 
 Production lookups should use `createOfficialRegistry({ pin })`, not the v1 embedded snapshot.
 
@@ -179,16 +179,17 @@ Official descriptors often split shared formats into `common-*.json` and point f
 
 ## Untrusted fallback (Sourcify / generate)
 
-Sourcify is **on by default** for `ClearSigner.decode` so unknown verified contracts still render something. That output is not curated metadata.
+Sourcify is **on by default** so unknown verified contracts still render something. That output is not curated metadata.
 
 ```typescript
-const signer = new ClearSigner(); // Sourcify enabled by default
-
-const result = await signer.decode({
-  to: '0x6590cBBCCbE6B83eF3774Ef1904D86A7B02c2fCC',
-  data: '0x2e17de78...',
-  chainId: 1
-});
+const result = await decodeTransaction(
+  {
+    to: '0x6590cBBCCbE6B83eF3774Ef1904D86A7B02c2fCC',
+    data: '0x2e17de78...',
+    chainId: 1,
+  },
+  { useSourcifyFallback: true }
+);
 
 console.log(result.source);      // "sourcify" — untrusted
 console.log(result.confidence);  // do not treat as "high"
@@ -197,7 +198,7 @@ console.log(result.confidence);  // do not treat as "high"
 Pass `useSourcifyFallback: false` to disable.
 
 ```typescript
-import { generateDescriptor } from '@erc7730/sdk';
+import { createClearSigner, generateDescriptor, officialOrLocalPolicy } from '@erc7730/sdk';
 
 const draft = generateDescriptor({
   chainId: 1,
@@ -207,14 +208,14 @@ const draft = generateDescriptor({
 });
 // Starting point for an upstream registry PR — never confidence: "high"
 
-const signer = new ClearSigner();
+const signer = createClearSigner({ trust: officialOrLocalPolicy(), useSourcifyFallback: false });
 signer.extend([draft]);
 ```
 
 ## Security Warnings
 
 ```typescript
-const result = await signer.decode({
+const result = await decodeTransaction({
   to: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
   data: '0x095ea7b3...ffffffffffffffffffffffffffffffffffffffff', // Infinite approval
   chainId: 1
@@ -231,7 +232,9 @@ console.log(result.warnings);
 ## Local overrides
 
 ```typescript
-const signer = new ClearSigner();
+import { createClearSigner, officialOrLocalPolicy } from '@erc7730/sdk';
+
+const signer = createClearSigner({ trust: officialOrLocalPolicy() });
 
 signer.extend([{
   context: {
@@ -257,57 +260,68 @@ signer.extend([{
 
 ## API Reference
 
-### `ClearSigner`
+### `createClearSigner` / `decodeTransaction` / `decodeTypedData`
 
 ```typescript
-const signer = new ClearSigner(config?: ClearSignerConfig);
+import {
+  createClearSigner,
+  decodeTransaction,
+  decodeTypedData,
+  officialOnlyPolicy,
+} from '@erc7730/sdk';
+
+export function createClearSigner(options?: DecodeOptions): ClearSigner;
+export function decodeTransaction(tx: TransactionInput, options?: DecodeOptions): Promise<DecodedOperation>;
+export function decodeTypedData(data: TypedDataInput, options?: DecodeOptions): Promise<DecodedOperation>;
+
+const signer = createClearSigner({
+  registry,
+  trust: officialOnlyPolicy(),
+  provider: null,
+  useSourcifyFallback: false,
+});
+
+await signer.decodeTransaction(tx);
+await signer.decodeTypedData(typedData);
+// signer.decode(tx) — @deprecated alias of decodeTransaction (one minor)
 ```
 
-#### Config Options
-
-```typescript
-interface ClearSignerConfig {
-  // Custom RPC URL (uses public RPCs by default)
-  rpcUrl?: string;
-
-  // Provider for ENS resolution and token metadata
-  provider?: Provider | null;
-
-  // Enable/disable Sourcify fallback (default: true). Untrusted when used.
-  useSourcifyFallback?: boolean;
-
-  // Local overrides
-  registry?: {
-    custom?: ERC7730Descriptor[];
-  };
-}
-```
-
-#### Methods
-
-- `decode(tx): Promise<DecodedTransaction>` - Decode a transaction
-- `extend(descriptors): void` - Add local overrides
-
-Also exported: `decodeTransaction`, `decodeTypedData`, `matchContext`, `officialOnlyPolicy`, `officialOrLocalPolicy`, `composePolicies`, `createOfficialRegistry`, `validateDescriptor`, `resolveDescriptor`, `generateDescriptor`.
+Also exported: `matchContext`, `officialOnlyPolicy`, `officialOrLocalPolicy`, `composePolicies`, `createOfficialRegistry`, `validateDescriptor`, `resolveDescriptor`, `generateDescriptor`.
 
 ### Response Types
 
 ```typescript
-interface DecodedTransaction {
+interface DecodedOperation {
   confidence: 'high' | 'medium' | 'low';
-  source: 'registry' | 'sourcify' | 'inferred' | 'basic';
+  source:
+    | 'official-registry'
+    | 'attested'
+    | 'local-override'
+    | 'sourcify'
+    | 'generated'
+    | 'inferred'
+    | 'basic';
   intent: string;
-  functionName: string;
-  signature: string;
+  functionName?: string;
+  signature?: string;
   fields: DecodedField[];
+  excluded: string[];
   warnings: SecurityWarning[];
+  trust: {
+    accepted: boolean;
+    policy: string;
+    descriptorHash?: string;
+    reasons: string[];
+  };
   metadata: {
     chainId: number;
-    contractAddress: string;
+    contractAddress?: string;
+    descriptorId?: string;
   };
   raw: {
-    selector: string;
-    args: readonly unknown[];
+    selector?: string;
+    args?: readonly unknown[];
+    message?: Record<string, unknown>;
   };
 }
 ```

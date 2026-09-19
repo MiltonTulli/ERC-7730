@@ -1,13 +1,19 @@
 import {
   type ABI,
-  ClearSigner,
-  type DecodedTransaction,
+  type DecodedOperation,
   type ERC7730Descriptor,
+  type InputDescriptor,
   SUPPORTED_CHAINS,
+  VENDORED_REGISTRY_COMMIT,
+  createClearSigner,
+  createOfficialRegistry,
   fetchFromSourcify,
   generateDescriptor,
+  getChain,
   getDefaultRpc,
+  officialOrLocalPolicy,
 } from '@erc7730/sdk';
+import { http, createPublicClient } from 'viem';
 
 // GitHub repository configuration
 const GITHUB_REPO = 'ethereum/clear-signing-erc7730-registry';
@@ -196,15 +202,29 @@ decodeBtn.addEventListener('click', async () => {
   decodeBtn.textContent = 'Decoding...';
 
   try {
-    // Create signer with custom RPC if provided
-    const signer = customRpcUrl ? new ClearSigner({ rpcUrl: customRpcUrl }) : new ClearSigner();
+    const chain = getChain(chainId);
+    const rpcUrl = customRpcUrl || getDefaultRpc(chainId);
+    const provider =
+      chain && rpcUrl
+        ? createPublicClient({
+            chain,
+            transport: http(rpcUrl),
+          })
+        : null;
 
-    // Add custom descriptor if set
+    const registry = createOfficialRegistry({ pin: VENDORED_REGISTRY_COMMIT });
+    const signer = createClearSigner({
+      registry,
+      provider,
+      trust: officialOrLocalPolicy(),
+      useSourcifyFallback: true,
+    });
+
     if (customDescriptor) {
-      signer.extend([customDescriptor]);
+      signer.extend([customDescriptor as InputDescriptor]);
     }
 
-    const result = await signer.decode({
+    const result = await signer.decodeTransaction({
       to: contract,
       data: calldata,
       chainId,
@@ -463,23 +483,34 @@ function showContributePopup(descriptor: ERC7730Descriptor) {
 // ============================================================================
 // Render Functions
 // ============================================================================
-function generateCodeSnippet(result: DecodedTransaction): string {
+function generateCodeSnippet(result: DecodedOperation): string {
   if (!currentInput) return '// No input available';
 
   const customDescriptorCode = customDescriptor
     ? `
-// Local override for legacy ClearSigner.decode (TrustPolicy is decodeTransaction-only)
 const customDescriptor = ${JSON.stringify(customDescriptor, replacer, 2)};
 
 signer.extend([customDescriptor]);
 `
     : '';
 
-  return `import { ClearSigner } from '@erc7730/sdk';
+  return `import {
+  createClearSigner,
+  createOfficialRegistry,
+  officialOrLocalPolicy,
+} from '@erc7730/sdk';
 
-const signer = new ClearSigner();
+const registry = createOfficialRegistry({
+  pin: '${VENDORED_REGISTRY_COMMIT}',
+});
+
+const signer = createClearSigner({
+  registry,
+  trust: officialOrLocalPolicy(),
+  useSourcifyFallback: true,
+});
 ${customDescriptorCode}
-const result = await signer.decode({
+const result = await signer.decodeTransaction({
   to: '${currentInput.contract}',
   data: '${currentInput.calldata}',
   chainId: ${currentInput.chainId},
@@ -488,6 +519,7 @@ const result = await signer.decode({
 console.log(result.intent);       // "${result.intent}"
 console.log(result.source);       // "${result.source}"
 console.log(result.confidence);   // "${result.confidence}" — treat "high" only for trusted registry metadata
+console.log(result.trust);        // accepted=${result.trust.accepted} policy=${result.trust.policy}
 console.log(result.warnings);`;
 }
 
@@ -497,12 +529,13 @@ type TrustDisplay = {
   note: string;
 };
 
-function getTrustDisplay(source: string, custom: boolean): TrustDisplay {
+function getTrustDisplay(result: DecodedOperation, custom: boolean): TrustDisplay {
+  const accepted = result.trust.accepted;
   if (
-    source === 'sourcify' ||
-    source === 'inferred' ||
-    source === 'basic' ||
-    source === 'generated' ||
+    result.source === 'sourcify' ||
+    result.source === 'inferred' ||
+    result.source === 'basic' ||
+    result.source === 'generated' ||
     custom
   ) {
     return {
@@ -512,16 +545,21 @@ function getTrustDisplay(source: string, custom: boolean): TrustDisplay {
     };
   }
   return {
-    accepted: false,
-    label: 'pending',
-    note: 'v1 ClearSigner uses an embedded catalog. Prefer decodeTransaction with createOfficialRegistry({ pin }) and officialOnlyPolicy() in production.',
+    accepted,
+    label: String(accepted),
+    note: accepted
+      ? `Policy "${result.trust.policy}" accepted this descriptor. Production wallets should inject officialOnlyPolicy().`
+      : `Policy "${result.trust.policy}" rejected this descriptor. Prefer createOfficialRegistry({ pin }) and officialOnlyPolicy() in production.`,
   };
 }
 
 function getSourceBadge(source: string): string {
   switch (source) {
-    case 'registry':
-      return '<span class="badge badge-success">source: registry</span>';
+    case 'official-registry':
+    case 'attested':
+      return `<span class="badge badge-success">source: ${escapeHtml(source)}</span>`;
+    case 'local-override':
+      return '<span class="badge" style="background: rgba(59, 130, 246, 0.2); color: var(--accent);">source: local-override</span>';
     case 'sourcify':
       return '<span class="badge badge-warning">source: sourcify</span>';
     case 'inferred':
@@ -533,7 +571,7 @@ function getSourceBadge(source: string): string {
   }
 }
 
-function getConfidenceBadge(result: DecodedTransaction, custom: boolean): string {
+function getConfidenceBadge(result: DecodedOperation, custom: boolean): string {
   if (result.source === 'sourcify' || custom) {
     return '<span class="badge badge-warning">Untrusted fallback</span>';
   }
@@ -552,8 +590,8 @@ function getConfidenceBadge(result: DecodedTransaction, custom: boolean): string
   return '<span class="badge badge-error">Low confidence</span>';
 }
 
-function renderResult(result: DecodedTransaction) {
-  const trust = getTrustDisplay(result.source, Boolean(customDescriptor));
+function renderResult(result: DecodedOperation) {
+  const trust = getTrustDisplay(result, Boolean(customDescriptor));
   const confidenceBadge = getConfidenceBadge(result, Boolean(customDescriptor));
   const sourceBadge = getSourceBadge(result.source);
   const trustBadge = `<span class="badge ${trust.label === 'false' ? 'badge-warning' : 'badge-error'}">trust.accepted: ${trust.label}</span>`;
@@ -588,7 +626,7 @@ function renderResult(result: DecodedTransaction) {
     intent: result.intent,
     confidence: result.confidence,
     source: result.source,
-    trust: { accepted: trust.accepted, status: trust.label },
+    trust: result.trust,
     functionName: result.functionName,
     signature: result.signature,
     fields: result.fields.map((f) => ({
@@ -647,11 +685,11 @@ function renderResult(result: DecodedTransaction) {
           ${fieldsHtml}
           <div class="field">
             <span class="field-label">Contract</span>
-            <span class="field-value">${escapeHtml(result.metadata.contractAddress)}</span>
+            <span class="field-value">${escapeHtml(result.metadata.contractAddress ?? '')}</span>
           </div>
           <div class="field">
             <span class="field-label">Function</span>
-            <span class="field-value">${escapeHtml(result.signature)}</span>
+            <span class="field-value">${escapeHtml(result.signature ?? '')}</span>
           </div>
         </div>
         ${warningsHtml}
@@ -702,7 +740,11 @@ function renderResult(result: DecodedTransaction) {
 function renderGenerateResult(descriptor: ERC7730Descriptor, fromSourcify = false) {
   const functionCount = Object.keys(descriptor.display.formats).length;
   const functions = Object.keys(descriptor.display.formats);
-  const trust = getTrustDisplay('generated', true);
+  const trust: TrustDisplay = {
+    accepted: false,
+    label: 'false',
+    note: 'Sourcify / generateDescriptor / inferred is an untrusted fallback. Never confidence: "high". officialOnlyPolicy() sets trust.accepted: false.',
+  };
 
   const sourcifyBadge = fromSourcify
     ? '<span class="badge badge-warning">source: sourcify</span>'
@@ -840,13 +882,16 @@ function renderGenerateResult(descriptor: ERC7730Descriptor, fromSourcify = fals
 }
 
 function generateDescriptorUsageCode(descriptor: ERC7730Descriptor): string {
-  return `import { ClearSigner, generateDescriptor } from '@erc7730/sdk';
+  return `import { createClearSigner, generateDescriptor, officialOrLocalPolicy } from '@erc7730/sdk';
 
 // Generated / Sourcify drafts are untrusted — never confidence: "high".
 // Option 1: local override (not a registry contribution)
 const descriptor = ${JSON.stringify(descriptor, replacer, 2)};
 
-const signer = new ClearSigner();
+const signer = createClearSigner({
+  trust: officialOrLocalPolicy(),
+  useSourcifyFallback: false,
+});
 signer.extend([descriptor]);
 
 // Option 2: Generate at runtime from ABI
@@ -859,8 +904,7 @@ const runtimeDescriptor = generateDescriptor({
 
 signer.extend([runtimeDescriptor]);
 
-// Now decode transactions
-const result = await signer.decode({
+const result = await signer.decodeTransaction({
   to: '${descriptor.context.contract?.deployments?.[0]?.address || '0x...'}',
   data: '0x...',
   chainId: ${descriptor.context.contract?.deployments?.[0]?.chainId || 1},
