@@ -343,6 +343,37 @@ describe('decodeTypedData', () => {
     expect(daiResult.fields.find((field) => field.label === 'Allowed')?.value).toBe('Yes');
   });
 
+  it('does not treat a different Permit declaration as a match by name alone', async () => {
+    const daiStyle: InputDescriptor = {
+      context: {
+        eip712: { deployments: [{ chainId: 1, address: USDC }] },
+      },
+      metadata: { owner: 'DAI-style' },
+      display: {
+        formats: {
+          'Permit(address holder,address spender,uint256 nonce,uint256 expiry,bool allowed)': {
+            intent: 'Approve DAI',
+            fields: [
+              { path: 'holder', label: 'Holder', format: 'raw' },
+              { path: 'allowed', label: 'Allowed', format: 'raw' },
+            ],
+          },
+        },
+      },
+    };
+    const resolved = await resolveDescriptor(daiStyle, createMemoryIncludeLoader({}));
+    const result = await decodeTypedData(permitPayload(), {
+      registry: registryFrom(resolved),
+      provider: null,
+      now: DEADLINE - 1,
+    });
+
+    expect(result.source).toBe('inferred');
+    expect(result.confidence).toBe('low');
+    expect(result.intent).not.toBe('Approve DAI');
+    expect(result.fields.find((field) => field.label === 'Allowed')).toBeUndefined();
+  });
+
   it('returns inferred + low confidence when no descriptor matches', async () => {
     const result = await decodeTypedData(permitPayload(), {
       provider: null,

@@ -77,8 +77,9 @@ export function matchFormat(merged: unknown, selector: string): MatchedFormat | 
 }
 
 /**
- * Match a descriptor format key by EIP-712 `encodeType` string, primaryType
- * name, or a Solidity-style declaration whose name is `primaryType`.
+ * Match a descriptor format key by EIP-712 `encodeType` string, the primaryType
+ * name, or a declaration whose canonical types match `encodeType`. Name-only
+ * matches are rejected so a DAI-style `Permit(...)` cannot win for ERC-2612.
  */
 export function matchEip712Format(
   merged: unknown,
@@ -93,8 +94,9 @@ export function matchEip712Format(
     return null;
   }
 
+  const encodedCanonical = canonicalizeDeclaration(encoded);
   let byPrimary: MatchedFormat | null = null;
-  let byName: MatchedFormat | null = null;
+  let byCanonical: MatchedFormat | null = null;
 
   for (const [key, value] of Object.entries(formats)) {
     if (!isPlainObject(value)) {
@@ -108,10 +110,14 @@ export function matchEip712Format(
     if (key === primaryType && !byPrimary) {
       byPrimary = { key, format, declaration };
     }
-    if (declaration?.name === primaryType && !byName) {
-      byName = { key, format, declaration };
+    if (
+      declaration?.name === primaryType &&
+      canonicalizeDeclaration(key) === encodedCanonical &&
+      !byCanonical
+    ) {
+      byCanonical = { key, format, declaration };
     }
   }
 
-  return byPrimary ?? byName;
+  return byPrimary ?? byCanonical;
 }

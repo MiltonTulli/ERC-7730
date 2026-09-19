@@ -303,6 +303,18 @@ Formats in this release: `raw`, `amount`, `tokenAmount`, `date`, `duration`, `ad
 ### `decodeTypedData`
 
 ```typescript
+import { createOfficialRegistry, decodeTypedData } from '@erc7730/sdk';
+
+const registry = createOfficialRegistry({
+  pin: '9f37816afde954ff6617fb5baa346133e5af26c5',
+});
+
+const owner = '0xd8da6bf26964af9d7eed9e03e53415d37aa96045';
+const spender = '0x1111111254eeb25477b68fb85ed929f73a960582';
+const value = 100000000n;
+const nonce = 0n;
+const deadline = 1_735_689_600n;
+
 const result = await decodeTypedData(
   {
     chainId: 1,
@@ -411,9 +423,10 @@ interface DecodedField {
 }
 
 interface SecurityWarning {
-  type: 'infinite_approval' | 'dangerous_permissions';
+  type: 'infinite_approval' | 'dangerous_permissions' | 'expired_deadline';
   severity: 'high' | 'medium' | 'low';
   message: string;
+  path?: string;
 }
 ```
 

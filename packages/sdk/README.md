@@ -108,6 +108,33 @@ const usdcPermit = await registry.findEip712({
   signature: 'Permit',
 });
 
+const typedData = {
+  chainId: 1,
+  domain: {
+    name: 'USD Coin',
+    version: '2',
+    chainId: 1,
+    verifyingContract: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48' as const,
+  },
+  types: {
+    Permit: [
+      { name: 'owner', type: 'address' },
+      { name: 'spender', type: 'address' },
+      { name: 'value', type: 'uint256' },
+      { name: 'nonce', type: 'uint256' },
+      { name: 'deadline', type: 'uint256' },
+    ],
+  },
+  primaryType: 'Permit',
+  message: {
+    owner: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
+    spender: '0x1111111254eeb25477b68fb85ed929f73a960582',
+    value: 100000000n,
+    nonce: 0n,
+    deadline: 1_735_689_600n,
+  },
+};
+
 const decoded = await decodeTypedData(typedData, { registry });
 ```
 
