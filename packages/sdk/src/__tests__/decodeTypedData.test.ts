@@ -151,12 +151,13 @@ function daiPermitPayload(): TypedDataInput {
 }
 
 function registryFrom(resolved: ResolvedDescriptor): DecodeRegistry {
+  const hit: ResolvedDescriptor = { ...resolved, source: 'official-registry' };
   return {
     async findCalldata() {
       return null;
     },
     async findEip712() {
-      return resolved;
+      return hit;
     },
   };
 }

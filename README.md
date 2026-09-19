@@ -463,7 +463,11 @@ interface DecodedField {
 }
 
 interface SecurityWarning {
-  type: 'infinite_approval' | 'dangerous_permissions' | 'expired_deadline';
+  type:
+    | 'infinite_approval'
+    | 'dangerous_permissions'
+    | 'untrusted_descriptor'
+    | 'expired_deadline';
   severity: 'high' | 'medium' | 'low';
   message: string;
   path?: string;

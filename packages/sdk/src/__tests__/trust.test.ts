@@ -317,4 +317,27 @@ describe('decodeTransaction + TrustPolicy', () => {
     expect(result.trust.descriptorHash).toBe(resolved.hash);
     expect(result.trust.reasons.length).toBeGreaterThan(0);
   });
+
+  it('does not treat a source-less custom-registry hit as official', async () => {
+    const resolved = await resolveDescriptor(usdcDescriptor, createMemoryIncludeLoader({}));
+    const result = await decodeTransaction(
+      { to: USDC, data: TRANSFER_100_USDC, chainId: 1 },
+      {
+        registry: {
+          async findCalldata() {
+            return resolved;
+          },
+        },
+        provider: null,
+        useSourcifyFallback: false,
+        trust: officialOnlyPolicy(),
+      }
+    );
+
+    expect(result.source).toBe('local-override');
+    expect(result.trust.accepted).toBe(false);
+    expect(result.trust.policy).toBe('official-only');
+    expect(result.confidence).toBe('low');
+    expect(result.warnings.some((warning) => warning.type === 'untrusted_descriptor')).toBe(true);
+  });
 });

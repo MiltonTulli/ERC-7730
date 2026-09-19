@@ -468,7 +468,7 @@ function generateCodeSnippet(result: DecodedTransaction): string {
 
   const customDescriptorCode = customDescriptor
     ? `
-// Local override (rejected by officialOnlyPolicy; accepted by officialOrLocalPolicy)
+// Local override for legacy ClearSigner.decode (TrustPolicy is decodeTransaction-only)
 const customDescriptor = ${JSON.stringify(customDescriptor, replacer, 2)};
 
 signer.extend([customDescriptor]);

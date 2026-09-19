@@ -76,7 +76,7 @@ export function stubTrust(source: DecodeSource, hash?: Hex): TrustReport {
 
 export function sourceFromResolved(
   resolved: ResolvedDescriptor,
-  fallback: DecodeSource = 'official-registry'
+  fallback: DecodeSource = 'local-override'
 ): DecodeSource {
   return resolved.source ?? fallback;
 }
