@@ -93,7 +93,7 @@ const result = await decodeTransaction(
 );
 
 console.log(result.intent);       // "Send" + formatted fields when a descriptor matches
-console.log(result.source);       // "official-registry" | "local-override" | "sourcify" | "inferred" | "basic"
+console.log(result.source);       // e.g. "official-registry" | "local-override" | "sourcify" | "inferred" | "basic"
 console.log(result.confidence);   // "high" only when official-registry / attested is accepted
 console.log(result.trust);        // { accepted, policy: "official-only", descriptorHash, reasons }
 console.log(result.fields);       // [{ label: "Amount", value: "100 USDC", format: "tokenAmount" }, ...]
