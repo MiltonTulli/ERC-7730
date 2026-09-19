@@ -18,7 +18,7 @@ import { parseAbiItem, parseAbiParameters } from 'abitype';
 import { decodeEventLog, encodeAbiParameters, keccak256, toBytes } from 'viem';
 import { isPlainObject } from '../resolve/util.js';
 import type { Hex, InputDescriptor, ResolvedDescriptor } from '../types/descriptor.js';
-import type { Provider, TransactionInput, TypedDataInput } from '../types/index.js';
+import type { LogBlockTag, Provider, TransactionInput, TypedDataInput } from '../types/index.js';
 import { ZERO_ADDRESS, asAddress, asRecord } from './common.js';
 import type { Address } from './types.js';
 
@@ -42,6 +42,13 @@ export interface ContextMatch {
 
 export interface MatchContextOptions {
   provider?: Provider | null;
+  /**
+   * Factory log range. `eth_getLogs` defaults omitted bounds to `latest`,
+   * which would miss historical deploy events. Unset values become
+   * `earliest` / `latest`. Pass a bounded range on public RPCs.
+   */
+  fromBlock?: bigint | LogBlockTag;
+  toBlock?: bigint | LogBlockTag;
 }
 
 type DescriptorLike = InputDescriptor | ResolvedDescriptor;
@@ -308,7 +315,7 @@ async function matchFactory(
   factory: Record<string, unknown>,
   chainId: number,
   target: Address,
-  provider: Provider | null | undefined
+  options: MatchContextOptions | undefined
 ): Promise<boolean> {
   if (typeof factory.deployEvent !== 'string') {
     return false;
@@ -323,6 +330,7 @@ async function matchFactory(
   if (!event) {
     return false;
   }
+  const provider = options?.provider;
   if (!provider || typeof provider.getLogs !== 'function') {
     return false;
   }
@@ -338,6 +346,8 @@ async function matchFactory(
     logs = await provider.getLogs({
       address: [...factories],
       topics: [topic0],
+      fromBlock: options?.fromBlock ?? 'earliest',
+      toBlock: options?.toBlock ?? 'latest',
     });
   } catch {
     return false;
@@ -483,7 +493,7 @@ async function matchContractContext(
     }
   }
 
-  if (hasFactory && factory && (await matchFactory(factory, chainId, address, options?.provider))) {
+  if (hasFactory && factory && (await matchFactory(factory, chainId, address, options))) {
     return { matched: true, via: 'factory' };
   }
 

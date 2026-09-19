@@ -1,5 +1,5 @@
 import type { Hex, InputDescriptor, ResolvedDescriptor } from '../types/descriptor.js';
-import type { Provider } from '../types/index.js';
+import type { LogBlockTag, Provider } from '../types/index.js';
 
 export type Address = `0x${string}`;
 
@@ -22,6 +22,8 @@ export interface RegistryLookupKey {
   encodeTypeHash?: Hex;
   /** Used to verify factory / proxy context when the CAIP-10 key is a clone. */
   provider?: Provider | null;
+  fromBlock?: bigint | LogBlockTag;
+  toBlock?: bigint | LogBlockTag;
 }
 
 export interface DescriptorCache {

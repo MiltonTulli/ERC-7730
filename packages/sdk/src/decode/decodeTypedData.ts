@@ -110,6 +110,8 @@ async function lookupEip712(
     signature: data.primaryType,
     encodeTypeHash,
     provider: options?.provider,
+    fromBlock: options?.fromBlock,
+    toBlock: options?.toBlock,
   });
 }
 
@@ -321,7 +323,11 @@ export async function decodeTypedData(
 
   const found = await lookupEip712(data, options, chainIdOf(data), address, encodeTypeHash);
   if (found && address) {
-    const bound = await matchContext(found, data, { provider: options?.provider });
+    const bound = await matchContext(found, data, {
+      provider: options?.provider,
+      fromBlock: options?.fromBlock,
+      toBlock: options?.toBlock,
+    });
     if (bound.matched) {
       const rendered = await renderFromDescriptor(
         data,

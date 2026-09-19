@@ -1,6 +1,6 @@
 import type { OfficialRegistry } from '../official-registry/types.js';
 import type { Hex, ResolvedDescriptor } from '../types/descriptor.js';
-import type { Provider, TransactionInput, TypedDataInput } from '../types/index.js';
+import type { LogBlockTag, Provider, TransactionInput, TypedDataInput } from '../types/index.js';
 
 export type Address = `0x${string}`;
 
@@ -115,6 +115,8 @@ export interface DecodeRegistry {
     selector?: Hex;
     signature?: string;
     provider?: Provider | null;
+    fromBlock?: bigint | LogBlockTag;
+    toBlock?: bigint | LogBlockTag;
   }): Promise<ResolvedDescriptor | null>;
   findEip712?(key: {
     chainId: number;
@@ -122,6 +124,8 @@ export interface DecodeRegistry {
     signature?: string;
     encodeTypeHash?: Hex;
     provider?: Provider | null;
+    fromBlock?: bigint | LogBlockTag;
+    toBlock?: bigint | LogBlockTag;
   }): Promise<ResolvedDescriptor | null>;
 }
 
@@ -142,6 +146,12 @@ export interface DecodeOptions {
    * @default `Math.floor(Date.now() / 1000)`
    */
   now?: number | (() => number);
+  /**
+   * Factory `getLogs` range forwarded to `matchContext`.
+   * Defaults: `earliest` → `latest`. Bound this on public RPCs.
+   */
+  fromBlock?: bigint | LogBlockTag;
+  toBlock?: bigint | LogBlockTag;
 }
 
 export type { TransactionInput, TypedDataInput };

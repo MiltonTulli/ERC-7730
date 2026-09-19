@@ -105,6 +105,7 @@ export type {
 export type {
   ClearSignerConfig,
   RegistryConfig,
+  LogBlockTag,
   Provider,
   TransactionInput,
   TypedDataInput,

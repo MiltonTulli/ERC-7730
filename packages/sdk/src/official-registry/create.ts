@@ -205,21 +205,29 @@ export function createOfficialRegistry(config: OfficialRegistryConfig): Official
     return typeof path === 'string' ? path : null;
   }
 
+  function deploymentsHit(resolved: ResolvedDescriptor, chainId: number, address: string): boolean {
+    return resolved.deployments.some(
+      (item) => item.chainId === chainId && item.address === address
+    );
+  }
+
   async function findOverride(key: RegistryLookupKey): Promise<ResolvedDescriptor | null> {
     const address = normalizeAddress(key.address);
+    const impl = await resolveImplementation(address, key.provider);
     for (const input of overrides) {
       const resolved = await resolveOverride(input);
-      if (
-        resolved.deployments.some(
-          (item) => item.chainId === key.chainId && item.address === address
-        )
-      ) {
+      if (deploymentsHit(resolved, key.chainId, address)) {
+        return resolved;
+      }
+      // EIP-712 overrides are not a contract context; match the implementation
+      // address when verifyingContract is a proxy of a listed deployment.
+      if (impl && impl !== address && deploymentsHit(resolved, key.chainId, impl)) {
         return resolved;
       }
       const bound = await matchContext(
         resolved,
         { to: address, data: '0x', chainId: key.chainId },
-        { provider: key.provider }
+        { provider: key.provider, fromBlock: key.fromBlock, toBlock: key.toBlock }
       );
       if (bound.matched) {
         return resolved;
@@ -251,6 +259,9 @@ export function createOfficialRegistry(config: OfficialRegistryConfig): Official
           return resolvePath(viaProxy);
         }
       }
+      // Official `index.calldata.json` is CAIP-10 of `contract.deployments`
+      // (plus EIP-1967 / EIP-1167 implementations). There is no factory-clone
+      // catalog. Factory-only descriptors match via `extend()` + matchContext.
       return null;
     },
 

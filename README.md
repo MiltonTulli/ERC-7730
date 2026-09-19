@@ -303,8 +303,10 @@ Format keys match by 4-byte selector, canonical signature, or Solidity declarati
 
 - `contract.deployments` / `eip712.deployments` — exact `chainId` + address
 - EIP-1967 implementation slot and EIP-1167 bytecode — `tx.to` (or `verifyingContract`) is a proxy whose implementation is in `deployments`
-- `contract.factory` — `getLogs` for `deployEvent`; the target address must appear as an **address argument of that event ABI**, and the emitter must be a listed factory. Event layouts are not hardcoded.
+- `contract.factory` — `getLogs` for `deployEvent`; the target address must appear as an **address argument of that event ABI**, and the emitter must be a listed factory. Event layouts are not hardcoded. `getLogs` defaults to `fromBlock: "earliest"` / `toBlock: "latest"` (omitted bounds would only search the latest block); pass a bounded range on public RPCs.
 - `eip712.domain` / `eip712.domainSeparator` — typed-data domain constraints
+
+Official `index.calldata.json` is CAIP-10 of listed deployments (and EIP-1967 / EIP-1167 implementations). There is no factory-clone catalog; factory-only files match via `extend()` + `matchContext`.
 
 `addressMatcher` URLs are not fetched (v1 draft; not in the v2 schema). If context does not match, the descriptor is not applied even when the selector is a known `transfer`.
 

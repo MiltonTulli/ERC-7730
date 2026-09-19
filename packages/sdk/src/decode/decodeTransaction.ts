@@ -269,9 +269,15 @@ export async function decodeTransaction(
       address: asAddress(tx.to),
       selector,
       provider: options.provider,
+      fromBlock: options.fromBlock,
+      toBlock: options.toBlock,
     });
     if (found) {
-      const bound = await matchContext(found, tx, { provider: options.provider });
+      const bound = await matchContext(found, tx, {
+        provider: options.provider,
+        fromBlock: options.fromBlock,
+        toBlock: options.toBlock,
+      });
       if (bound.matched) {
         const rendered = await renderFromDescriptor(
           tx,

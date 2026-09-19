@@ -199,6 +199,46 @@ describe('findEip712', () => {
     const found = await registry().findEip712({ chainId: 1, address: USDC });
     expect(found).toBeNull();
   });
+
+  it('matches an EIP-712 override when verifyingContract is an EIP-1967 proxy', async () => {
+    const proxy = '0x2222222222222222222222222222222222222222' as const;
+    const provider: Provider = {
+      async getStorageAt({ slot }) {
+        if (slot.toLowerCase() === EIP1967_IMPLEMENTATION_SLOT) {
+          return `0x${USDC.slice(2).toLowerCase().padStart(64, '0')}`;
+        }
+        return `0x${'00'.repeat(32)}`;
+      },
+    };
+    const client = registry();
+    client.extend([
+      {
+        $schema: '../../specs/erc7730-v2.schema.json',
+        context: {
+          eip712: {
+            deployments: [{ chainId: 1, address: USDC }],
+            domain: { name: 'USD Coin', version: '2' },
+          },
+        },
+        metadata: { owner: 'Local USDC Permit' },
+        display: {
+          formats: {
+            'Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)': {
+              intent: 'Local permit',
+            },
+          },
+        },
+      } as InputDescriptor,
+    ]);
+
+    const found = await client.findEip712({
+      chainId: 1,
+      address: proxy,
+      signature: 'Permit',
+      provider,
+    });
+    expect(found?.merged.metadata).toMatchObject({ owner: 'Local USDC Permit' });
+  });
 });
 
 describe('extend', () => {

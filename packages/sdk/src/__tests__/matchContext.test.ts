@@ -216,6 +216,52 @@ describe('matchContext factory', () => {
     );
     expect(result.matched).toBe(false);
   });
+
+  it('queries from earliest so a historical deploy event matches', async () => {
+    const calls: Array<{ fromBlock?: unknown; toBlock?: unknown }> = [];
+    const provider: Provider = {
+      async getLogs(args) {
+        calls.push(args);
+        return [
+          {
+            address: SAFE_FACTORY,
+            topics: [indexedTopic, padAddress(CLONE)],
+            data: padAddress(SAFE),
+          },
+        ];
+      },
+    };
+    const result = await matchContext(
+      factoryDescriptor,
+      { to: CLONE, data: '0xd4d9bdcd', chainId: 1 },
+      { provider }
+    );
+    expect(result).toEqual({ matched: true, via: 'factory' });
+    expect(calls[0]).toMatchObject({ fromBlock: 'earliest', toBlock: 'latest' });
+  });
+
+  it('forwards a configured log range', async () => {
+    const calls: Array<{ fromBlock?: unknown; toBlock?: unknown }> = [];
+    const provider: Provider = {
+      async getLogs(args) {
+        calls.push(args);
+        return [
+          {
+            address: SAFE_FACTORY,
+            topics: [indexedTopic, padAddress(CLONE)],
+            data: padAddress(SAFE),
+          },
+        ];
+      },
+    };
+    const result = await matchContext(
+      factoryDescriptor,
+      { to: CLONE, data: '0xd4d9bdcd', chainId: 1 },
+      { provider, fromBlock: 1n, toBlock: 99n }
+    );
+    expect(result.matched).toBe(true);
+    expect(calls[0]).toMatchObject({ fromBlock: 1n, toBlock: 99n });
+  });
 });
 
 describe('matchContext eip712', () => {

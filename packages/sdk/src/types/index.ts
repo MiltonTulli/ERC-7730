@@ -35,6 +35,9 @@ export interface TypedDataInput {
   message: Record<string, unknown>;
 }
 
+/** Block tags accepted by `eth_getLogs` / viem `PublicClient.getLogs`. */
+export type LogBlockTag = 'latest' | 'earliest' | 'pending' | 'safe' | 'finalized';
+
 /**
  * Provider interface - compatible with viem's PublicClient
  */
@@ -69,6 +72,8 @@ export interface Provider {
   getLogs?: (args: {
     address?: `0x${string}` | `0x${string}`[];
     topics?: (`0x${string}` | (`0x${string}` | null)[] | null)[];
+    fromBlock?: bigint | LogBlockTag;
+    toBlock?: bigint | LogBlockTag;
   }) => Promise<
     Array<{
       address: `0x${string}`;
