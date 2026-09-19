@@ -1,7 +1,9 @@
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { keccak256, toBytes } from 'viem';
 import { describe, expect, it } from 'vitest';
+import { EIP1967_IMPLEMENTATION_SLOT } from '../decode/context.js';
 import {
   OfficialRegistryError,
   VENDORED_REGISTRY_COMMIT,
@@ -11,6 +13,7 @@ import {
   toCaip10,
 } from '../official-registry/index.js';
 import type { InputDescriptor } from '../types/descriptor.js';
+import type { Provider } from '../types/index.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const fixtures = join(here, 'fixtures');
@@ -130,6 +133,23 @@ describe('findCalldata', () => {
     expect(found).toBeNull();
   });
 
+  it('resolves an EIP-1967 proxy to the official Safe singleton descriptor', async () => {
+    const proxy = '0x2222222222222222222222222222222222222222' as const;
+    const provider: Provider = {
+      async getStorageAt({ slot }) {
+        if (slot.toLowerCase() === EIP1967_IMPLEMENTATION_SLOT) {
+          return `0x${SAFE.slice(2).toLowerCase().padStart(64, '0')}`;
+        }
+        return `0x${'00'.repeat(32)}`;
+      },
+    };
+    const found = await registry().findCalldata({ chainId: 1, address: proxy, provider });
+    expect(found?.merged.metadata).toMatchObject({
+      owner: 'Safe{Wallet}',
+      contractName: 'Safe',
+    });
+  });
+
   it('merges common-*.json includes from the same pin', async () => {
     const found = await registry().findCalldata({ chainId: 1, address: SAFE });
     expect(found).not.toBeNull();
@@ -182,6 +202,42 @@ describe('findEip712', () => {
 });
 
 describe('extend', () => {
+  it('returns a factory override for a clone when deployEvent logs match', async () => {
+    const factory = '0x4e1DCf7AD4e460CfD30791CCC4F9c8a4f820ec67' as const;
+    const clone = '0x2222222222222222222222222222222222222222' as const;
+    const topic = keccak256(toBytes('ProxyCreation(address,address)'));
+    const provider: Provider = {
+      async getLogs() {
+        return [
+          {
+            address: factory,
+            topics: [topic, `0x${clone.slice(2).toLowerCase().padStart(64, '0')}`],
+            data: `0x${SAFE.slice(2).toLowerCase().padStart(64, '0')}`,
+          },
+        ];
+      },
+    };
+    const client = registry();
+    client.extend([
+      {
+        $schema: '../../specs/erc7730-v2.schema.json',
+        context: {
+          contract: {
+            factory: {
+              deployments: [{ chainId: 1, address: factory }],
+              deployEvent: 'ProxyCreation(address indexed proxy, address singleton)',
+            },
+          },
+        },
+        metadata: { owner: 'Safe clone' },
+        display: { formats: { 'approveHash(bytes32 hash)': { intent: 'Approve Safe hash' } } },
+      } as InputDescriptor,
+    ]);
+
+    const found = await client.findCalldata({ chainId: 1, address: clone, provider });
+    expect(found?.merged.metadata).toMatchObject({ owner: 'Safe clone' });
+  });
+
   it('returns a local override before the remote index', async () => {
     const client = registry();
     client.extend([

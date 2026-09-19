@@ -1,4 +1,5 @@
 import type { Hex, InputDescriptor, ResolvedDescriptor } from '../types/descriptor.js';
+import type { Provider } from '../types/index.js';
 
 export type Address = `0x${string}`;
 
@@ -19,6 +20,8 @@ export interface RegistryLookupKey {
   selector?: Hex;
   signature?: string;
   encodeTypeHash?: Hex;
+  /** Used to verify factory / proxy context when the CAIP-10 key is a clone. */
+  provider?: Provider | null;
 }
 
 export interface DescriptorCache {

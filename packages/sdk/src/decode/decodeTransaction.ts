@@ -14,6 +14,7 @@ import {
   readMetadata,
   resolveTrust,
 } from './common.js';
+import { matchContext } from './context.js';
 import { type FormatOptions, flattenFields, formatDisplayField } from './format.js';
 import { matchFormat } from './match.js';
 import type { PathContext } from './path.js';
@@ -267,17 +268,21 @@ export async function decodeTransaction(
       chainId: tx.chainId,
       address: asAddress(tx.to),
       selector,
+      provider: options.provider,
     });
     if (found) {
-      const rendered = await renderFromDescriptor(
-        tx,
-        found,
-        'official-registry',
-        selector,
-        options
-      );
-      if (rendered) {
-        return rendered;
+      const bound = await matchContext(found, tx, { provider: options.provider });
+      if (bound.matched) {
+        const rendered = await renderFromDescriptor(
+          tx,
+          found,
+          'official-registry',
+          selector,
+          options
+        );
+        if (rendered) {
+          return rendered;
+        }
       }
     }
   }

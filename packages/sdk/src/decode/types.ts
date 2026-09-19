@@ -114,12 +114,14 @@ export interface DecodeRegistry {
     address: Address;
     selector?: Hex;
     signature?: string;
+    provider?: Provider | null;
   }): Promise<ResolvedDescriptor | null>;
   findEip712?(key: {
     chainId: number;
     address: Address;
     signature?: string;
     encodeTypeHash?: Hex;
+    provider?: Provider | null;
   }): Promise<ResolvedDescriptor | null>;
 }
 

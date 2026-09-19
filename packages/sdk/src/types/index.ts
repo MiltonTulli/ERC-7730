@@ -53,6 +53,30 @@ export interface Provider {
   /** Get ENS address for name */
   getEnsAddress?: (args: { name: string }) => Promise<`0x${string}` | null>;
 
+  /** Storage slot read (EIP-1967 proxy implementation). */
+  getStorageAt?: (args: {
+    address: `0x${string}`;
+    slot: `0x${string}`;
+  }) => Promise<`0x${string}` | null | undefined>;
+
+  /** Account bytecode (EIP-1167 minimal proxy). */
+  getCode?: (args: { address: `0x${string}` }) => Promise<`0x${string}` | null | undefined>;
+
+  /**
+   * Logs for `context.contract.factory.deployEvent`.
+   * Parameter shape is a subset of viem `PublicClient.getLogs`.
+   */
+  getLogs?: (args: {
+    address?: `0x${string}` | `0x${string}`[];
+    topics?: (`0x${string}` | (`0x${string}` | null)[] | null)[];
+  }) => Promise<
+    Array<{
+      address: `0x${string}`;
+      topics: readonly `0x${string}`[];
+      data: `0x${string}`;
+    }>
+  >;
+
   /** Chain ID */
   chain?: { id: number };
 }

@@ -374,6 +374,21 @@ describe('decodeTypedData', () => {
     expect(result.fields.find((field) => field.label === 'Allowed')).toBeUndefined();
   });
 
+  it('does not apply a Permit descriptor when the EIP-712 domain name does not match', async () => {
+    const resolved = await resolveDescriptor(usdcPermitVisible, createMemoryIncludeLoader({}));
+    const result = await decodeTypedData(
+      {
+        ...permitPayload(),
+        domain: { ...permitPayload().domain, name: 'Fake Coin' },
+      },
+      { registry: registryFrom(resolved), provider: null, now: DEADLINE - 1 }
+    );
+
+    expect(result.source).toBe('inferred');
+    expect(result.confidence).toBe('low');
+    expect(result.intent).toBe('Sign Permit');
+  });
+
   it('returns inferred + low confidence when no descriptor matches', async () => {
     const result = await decodeTypedData(permitPayload(), {
       provider: null,

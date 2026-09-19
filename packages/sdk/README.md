@@ -45,6 +45,7 @@ Separate **trusted metadata** from **ABI guesses**. Sourcify and `generateDescri
 - **Official registry client** — pin `ethereum/clear-signing-erc7730-registry` by commit SHA
 - **Resolve** — merge `includes` and inline field `$ref`
 - **`decodeTransaction`** — apply official (or override) `display.formats` to calldata
+- **Context matchers** — `matchContext()` for `deployments`, `factory.deployEvent`, and EIP-1967 / EIP-1167 proxies
 - **`decodeTypedData`** — apply official EIP-712 descriptors (`index.eip712.json`)
 - **v1 calldata decode** — `ClearSigner.decode` (legacy)
 - **Untrusted fallback** — Sourcify / `generateDescriptor`, labeled by `source`
@@ -280,7 +281,7 @@ interface ClearSignerConfig {
 - `decode(tx): Promise<DecodedTransaction>` - Decode a transaction
 - `extend(descriptors): void` - Add local overrides
 
-Also exported: `decodeTransaction`, `decodeTypedData`, `createOfficialRegistry`, `validateDescriptor`, `resolveDescriptor`, `generateDescriptor`.
+Also exported: `decodeTransaction`, `decodeTypedData`, `matchContext`, `createOfficialRegistry`, `validateDescriptor`, `resolveDescriptor`, `generateDescriptor`.
 
 ### Response Types
 

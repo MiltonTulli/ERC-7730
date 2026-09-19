@@ -1,3 +1,4 @@
+import { matchContext, resolveImplementation } from '../decode/context.js';
 import { resolveDescriptor } from '../resolve/resolve.js';
 import { isPlainObject } from '../resolve/util.js';
 import { validateDescriptor } from '../schema/validate.js';
@@ -191,6 +192,19 @@ export function createOfficialRegistry(config: OfficialRegistryConfig): Official
     return pending;
   }
 
+  async function lookupIndexPath(
+    index: unknown,
+    chainId: number,
+    address: string
+  ): Promise<string | null> {
+    if (!isPlainObject(index)) {
+      return null;
+    }
+    const caip = toCaip10(chainId, address);
+    const path = index[caip];
+    return typeof path === 'string' ? path : null;
+  }
+
   async function findOverride(key: RegistryLookupKey): Promise<ResolvedDescriptor | null> {
     const address = normalizeAddress(key.address);
     for (const input of overrides) {
@@ -200,6 +214,14 @@ export function createOfficialRegistry(config: OfficialRegistryConfig): Official
           (item) => item.chainId === key.chainId && item.address === address
         )
       ) {
+        return resolved;
+      }
+      const bound = await matchContext(
+        resolved,
+        { to: address, data: '0x', chainId: key.chainId },
+        { provider: key.provider }
+      );
+      if (bound.matched) {
         return resolved;
       }
     }
@@ -213,16 +235,23 @@ export function createOfficialRegistry(config: OfficialRegistryConfig): Official
         return local;
       }
 
-      const caip = toCaip10(key.chainId, key.address);
       const index = (await loadJson(CALLDATA_INDEX)) as CalldataIndex;
       if (!isPlainObject(index)) {
         throw new OfficialRegistryError(`${CALLDATA_INDEX} is not a JSON object`);
       }
-      const path = index[caip];
-      if (typeof path !== 'string') {
-        return null;
+      const direct = await lookupIndexPath(index, key.chainId, key.address);
+      if (direct) {
+        return resolvePath(direct);
       }
-      return resolvePath(path);
+
+      const impl = await resolveImplementation(normalizeAddress(key.address), key.provider);
+      if (impl && impl.toLowerCase() !== normalizeAddress(key.address)) {
+        const viaProxy = await lookupIndexPath(index, key.chainId, impl);
+        if (viaProxy) {
+          return resolvePath(viaProxy);
+        }
+      }
+      return null;
     },
 
     async findEip712(key) {
@@ -231,16 +260,23 @@ export function createOfficialRegistry(config: OfficialRegistryConfig): Official
         return local;
       }
 
-      const caip = toCaip10(key.chainId, key.address);
       const index = (await loadJson(EIP712_INDEX)) as Eip712Index;
       if (!isPlainObject(index)) {
         throw new OfficialRegistryError(`${EIP712_INDEX} is not a JSON object`);
       }
-      const path = pickEip712Path(index[caip], key);
-      if (!path) {
-        return null;
+      const direct = pickEip712Path(index[toCaip10(key.chainId, key.address)], key);
+      if (direct) {
+        return resolvePath(direct);
       }
-      return resolvePath(path);
+
+      const impl = await resolveImplementation(normalizeAddress(key.address), key.provider);
+      if (impl && impl.toLowerCase() !== normalizeAddress(key.address)) {
+        const viaProxy = pickEip712Path(index[toCaip10(key.chainId, impl)], key);
+        if (viaProxy) {
+          return resolvePath(viaProxy);
+        }
+      }
+      return null;
     },
 
     extend(descriptors) {
