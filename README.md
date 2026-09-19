@@ -47,7 +47,7 @@ Integrators must separate **trusted metadata** from **ABI guesses**. Shipping th
 
 When `trust` is omitted, decode uses a stub (`policy: "unspecified"`) that follows the same accept/reject rows as `officialOrLocalPolicy`. Production should pass `officialOnlyPolicy()`.
 
-The v1 `ClearSigner.decode` path still reports `confidence: "high"` for some Sourcify matches and `"medium"` for inferred (known 4-byte) calls. That is a known gap, not the product rule. `decodeTransaction` uses the table above: inferred and basic are `"low"`.
+`decodeTransaction`, `decodeTypedData`, and the deprecated `ClearSigner.decode` alias all use the table above: inferred and basic are `"low"`.
 
 ## Features
 
@@ -58,7 +58,7 @@ The v1 `ClearSigner.decode` path still reports `confidence: "high"` for some Sou
 - **`decodeTransaction`** — apply official (or override) `display.formats` to calldata (`#` / `$` / `@` paths)
 - **Context matchers** — `matchContext()` binds descriptors with `deployments`, `factory.deployEvent`, and EIP-1967 / EIP-1167 proxies; a familiar selector on an unbound address is not `confidence: "high"`
 - **`decodeTypedData`** — apply official EIP-712 descriptors (`index.eip712.json`, Permit + `encodeType` hash)
-- **v1 calldata decode** — `ClearSigner.decode` (legacy; still pretty-prints known ABIs)
+- **`createClearSigner`** — bind `DecodeOptions` for repeated `decodeTransaction` / `decodeTypedData` (`ClearSigner.decode` is a deprecated alias)
 - **TrustPolicy** — `officialOnlyPolicy` / `officialOrLocalPolicy` / `composePolicies`; Sourcify is never accepted
 - **Untrusted fallback** — Sourcify / `generateDescriptor` are labeled by `source`, never trusted
 - **Warnings** — untrusted descriptors, infinite approvals, expired typed-data deadlines
@@ -100,7 +100,7 @@ console.log(result.fields);       // [{ label: "Amount", value: "100 USDC", form
 console.log(result.warnings);     // e.g. untrusted_descriptor, infinite_approval, untrusted_spender
 ```
 
-`ClearSigner.decode` remains the v1 pretty-printer. Prefer `decodeTransaction` for descriptor-backed clear signing.
+`ClearSigner.decode` is a deprecated alias of `decodeTransaction` (one minor). Prefer the functions, or `createClearSigner(options)` to bind registry / trust / provider.
 
 Production lookups should use `createOfficialRegistry({ pin })`, not the v1 embedded snapshot.
 
@@ -198,7 +198,7 @@ const draft = generateDescriptor({
 The SDK flags dangerous patterns on decoded fields:
 
 ```typescript
-const result = await signer.decode({
+const result = await decodeTransaction({
   to: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
   data: '0x095ea7b3...ffffffffffffffffffffffffffffffffffffffff', // Infinite approval
   chainId: 1
@@ -217,9 +217,16 @@ console.log(result.warnings);
 `extend()` is for app-local descriptors only (tests, unpublished contracts). It is not how protocols join the catalog.
 
 ```typescript
-const signer = new ClearSigner();
+import { createClearSigner, officialOrLocalPolicy } from '@erc7730/sdk';
 
-signer.registry.extend({
+const signer = createClearSigner({
+  registry,
+  trust: officialOrLocalPolicy(),
+  useSourcifyFallback: false,
+});
+
+signer.extend({
+  $schema: 'https://eips.ethereum.org/assets/eip-7730/erc7730-v2.schema.json',
   context: {
     $id: 'MyProtocol',
     contract: {
@@ -228,7 +235,7 @@ signer.registry.extend({
   },
   metadata: {
     owner: 'My Company',
-    info: { legalName: 'My Protocol', url: 'https://myprotocol.xyz' }
+    info: { legalName: 'My Protocol', url: 'https://myprotocol.xyz', deploymentDate: '2024-01-01T00:00:00Z' }
   },
   display: {
     formats: {
@@ -260,7 +267,7 @@ erc7730-sdk/
 
 Try it online: [miltontulli.github.io/ERC-7730](https://miltontulli.github.io/ERC-7730/)
 
-Every decode shows `source`, `warnings`, and `trust.accepted`. The demo still uses v1 `ClearSigner.decode` (embedded catalog). Production should call `decodeTransaction` with `createOfficialRegistry({ pin })` and `officialOnlyPolicy()`. Sourcify / generated output is labeled untrusted.
+Every decode shows `source`, `warnings`, and `trust.accepted`. The demo calls `createClearSigner` + `decodeTransaction` with `createOfficialRegistry({ pin })` and `officialOrLocalPolicy()`. Production should pass `officialOnlyPolicy()`. Sourcify / generated output is labeled untrusted.
 
 ```bash
 pnpm install
@@ -269,30 +276,57 @@ pnpm dev
 
 ## API Reference
 
-### `ClearSigner`
+### `decodeTransaction` / `decodeTypedData` / `createClearSigner`
+
+Primary 0.3 surface — functions plus an optional factory that binds `DecodeOptions`:
 
 ```typescript
-const signer = new ClearSigner(config?: ClearSignerConfig);
+import {
+  createClearSigner,
+  createOfficialRegistry,
+  decodeTransaction,
+  decodeTypedData,
+  officialOnlyPolicy,
+} from '@erc7730/sdk';
+
+export function createClearSigner(options?: DecodeOptions): ClearSigner;
+export function decodeTransaction(tx: TransactionInput, options?: DecodeOptions): Promise<DecodedOperation>;
+export function decodeTypedData(data: TypedDataInput, options?: DecodeOptions): Promise<DecodedOperation>;
 ```
 
-#### Config Options
-
 ```typescript
-interface ClearSignerConfig {
-  // Provider for ENS resolution and token metadata (optional)
-  // If not provided, uses public RPCs by default
-  // Pass `null` to disable network calls entirely
+interface ClearSigner {
+  decodeTransaction(tx: TransactionInput): Promise<DecodedOperation>;
+  decodeTypedData(data: TypedDataInput): Promise<DecodedOperation>;
+  extend(descriptors: InputDescriptor | readonly InputDescriptor[]): void;
+  /** @deprecated Use decodeTransaction. Alias for one minor (0.3.x). */
+  decode(tx: TransactionInput): Promise<DecodedOperation>;
+}
+
+interface DecodeOptions {
   provider?: Provider | null;
+  registry?: DecodeRegistry | OfficialRegistry;
+  trust?: TrustPolicy;            // default stub policy: "unspecified"
+  useSourcifyFallback?: boolean;  // default true; never confidence "high"
+  locale?: string;                // BCP-47, default "en"
+  now?: number | (() => number);  // unix seconds for expired_deadline
+  fromBlock?: bigint | LogBlockTag;
+  toBlock?: bigint | LogBlockTag;
 }
 ```
 
-#### Methods
+```typescript
+const signer = createClearSigner({
+  registry,
+  trust: officialOnlyPolicy(),
+  provider: null,
+  useSourcifyFallback: false,
+});
+await signer.decodeTransaction(tx);
+await signer.decodeTypedData(typedData);
+```
 
-- `decode(tx: TransactionInput): Promise<DecodedTransaction>` - Decode a transaction
-- `registry.extend(descriptor): void` - Add local overrides
-- `registry.find(signature): RegistryMatch | null` - Find descriptor by signature
-
-Also exported: `decodeTransaction`, `decodeTypedData`, `matchContext`, `officialOnlyPolicy`, `officialOrLocalPolicy`, `composePolicies`, `resolvePath`, `createOfficialRegistry`, `validateDescriptor`, `resolveDescriptor`, `generateDescriptor`.
+Also exported: `matchContext`, `officialOnlyPolicy`, `officialOrLocalPolicy`, `composePolicies`, `resolvePath`, `createOfficialRegistry`, `validateDescriptor`, `resolveDescriptor`, `generateDescriptor`.
 
 ### `decodeTransaction`
 
@@ -433,7 +467,7 @@ interface DecodedOperation {
   };
 }
 
-/** Result of `ClearSigner.decode`. */
+/** @deprecated Pre-0.3 shape. `ClearSigner.decode` now returns `DecodedOperation`. */
 interface DecodedTransaction {
   confidence: 'high' | 'medium' | 'low';
   source: 'registry' | 'sourcify' | 'inferred' | 'basic';
@@ -483,7 +517,7 @@ interface SecurityWarning {
 
 `metadata.descriptorId` is the descriptor `context.$id` when a format matches. `raw.message` is the normalized EIP-712 payload from `decodeTypedData`; `decodeTransaction` does not set it. Descriptor input may use `addressOrName`; the field `format` on the result is `addressName`.
 
-`ClearSigner.decode` may also set `source: 'sourcify'`. See the [trust model](#trust-model).
+`ClearSigner.decode` is a deprecated alias of `decodeTransaction` and returns `DecodedOperation` (not the old `DecodedTransaction` shape). See the [trust model](#trust-model).
 
 ## vs Ledger python-erc7730
 

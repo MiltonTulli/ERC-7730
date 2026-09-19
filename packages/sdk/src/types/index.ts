@@ -101,39 +101,3 @@ export interface RegistryConfig {
  * Supported chain names for convenience methods
  */
 export type ChainName = 'ethereum' | 'mainnet' | 'arbitrum' | 'optimism' | 'base' | 'polygon';
-
-/**
- * ClearSigner configuration
- */
-export interface ClearSignerConfig {
-  /**
-   * Provider for on-chain lookups (ENS, token metadata)
-   * - If omitted: uses public RPC automatically
-   * - If null: disables on-chain lookups entirely
-   */
-  provider?: Provider | null;
-
-  /**
-   * RPC URL for on-chain lookups
-   * Alternative to passing a full provider
-   */
-  rpcUrl?: string;
-
-  /**
-   * Chain ID for auto-configuration
-   * Used with rpcUrl or to select default public RPC
-   */
-  chainId?: number;
-
-  /** Registry configuration */
-  registry?: RegistryConfig;
-
-  /**
-   * Enable Sourcify fallback for verified contracts
-   * When enabled, if no descriptor is found in the registry,
-   * the SDK will try to fetch the ABI from Sourcify and generate
-   * a descriptor automatically.
-   * @default true
-   */
-  useSourcifyFallback?: boolean;
-}

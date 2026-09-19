@@ -6,24 +6,17 @@
  *
  * @example
  * ```typescript
- * import { ClearSigner } from '@erc7730/sdk';
+ * import { createOfficialRegistry, decodeTransaction, officialOnlyPolicy } from '@erc7730/sdk';
  *
- * // Works out of the box with public RPCs (no config needed!)
- * const signer = new ClearSigner();
+ * const registry = createOfficialRegistry({ pin: '9f37816afde954ff6617fb5baa346133e5af26c5' });
+ * const result = await decodeTransaction(tx, { registry, trust: officialOnlyPolicy() });
  *
- * const result = await signer.decode({
- *   to: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
- *   data: '0xa9059cbb...',
- *   chainId: 1
- * });
- *
- * console.log(result.intent);  // "Send tokens"
- * console.log(result.fields);  // [{ label: "Amount", value: "100 USDC" }, ...]
+ * console.log(result.intent);
+ * console.log(result.fields);
  * ```
  */
 
-// Main class
-export { ClearSigner } from './core/ClearSigner.js';
+export { ClearSigner, createClearSigner } from './core/ClearSigner.js';
 
 // Core utilities
 export { decodeCalldata, extractSelector } from './core/decoder.js';
@@ -173,10 +166,14 @@ export type {
   TrustReport,
 } from './decode/index.js';
 
+/**
+ * @deprecated Use {@link DecodeOptions} with {@link createClearSigner}.
+ */
+export type { DecodeOptions as ClearSignerConfig } from './decode/index.js';
+
 // Types
 export type {
   // Config
-  ClearSignerConfig,
   RegistryConfig,
   LogBlockTag,
   Provider,
