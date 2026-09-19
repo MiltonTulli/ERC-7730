@@ -28,6 +28,15 @@ const TYPE_ALIASES: Record<string, string> = {
 const WELL_KNOWN_NAMES: Record<string, string[]> = {
   'transfer(address,uint256)': ['to', 'amount'],
   'approve(address,uint256)': ['spender', 'amount'],
+  'permit(address,address,uint256,uint256,uint8,bytes32,bytes32)': [
+    'owner',
+    'spender',
+    'value',
+    'deadline',
+    'v',
+    'r',
+    's',
+  ],
   'transferFrom(address,address,uint256)': ['from', 'to', 'amount'],
   'increaseAllowance(address,uint256)': ['spender', 'addedValue'],
   'decreaseAllowance(address,uint256)': ['spender', 'subtractedValue'],

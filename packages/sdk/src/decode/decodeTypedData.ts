@@ -6,7 +6,6 @@ import {
   asRecord,
   confidenceFor,
   intentFromFormat,
-  nowSeconds,
   readMetadata,
   resolveTrust,
   sourceFromResolved,
@@ -24,8 +23,7 @@ import type {
   DecodedOperation,
   SecurityWarning,
 } from './types.js';
-
-const DEADLINE_PATH = /(?:^|[.[\]])(deadline|expiry|expiration|sigDeadline)$/i;
+import { finalizeDecodedWarnings } from './warnings.js';
 
 function chainIdOf(data: TypedDataInput): number | undefined {
   const raw = data.chainId ?? data.domain.chainId;
@@ -48,47 +46,6 @@ function verifyingContractOf(data: TypedDataInput): Address | undefined {
     return undefined;
   }
   return asAddress(value);
-}
-
-function toBigInt(value: unknown): bigint | undefined {
-  if (typeof value === 'bigint') {
-    return value;
-  }
-  if (typeof value === 'number' && Number.isFinite(value)) {
-    return BigInt(Math.trunc(value));
-  }
-  if (typeof value === 'string' && value !== '') {
-    try {
-      return BigInt(value);
-    } catch {
-      return undefined;
-    }
-  }
-  return undefined;
-}
-
-function expiredDeadlineWarning(field: DecodedField, now: number): SecurityWarning | undefined {
-  if (!DEADLINE_PATH.test(field.path)) {
-    return undefined;
-  }
-  const encoding =
-    field.params && typeof field.params.encoding === 'string' ? field.params.encoding : undefined;
-  if (encoding === 'blockheight') {
-    return undefined;
-  }
-  const ts = toBigInt(field.rawValue);
-  if (ts === undefined) {
-    return undefined;
-  }
-  if (ts >= BigInt(now)) {
-    return undefined;
-  }
-  return {
-    type: 'expired_deadline',
-    severity: 'medium',
-    message: "This signature's deadline has already passed",
-    path: field.path,
-  };
 }
 
 async function lookupEip712(
@@ -169,7 +126,6 @@ async function renderFromDescriptor(
   const required = new Set(matched.format.required ?? []);
   const fields: DecodedField[] = [];
   const warnings: SecurityWarning[] = [];
-  const now = nowSeconds(options);
 
   for (const fieldDef of flattenFields(matched.format.fields)) {
     const path = fieldDef.path ?? '';
@@ -182,10 +138,6 @@ async function renderFromDescriptor(
     }
     fields.push(formatted.field);
     warnings.push(...formatted.warnings);
-    const expired = expiredDeadlineWarning(formatted.field, now);
-    if (expired) {
-      warnings.push(expired);
-    }
   }
 
   const trust = await resolveTrust(options, source, resolved, chainId, address);
@@ -252,7 +204,6 @@ async function fallbackOperation(
   const source: DecodeSource = 'inferred';
   const fields: DecodedField[] = [];
   const typeFields = data.types[data.primaryType] ?? [];
-  const now = nowSeconds(options);
   const warnings: SecurityWarning[] = [];
 
   if (typeFields.length > 0) {
@@ -267,10 +218,6 @@ async function fallbackOperation(
         required: false,
       };
       fields.push(decoded);
-      const expired = expiredDeadlineWarning(decoded, now);
-      if (expired) {
-        warnings.push(expired);
-      }
     }
   } else {
     for (const [name, rawValue] of Object.entries(message)) {
@@ -344,10 +291,13 @@ export async function decodeTypedData(
         options
       );
       if (rendered) {
-        return rendered;
+        return finalizeDecodedWarnings(rendered, options);
       }
     }
   }
 
-  return fallbackOperation(data, message, encoded, chainId, address, options);
+  return finalizeDecodedWarnings(
+    await fallbackOperation(data, message, encoded, chainId, address, options),
+    options
+  );
 }

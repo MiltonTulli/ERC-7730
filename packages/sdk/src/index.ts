@@ -99,6 +99,7 @@ export {
   matchContext,
   resolveImplementation,
   EIP1967_IMPLEMENTATION_SLOT,
+  SECURITY_WARNING_TYPES,
 } from './decode/index.js';
 
 export {
@@ -166,6 +167,7 @@ export type {
   DecodeRegistry,
   DecodeSource,
   MatchContextOptions,
+  SecurityWarningType,
   TrustContext,
   TrustPolicy,
   TrustReport,

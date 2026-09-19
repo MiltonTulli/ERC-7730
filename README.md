@@ -97,7 +97,7 @@ console.log(result.source);       // e.g. "official-registry" | "local-override"
 console.log(result.confidence);   // "high" only when official-registry / attested is accepted
 console.log(result.trust);        // { accepted, policy: "official-only", descriptorHash, reasons }
 console.log(result.fields);       // [{ label: "Amount", value: "100 USDC", format: "tokenAmount" }, ...]
-console.log(result.warnings);     // e.g. untrusted_descriptor, infinite_approval
+console.log(result.warnings);     // e.g. untrusted_descriptor, infinite_approval, untrusted_spender
 ```
 
 `ClearSigner.decode` remains the v1 pretty-printer. Prefer `decodeTransaction` for descriptor-backed clear signing.
@@ -467,12 +467,19 @@ interface SecurityWarning {
     | 'infinite_approval'
     | 'dangerous_permissions'
     | 'untrusted_descriptor'
-    | 'expired_deadline';
+    | 'untrusted_spender'
+    | 'ownership_change'
+    | 'proxy_upgrade'
+    | 'expired_deadline'
+    | 'selector_mismatch'
+    | 'missing_metadata';
   severity: 'high' | 'medium' | 'low';
   message: string;
   path?: string;
 }
 ```
+
+`decodeTransaction` / `decodeTypedData` emit these checks when they apply. `missing_metadata` also covers unknown token decimals. `selector_mismatch` is best-effort against a Sourcify ABI.
 
 `metadata.descriptorId` is the descriptor `context.$id` when a format matches. `raw.message` is the normalized EIP-712 payload from `decodeTypedData`; `decodeTransaction` does not set it. Descriptor input may use `addressOrName`; the field `format` on the result is `addressName`.
 
