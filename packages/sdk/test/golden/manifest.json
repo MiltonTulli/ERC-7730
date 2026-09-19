@@ -1,0 +1,89 @@
+{
+  "pythonPackage": "erc7730==1.0.11",
+  "cases": [
+    {
+      "id": "weth-calldata-weth",
+      "kind": "calldata",
+      "source": "src/__tests__/fixtures/official/weth-calldata-weth.json",
+      "stageAs": "registry/weth/calldata-weth.json"
+    },
+    {
+      "id": "aave-calldata-lpv3",
+      "kind": "calldata",
+      "source": "src/__tests__/fixtures/official/aave-calldata-lpv3.json",
+      "stageAs": "registry/aave/calldata-lpv3.json"
+    },
+    {
+      "id": "lido-calldata-stETH",
+      "kind": "calldata",
+      "source": "src/__tests__/fixtures/official/lido-calldata-stETH.json",
+      "stageAs": "registry/lido/calldata-stETH.json"
+    },
+    {
+      "id": "lido-calldata-wstETH",
+      "kind": "calldata",
+      "source": "src/__tests__/fixtures/official/lido-calldata-wstETH.json",
+      "stageAs": "registry/lido/calldata-wstETH.json"
+    },
+    {
+      "id": "tether-calldata-usdt",
+      "kind": "calldata",
+      "source": "src/__tests__/fixtures/official/tether-calldata-usdt.json",
+      "stageAs": "registry/tether/calldata-usdt.json"
+    },
+    {
+      "id": "uniswap-calldata-UniswapV3Router02",
+      "kind": "calldata",
+      "source": "src/__tests__/fixtures/official/uniswap-calldata-UniswapV3Router02.json",
+      "stageAs": "registry/uniswap/calldata-UniswapV3Router02.json"
+    },
+    {
+      "id": "swell-calldata-swell",
+      "kind": "calldata",
+      "source": "src/__tests__/fixtures/official/swell-calldata-swell.json",
+      "stageAs": "registry/swell/calldata-swell.json"
+    },
+    {
+      "id": "ethena-calldata-ethena",
+      "kind": "calldata",
+      "source": "src/__tests__/fixtures/official/ethena-calldata-ethena.json",
+      "stageAs": "registry/ethena/calldata-ethena.json"
+    },
+    {
+      "id": "safe-calldata-Safe-1.4.1",
+      "kind": "calldata",
+      "source": "src/__tests__/fixtures/official/safe-calldata-Safe-1.4.1.json",
+      "stageAs": "registry/safe/calldata-Safe-1.4.1.json",
+      "includes": [
+        {
+          "source": "src/__tests__/fixtures/includes/common-Safe.json",
+          "stageAs": "registry/safe/common-Safe.json"
+        }
+      ]
+    },
+    {
+      "id": "permit-eip712-ethereum-usdc",
+      "kind": "eip712",
+      "source": "src/__tests__/fixtures/official/permit-eip712-ethereum-usdc.json",
+      "stageAs": "registry/permit/eip712-permit-ethereum-usdc.json",
+      "includes": [
+        {
+          "source": "src/__tests__/fixtures/official-registry/ercs-eip712-erc2612-permit.json",
+          "stageAs": "ercs/eip712-erc2612-permit.json"
+        }
+      ]
+    },
+    {
+      "id": "uniswap-eip712-permit2",
+      "kind": "eip712",
+      "source": "src/__tests__/fixtures/official/uniswap-eip712-permit2.json",
+      "stageAs": "registry/uniswap/eip712-uniswap-permit2.json",
+      "includes": [
+        {
+          "source": "test/golden/includes/common-eip712-uniswap.json",
+          "stageAs": "registry/uniswap/common-eip712-uniswap.json"
+        }
+      ]
+    }
+  ]
+}

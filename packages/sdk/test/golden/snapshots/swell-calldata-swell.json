@@ -1,0 +1,290 @@
+{
+  "id": "swell-calldata-swell",
+  "pythonPackage": "erc7730==1.0.11",
+  "semantic": {
+    "kind": "calldata",
+    "schemaVersion": "2",
+    "id": null,
+    "owner": "Swell",
+    "contractName": null,
+    "deployments": [
+      {
+        "chainId": 1,
+        "address": "0xfae103dc9cf190ed75350761e95403b7b8afa6c0"
+      }
+    ],
+    "domain": null,
+    "formats": {
+      "0x045fb888": {
+        "id": null,
+        "intent": "Remove addresses",
+        "interpolatedIntent": null,
+        "fields": [
+          {
+            "path": "#._addresses.[]",
+            "label": "Addresses",
+            "format": "addressName",
+            "visible": null
+          }
+        ]
+      },
+      "0x095ea7b3": {
+        "id": null,
+        "intent": "Approve spender",
+        "interpolatedIntent": null,
+        "fields": [
+          {
+            "path": "#.spender",
+            "label": "Spender",
+            "format": "addressName",
+            "visible": null
+          },
+          {
+            "path": "#.amount",
+            "label": "Amount",
+            "format": "tokenAmount",
+            "visible": null
+          }
+        ]
+      },
+      "0x23b872dd": {
+        "id": null,
+        "intent": "Transfer From",
+        "interpolatedIntent": null,
+        "fields": [
+          {
+            "path": "#.from",
+            "label": "From",
+            "format": "addressName",
+            "visible": null
+          },
+          {
+            "path": "#.to",
+            "label": "To",
+            "format": "addressName",
+            "visible": null
+          },
+          {
+            "path": "#.amount",
+            "label": "Amount",
+            "format": "tokenAmount",
+            "visible": null
+          }
+        ]
+      },
+      "0x2db6fa36": {
+        "id": null,
+        "intent": "Add to whitelist",
+        "interpolatedIntent": null,
+        "fields": [
+          {
+            "path": "#._addresses.[]",
+            "label": "Addresses",
+            "format": "addressName",
+            "visible": null
+          }
+        ]
+      },
+      "0x39509351": {
+        "id": null,
+        "intent": "Increase allowance",
+        "interpolatedIntent": null,
+        "fields": [
+          {
+            "path": "#.spender",
+            "label": "Spender",
+            "format": "addressName",
+            "visible": null
+          },
+          {
+            "path": "#.addedValue",
+            "label": "Added Value",
+            "format": "tokenAmount",
+            "visible": null
+          }
+        ]
+      },
+      "0x42966c68": {
+        "id": null,
+        "intent": null,
+        "interpolatedIntent": null,
+        "fields": [
+          {
+            "path": "#.amount",
+            "label": "Amount",
+            "format": "tokenAmount",
+            "visible": null
+          }
+        ]
+      },
+      "0x7342bbd4": {
+        "id": null,
+        "intent": "Reprice",
+        "interpolatedIntent": null,
+        "fields": [
+          {
+            "path": "#._preRewardETHReserves",
+            "label": "Pre Reward Reserves",
+            "format": "raw",
+            "visible": null
+          },
+          {
+            "path": "#._newETHRewards",
+            "label": "New ETH Rewards",
+            "format": "raw",
+            "visible": null
+          },
+          {
+            "path": "#._rswETHTotalSupply",
+            "label": "Rsw ETH Total Supply",
+            "format": "raw",
+            "visible": null
+          }
+        ]
+      },
+      "0x8ab1d681": {
+        "id": null,
+        "intent": "Unwhitelist",
+        "interpolatedIntent": null,
+        "fields": [
+          {
+            "path": "#._address",
+            "label": "Address",
+            "format": "addressName",
+            "visible": null
+          }
+        ]
+      },
+      "0x98ec183f": {
+        "id": null,
+        "intent": "Deposit via Manager",
+        "interpolatedIntent": null,
+        "fields": [
+          {
+            "path": "#._amount",
+            "label": "Amount",
+            "format": "amount",
+            "visible": null
+          },
+          {
+            "path": "#._to",
+            "label": "To",
+            "format": "addressName",
+            "visible": null
+          },
+          {
+            "path": "#._minRswETH",
+            "label": "Min Rsw ETH",
+            "format": "raw",
+            "visible": null
+          }
+        ]
+      },
+      "0xa457c2d7": {
+        "id": null,
+        "intent": "Decrease allowance",
+        "interpolatedIntent": null,
+        "fields": [
+          {
+            "path": "#.spender",
+            "label": "Spender",
+            "format": "addressName",
+            "visible": null
+          },
+          {
+            "path": "#.subtractedValue",
+            "label": "Subtracted Value",
+            "format": "tokenAmount",
+            "visible": null
+          }
+        ]
+      },
+      "0xa9059cbb": {
+        "id": null,
+        "intent": "Transfer Tokens",
+        "interpolatedIntent": null,
+        "fields": [
+          {
+            "path": "#.to",
+            "label": "To",
+            "format": "addressName",
+            "visible": null
+          },
+          {
+            "path": "#.amount",
+            "label": "Amount",
+            "format": "tokenAmount",
+            "visible": null
+          }
+        ]
+      },
+      "0xc18d7cb7": {
+        "id": null,
+        "intent": "Deposit",
+        "interpolatedIntent": null,
+        "fields": [
+          {
+            "path": "#.referral",
+            "label": "Referral",
+            "format": "addressName",
+            "visible": null
+          },
+          {
+            "path": "@.value",
+            "label": "Amount",
+            "format": "amount",
+            "visible": null
+          }
+        ]
+      },
+      "0xdd62ed3e": {
+        "id": null,
+        "intent": "Check Allowance",
+        "interpolatedIntent": null,
+        "fields": [
+          {
+            "path": "#.owner",
+            "label": "Owner",
+            "format": "addressName",
+            "visible": null
+          },
+          {
+            "path": "#.spender",
+            "label": "Spender",
+            "format": "addressName",
+            "visible": null
+          }
+        ]
+      },
+      "0xe43252d7": {
+        "id": null,
+        "intent": "Add to whitelist",
+        "interpolatedIntent": null,
+        "fields": [
+          {
+            "path": "#._address",
+            "label": "Address",
+            "format": "addressName",
+            "visible": null
+          }
+        ]
+      },
+      "0xf4f3b200": {
+        "id": null,
+        "intent": null,
+        "interpolatedIntent": null,
+        "fields": [
+          {
+            "path": "#._token",
+            "label": "Token",
+            "format": "addressName",
+            "visible": null
+          }
+        ]
+      }
+    }
+  },
+  "lint": {
+    "errorTitles": []
+  }
+}

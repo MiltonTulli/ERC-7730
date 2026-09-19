@@ -1,0 +1,199 @@
+{
+  "id": "lido-calldata-wstETH",
+  "pythonPackage": "erc7730==1.0.11",
+  "semantic": {
+    "kind": "calldata",
+    "schemaVersion": "2",
+    "id": "wstETH",
+    "owner": "Lido DAO",
+    "contractName": "wstETH",
+    "deployments": [
+      {
+        "chainId": 1,
+        "address": "0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0"
+      }
+    ],
+    "domain": null,
+    "formats": {
+      "0x095ea7b3": {
+        "id": null,
+        "intent": "Authorize spending",
+        "interpolatedIntent": "Allow to spend {amount}",
+        "fields": [
+          {
+            "path": "#.spender",
+            "label": "Spender",
+            "format": "addressName",
+            "visible": "always"
+          },
+          {
+            "path": "#.amount",
+            "label": "Amount",
+            "format": "tokenAmount",
+            "visible": "always"
+          }
+        ]
+      },
+      "0x23b872dd": {
+        "id": null,
+        "intent": "Transfer wstETH",
+        "interpolatedIntent": "Send {amount} to {recipient}",
+        "fields": [
+          {
+            "path": "#.sender",
+            "label": "Sender",
+            "format": "addressName",
+            "visible": "always"
+          },
+          {
+            "path": "#.recipient",
+            "label": "Recipient",
+            "format": "addressName",
+            "visible": "always"
+          },
+          {
+            "path": "#.amount",
+            "label": "Amount",
+            "format": "tokenAmount",
+            "visible": "always"
+          }
+        ]
+      },
+      "0x39509351": {
+        "id": null,
+        "intent": "Increase allowance",
+        "interpolatedIntent": null,
+        "fields": [
+          {
+            "path": "#.spender",
+            "label": "Spender",
+            "format": "addressName",
+            "visible": "always"
+          },
+          {
+            "path": "#.addedValue",
+            "label": "Amount",
+            "format": "tokenAmount",
+            "visible": "always"
+          }
+        ]
+      },
+      "0xa457c2d7": {
+        "id": null,
+        "intent": "Decrease allowance",
+        "interpolatedIntent": null,
+        "fields": [
+          {
+            "path": "#.spender",
+            "label": "Spender",
+            "format": "addressName",
+            "visible": "always"
+          },
+          {
+            "path": "#.subtractedValue",
+            "label": "Amount",
+            "format": "tokenAmount",
+            "visible": "always"
+          }
+        ]
+      },
+      "0xa9059cbb": {
+        "id": null,
+        "intent": "Transfer wstETH",
+        "interpolatedIntent": "Send {amount} to {recipient}",
+        "fields": [
+          {
+            "path": "#.recipient",
+            "label": "Recipient",
+            "format": "addressName",
+            "visible": "always"
+          },
+          {
+            "path": "#.amount",
+            "label": "Amount",
+            "format": "tokenAmount",
+            "visible": "always"
+          }
+        ]
+      },
+      "0xd505accf": {
+        "id": null,
+        "intent": "Permit spending",
+        "interpolatedIntent": "Permit {value} spending",
+        "fields": [
+          {
+            "path": "#.owner",
+            "label": "Owner",
+            "format": "addressName",
+            "visible": "always"
+          },
+          {
+            "path": "#.spender",
+            "label": "Spender",
+            "format": "addressName",
+            "visible": "always"
+          },
+          {
+            "path": "#.value",
+            "label": "Amount",
+            "format": "tokenAmount",
+            "visible": "always"
+          },
+          {
+            "path": "#.deadline",
+            "label": "Deadline",
+            "format": "date",
+            "visible": "always"
+          },
+          {
+            "path": "#.v",
+            "label": "V",
+            "format": null,
+            "visible": "never"
+          },
+          {
+            "path": "#.r",
+            "label": "R",
+            "format": null,
+            "visible": "never"
+          },
+          {
+            "path": "#.s",
+            "label": "S",
+            "format": null,
+            "visible": "never"
+          }
+        ]
+      },
+      "0xde0e9a3e": {
+        "id": null,
+        "intent": "Unwrap wstETH to stETH",
+        "interpolatedIntent": "Unwrap {_wstETHAmount}",
+        "fields": [
+          {
+            "path": "#._wstETHAmount",
+            "label": "wstETH amount",
+            "format": "tokenAmount",
+            "visible": "always"
+          }
+        ]
+      },
+      "0xea598cb0": {
+        "id": null,
+        "intent": "Wrap stETH",
+        "interpolatedIntent": "Wrap {_stETHAmount}",
+        "fields": [
+          {
+            "path": "#._stETHAmount",
+            "label": "stETH amount",
+            "format": "tokenAmount",
+            "visible": "always"
+          }
+        ]
+      }
+    }
+  },
+  "lint": {
+    "errorTitles": []
+  }
+}

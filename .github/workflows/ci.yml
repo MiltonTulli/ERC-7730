@@ -71,6 +71,36 @@ jobs:
           # attw 0.18 has no optional-peer-dependency rule; esm-only skips node10/CJS.
           pnpm exec attw --pack . --profile esm-only
 
+  golden-python:
+    name: Golden python-erc7730
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install python-erc7730
+        run: pip install erc7730==1.0.11
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check resolve/lint goldens
+        run: pnpm golden:python
+
   changeset:
     name: Changeset (when SDK source changes)
     if: github.event_name == 'pull_request'

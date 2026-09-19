@@ -1,0 +1,80 @@
+{
+  "id": "lido-calldata-stETH",
+  "pythonPackage": "erc7730==1.0.11",
+  "semantic": {
+    "kind": "calldata",
+    "schemaVersion": "2",
+    "id": "stETH",
+    "owner": "Lido DAO",
+    "contractName": "stETH",
+    "deployments": [
+      {
+        "chainId": 1,
+        "address": "0xae7ab96520de3a18e5e111b5eaab095312d7fe84"
+      }
+    ],
+    "domain": null,
+    "formats": {
+      "0x095ea7b3": {
+        "id": null,
+        "intent": "Approve stETH",
+        "interpolatedIntent": "Allow to spend {_amount}",
+        "fields": [
+          {
+            "path": "#._spender",
+            "label": "Spender",
+            "format": "addressName",
+            "visible": "always"
+          },
+          {
+            "path": "#._amount",
+            "label": "Amount",
+            "format": "tokenAmount",
+            "visible": "always"
+          }
+        ]
+      },
+      "0xa1903eab": {
+        "id": null,
+        "intent": "Stake ETH",
+        "interpolatedIntent": "Stake {@.value}",
+        "fields": [
+          {
+            "path": "@.value",
+            "label": "Amount",
+            "format": "amount",
+            "visible": null
+          },
+          {
+            "path": "#._referral",
+            "label": "Referral",
+            "format": null,
+            "visible": "never"
+          }
+        ]
+      },
+      "0xa9059cbb": {
+        "id": null,
+        "intent": "Transfer stETH",
+        "interpolatedIntent": "Send {_amount} to {_recipient}",
+        "fields": [
+          {
+            "path": "#._recipient",
+            "label": "Recipient",
+            "format": "addressName",
+            "visible": "always"
+          },
+          {
+            "path": "#._amount",
+            "label": "Amount",
+            "format": "tokenAmount",
+            "visible": "always"
+          }
+        ]
+      }
+    }
+  },
+  "lint": {
+    "errorTitles": []
+  }
+}
