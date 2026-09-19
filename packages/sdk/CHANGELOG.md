@@ -1,5 +1,16 @@
 # @erc7730/sdk
 
+## 0.3.0
+
+### Minor Changes
+
+- 7d3fb3c: Add `decodeTransaction()` to render intent and formatted fields from official (or override) descriptors, plus a `#` / `$` / `@` path engine.
+- 81534a4: Add `decodeTypedData()` to render EIP-712 payloads from the official eip712 index (Permit + encodeType disambiguation).
+- 9329a74: Expand decode security warnings (`untrusted_spender`, `ownership_change`, `proxy_upgrade`, `selector_mismatch`, `missing_metadata`) with severity and user-facing messages.
+- 68ace56: Match ERC-7730 v2 context (`deployments`, `factory.deployEvent`, EIP-1967 / EIP-1167 proxies) before applying a descriptor.
+- 8e10384: Add `resolvePath()` for ERC-7730 `#`, `$`, and `@` path roots (nested structs, arrays, slices, and relative tokenPath / collectionPath).
+- b5b2b22: Add pluggable TrustPolicy (`officialOnlyPolicy`, `officialOrLocalPolicy`, `composePolicies`) so wallets decide which descriptors to accept. Registry `extend()` hits are tagged `local-override`.
+
 ## 0.2.1
 
 ### Patch Changes
