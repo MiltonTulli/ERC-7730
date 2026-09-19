@@ -151,13 +151,12 @@ function daiPermitPayload(): TypedDataInput {
 }
 
 function registryFrom(resolved: ResolvedDescriptor): DecodeRegistry {
-  const hit: ResolvedDescriptor = { ...resolved, source: 'official-registry' };
   return {
     async findCalldata() {
       return null;
     },
     async findEip712() {
-      return hit;
+      return resolved;
     },
   };
 }
@@ -196,7 +195,7 @@ describe('decodeTypedData', () => {
   it('renders a USDC Permit owner, spender, value, and deadline', async () => {
     const resolved = await resolveDescriptor(usdcPermitVisible, createMemoryIncludeLoader({}));
     const result = await decodeTypedData(permitPayload(), {
-      registry: registryFrom(resolved),
+      registry: registryFrom({ ...resolved, source: 'official-registry' }),
       provider: null,
       now: DEADLINE - 1,
     });
@@ -223,7 +222,7 @@ describe('decodeTypedData', () => {
   it('adds expired_deadline when the clock is frozen after the deadline', async () => {
     const resolved = await resolveDescriptor(usdcPermitVisible, createMemoryIncludeLoader({}));
     const result = await decodeTypedData(permitPayload(), {
-      registry: registryFrom(resolved),
+      registry: registryFrom({ ...resolved, source: 'official-registry' }),
       provider: null,
       now: () => DEADLINE + 1,
     });
