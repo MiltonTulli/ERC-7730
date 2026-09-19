@@ -133,8 +133,10 @@ export interface DecodeOptions {
   provider?: Provider | null;
   registry?: DecodeRegistry | OfficialRegistry;
   /**
-   * Reserved for #11. When omitted, decode uses a stub
-   * (`policy: "unspecified"`). Sourcify / inferred / basic are never accepted.
+   * Wallet-supplied policy. When omitted, decode uses a stub
+   * (`policy: "unspecified"`) that accepts official-registry / attested /
+   * local-override and rejects Sourcify / generated / inferred / basic.
+   * Production should pass `officialOnlyPolicy()`.
    */
   trust?: TrustPolicy;
   /** @default true */

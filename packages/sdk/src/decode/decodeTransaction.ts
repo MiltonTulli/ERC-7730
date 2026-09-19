@@ -8,11 +8,13 @@ import type { TransactionInput } from '../types/index.js';
 import { decodeNamedArgs, parseDeclaration } from './abi.js';
 import {
   ZERO_ADDRESS,
+  appendUntrustedWarning,
   asAddress,
   confidenceFor,
   intentFromFormat,
   readMetadata,
   resolveTrust,
+  sourceFromResolved,
 } from './common.js';
 import { matchContext } from './context.js';
 import { type FormatOptions, flattenFields, formatDisplayField } from './format.js';
@@ -135,6 +137,7 @@ async function renderFromDescriptor(
   }
 
   const trust = await resolveTrust(options, source, resolved, tx.chainId, asAddress(tx.to));
+  appendUntrustedWarning(warnings, trust, source);
   const meta = readMetadata(resolved.merged);
   const declaration = matched.declaration;
 
@@ -229,26 +232,30 @@ function fallbackOperation(
     }
   }
 
-  return resolveTrust(options, source, undefined, tx.chainId, asAddress(tx.to)).then((trust) => ({
-    confidence: confidenceFor(source, trust.accepted),
-    source,
-    intent: inferIntentName(raw?.functionName ?? known?.name ?? null),
-    functionName: raw?.functionName ?? known?.name ?? undefined,
-    signature: raw?.signature ?? known?.signature ?? selector,
-    selector,
-    fields,
-    excluded: [],
-    warnings: [],
-    trust,
-    metadata: {
-      chainId: tx.chainId,
-      contractAddress: asAddress(tx.to),
-    },
-    raw: {
+  return resolveTrust(options, source, undefined, tx.chainId, asAddress(tx.to)).then((trust) => {
+    const warnings: SecurityWarning[] = [];
+    appendUntrustedWarning(warnings, trust, source);
+    return {
+      confidence: confidenceFor(source, trust.accepted),
+      source,
+      intent: inferIntentName(raw?.functionName ?? known?.name ?? null),
+      functionName: raw?.functionName ?? known?.name ?? undefined,
+      signature: raw?.signature ?? known?.signature ?? selector,
       selector,
-      args: raw?.args,
-    },
-  }));
+      fields,
+      excluded: [],
+      warnings,
+      trust,
+      metadata: {
+        chainId: tx.chainId,
+        contractAddress: asAddress(tx.to),
+      },
+      raw: {
+        selector,
+        args: raw?.args,
+      },
+    };
+  });
 }
 
 /**
@@ -282,7 +289,7 @@ export async function decodeTransaction(
         const rendered = await renderFromDescriptor(
           tx,
           found,
-          'official-registry',
+          sourceFromResolved(found),
           selector,
           options
         );

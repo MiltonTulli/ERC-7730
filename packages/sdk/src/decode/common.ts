@@ -6,6 +6,7 @@ import type {
   DecodeOptions,
   DecodeSource,
   DecodedField,
+  SecurityWarning,
   TrustReport,
 } from './types.js';
 
@@ -67,8 +68,61 @@ export function stubTrust(source: DecodeSource, hash?: Hex): TrustReport {
     accepted,
     policy: 'unspecified',
     descriptorHash: hash,
-    reasons: accepted ? [] : [`source "${source}" is untrusted until TrustPolicy (#11)`],
+    reasons: accepted
+      ? [`source "${source}" accepted`]
+      : [`source "${source}" rejected`, 'untrusted_descriptor'],
   };
+}
+
+export function sourceFromResolved(
+  resolved: ResolvedDescriptor,
+  fallback: DecodeSource = 'local-override'
+): DecodeSource {
+  return resolved.source ?? fallback;
+}
+
+export function finalizeTrust(
+  report: TrustReport,
+  source: DecodeSource,
+  descriptor: ResolvedDescriptor | undefined,
+  policyId?: string
+): TrustReport {
+  const accepted = Boolean(report.accepted);
+  const reasons =
+    Array.isArray(report.reasons) && report.reasons.length > 0
+      ? report.reasons
+      : accepted
+        ? [`source "${source}" accepted`]
+        : [`source "${source}" rejected`];
+  return {
+    accepted,
+    policy: report.policy || policyId || 'unspecified',
+    descriptorHash: report.descriptorHash ?? descriptor?.hash,
+    attesters: report.attesters,
+    reasons,
+  };
+}
+
+export function appendUntrustedWarning(
+  warnings: SecurityWarning[],
+  trust: TrustReport,
+  source: DecodeSource
+): void {
+  if (trust.accepted) {
+    return;
+  }
+  if (warnings.some((warning) => warning.type === 'untrusted_descriptor')) {
+    return;
+  }
+  const usedDescriptor = Boolean(trust.descriptorHash);
+  const looksCurated = usedDescriptor || source === 'sourcify' || source === 'generated';
+  warnings.push({
+    type: 'untrusted_descriptor',
+    severity: looksCurated ? 'high' : 'medium',
+    message: usedDescriptor
+      ? 'Display metadata was not accepted by the trust policy'
+      : `Source "${source}" is not accepted by the trust policy`,
+  });
 }
 
 export async function resolveTrust(
@@ -79,12 +133,13 @@ export async function resolveTrust(
   address?: Address
 ): Promise<TrustReport> {
   if (options?.trust) {
-    return options.trust.evaluate({
+    const report = await options.trust.evaluate({
       descriptor,
       chainId,
       address,
       source,
     });
+    return finalizeTrust(report, source, descriptor, options.trust.id);
   }
   return stubTrust(source, descriptor?.hash);
 }

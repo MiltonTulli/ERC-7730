@@ -30,14 +30,16 @@ Send tokens
 
 Separate **trusted metadata** from **ABI guesses**. Sourcify and `generateDescriptor` are untrusted fallbacks — **never** `confidence: "high"`.
 
-| `source` | `trust.accepted` (documented default) | `confidence` |
-| --- | --- | --- |
-| Official registry (commit SHA pin) or attestation | `true` | `"high"` |
-| Local `extend()` override | policy-defined | medium / high |
-| Sourcify / `generateDescriptor` | **`false`** | **never `"high"`** |
-| Inferred / basic | **`false`** | `"medium"` / `"low"` |
+| `source` | `officialOnlyPolicy` | `officialOrLocalPolicy` | `confidence` if accepted |
+| --- | --- | --- | --- |
+| Official registry (commit SHA pin) or attestation | `accepted: true` | `accepted: true` | `"high"` |
+| Local `extend()` override | **`false`** | `true` | `"medium"` |
+| Sourcify / `generateDescriptor` | **`false`** | **`false`** | **never `"high"`** |
+| Inferred / basic | **`false`** | **`false`** | `"low"` |
 
-`TrustPolicy` is not wired yet. Until then, **`source` is the signal**. The v1 `ClearSigner.decode` path may still report `confidence: "high"` for some Sourcify matches — that is a known gap, not the product rule.
+**Clear signing is not ABI pretty-printing.** Inject `officialOnlyPolicy()`, `officialOrLocalPolicy()`, or `composePolicies()`. Sourcify never returns `trust.accepted: true` under `officialOnlyPolicy`. When `trust` is omitted, decode uses a stub (`policy: "unspecified"`) with the same accept/reject rows as `officialOrLocalPolicy`.
+
+The v1 `ClearSigner.decode` path may still report `confidence: "high"` for some Sourcify matches — that is a known gap, not the product rule.
 
 ## Features
 
@@ -48,8 +50,9 @@ Separate **trusted metadata** from **ABI guesses**. Sourcify and `generateDescri
 - **Context matchers** — `matchContext()` for `deployments`, `factory.deployEvent`, and EIP-1967 / EIP-1167 proxies
 - **`decodeTypedData`** — apply official EIP-712 descriptors (`index.eip712.json`)
 - **v1 calldata decode** — `ClearSigner.decode` (legacy)
+- **TrustPolicy** — `officialOnlyPolicy` / `officialOrLocalPolicy` / `composePolicies`
 - **Untrusted fallback** — Sourcify / `generateDescriptor`, labeled by `source`
-- **Warnings** — infinite approvals and similar risks
+- **Warnings** — untrusted descriptors, infinite approvals, and similar risks
 - **Tree-shakeable** — minimal dependencies
 
 ## Installation
@@ -61,7 +64,11 @@ npm install @erc7730/sdk
 ## Quick Start
 
 ```typescript
-import { createOfficialRegistry, decodeTransaction } from '@erc7730/sdk';
+import {
+  createOfficialRegistry,
+  decodeTransaction,
+  officialOnlyPolicy,
+} from '@erc7730/sdk';
 
 const registry = createOfficialRegistry({
   pin: '9f37816afde954ff6617fb5baa346133e5af26c5',
@@ -73,13 +80,13 @@ const result = await decodeTransaction(
     data: '0xa9059cbb000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa960450000000000000000000000000000000000000000000000000000000005f5e100',
     chainId: 1,
   },
-  { registry, useSourcifyFallback: false }
+  { registry, trust: officialOnlyPolicy(), useSourcifyFallback: false }
 );
 
 console.log(result.intent);
 console.log(result.source);     // "official-registry" when the client matches
-console.log(result.confidence); // "high" only for official-registry / attested
-console.log(result.trust);      // stub { policy: "unspecified", accepted } until #11
+console.log(result.confidence); // "high" only when official-registry / attested is accepted
+console.log(result.trust);      // { accepted, policy: "official-only", descriptorHash, reasons }
 console.log(result.fields);
 ```
 
@@ -281,7 +288,7 @@ interface ClearSignerConfig {
 - `decode(tx): Promise<DecodedTransaction>` - Decode a transaction
 - `extend(descriptors): void` - Add local overrides
 
-Also exported: `decodeTransaction`, `decodeTypedData`, `matchContext`, `createOfficialRegistry`, `validateDescriptor`, `resolveDescriptor`, `generateDescriptor`.
+Also exported: `decodeTransaction`, `decodeTypedData`, `matchContext`, `officialOnlyPolicy`, `officialOrLocalPolicy`, `composePolicies`, `createOfficialRegistry`, `validateDescriptor`, `resolveDescriptor`, `generateDescriptor`.
 
 ### Response Types
 
@@ -322,7 +329,7 @@ Ethereum, Arbitrum, Optimism, Base, Polygon, BSC, Avalanche, and more.
 
 Try it online: [miltontulli.github.io/ERC-7730](https://miltontulli.github.io/ERC-7730/)
 
-The demo shows `source`, `warnings`, and a `trust.accepted` placeholder on every decode.
+The demo shows `source`, `warnings`, and `trust.accepted` on every decode. Prefer `decodeTransaction` with `officialOnlyPolicy()` in production.
 
 ## Contributing
 

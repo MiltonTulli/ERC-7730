@@ -183,6 +183,11 @@ export function createOfficialRegistry(config: OfficialRegistryConfig): Official
     return resolveDescriptor(input, includeLoader(path));
   }
 
+  async function resolveOfficial(path: string): Promise<ResolvedDescriptor> {
+    const resolved = await resolvePath(path);
+    return { ...resolved, source: 'official-registry' as const };
+  }
+
   async function resolveOverride(input: InputDescriptor): Promise<ResolvedDescriptor> {
     let pending = resolvedOverrides.get(input);
     if (!pending) {
@@ -263,7 +268,7 @@ export function createOfficialRegistry(config: OfficialRegistryConfig): Official
     async findCalldata(key) {
       const local = await findOverride(key, 'calldata');
       if (local) {
-        return local;
+        return { ...local, source: 'local-override' as const };
       }
 
       const index = (await loadJson(CALLDATA_INDEX)) as CalldataIndex;
@@ -272,14 +277,14 @@ export function createOfficialRegistry(config: OfficialRegistryConfig): Official
       }
       const direct = await lookupIndexPath(index, key.chainId, key.address);
       if (direct) {
-        return resolvePath(direct);
+        return resolveOfficial(direct);
       }
 
       const impl = await resolveImplementation(normalizeAddress(key.address), key.provider);
       if (impl && impl.toLowerCase() !== normalizeAddress(key.address)) {
         const viaProxy = await lookupIndexPath(index, key.chainId, impl);
         if (viaProxy) {
-          return resolvePath(viaProxy);
+          return resolveOfficial(viaProxy);
         }
       }
       // Official `index.calldata.json` is CAIP-10 of `contract.deployments`
@@ -291,7 +296,7 @@ export function createOfficialRegistry(config: OfficialRegistryConfig): Official
     async findEip712(key) {
       const local = await findOverride(key, 'eip712');
       if (local) {
-        return local;
+        return { ...local, source: 'local-override' as const };
       }
 
       const index = (await loadJson(EIP712_INDEX)) as Eip712Index;
@@ -300,14 +305,14 @@ export function createOfficialRegistry(config: OfficialRegistryConfig): Official
       }
       const direct = pickEip712Path(index[toCaip10(key.chainId, key.address)], key);
       if (direct) {
-        return resolvePath(direct);
+        return resolveOfficial(direct);
       }
 
       const impl = await resolveImplementation(normalizeAddress(key.address), key.provider);
       if (impl && impl.toLowerCase() !== normalizeAddress(key.address)) {
         const viaProxy = pickEip712Path(index[toCaip10(key.chainId, impl)], key);
         if (viaProxy) {
-          return resolvePath(viaProxy);
+          return resolveOfficial(viaProxy);
         }
       }
       return null;

@@ -310,8 +310,8 @@ describe('decodeTransaction context matchers', () => {
       { registry: registryFrom(resolved), provider, useSourcifyFallback: false }
     );
 
-    expect(result.source).toBe('official-registry');
-    expect(result.confidence).toBe('high');
+    expect(result.source).toBe('local-override');
+    expect(result.confidence).toBe('medium');
     expect(result.intent).toBe('Approve Safe hash');
   });
 

@@ -468,7 +468,7 @@ function generateCodeSnippet(result: DecodedTransaction): string {
 
   const customDescriptorCode = customDescriptor
     ? `
-// Local override (untrusted until TrustPolicy)
+// Local override for legacy ClearSigner.decode (TrustPolicy is decodeTransaction-only)
 const customDescriptor = ${JSON.stringify(customDescriptor, replacer, 2)};
 
 signer.extend([customDescriptor]);
@@ -508,13 +508,13 @@ function getTrustDisplay(source: string, custom: boolean): TrustDisplay {
     return {
       accepted: false,
       label: 'false',
-      note: 'Sourcify / generateDescriptor / inferred is an untrusted fallback. Never confidence: "high". TrustPolicy will set trust.accepted.',
+      note: 'Sourcify / generateDescriptor / inferred is an untrusted fallback. Never confidence: "high". officialOnlyPolicy() sets trust.accepted: false.',
     };
   }
   return {
     accepted: false,
     label: 'pending',
-    note: 'TrustPolicy is not wired yet. v1 ClearSigner uses an embedded catalog — pin createOfficialRegistry({ pin }) in production.',
+    note: 'v1 ClearSigner uses an embedded catalog. Prefer decodeTransaction with createOfficialRegistry({ pin }) and officialOnlyPolicy() in production.',
   };
 }
 
