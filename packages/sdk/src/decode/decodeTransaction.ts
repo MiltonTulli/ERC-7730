@@ -3,29 +3,27 @@ import { getSignatureBySelector } from '../core/signatures.js';
 import { generateDescriptor } from '../generate/generate.js';
 import { fetchFromSourcify } from '../providers/sourcify.js';
 import { createMemoryIncludeLoader, resolveDescriptor } from '../resolve/index.js';
-import { isPlainObject } from '../resolve/util.js';
 import type { Hex, InputDescriptor, ResolvedDescriptor } from '../types/descriptor.js';
 import type { TransactionInput } from '../types/index.js';
 import { decodeNamedArgs, parseDeclaration } from './abi.js';
+import {
+  ZERO_ADDRESS,
+  asAddress,
+  confidenceFor,
+  intentFromFormat,
+  readMetadata,
+  resolveTrust,
+} from './common.js';
 import { type FormatOptions, flattenFields, formatDisplayField } from './format.js';
 import { matchFormat } from './match.js';
 import type { PathContext } from './path.js';
 import type {
-  Address,
-  Confidence,
   DecodeOptions,
   DecodeSource,
   DecodedField,
   DecodedOperation,
   SecurityWarning,
-  TrustReport,
 } from './types.js';
-
-const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
-
-function asAddress(value: string): Address {
-  return value as Address;
-}
 
 function asHex(value: string): Hex {
   return value as Hex;
@@ -43,37 +41,6 @@ function parseTxValue(value: TransactionInput['value']): bigint | undefined {
   } catch {
     return undefined;
   }
-}
-
-function intentFromFormat(
-  intent: unknown,
-  interpolated: unknown,
-  fields: DecodedField[],
-  locale: string
-): string {
-  if (typeof interpolated === 'string' && interpolated.length > 0) {
-    const replaced = interpolated.replace(/\{([^{}]+)\}/g, (full, path: string) => {
-      const match = fields.find(
-        (field) => field.path === path || field.path === `#.${path}` || field.path.endsWith(path)
-      );
-      return match ? match.value : full;
-    });
-    if (!/\{[^{}]+\}/.test(replaced)) {
-      return replaced;
-    }
-  }
-  if (typeof intent === 'string' && intent.length > 0) {
-    return intent;
-  }
-  if (isPlainObject(intent)) {
-    return (
-      (typeof intent[locale] === 'string' && intent[locale]) ||
-      (typeof intent.en === 'string' && intent.en) ||
-      (Object.values(intent).find((value) => typeof value === 'string') as string | undefined) ||
-      'Contract interaction'
-    );
-  }
-  return 'Contract interaction';
 }
 
 function inferIntentName(functionName: string | null): string {
@@ -101,68 +68,6 @@ function inferIntentName(functionName: string | null): string {
     }
   }
   return functionName.charAt(0).toUpperCase() + functionName.slice(1);
-}
-
-function confidenceFor(source: DecodeSource, accepted: boolean): Confidence {
-  if (source === 'official-registry' || source === 'attested') {
-    return accepted ? 'high' : 'low';
-  }
-  if (source === 'local-override') {
-    return accepted ? 'medium' : 'low';
-  }
-  return 'low';
-}
-
-function stubTrust(source: DecodeSource, hash?: Hex): TrustReport {
-  const accepted =
-    source === 'official-registry' || source === 'attested' || source === 'local-override';
-  return {
-    accepted,
-    policy: 'unspecified',
-    descriptorHash: hash,
-    reasons: accepted ? [] : [`source "${source}" is untrusted until TrustPolicy (#11)`],
-  };
-}
-
-async function resolveTrust(
-  options: DecodeOptions | undefined,
-  source: DecodeSource,
-  descriptor: ResolvedDescriptor | undefined,
-  tx: TransactionInput
-): Promise<TrustReport> {
-  if (options?.trust) {
-    return options.trust.evaluate({
-      descriptor,
-      chainId: tx.chainId,
-      address: asAddress(tx.to),
-      source,
-    });
-  }
-  return stubTrust(source, descriptor?.hash);
-}
-
-function readMetadata(merged: unknown): {
-  owner?: string;
-  contractName?: string;
-  protocolUrl?: string;
-  descriptorId?: string;
-} {
-  if (!isPlainObject(merged)) {
-    return {};
-  }
-  const metadata = asRecord(merged.metadata);
-  const context = asRecord(merged.context);
-  const info = asRecord(metadata?.info);
-  return {
-    owner: typeof metadata?.owner === 'string' ? metadata.owner : undefined,
-    contractName: typeof metadata?.contractName === 'string' ? metadata.contractName : undefined,
-    protocolUrl: typeof info?.url === 'string' ? info.url : undefined,
-    descriptorId: typeof context?.$id === 'string' ? context.$id : undefined,
-  };
-}
-
-function asRecord(value: unknown): Record<string, unknown> | undefined {
-  return isPlainObject(value) ? value : undefined;
 }
 
 function selectorFromTx(tx: TransactionInput): Hex | undefined {
@@ -228,7 +133,7 @@ async function renderFromDescriptor(
     warnings.push(...formatted.warnings);
   }
 
-  const trust = await resolveTrust(options, source, resolved, tx);
+  const trust = await resolveTrust(options, source, resolved, tx.chainId, asAddress(tx.to));
   const meta = readMetadata(resolved.merged);
   const declaration = matched.declaration;
 
@@ -323,7 +228,7 @@ function fallbackOperation(
     }
   }
 
-  return resolveTrust(options, source, undefined, tx).then((trust) => ({
+  return resolveTrust(options, source, undefined, tx.chainId, asAddress(tx.to)).then((trust) => ({
     confidence: confidenceFor(source, trust.accepted),
     source,
     intent: inferIntentName(raw?.functionName ?? known?.name ?? null),

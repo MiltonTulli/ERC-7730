@@ -1,6 +1,6 @@
 import type { OfficialRegistry } from '../official-registry/types.js';
 import type { Hex, ResolvedDescriptor } from '../types/descriptor.js';
-import type { Provider, TransactionInput } from '../types/index.js';
+import type { Provider, TransactionInput, TypedDataInput } from '../types/index.js';
 
 export type Address = `0x${string}`;
 
@@ -115,6 +115,12 @@ export interface DecodeRegistry {
     selector?: Hex;
     signature?: string;
   }): Promise<ResolvedDescriptor | null>;
+  findEip712?(key: {
+    chainId: number;
+    address: Address;
+    signature?: string;
+    encodeTypeHash?: Hex;
+  }): Promise<ResolvedDescriptor | null>;
 }
 
 export interface DecodeOptions {
@@ -129,6 +135,11 @@ export interface DecodeOptions {
   useSourcifyFallback?: boolean;
   /** BCP-47 locale for dates / amounts. @default "en" */
   locale?: string;
+  /**
+   * Unix time in seconds for `expired_deadline`. Tests inject a frozen clock.
+   * @default `Math.floor(Date.now() / 1000)`
+   */
+  now?: number | (() => number);
 }
 
-export type { TransactionInput };
+export type { TransactionInput, TypedDataInput };

@@ -39,7 +39,7 @@ export {
 // Types
 export { validateDescriptor } from './schema/index.js';
 
-export { decodeTransaction } from './decode/index.js';
+export { decodeTransaction, decodeTypedData } from './decode/index.js';
 
 export {
   resolveDescriptor,
@@ -98,6 +98,7 @@ export type {
   RegistryConfig,
   Provider,
   TransactionInput,
+  TypedDataInput,
   ERC7730Descriptor,
   ERC7730V2Descriptor,
   DecodedTransaction,
