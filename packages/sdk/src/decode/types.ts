@@ -45,17 +45,26 @@ export interface DecodedField {
   params?: Record<string, unknown>;
 }
 
+/**
+ * Source of truth for `SecurityWarning.type`. Adding a check here is what
+ * keeps it in the public union; do not maintain a parallel type list.
+ */
+export const SECURITY_WARNING_TYPES = [
+  'infinite_approval',
+  'dangerous_permissions',
+  'untrusted_descriptor',
+  'untrusted_spender',
+  'ownership_change',
+  'proxy_upgrade',
+  'expired_deadline',
+  'selector_mismatch',
+  'missing_metadata',
+] as const;
+
+export type SecurityWarningType = (typeof SECURITY_WARNING_TYPES)[number];
+
 export interface SecurityWarning {
-  type:
-    | 'infinite_approval'
-    | 'dangerous_permissions'
-    | 'untrusted_descriptor'
-    | 'untrusted_spender'
-    | 'ownership_change'
-    | 'proxy_upgrade'
-    | 'expired_deadline'
-    | 'selector_mismatch'
-    | 'missing_metadata';
+  type: SecurityWarningType;
   severity: 'high' | 'medium' | 'low';
   message: string;
   path?: string;

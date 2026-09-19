@@ -27,6 +27,7 @@ import type {
   DecodedOperation,
   SecurityWarning,
 } from './types.js';
+import { finalizeDecodedWarnings, sourcifySelectorMismatch } from './warnings.js';
 
 function asHex(value: string): Hex {
   return value as Hex;
@@ -173,15 +174,16 @@ async function trySourcify(
   tx: TransactionInput,
   selector: Hex | undefined,
   options: DecodeOptions | undefined
-): Promise<DecodedOperation | null> {
+): Promise<{ operation: DecodedOperation | null; selectorMismatch: boolean }> {
   if (!tx.to || tx.to.toLowerCase() === ZERO_ADDRESS) {
-    return null;
+    return { operation: null, selectorMismatch: false };
   }
   try {
     const result = await fetchFromSourcify(tx.chainId, tx.to);
     if (!result.verified || !result.abi) {
-      return null;
+      return { operation: null, selectorMismatch: false };
     }
+    const selectorMismatch = selector ? sourcifySelectorMismatch(result.abi, selector) : false;
     const generated = generateDescriptor({
       chainId: tx.chainId,
       address: tx.to,
@@ -192,9 +194,10 @@ async function trySourcify(
       generated as InputDescriptor,
       createMemoryIncludeLoader({})
     );
-    return renderFromDescriptor(tx, resolved, 'sourcify', selector, options);
+    const operation = await renderFromDescriptor(tx, resolved, 'sourcify', selector, options);
+    return { operation, selectorMismatch };
   } catch {
-    return null;
+    return { operation: null, selectorMismatch: false };
   }
 }
 
@@ -294,7 +297,7 @@ export async function decodeTransaction(
           options
         );
         if (rendered) {
-          return rendered;
+          return finalizeDecodedWarnings(rendered, options);
         }
       }
     }
@@ -302,10 +305,16 @@ export async function decodeTransaction(
 
   if (useSourcify && selector) {
     const sourcify = await trySourcify(tx, selector, options);
-    if (sourcify) {
-      return sourcify;
+    if (sourcify.operation) {
+      return finalizeDecodedWarnings(sourcify.operation, options, {
+        selectorMismatch: sourcify.selectorMismatch,
+      });
+    }
+    if (sourcify.selectorMismatch) {
+      const fallback = await fallbackOperation(tx, options);
+      return finalizeDecodedWarnings(fallback, options, { selectorMismatch: true });
     }
   }
 
-  return fallbackOperation(tx, options);
+  return finalizeDecodedWarnings(await fallbackOperation(tx, options), options);
 }

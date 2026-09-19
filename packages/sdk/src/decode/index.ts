@@ -4,6 +4,7 @@ export { resolvePath, PathResolveError } from './path.js';
 export { matchFormat } from './match.js';
 export { matchContext, resolveImplementation, EIP1967_IMPLEMENTATION_SLOT } from './context.js';
 export { canonicalizeDeclaration, parseDeclaration } from './abi.js';
+export { SECURITY_WARNING_TYPES } from './types.js';
 
 export type {
   Address,
@@ -15,6 +16,7 @@ export type {
   DecodeSource,
   FieldFormat,
   SecurityWarning,
+  SecurityWarningType,
   TrustContext,
   TrustPolicy,
   TrustReport,

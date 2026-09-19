@@ -142,6 +142,23 @@ export const COMMON_SIGNATURES: Record<string, FunctionSignature> = {
     name: 'permit',
   },
 
+  // Ownership
+  '0xf2fde38b': {
+    selector: '0xf2fde38b',
+    signature: 'transferOwnership(address)',
+    name: 'transferOwnership',
+  },
+  '0x13af4035': {
+    selector: '0x13af4035',
+    signature: 'setOwner(address)',
+    name: 'setOwner',
+  },
+  '0x8f283970': {
+    selector: '0x8f283970',
+    signature: 'changeAdmin(address)',
+    name: 'changeAdmin',
+  },
+
   // Proxy patterns
   '0x5c60da1b': {
     selector: '0x5c60da1b',
@@ -152,6 +169,11 @@ export const COMMON_SIGNATURES: Record<string, FunctionSignature> = {
     selector: '0x3659cfe6',
     signature: 'upgradeTo(address)',
     name: 'upgradeTo',
+  },
+  '0x4f1ef286': {
+    selector: '0x4f1ef286',
+    signature: 'upgradeToAndCall(address,bytes)',
+    name: 'upgradeToAndCall',
   },
 
   // Gnosis Safe
