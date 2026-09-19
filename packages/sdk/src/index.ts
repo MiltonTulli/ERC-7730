@@ -102,6 +102,12 @@ export {
 } from './decode/index.js';
 
 export {
+  composePolicies,
+  officialOnlyPolicy,
+  officialOrLocalPolicy,
+} from './trust/index.js';
+
+export {
   resolveDescriptor,
   descriptorHash,
   createMemoryIncludeLoader,

@@ -96,7 +96,7 @@ export function generateDescriptor(options: GenerateOptions): ERC7730Descriptor 
 
   // Build descriptor
   const descriptor: ERC7730Descriptor = {
-    $schema: 'https://eips.ethereum.org/EIPS/eip-7730',
+    $schema: 'https://eips.ethereum.org/assets/eip-7730/erc7730-v1.schema.json',
     context: {
       contract: {
         abi: abi as unknown as readonly unknown[],

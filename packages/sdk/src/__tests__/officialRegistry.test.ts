@@ -112,6 +112,7 @@ describe('findCalldata', () => {
   it('returns the official WETH descriptor for the Ethereum deployment', async () => {
     const found = await registry().findCalldata({ chainId: 1, address: WETH });
     expect(found).not.toBeNull();
+    expect(found?.source).toBe('official-registry');
     expect(found?.version).toBe('2');
     expect(found?.merged.metadata).toMatchObject({ owner: 'WETH', contractName: 'WETH' });
     expect(found?.deployments).toContainEqual({
@@ -345,6 +346,7 @@ describe('extend', () => {
 
     const found = await client.findCalldata({ chainId: 1, address: WETH });
     expect(found?.merged.metadata).toMatchObject({ owner: 'Local WETH' });
+    expect(found?.source).toBe('local-override');
   });
 
   it('throws on an invalid override', () => {

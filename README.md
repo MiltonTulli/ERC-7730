@@ -36,14 +36,16 @@ Send tokens
 
 Integrators must separate **trusted metadata** from **ABI guesses**. Shipping the latter as “clear signing” is false confidence.
 
-| `source` | What it is | `trust.accepted` (documented default) | `confidence` |
-| --- | --- | --- | --- |
-| Official registry (commit SHA pin) or attestation | Curated ERC-7730 | `true` | `"high"` |
-| Local `extend()` override | App-supplied | policy-defined | medium / high |
-| Sourcify / `generateDescriptor` | ABI-generated fallback | **`false`** | **never `"high"`** |
-| Inferred / basic selector decode | Guess from 4-byte + types | **`false`** | **`"low"`** |
+| `source` | What it is | `officialOnlyPolicy` | `officialOrLocalPolicy` | `confidence` if accepted |
+| --- | --- | --- | --- | --- |
+| Official registry (commit SHA pin) or attestation | Curated ERC-7730 | `accepted: true` | `accepted: true` | `"high"` |
+| Local `extend()` override | App-supplied | **`false`** | `true` | `"medium"` |
+| Sourcify / `generateDescriptor` | ABI-generated fallback | **`false`** | **`false`** | **never `"high"`** |
+| Inferred / basic selector decode | Guess from 4-byte + types | **`false`** | **`false`** | **`"low"`** |
 
-`TrustPolicy` (pluggable `trust.accepted`) is not wired yet — see [ROADMAP.md](./ROADMAP.md) and [#11](https://github.com/MiltonTulli/ERC-7730/issues/11). Until then, **`source` is the signal**. Do not treat Sourcify or generated descriptors as high-confidence.
+**Clear signing is not ABI pretty-printing.** A JSON descriptor that labels fields is not automatically trustworthy — the official registry disclaimer is inclusion ≠ audit. Inject a `TrustPolicy` (`officialOnlyPolicy()`, `officialOrLocalPolicy()`, or `composePolicies()`) so the wallet decides who to believe. Sourcify / generated / inferred / basic never return `trust.accepted: true` under `officialOnlyPolicy`.
+
+When `trust` is omitted, decode uses a stub (`policy: "unspecified"`) that follows the same accept/reject rows as `officialOrLocalPolicy`. Production should pass `officialOnlyPolicy()`.
 
 The v1 `ClearSigner.decode` path still reports `confidence: "high"` for some Sourcify matches and `"medium"` for inferred (known 4-byte) calls. That is a known gap, not the product rule. `decodeTransaction` uses the table above: inferred and basic are `"low"`.
 
@@ -57,8 +59,9 @@ The v1 `ClearSigner.decode` path still reports `confidence: "high"` for some Sou
 - **Context matchers** — `matchContext()` binds descriptors with `deployments`, `factory.deployEvent`, and EIP-1967 / EIP-1167 proxies; a familiar selector on an unbound address is not `confidence: "high"`
 - **`decodeTypedData`** — apply official EIP-712 descriptors (`index.eip712.json`, Permit + `encodeType` hash)
 - **v1 calldata decode** — `ClearSigner.decode` (legacy; still pretty-prints known ABIs)
+- **TrustPolicy** — `officialOnlyPolicy` / `officialOrLocalPolicy` / `composePolicies`; Sourcify is never accepted
 - **Untrusted fallback** — Sourcify / `generateDescriptor` are labeled by `source`, never trusted
-- **Warnings** — infinite approvals, expired typed-data deadlines, and similar risks
+- **Warnings** — untrusted descriptors, infinite approvals, expired typed-data deadlines
 - **Tree-shakeable** — no heavy default network catalog in the published tarball
 
 ## Installation
@@ -70,7 +73,11 @@ npm install @erc7730/sdk
 ## Quick Start
 
 ```typescript
-import { createOfficialRegistry, decodeTransaction } from '@erc7730/sdk';
+import {
+  createOfficialRegistry,
+  decodeTransaction,
+  officialOnlyPolicy,
+} from '@erc7730/sdk';
 
 const registry = createOfficialRegistry({
   pin: '9f37816afde954ff6617fb5baa346133e5af26c5',
@@ -82,15 +89,15 @@ const result = await decodeTransaction(
     data: '0xa9059cbb000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa960450000000000000000000000000000000000000000000000000000000005f5e100',
     chainId: 1,
   },
-  { registry, useSourcifyFallback: false }
+  { registry, trust: officialOnlyPolicy(), useSourcifyFallback: false }
 );
 
 console.log(result.intent);       // "Send" + formatted fields when a descriptor matches
-console.log(result.source);       // "official-registry" | "sourcify" | "inferred" | "basic"
-console.log(result.confidence);   // "high" only for official-registry / attested
-console.log(result.trust);        // stub until TrustPolicy (#11): { policy: "unspecified", accepted }
+console.log(result.source);       // "official-registry" | "local-override" | "sourcify" | "inferred" | "basic"
+console.log(result.confidence);   // "high" only when official-registry / attested is accepted
+console.log(result.trust);        // { accepted, policy: "official-only", descriptorHash, reasons }
 console.log(result.fields);       // [{ label: "Amount", value: "100 USDC", format: "tokenAmount" }, ...]
-console.log(result.warnings);     // e.g. infinite_approval
+console.log(result.warnings);     // e.g. untrusted_descriptor, infinite_approval
 ```
 
 `ClearSigner.decode` remains the v1 pretty-printer. Prefer `decodeTransaction` for descriptor-backed clear signing.
@@ -253,7 +260,7 @@ erc7730-sdk/
 
 Try it online: [miltontulli.github.io/ERC-7730](https://miltontulli.github.io/ERC-7730/)
 
-Every decode shows `source`, `warnings`, and a `trust.accepted` placeholder (TrustPolicy comes later). Sourcify / generated output is labeled untrusted.
+Every decode shows `source`, `warnings`, and `trust.accepted`. The demo still uses v1 `ClearSigner.decode` (embedded catalog). Production should call `decodeTransaction` with `createOfficialRegistry({ pin })` and `officialOnlyPolicy()`. Sourcify / generated output is labeled untrusted.
 
 ```bash
 pnpm install
@@ -285,15 +292,16 @@ interface ClearSignerConfig {
 - `registry.extend(descriptor): void` - Add local overrides
 - `registry.find(signature): RegistryMatch | null` - Find descriptor by signature
 
-Also exported: `decodeTransaction`, `decodeTypedData`, `matchContext`, `resolvePath`, `createOfficialRegistry`, `validateDescriptor`, `resolveDescriptor`, `generateDescriptor`.
+Also exported: `decodeTransaction`, `decodeTypedData`, `matchContext`, `officialOnlyPolicy`, `officialOrLocalPolicy`, `composePolicies`, `resolvePath`, `createOfficialRegistry`, `validateDescriptor`, `resolveDescriptor`, `generateDescriptor`.
 
 ### `decodeTransaction`
 
 ```typescript
 const result = await decodeTransaction(tx, {
   registry,                 // OfficialRegistry (or any { findCalldata })
+  trust: officialOnlyPolicy(), // or officialOrLocalPolicy() / composePolicies(...)
   provider: null,           // no RPC; pass a viem PublicClient for ENS / token metadata / factory logs
-  useSourcifyFallback: true // default; never confidence "high"
+  useSourcifyFallback: true // default; never confidence "high" / never trust.accepted
 });
 ```
 
@@ -311,6 +319,24 @@ Official `index.calldata.json` is CAIP-10 of listed deployments (and EIP-1967 / 
 `addressMatcher` URLs are not fetched (v1 draft; not in the v2 schema). If context does not match, the descriptor is not applied even when the selector is a known `transfer`.
 
 Formats in this release: `raw`, `amount`, `tokenAmount`, `date`, `duration`, `addressName` (alias `addressOrName`), `enum`, `nftName`.
+
+### `TrustPolicy`
+
+```typescript
+import {
+  composePolicies,
+  officialOnlyPolicy,
+  officialOrLocalPolicy,
+} from '@erc7730/sdk';
+
+const trust = officialOnlyPolicy();
+// or officialOrLocalPolicy()
+// or composePolicies([officialOnlyPolicy(), myPolicy], 'all' | 'any')
+
+await decodeTransaction(tx, { registry, trust });
+```
+
+`trust.reasons` is always set. `trust.descriptorHash` is set whenever a descriptor was used. ERC-8176 attestation verification is not implemented here (see [#18](https://github.com/MiltonTulli/ERC-7730/issues/18)).
 
 ### `decodeTypedData`
 
@@ -354,12 +380,12 @@ const result = await decodeTypedData(
 
 Lookup is CAIP-10 `eip155:{chainId}:{verifyingContract}`. When several files share `primaryType`, keccak256 of EIP-712 `encodeType` picks the descriptor. `@.to` is the verifying contract. `raw.message` is the normalized payload.
 
-Default confidence (until TrustPolicy in #11):
+Default confidence (`officialOnlyPolicy` / documented stub):
 
 | source | `trust.accepted` | confidence |
 | --- | --- | --- |
 | official-registry / attested | `true` | `high` |
-| local-override | `true` | `medium` |
+| local-override | `false` under official-only; `true` under official-or-local | `medium` if accepted |
 | sourcify / generated / inferred / basic | `false` | `low` |
 
 ### Response Types
@@ -386,6 +412,8 @@ interface DecodedOperation {
   trust: {
     accepted: boolean;
     policy: string;
+    descriptorHash?: string;
+    attesters?: string[];
     reasons: string[];
   };
   metadata: {

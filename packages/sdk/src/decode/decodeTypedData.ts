@@ -1,6 +1,7 @@
 import type { Hex, ResolvedDescriptor } from '../types/descriptor.js';
 import type { TransactionInput, TypedDataInput } from '../types/index.js';
 import {
+  appendUntrustedWarning,
   asAddress,
   asRecord,
   confidenceFor,
@@ -8,6 +9,7 @@ import {
   nowSeconds,
   readMetadata,
   resolveTrust,
+  sourceFromResolved,
 } from './common.js';
 import { matchContext } from './context.js';
 import { type FormatOptions, flattenFields, formatDisplayField } from './format.js';
@@ -187,6 +189,7 @@ async function renderFromDescriptor(
   }
 
   const trust = await resolveTrust(options, source, resolved, chainId, address);
+  appendUntrustedWarning(warnings, trust, source);
   const meta = readMetadata(resolved.merged);
   const fallbackIntent = `Sign ${data.primaryType}`;
 
@@ -283,6 +286,7 @@ async function fallbackOperation(
   }
 
   const trust = await resolveTrust(options, source, undefined, chainId, address);
+  appendUntrustedWarning(warnings, trust, source);
   return {
     confidence: confidenceFor(source, trust.accepted),
     source,
@@ -333,7 +337,7 @@ export async function decodeTypedData(
         data,
         message,
         found,
-        'official-registry',
+        sourceFromResolved(found),
         encoded,
         chainId,
         address,

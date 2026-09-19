@@ -51,6 +51,11 @@ export interface ResolvedDescriptor {
   input: InputDescriptor;
   merged: InputDescriptor;
   deployments: ResolvedDeployment[];
+  /**
+   * Set by registry clients so TrustPolicy can tell a pinned official file
+   * from an `extend()` override. `resolveDescriptor` does not set this.
+   */
+  source?: 'official-registry' | 'local-override';
 }
 
 export interface ValidationIssue {
