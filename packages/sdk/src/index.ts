@@ -93,7 +93,13 @@ export {
 
 export { validateDescriptor } from './schema/index.js';
 
-export { decodeTransaction, decodeTypedData } from './decode/index.js';
+export {
+  decodeTransaction,
+  decodeTypedData,
+  matchContext,
+  resolveImplementation,
+  EIP1967_IMPLEMENTATION_SLOT,
+} from './decode/index.js';
 
 export {
   resolveDescriptor,
@@ -147,10 +153,13 @@ export type { PathContext, PathEnvelope, PathResolveErrorCode } from './path/ind
 
 export type {
   Confidence,
+  ContextMatch,
+  ContextMatchVia,
   DecodedOperation,
   DecodeOptions,
   DecodeRegistry,
   DecodeSource,
+  MatchContextOptions,
   TrustContext,
   TrustPolicy,
   TrustReport,
@@ -161,6 +170,7 @@ export type {
   // Config
   ClearSignerConfig,
   RegistryConfig,
+  LogBlockTag,
   Provider,
   TransactionInput,
   TypedDataInput,

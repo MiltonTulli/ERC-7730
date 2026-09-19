@@ -9,6 +9,7 @@ import {
   readMetadata,
   resolveTrust,
 } from './common.js';
+import { matchContext } from './context.js';
 import { type FormatOptions, flattenFields, formatDisplayField } from './format.js';
 import { matchEip712Format } from './match.js';
 import type { PathContext } from './path.js';
@@ -108,6 +109,9 @@ async function lookupEip712(
     address,
     signature: data.primaryType,
     encodeTypeHash,
+    provider: options?.provider,
+    fromBlock: options?.fromBlock,
+    toBlock: options?.toBlock,
   });
 }
 
@@ -319,18 +323,25 @@ export async function decodeTypedData(
 
   const found = await lookupEip712(data, options, chainIdOf(data), address, encodeTypeHash);
   if (found && address) {
-    const rendered = await renderFromDescriptor(
-      data,
-      message,
-      found,
-      'official-registry',
-      encoded,
-      chainId,
-      address,
-      options
-    );
-    if (rendered) {
-      return rendered;
+    const bound = await matchContext(found, data, {
+      provider: options?.provider,
+      fromBlock: options?.fromBlock,
+      toBlock: options?.toBlock,
+    });
+    if (bound.matched) {
+      const rendered = await renderFromDescriptor(
+        data,
+        message,
+        found,
+        'official-registry',
+        encoded,
+        chainId,
+        address,
+        options
+      );
+      if (rendered) {
+        return rendered;
+      }
     }
   }
 

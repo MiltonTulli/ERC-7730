@@ -54,6 +54,7 @@ The v1 `ClearSigner.decode` path still reports `confidence: "high"` for some Sou
 - **Resolve** — merge `includes` and inline field `$ref` (`resolveDescriptor`)
 - **Path engine** — `resolvePath()` for `#.` / `$.` / `@.` roots (structs, arrays, slices)
 - **`decodeTransaction`** — apply official (or override) `display.formats` to calldata (`#` / `$` / `@` paths)
+- **Context matchers** — `matchContext()` binds descriptors with `deployments`, `factory.deployEvent`, and EIP-1967 / EIP-1167 proxies; a familiar selector on an unbound address is not `confidence: "high"`
 - **`decodeTypedData`** — apply official EIP-712 descriptors (`index.eip712.json`, Permit + `encodeType` hash)
 - **v1 calldata decode** — `ClearSigner.decode` (legacy; still pretty-prints known ABIs)
 - **Untrusted fallback** — Sourcify / `generateDescriptor` are labeled by `source`, never trusted
@@ -284,19 +285,30 @@ interface ClearSignerConfig {
 - `registry.extend(descriptor): void` - Add local overrides
 - `registry.find(signature): RegistryMatch | null` - Find descriptor by signature
 
-Also exported: `decodeTransaction`, `decodeTypedData`, `resolvePath`, `createOfficialRegistry`, `validateDescriptor`, `resolveDescriptor`, `generateDescriptor`.
+Also exported: `decodeTransaction`, `decodeTypedData`, `matchContext`, `resolvePath`, `createOfficialRegistry`, `validateDescriptor`, `resolveDescriptor`, `generateDescriptor`.
 
 ### `decodeTransaction`
 
 ```typescript
 const result = await decodeTransaction(tx, {
   registry,                 // OfficialRegistry (or any { findCalldata })
-  provider: null,           // no RPC; pass a viem PublicClient for ENS / token metadata
+  provider: null,           // no RPC; pass a viem PublicClient for ENS / token metadata / factory logs
   useSourcifyFallback: true // default; never confidence "high"
 });
 ```
 
 Format keys match by 4-byte selector, canonical signature, or Solidity declaration. Paths use `#` (decoded args), `$` (merged descriptor), `@` (envelope: `to` / `value` / `chainId` / `from`).
+
+`context` is checked before a descriptor is applied (`matchContext`). v2 matchers:
+
+- `contract.deployments` / `eip712.deployments` — exact `chainId` + address
+- EIP-1967 implementation slot and EIP-1167 bytecode — `tx.to` (or `verifyingContract`) is a proxy whose implementation is in `deployments`
+- `contract.factory` — `getLogs` for `deployEvent`; the target address must appear as an **address argument of that event ABI**, and the emitter must be a listed factory. Event layouts are not hardcoded. `getLogs` defaults to `fromBlock: "earliest"` / `toBlock: "latest"` (omitted bounds would only search the latest block); pass a bounded range on public RPCs.
+- `eip712.domain` / `eip712.domainSeparator` — typed-data domain constraints
+
+Official `index.calldata.json` is CAIP-10 of listed deployments (and EIP-1967 / EIP-1167 implementations). There is no factory-clone catalog; factory-only files match via `extend()` + `matchContext`.
+
+`addressMatcher` URLs are not fetched (v1 draft; not in the v2 schema). If context does not match, the descriptor is not applied even when the selector is a known `transfer`.
 
 Formats in this release: `raw`, `amount`, `tokenAmount`, `date`, `duration`, `addressName` (alias `addressOrName`), `enum`, `nftName`.
 

@@ -1,13 +1,16 @@
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { keccak256, toBytes } from 'viem';
 import { describe, expect, it } from 'vitest';
 import { computeSelector } from '../core/signatures.js';
+import { EIP1967_IMPLEMENTATION_SLOT } from '../decode/context.js';
 import { decodeTransaction } from '../decode/decodeTransaction.js';
 import type { DecodeRegistry } from '../decode/types.js';
 import { createOfficialRegistry } from '../official-registry/index.js';
 import { createMemoryIncludeLoader, resolveDescriptor } from '../resolve/index.js';
 import type { InputDescriptor, ResolvedDescriptor } from '../types/descriptor.js';
+import type { Address, Provider } from '../types/index.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const fixtures = join(here, 'fixtures');
@@ -15,6 +18,10 @@ const PIN = '9f37816afde954ff6617fb5baa346133e5af26c5';
 
 const USDC = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48' as const;
 const WETH = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2' as const;
+const SAFE = '0x41675C099F32341bf84BFc5382aF534df5C7461a' as const;
+const SAFE_FACTORY = '0x4e1DCf7AD4e460CfD30791CCC4F9c8a4f820ec67' as const;
+const SAFE_PROXY = '0x2222222222222222222222222222222222222222' as const;
+const RANDOM = '0x1234567890123456789012345678901234567890' as const;
 const VITALIK = 'd8da6bf26964af9d7eed9e03e53415d37aa96045';
 
 const TRANSFER_100_USDC =
@@ -215,6 +222,110 @@ describe('decodeTransaction', () => {
       format: 'amount',
       value: '1 ETH',
     });
+  });
+});
+
+describe('decodeTransaction context matchers', () => {
+  const APPROVE_HASH = `${computeSelector('approveHash(bytes32)')}${'ab'.repeat(32)}` as const;
+
+  function padAddress(address: string): `0x${string}` {
+    return `0x${address.slice(2).toLowerCase().padStart(64, '0')}` as `0x${string}`;
+  }
+
+  it('applies the official Safe descriptor to an EIP-1967 proxy of the singleton', async () => {
+    const provider: Provider = {
+      async getStorageAt({ slot }) {
+        if (slot.toLowerCase() === EIP1967_IMPLEMENTATION_SLOT) {
+          return padAddress(SAFE);
+        }
+        return `0x${'00'.repeat(32)}`;
+      },
+    };
+    const registry = createOfficialRegistry({
+      pin: PIN,
+      fetch: mockFetch({
+        'index.calldata.json': {
+          'eip155:1:0x41675c099f32341bf84bfc5382af534df5c7461a':
+            'registry/safe/calldata-Safe-1.4.1.json',
+        },
+        'index.eip712.json': {},
+        'registry/safe/calldata-Safe-1.4.1.json': loadJson(
+          join(fixtures, 'official/safe-calldata-Safe-1.4.1.json')
+        ),
+        'registry/safe/common-Safe.json': loadJson(join(fixtures, 'includes/common-Safe.json')),
+      }),
+    });
+
+    const result = await decodeTransaction(
+      { to: SAFE_PROXY, data: APPROVE_HASH, chainId: 1 },
+      { registry, provider, useSourcifyFallback: false }
+    );
+
+    expect(result.source).toBe('official-registry');
+    expect(result.confidence).toBe('high');
+    expect(result.intent).toBe('Approve Safe hash');
+    expect(result.metadata.contractName).toBe('Safe');
+  });
+
+  it('applies a factory descriptor when deployEvent logs include the clone', async () => {
+    const resolved = await resolveDescriptor(
+      {
+        $schema: 'https://eips.ethereum.org/assets/eip-7730/erc7730-v2.schema.json',
+        context: {
+          $id: 'Safe clone',
+          contract: {
+            factory: {
+              deployments: [{ chainId: 1, address: SAFE_FACTORY }],
+              deployEvent: 'ProxyCreation(address indexed proxy, address singleton)',
+            },
+          },
+        },
+        metadata: { owner: 'Safe{Wallet}', contractName: 'Safe' },
+        display: {
+          formats: {
+            'approveHash(bytes32 hashToApprove)': {
+              intent: 'Approve Safe hash',
+              fields: [{ path: 'hashToApprove', label: 'Hash to approve', format: 'raw' }],
+            },
+          },
+        },
+      },
+      createMemoryIncludeLoader({})
+    );
+    const topic = keccak256(toBytes('ProxyCreation(address,address)'));
+    const provider: Provider = {
+      async getLogs() {
+        return [
+          {
+            address: SAFE_FACTORY as Address,
+            topics: [topic, padAddress(SAFE_PROXY)],
+            data: padAddress(SAFE),
+          },
+        ];
+      },
+    };
+
+    const result = await decodeTransaction(
+      { to: SAFE_PROXY, data: APPROVE_HASH, chainId: 1 },
+      { registry: registryFrom(resolved), provider, useSourcifyFallback: false }
+    );
+
+    expect(result.source).toBe('official-registry');
+    expect(result.confidence).toBe('high');
+    expect(result.intent).toBe('Approve Safe hash');
+  });
+
+  it('does not apply a USDC descriptor to a random address with a transfer selector', async () => {
+    const resolved = await resolveDescriptor(usdcDescriptor, createMemoryIncludeLoader({}));
+    const result = await decodeTransaction(
+      { to: RANDOM, data: TRANSFER_100_USDC, chainId: 1 },
+      { registry: registryFrom(resolved), provider: null, useSourcifyFallback: false }
+    );
+
+    expect(result.source).toBe('inferred');
+    expect(result.confidence).toBe('low');
+    expect(result.intent).toBe('Send tokens');
+    expect(result.metadata.contractName).toBeUndefined();
   });
 });
 

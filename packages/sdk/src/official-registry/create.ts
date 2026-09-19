@@ -1,3 +1,4 @@
+import { matchContext, resolveImplementation } from '../decode/context.js';
 import { resolveDescriptor } from '../resolve/resolve.js';
 import { isPlainObject } from '../resolve/util.js';
 import { validateDescriptor } from '../schema/validate.js';
@@ -191,15 +192,67 @@ export function createOfficialRegistry(config: OfficialRegistryConfig): Official
     return pending;
   }
 
-  async function findOverride(key: RegistryLookupKey): Promise<ResolvedDescriptor | null> {
+  async function lookupIndexPath(
+    index: unknown,
+    chainId: number,
+    address: string
+  ): Promise<string | null> {
+    if (!isPlainObject(index)) {
+      return null;
+    }
+    const caip = toCaip10(chainId, address);
+    const path = index[caip];
+    return typeof path === 'string' ? path : null;
+  }
+
+  function deploymentsHit(resolved: ResolvedDescriptor, chainId: number, address: string): boolean {
+    return resolved.deployments.some(
+      (item) => item.chainId === chainId && item.address === address
+    );
+  }
+
+  function overrideKind(resolved: ResolvedDescriptor): 'calldata' | 'eip712' | null {
+    const context = isPlainObject(resolved.merged.context) ? resolved.merged.context : undefined;
+    if (!context) {
+      return null;
+    }
+    if (isPlainObject(context.contract)) {
+      return 'calldata';
+    }
+    if (isPlainObject(context.eip712)) {
+      return 'eip712';
+    }
+    return null;
+  }
+
+  async function findOverride(
+    key: RegistryLookupKey,
+    kind: 'calldata' | 'eip712'
+  ): Promise<ResolvedDescriptor | null> {
     const address = normalizeAddress(key.address);
+    const impl = await resolveImplementation(address, key.provider);
     for (const input of overrides) {
       const resolved = await resolveOverride(input);
-      if (
-        resolved.deployments.some(
-          (item) => item.chainId === key.chainId && item.address === address
-        )
-      ) {
+      if (overrideKind(resolved) !== kind) {
+        continue;
+      }
+      if (deploymentsHit(resolved, key.chainId, address)) {
+        return resolved;
+      }
+      // EIP-712 overrides are not a contract context; match the implementation
+      // address when verifyingContract is a proxy of a listed deployment.
+      if (impl && impl !== address && deploymentsHit(resolved, key.chainId, impl)) {
+        return resolved;
+      }
+      if (kind !== 'calldata') {
+        continue;
+      }
+      const bound = await matchContext(
+        resolved,
+        { to: address, data: '0x', chainId: key.chainId },
+        { provider: key.provider, fromBlock: key.fromBlock, toBlock: key.toBlock }
+      );
+      if (bound.matched) {
         return resolved;
       }
     }
@@ -208,39 +261,56 @@ export function createOfficialRegistry(config: OfficialRegistryConfig): Official
 
   return {
     async findCalldata(key) {
-      const local = await findOverride(key);
+      const local = await findOverride(key, 'calldata');
       if (local) {
         return local;
       }
 
-      const caip = toCaip10(key.chainId, key.address);
       const index = (await loadJson(CALLDATA_INDEX)) as CalldataIndex;
       if (!isPlainObject(index)) {
         throw new OfficialRegistryError(`${CALLDATA_INDEX} is not a JSON object`);
       }
-      const path = index[caip];
-      if (typeof path !== 'string') {
-        return null;
+      const direct = await lookupIndexPath(index, key.chainId, key.address);
+      if (direct) {
+        return resolvePath(direct);
       }
-      return resolvePath(path);
+
+      const impl = await resolveImplementation(normalizeAddress(key.address), key.provider);
+      if (impl && impl.toLowerCase() !== normalizeAddress(key.address)) {
+        const viaProxy = await lookupIndexPath(index, key.chainId, impl);
+        if (viaProxy) {
+          return resolvePath(viaProxy);
+        }
+      }
+      // Official `index.calldata.json` is CAIP-10 of `contract.deployments`
+      // (plus EIP-1967 / EIP-1167 implementations). There is no factory-clone
+      // catalog. Factory-only descriptors match via `extend()` + matchContext.
+      return null;
     },
 
     async findEip712(key) {
-      const local = await findOverride(key);
+      const local = await findOverride(key, 'eip712');
       if (local) {
         return local;
       }
 
-      const caip = toCaip10(key.chainId, key.address);
       const index = (await loadJson(EIP712_INDEX)) as Eip712Index;
       if (!isPlainObject(index)) {
         throw new OfficialRegistryError(`${EIP712_INDEX} is not a JSON object`);
       }
-      const path = pickEip712Path(index[caip], key);
-      if (!path) {
-        return null;
+      const direct = pickEip712Path(index[toCaip10(key.chainId, key.address)], key);
+      if (direct) {
+        return resolvePath(direct);
       }
-      return resolvePath(path);
+
+      const impl = await resolveImplementation(normalizeAddress(key.address), key.provider);
+      if (impl && impl.toLowerCase() !== normalizeAddress(key.address)) {
+        const viaProxy = pickEip712Path(index[toCaip10(key.chainId, impl)], key);
+        if (viaProxy) {
+          return resolvePath(viaProxy);
+        }
+      }
+      return null;
     },
 
     extend(descriptors) {
