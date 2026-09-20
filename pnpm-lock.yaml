@@ -27,6 +27,22 @@ importers:
         specifier: ^5.3.3
         version: 5.9.3
 
+  packages/cli:
+    dependencies:
+      '@erc7730/sdk':
+        specifier: workspace:*
+        version: link:../sdk
+    devDependencies:
+      '@types/node':
+        specifier: ^20.11.0
+        version: 20.19.43
+      typescript:
+        specifier: ^5.3.3
+        version: 5.9.3
+      vitest:
+        specifier: ^1.2.0
+        version: 1.6.1(@types/node@20.19.43)
+
   packages/registry:
     devDependencies:
       '@types/node':

@@ -5,6 +5,7 @@
   },
   "references": [
     { "path": "./packages/sdk" },
+    { "path": "./packages/cli" },
     { "path": "./packages/web" },
     { "path": "./packages/registry" }
   ],

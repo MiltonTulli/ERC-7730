@@ -52,6 +52,7 @@ Separate **trusted metadata** from **ABI guesses**. Sourcify and `generateDescri
 - **`createClearSigner`** — bind `DecodeOptions` (`ClearSigner.decode` is a deprecated alias of `decodeTransaction`)
 - **TrustPolicy** — `officialOnlyPolicy` / `officialOrLocalPolicy` / `composePolicies`
 - **Untrusted fallback** — Sourcify / `generateDescriptor`, labeled by `source`
+- **CLI** — companion package `@erc7730/cli` for generate / lint / preview / diff
 - **Warnings** — untrusted descriptors, infinite approvals, and similar risks
 - **Tree-shakeable** — minimal dependencies
 
@@ -150,7 +151,7 @@ const decoded = await decodeTypedData(typedData, { registry });
 
 The v1 `ClearSigner` still ships a small built-in fallback (ERC-20 / ERC-721 / WETH) plus a legacy embed; that embed is not the live catalog.
 
-CLI later (#15): `ERC7730_REGISTRY_PATH` for a local clone, and an `update` helper in the Cyfrin `clearsig update` style.
+Authoring CLI: [`@erc7730/cli`](https://www.npmjs.com/package/@erc7730/cli) (`erc7730 generate` / `lint` / `preview` / `diff` / `registry update`). `ERC7730_REGISTRY_PATH` points at a local clone; `registry update --pin <sha>` fills `~/.erc7730/registry/<pin>`.
 
 Divergences vs Ledger `python-erc7730` resolved form (justified, golden-tested):
 
