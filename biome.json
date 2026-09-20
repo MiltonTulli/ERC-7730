@@ -41,6 +41,7 @@
       "packages/sdk/src/registry/embedded.ts",
       "packages/sdk/src/schema/official/**",
       "packages/sdk/src/__tests__/fixtures/**",
+      "packages/cli/src/__tests__/fixtures/**",
       "packages/sdk/test/golden/snapshots/**",
       "packages/sdk/test/golden/includes/**",
       "packages/registry/dist",

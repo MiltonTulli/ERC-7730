@@ -62,12 +62,14 @@ When `trust` is omitted, decode uses a stub (`policy: "unspecified"`) that follo
 - **TrustPolicy** — `officialOnlyPolicy` / `officialOrLocalPolicy` / `composePolicies`; Sourcify is never accepted
 - **Untrusted fallback** — Sourcify / `generateDescriptor` are labeled by `source`, never trusted
 - **Warnings** — untrusted descriptors, infinite approvals, expired typed-data deadlines
+- **CLI** — `@erc7730/cli` (`erc7730 generate` / `lint` / `preview` / `diff` / `registry update`)
 - **Tree-shakeable** — no heavy default network catalog in the published tarball
 
 ## Installation
 
 ```bash
 npm install @erc7730/sdk
+npm install -D @erc7730/cli   # optional authoring CLI
 ```
 
 ## Quick Start
@@ -136,7 +138,21 @@ JSON is fetched on miss into an in-memory cache. Pass `cache` for optional fs / 
 
 **New protocol descriptors:** open a PR on the [official registry](https://github.com/ethereum/clear-signing-erc7730-registry), not this repo. `packages/registry` is a historical snapshot used by the v1 `ClearSigner` embed and as test fixtures.
 
-CLI later (#15): `ERC7730_REGISTRY_PATH` pointing at a local clone, and an `update` helper that fetches a pin (Cyfrin `clearsig update` model).
+## CLI
+
+`@erc7730/cli` is for protocol teams authoring descriptors next to a JS frontend. It does not open PRs against the official registry.
+
+```bash
+erc7730 generate --chain-id 1 --address 0x... --abi ./abi.json --owner "My Protocol"
+erc7730 lint ./calldata-Foo.json
+erc7730 preview --data 0x... --to 0x... --chain-id 1 --pin <sha>
+erc7730 diff ./calldata-Foo.json --against official --pin <sha>
+erc7730 registry update --pin <sha>
+```
+
+`generate` writes a **v2** draft (schema-valid starting point, never `confidence: "high"`). `lint` exits `1` on error-level issues. `preview` prints intent + fields. Pin the official registry with `--pin` / `ERC7730_REGISTRY_PIN`, or point `ERC7730_REGISTRY_PATH` at a local clone. `registry update` fills `~/.erc7730/registry/<pin>`.
+
+See [`packages/cli/README.md`](./packages/cli/README.md).
 
 ## Schema v2
 

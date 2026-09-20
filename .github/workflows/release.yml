@@ -163,3 +163,50 @@ jobs:
           generate_release_notes: true
           fail_on_unmatched_files: true
           files: packages/sdk/erc7730-sdk-${{ steps.plan.outputs.version }}.tgz
+
+      - name: Read CLI version and skip if already on npm
+        id: cli
+        working-directory: packages/cli
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          if [ "$VERSION" = "0.0.0" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "CLI is still 0.0.0 (waiting for Version PR)"
+            exit 0
+          fi
+          PUBLISHED=$(npm view "@erc7730/cli@${VERSION}" version 2>/dev/null || true)
+          if [ "$PUBLISHED" = "$VERSION" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "Already on npm: @erc7730/cli@$VERSION"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+            echo "Will publish @erc7730/cli@$VERSION"
+          fi
+
+      - name: Pack CLI tarball
+        if: steps.cli.outputs.skip != 'true'
+        working-directory: packages/cli
+        run: |
+          VERSION="${{ steps.cli.outputs.version }}"
+          TARBALL="erc7730-cli-${VERSION}.tgz"
+          npm pack
+          if [ ! -f "$TARBALL" ]; then
+            echo "Expected $TARBALL from npm pack"
+            ls -la *.tgz || true
+            exit 1
+          fi
+          echo "Tarball contents:"
+          tar -tzf "$TARBALL"
+          if tar -tzf "$TARBALL" | grep -E '(/src/|/__tests__/|\.test\.|/test/|\.map$)'; then
+            echo "Tarball includes source, tests, or sourcemaps"
+            exit 1
+          fi
+          echo "Tarball looks clean: $TARBALL"
+
+      - name: Publish @erc7730/cli
+        if: steps.cli.outputs.skip != 'true'
+        working-directory: packages/cli
+        run: |
+          VERSION="${{ steps.cli.outputs.version }}"
+          npm publish "erc7730-cli-${VERSION}.tgz" --access public --provenance

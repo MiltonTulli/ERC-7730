@@ -7,4 +7,4 @@ find the full documentation for it [in our repository](https://github.com/change
 We have a quick list of common questions to get you started engaging with this project in
 [our documentation](https://github.com/changesets/changesets/blob/main/docs/common-questions.md)
 
-This repo publishes **only** `@erc7730/sdk`. `@erc7730/web` and `@erc7730/registry` are in `.changeset/config.json` `ignore`. See [RELEASE.md](../RELEASE.md).
+This repo publishes `@erc7730/sdk` and `@erc7730/cli`. `@erc7730/web` and `@erc7730/registry` are in `.changeset/config.json` `ignore`. See [RELEASE.md](../RELEASE.md).
