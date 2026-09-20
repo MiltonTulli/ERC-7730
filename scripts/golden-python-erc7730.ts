@@ -95,13 +95,16 @@ function lintCase(bin: string, stageRoot: string, item: GoldenCase): string[] {
   const result = runErc7730(bin, ['lint', '--v2', '--gha', input]);
   const output = `${result.stdout}\n${result.stderr}`;
   const diagnostics = parseGithubAnnotations(output);
-  if (isNetworkLintFailure(diagnostics)) {
-    console.warn(`skipping lint errors for ${item.id}: network-dependent ABI lookup failed`);
-    return [];
-  }
   const errors = lintErrorTitles(diagnostics);
   if (result.status !== 0 && result.status !== 1) {
     throw new Error(`erc7730 lint crashed for ${item.id} (exit ${result.status}):\n${output}`);
+  }
+  if (result.status === 1 && isNetworkLintFailure(diagnostics)) {
+    console.warn(`skipping lint errors for ${item.id}: network-dependent ABI lookup failed`);
+    return [];
+  }
+  if (result.status === 1 && errors.length === 0) {
+    throw new Error(`erc7730 lint failed without parseable diagnostics for ${item.id}:\n${output}`);
   }
   if (errors.length > 0) {
     throw new Error(
