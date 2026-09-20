@@ -1,0 +1,65 @@
+{
+  "id": "tether-calldata-usdt",
+  "pythonPackage": "erc7730==1.0.11",
+  "semantic": {
+    "kind": "calldata",
+    "schemaVersion": "2",
+    "id": "Tether USD",
+    "owner": "Tether Limited",
+    "contractName": "Tether USD",
+    "deployments": [
+      {
+        "chainId": 1,
+        "address": "0xdac17f958d2ee523a2206206994597c13d831ec7"
+      },
+      {
+        "chainId": 137,
+        "address": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f"
+      }
+    ],
+    "domain": null,
+    "formats": {
+      "0x095ea7b3": {
+        "id": null,
+        "intent": "Approve",
+        "interpolatedIntent": null,
+        "fields": [
+          {
+            "path": "#._spender",
+            "label": "Spender",
+            "format": "addressName",
+            "visible": null
+          },
+          {
+            "path": "#._value",
+            "label": "Amount",
+            "format": "tokenAmount",
+            "visible": null
+          }
+        ]
+      },
+      "0xa9059cbb": {
+        "id": null,
+        "intent": "Send",
+        "interpolatedIntent": null,
+        "fields": [
+          {
+            "path": "#._value",
+            "label": "Amount",
+            "format": "tokenAmount",
+            "visible": null
+          },
+          {
+            "path": "#._to",
+            "label": "To",
+            "format": "addressName",
+            "visible": null
+          }
+        ]
+      }
+    }
+  },
+  "lint": {
+    "errorTitles": []
+  }
+}

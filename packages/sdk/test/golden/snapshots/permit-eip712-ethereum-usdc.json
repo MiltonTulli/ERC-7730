@@ -1,0 +1,63 @@
+{
+  "id": "permit-eip712-ethereum-usdc",
+  "pythonPackage": "erc7730==1.0.11",
+  "semantic": {
+    "kind": "eip712",
+    "schemaVersion": "2",
+    "id": null,
+    "owner": "USDC",
+    "contractName": null,
+    "deployments": [
+      {
+        "chainId": 1,
+        "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+      }
+    ],
+    "domain": {
+      "name": "USD Coin",
+      "version": "2"
+    },
+    "formats": {
+      "Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)": {
+        "id": null,
+        "intent": "Authorize spending of tokens",
+        "interpolatedIntent": null,
+        "fields": [
+          {
+            "path": "#.spender",
+            "label": "Spender",
+            "format": "raw",
+            "visible": "always"
+          },
+          {
+            "path": "#.value",
+            "label": "Max spending amount",
+            "format": "tokenAmount",
+            "visible": "always"
+          },
+          {
+            "path": "#.deadline",
+            "label": "Valid until",
+            "format": "date",
+            "visible": null
+          },
+          {
+            "path": "#.owner",
+            "label": "Owner",
+            "format": null,
+            "visible": "never"
+          },
+          {
+            "path": "#.nonce",
+            "label": "Nonce",
+            "format": null,
+            "visible": "never"
+          }
+        ]
+      }
+    }
+  },
+  "lint": {
+    "errorTitles": []
+  }
+}

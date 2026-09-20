@@ -1,0 +1,185 @@
+{
+  "id": "uniswap-calldata-UniswapV3Router02",
+  "pythonPackage": "erc7730==1.0.11",
+  "semantic": {
+    "kind": "calldata",
+    "schemaVersion": "2",
+    "id": "Uniswap v3 Router 2",
+    "owner": "Uniswap Labs",
+    "contractName": "Uniswap v3 Router 2",
+    "deployments": [
+      {
+        "chainId": 1,
+        "address": "0x68b3465833fb72a70ecdf485e0e4c7bd8665fc45"
+      }
+    ],
+    "domain": null,
+    "formats": {
+      "0x04e45aaf": {
+        "id": "exactInputSingle",
+        "intent": "swap",
+        "interpolatedIntent": null,
+        "fields": [
+          {
+            "path": "#.params.amountIn",
+            "label": "Send",
+            "format": "tokenAmount",
+            "visible": "always"
+          },
+          {
+            "path": "#.params.amountOutMinimum",
+            "label": "Minimum to Receive",
+            "format": "tokenAmount",
+            "visible": "always"
+          },
+          {
+            "path": "#.params.fee",
+            "label": "Uniswap fee",
+            "format": "unit",
+            "visible": "always"
+          },
+          {
+            "path": "#.params.recipient",
+            "label": "Beneficiary",
+            "format": "addressName",
+            "visible": "always"
+          }
+        ]
+      },
+      "0x09b81346": {
+        "id": "exactOutput",
+        "intent": "Swap",
+        "interpolatedIntent": null,
+        "fields": [
+          {
+            "path": "#.params.amountInMaximum",
+            "label": "Maximum Amount In",
+            "format": "tokenAmount",
+            "visible": "always"
+          },
+          {
+            "path": "#.params.amountOut",
+            "label": "Amount to Receive",
+            "format": "tokenAmount",
+            "visible": "always"
+          },
+          {
+            "path": "#.params.recipient",
+            "label": "Beneficiary",
+            "format": "addressName",
+            "visible": "always"
+          }
+        ]
+      },
+      "0x42712a67": {
+        "id": "swapTokensForExactTokens",
+        "intent": "Swap",
+        "interpolatedIntent": null,
+        "fields": [
+          {
+            "path": "#.amountOut",
+            "label": "Amount to Receive",
+            "format": "tokenAmount",
+            "visible": null
+          },
+          {
+            "path": "#.amountInMax",
+            "label": "Maximum to Send",
+            "format": "tokenAmount",
+            "visible": null
+          },
+          {
+            "path": "#.to",
+            "label": "Recipient",
+            "format": "addressName",
+            "visible": null
+          }
+        ]
+      },
+      "0x472b43f3": {
+        "id": "swapExactTokensForTokens",
+        "intent": "Swap",
+        "interpolatedIntent": null,
+        "fields": [
+          {
+            "path": "#.amountIn",
+            "label": "Amount to Send",
+            "format": "tokenAmount",
+            "visible": null
+          },
+          {
+            "path": "#.amountOutMin",
+            "label": "Minimum to Receive",
+            "format": "tokenAmount",
+            "visible": null
+          },
+          {
+            "path": "#.to",
+            "label": "Recipient",
+            "format": "addressName",
+            "visible": null
+          }
+        ]
+      },
+      "0x5023b4df": {
+        "id": "exactOutputSingle",
+        "intent": "Swap",
+        "interpolatedIntent": null,
+        "fields": [
+          {
+            "path": "#.params.amountInMaximum",
+            "label": "Maximum Amount In",
+            "format": "tokenAmount",
+            "visible": null
+          },
+          {
+            "path": "#.params.amountOut",
+            "label": "Amount to Receive",
+            "format": "tokenAmount",
+            "visible": null
+          },
+          {
+            "path": "#.params.fee",
+            "label": "Uniswap fee",
+            "format": "unit",
+            "visible": null
+          },
+          {
+            "path": "#.params.recipient",
+            "label": "Beneficiary",
+            "format": "addressName",
+            "visible": null
+          }
+        ]
+      },
+      "0xb858183f": {
+        "id": "exactInput",
+        "intent": "Swap",
+        "interpolatedIntent": null,
+        "fields": [
+          {
+            "path": "#.params.amountIn",
+            "label": "Amount to Send",
+            "format": "tokenAmount",
+            "visible": "always"
+          },
+          {
+            "path": "#.params.amountOutMinimum",
+            "label": "Minimum to Receive",
+            "format": "tokenAmount",
+            "visible": "always"
+          },
+          {
+            "path": "#.params.recipient",
+            "label": "Beneficiary",
+            "format": "addressName",
+            "visible": "always"
+          }
+        ]
+      }
+    }
+  },
+  "lint": {
+    "errorTitles": []
+  }
+}

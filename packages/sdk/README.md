@@ -152,12 +152,13 @@ The v1 `ClearSigner` still ships a small built-in fallback (ERC-20 / ERC-721 / W
 
 CLI later (#15): `ERC7730_REGISTRY_PATH` for a local clone, and an `update` helper in the Cyfrin `clearsig update` style.
 
-Divergences vs Ledger `python-erc7730` resolved form:
+Divergences vs Ledger `python-erc7730` resolved form (justified, golden-tested):
 
 - Format keys stay ABI fragments (not 4-byte selectors).
-- Constants and enum `params.$ref` are not inlined.
-- Nested field groups are not flattened; ABI HTTP URLs are not fetched.
+- Constants are not inlined; nested field groups are not flattened; ABI HTTP URLs are not fetched.
 - `fields` arrays merge by `path` as in EIP-7730 (python-erc7730 overwrites the array).
+
+See [`docs/divergences.md`](../../docs/divergences.md) for the comparable slice, lint policy, and `pnpm golden:python`.
 
 ## Schema v2
 

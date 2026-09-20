@@ -1,0 +1,246 @@
+{
+  "id": "safe-calldata-Safe-1.4.1",
+  "pythonPackage": "erc7730==1.0.11",
+  "semantic": {
+    "kind": "calldata",
+    "schemaVersion": "2",
+    "id": "Safe",
+    "owner": "Safe{Wallet}",
+    "contractName": "Safe",
+    "deployments": [
+      {
+        "chainId": 1,
+        "address": "0x41675c099f32341bf84bfc5382af534df5c7461a"
+      },
+      {
+        "chainId": 10,
+        "address": "0x41675c099f32341bf84bfc5382af534df5c7461a"
+      },
+      {
+        "chainId": 56,
+        "address": "0x41675c099f32341bf84bfc5382af534df5c7461a"
+      },
+      {
+        "chainId": 137,
+        "address": "0x41675c099f32341bf84bfc5382af534df5c7461a"
+      },
+      {
+        "chainId": 8453,
+        "address": "0x41675c099f32341bf84bfc5382af534df5c7461a"
+      },
+      {
+        "chainId": 42161,
+        "address": "0x41675c099f32341bf84bfc5382af534df5c7461a"
+      },
+      {
+        "chainId": 11155111,
+        "address": "0x41675c099f32341bf84bfc5382af534df5c7461a"
+      }
+    ],
+    "domain": null,
+    "formats": {
+      "0x0d582f13": {
+        "id": "addOwnerWithThreshold",
+        "intent": "Add signer",
+        "interpolatedIntent": null,
+        "fields": [
+          {
+            "path": "#.owner",
+            "label": "Signer",
+            "format": "addressName",
+            "visible": "always"
+          },
+          {
+            "path": "#._threshold",
+            "label": "New threshold",
+            "format": "raw",
+            "visible": "always"
+          }
+        ]
+      },
+      "0x694e80c3": {
+        "id": "changeThreshold",
+        "intent": "Modify threshold",
+        "interpolatedIntent": null,
+        "fields": [
+          {
+            "path": "#._threshold",
+            "label": "New threshold",
+            "format": "raw",
+            "visible": "always"
+          }
+        ]
+      },
+      "0x6a761202": {
+        "id": "execTransaction",
+        "intent": "sign multisig operation",
+        "interpolatedIntent": null,
+        "fields": [
+          {
+            "path": "#.operation",
+            "label": "Operation type",
+            "format": "enum",
+            "visible": "always"
+          },
+          {
+            "path": "@.to",
+            "label": "From Safe",
+            "format": "addressName",
+            "visible": null
+          },
+          {
+            "path": "@.from",
+            "label": "Execution signer",
+            "format": "addressName",
+            "visible": null
+          },
+          {
+            "path": "#.data",
+            "label": "Transaction",
+            "format": "calldata",
+            "visible": "always"
+          },
+          {
+            "path": "#.baseGas",
+            "label": "Gas amount",
+            "format": "raw",
+            "visible": "always"
+          },
+          {
+            "path": "#.gasPrice",
+            "label": "Gas price",
+            "format": "tokenAmount",
+            "visible": "always"
+          },
+          {
+            "path": "#.refundReceiver",
+            "label": "Gas receiver",
+            "format": "addressName",
+            "visible": "always"
+          },
+          {
+            "path": "#.safeTxGas",
+            "label": "Safe Tx Gas",
+            "format": null,
+            "visible": "never"
+          },
+          {
+            "path": "#.signatures",
+            "label": "Signatures",
+            "format": null,
+            "visible": "never"
+          }
+        ]
+      },
+      "0xb63e800d": {
+        "id": "setup",
+        "intent": "Setup Safe",
+        "interpolatedIntent": null,
+        "fields": [
+          {
+            "path": "#._owners.[]",
+            "label": "Signer",
+            "format": "addressName",
+            "visible": null
+          },
+          {
+            "path": "#._threshold",
+            "label": "Threshold",
+            "format": "raw",
+            "visible": "always"
+          },
+          {
+            "path": "#.fallbackHandler",
+            "label": "Fallback handler",
+            "format": "addressName",
+            "visible": "always"
+          },
+          {
+            "path": "#.payment",
+            "label": "Payment",
+            "format": "tokenAmount",
+            "visible": "always"
+          },
+          {
+            "path": "#.paymentReceiver",
+            "label": "Payment receiver",
+            "format": "addressName",
+            "visible": "always"
+          },
+          {
+            "path": "#.data",
+            "label": "Module",
+            "format": "calldata",
+            "visible": "always"
+          }
+        ]
+      },
+      "0xd4d9bdcd": {
+        "id": "approveHash",
+        "intent": "Approve Safe hash",
+        "interpolatedIntent": null,
+        "fields": [
+          {
+            "path": "#.hashToApprove",
+            "label": "Hash to approve",
+            "format": "raw",
+            "visible": "always"
+          }
+        ]
+      },
+      "0xe318b52b": {
+        "id": "swapOwner",
+        "intent": "Swap signer",
+        "interpolatedIntent": null,
+        "fields": [
+          {
+            "path": "#.oldOwner",
+            "label": "Old signer",
+            "format": "addressName",
+            "visible": "always"
+          },
+          {
+            "path": "#.newOwner",
+            "label": "New signer",
+            "format": "addressName",
+            "visible": "always"
+          },
+          {
+            "path": "#.prevOwner",
+            "label": "Prev Owner",
+            "format": null,
+            "visible": "never"
+          }
+        ]
+      },
+      "0xf8dc5dd9": {
+        "id": "removeOwner",
+        "intent": "Remove signer",
+        "interpolatedIntent": null,
+        "fields": [
+          {
+            "path": "#.owner",
+            "label": "Signer",
+            "format": "addressName",
+            "visible": "always"
+          },
+          {
+            "path": "#._threshold",
+            "label": "New threshold",
+            "format": "raw",
+            "visible": "always"
+          },
+          {
+            "path": "#.prevOwner",
+            "label": "Prev Owner",
+            "format": null,
+            "visible": "never"
+          }
+        ]
+      }
+    }
+  },
+  "lint": {
+    "errorTitles": []
+  }
+}

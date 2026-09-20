@@ -1,0 +1,40 @@
+{
+  "id": "weth-calldata-weth",
+  "pythonPackage": "erc7730==1.0.11",
+  "semantic": {
+    "kind": "calldata",
+    "schemaVersion": "2",
+    "id": "WETH",
+    "owner": "WETH",
+    "contractName": "WETH",
+    "deployments": [
+      {
+        "chainId": 1,
+        "address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
+      },
+      {
+        "chainId": 11155111,
+        "address": "0xfff9976782d46cc05630d1f6ebab18b2324d6b14"
+      }
+    ],
+    "domain": null,
+    "formats": {
+      "0xd0e30db0": {
+        "id": null,
+        "intent": "Wrap",
+        "interpolatedIntent": null,
+        "fields": [
+          {
+            "path": "@.value",
+            "label": "Amount",
+            "format": "amount",
+            "visible": null
+          }
+        ]
+      }
+    }
+  },
+  "lint": {
+    "errorTitles": []
+  }
+}

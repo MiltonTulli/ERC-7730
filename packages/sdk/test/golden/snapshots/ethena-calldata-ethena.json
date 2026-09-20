@@ -1,0 +1,62 @@
+{
+  "id": "ethena-calldata-ethena",
+  "pythonPackage": "erc7730==1.0.11",
+  "semantic": {
+    "kind": "calldata",
+    "schemaVersion": "2",
+    "id": "Staked USDe",
+    "owner": "Ethena",
+    "contractName": "Staked USDe",
+    "deployments": [
+      {
+        "chainId": 1,
+        "address": "0x9d39a5de30e57443bff2a8307a4256c8797a3497"
+      }
+    ],
+    "domain": null,
+    "formats": {
+      "0x9343d9e1": {
+        "id": null,
+        "intent": "Cooldown Shares",
+        "interpolatedIntent": null,
+        "fields": [
+          {
+            "path": "#.shares",
+            "label": "Amount",
+            "format": "tokenAmount",
+            "visible": "always"
+          }
+        ]
+      },
+      "0xcdac52ed": {
+        "id": null,
+        "intent": "Cooldown Assets",
+        "interpolatedIntent": null,
+        "fields": [
+          {
+            "path": "#.assets",
+            "label": "Amount",
+            "format": "tokenAmount",
+            "visible": "always"
+          }
+        ]
+      },
+      "0xf2888dbb": {
+        "id": null,
+        "intent": "Unstake",
+        "interpolatedIntent": null,
+        "fields": [
+          {
+            "path": "#.receiver",
+            "label": "Receiver",
+            "format": "addressName",
+            "visible": "always"
+          }
+        ]
+      }
+    }
+  },
+  "lint": {
+    "errorTitles": []
+  }
+}

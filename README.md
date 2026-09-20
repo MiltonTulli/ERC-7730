@@ -528,7 +528,18 @@ interface SecurityWarning {
 | Catalog | Consumes the official registry, pin by commit SHA | Same official catalog |
 | Schema | v1 read + v2 validate | v1 / v2 |
 
-Divergences in the resolved form (until golden tests in #18): format keys stay ABI fragments (not 4-byte selectors); enum `params.$ref` is kept; `fields` merge by `path` as in EIP-7730 (python-erc7730 overwrites the array).
+Known diffs in the resolved form are listed in [`docs/divergences.md`](./docs/divergences.md) (justified only). Golden tests project `resolveDescriptor` against `erc7730 resolve` on 11 official v2 descriptors and require `erc7730 lint` to report no errors on those files.
+
+```bash
+# SDK vs committed python snapshots (no Python)
+pnpm --filter @erc7730/sdk test
+
+# Re-run Ledger CLI (Python 3.12+): pip install erc7730==1.0.11
+pnpm golden:python
+pnpm golden:python -- --update
+```
+
+CI job **Golden python-erc7730** runs `pnpm golden:python`.
 
 ## Related
 
