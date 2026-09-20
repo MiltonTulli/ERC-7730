@@ -30,12 +30,24 @@ export function prettyJson(value: unknown): string {
   return `${JSON.stringify(value, null, 2)}\n`;
 }
 
+function isEnoent(error: unknown): boolean {
+  return Boolean(
+    error &&
+      typeof error === 'object' &&
+      'code' in error &&
+      (error as { code: unknown }).code === 'ENOENT'
+  );
+}
+
 export async function pathExists(path: string): Promise<boolean> {
   try {
     await stat(path);
     return true;
-  } catch {
-    return false;
+  } catch (error) {
+    if (isEnoent(error)) {
+      return false;
+    }
+    throw error;
   }
 }
 

@@ -1,3 +1,4 @@
+import { rename, rm } from 'node:fs/promises';
 import { homedir as osHomedir } from 'node:os';
 import { join } from 'node:path';
 import { parseArgs } from 'node:util';
@@ -14,6 +15,7 @@ import { PIN_RE, UsageError } from './types.js';
 
 const CALLDATA_INDEX = 'index.calldata.json';
 const EIP712_INDEX = 'index.eip712.json';
+const COMPLETE_MARKER = '.complete';
 const DEFAULT_BASE = 'https://raw.githubusercontent.com/ethereum/clear-signing-erc7730-registry';
 
 export function cacheRoot(ctx: CliContext, cacheDirFlag?: string): string {
@@ -79,7 +81,7 @@ export async function resolveRegistryTree(
     return { pin: options.pin, tree: explicit };
   }
   const cached = pinDir(cacheRoot(ctx, options.cacheDir), options.pin);
-  if (await pathExists(join(cached, CALLDATA_INDEX))) {
+  if (await pathExists(join(cached, COMPLETE_MARKER))) {
     return { pin: options.pin, tree: cached };
   }
   return { pin: options.pin };
@@ -159,31 +161,43 @@ export async function updateRegistry(
   options: { pin: string; cacheDir?: string }
 ): Promise<{ dir: string; files: number }> {
   const dir = pinDir(cacheRoot(ctx, options.cacheDir), options.pin);
+  const staging = `${dir}.tmp`;
+  await rm(staging, { recursive: true, force: true });
+
   const pending = [CALLDATA_INDEX, EIP712_INDEX];
   const seen = new Set<string>();
   let files = 0;
 
-  while (pending.length > 0) {
-    const path = pending.shift();
-    if (!path || seen.has(path)) {
-      continue;
-    }
-    seen.add(path);
-    const json = await fetchRegistryJson(ctx.io.fetch, options.pin, path);
-    await writeTextFile(join(dir, path), `${JSON.stringify(json, null, 2)}\n`);
-    files += 1;
+  try {
+    while (pending.length > 0) {
+      const path = pending.shift();
+      if (!path || seen.has(path)) {
+        continue;
+      }
+      seen.add(path);
+      const json = await fetchRegistryJson(ctx.io.fetch, options.pin, path);
+      await writeTextFile(join(staging, path), `${JSON.stringify(json, null, 2)}\n`);
+      files += 1;
 
-    const more = new Set<string>();
-    collectJsonPaths(json, more);
-    const include = includeRef(json);
-    if (include) {
-      more.add(resolveIncludePath(path, include));
-    }
-    for (const next of more) {
-      if (!seen.has(next) && next !== path) {
-        pending.push(next);
+      const more = new Set<string>();
+      collectJsonPaths(json, more);
+      const include = includeRef(json);
+      if (include) {
+        more.add(resolveIncludePath(path, include));
+      }
+      for (const next of more) {
+        if (!seen.has(next) && next !== path) {
+          pending.push(next);
+        }
       }
     }
+
+    await writeTextFile(join(staging, COMPLETE_MARKER), '');
+    await rm(dir, { recursive: true, force: true });
+    await rename(staging, dir);
+  } catch (error) {
+    await rm(staging, { recursive: true, force: true });
+    throw error;
   }
 
   return { dir, files };

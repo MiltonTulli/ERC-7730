@@ -187,8 +187,9 @@ jobs:
       - name: Pack CLI tarball
         if: steps.cli.outputs.skip != 'true'
         working-directory: packages/cli
+        env:
+          VERSION: ${{ steps.cli.outputs.version }}
         run: |
-          VERSION="${{ steps.cli.outputs.version }}"
           TARBALL="erc7730-cli-${VERSION}.tgz"
           npm pack
           if [ ! -f "$TARBALL" ]; then
@@ -207,6 +208,7 @@ jobs:
       - name: Publish @erc7730/cli
         if: steps.cli.outputs.skip != 'true'
         working-directory: packages/cli
+        env:
+          VERSION: ${{ steps.cli.outputs.version }}
         run: |
-          VERSION="${{ steps.cli.outputs.version }}"
           npm publish "erc7730-cli-${VERSION}.tgz" --access public --provenance

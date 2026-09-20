@@ -1,4 +1,4 @@
-import { parseArgs } from 'node:util';
+import { isDeepStrictEqual, parseArgs } from 'node:util';
 import {
   type InputDescriptor,
   type OfficialRegistry,
@@ -90,25 +90,36 @@ function bindingKind(descriptor: InputDescriptor): 'calldata' | 'eip712' {
   return 'calldata';
 }
 
-async function findOfficial(
+async function lookupOfficial(
   registry: OfficialRegistry,
   resolved: ResolvedDescriptor
-): Promise<ResolvedDescriptor | null> {
+): Promise<{ hits: ResolvedDescriptor[]; misses: string[] }> {
   const kind = bindingKind(resolved.merged);
+  const hits: ResolvedDescriptor[] = [];
+  const seen = new Set<string>();
+  const misses: string[] = [];
+
   for (const deployment of resolved.deployments) {
     const address = parseAddress(deployment.address, 'deployment.address');
+    const caip = `eip155:${deployment.chainId}:${address.toLowerCase()}`;
     const key = { chainId: deployment.chainId, address };
     const hit =
       kind === 'eip712' ? await registry.findEip712(key) : await registry.findCalldata(key);
-    if (hit) {
-      return hit;
+    if (!hit) {
+      misses.push(caip);
+      continue;
+    }
+    if (!seen.has(hit.hash)) {
+      seen.add(hit.hash);
+      hits.push(hit);
     }
   }
-  return null;
+
+  return { hits, misses };
 }
 
 function jsonEqual(a: unknown, b: unknown): boolean {
-  return JSON.stringify(a) === JSON.stringify(b);
+  return isDeepStrictEqual(a, b);
 }
 
 function diffSlices(local: FormatSlice[], official: FormatSlice[]): string[] {
@@ -193,8 +204,8 @@ export async function runDiff(args: string[], ctx: CliContext): Promise<CliResul
     pin,
     registryPath: values['registry-path'],
   });
-  const official = await findOfficial(registry, local);
-  if (!official) {
+  const { hits, misses } = await lookupOfficial(registry, local);
+  if (hits.length === 0) {
     ctx.out.eprintln(
       `No official descriptor for ${local.deployments
         .map((d) => `eip155:${d.chainId}:${d.address}`)
@@ -202,11 +213,21 @@ export async function runDiff(args: string[], ctx: CliContext): Promise<CliResul
     );
     return ctx.out.result(1);
   }
+  if (hits.length > 1) {
+    ctx.out.eprintln(
+      `Deployments resolved to ${hits.length} distinct official descriptors at pin ${pin}`
+    );
+    return ctx.out.result(1);
+  }
 
+  const official = hits[0];
   const lines = diffSlices(sliceFormats(local.merged), sliceFormats(official.merged));
   ctx.out.println(`local:    ${positionals[0]}`);
   ctx.out.println(`official: pin ${pin}  hash ${official.hash}`);
-  if (lines.length === 0) {
+  for (const miss of misses) {
+    ctx.out.eprintln(`No official descriptor for ${miss} at pin ${pin}`);
+  }
+  if (lines.length === 0 && misses.length === 0) {
     ctx.out.println('No differences in intent / fields.');
     return ctx.out.result(0);
   }

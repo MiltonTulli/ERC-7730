@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs';
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -50,6 +50,8 @@ function officialFiles(): Record<string, unknown> {
   return {
     'index.calldata.json': {
       'eip155:1:0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2': 'registry/weth/calldata-weth.json',
+      'eip155:11155111:0xfff9976782d46cc05630d1f6ebab18b2324d6b14':
+        'registry/weth/calldata-weth.json',
     },
     'index.eip712.json': {},
     'registry/weth/calldata-weth.json': loadJson(
@@ -168,6 +170,13 @@ describe('erc7730 lint', () => {
     expect(result.exitCode).toBe(1);
     expect(result.stdout).toMatch(/File not found/);
   });
+
+  it('walks formats from a resolved include', async () => {
+    const result = await runCli(['lint', join(fixtures, 'with-include.json')], io());
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout).not.toMatch(/missing_display/);
+    expect(result.stdout).not.toMatch(/missing_formats/);
+  });
 });
 
 describe('erc7730 preview', () => {
@@ -194,6 +203,15 @@ describe('erc7730 preview', () => {
     expect(result.stdout).toMatch(/Amount/);
     expect(result.stdout).toMatch(/1 ETH/);
     expect(result.stdout).toMatch(/official-registry/);
+  });
+
+  it('rejects a negative --value', async () => {
+    const result = await runCli(
+      ['preview', '--data', '0xd0e30db0', '--to', WETH, '--chain-id', '1', '--value=-1'],
+      io()
+    );
+    expect(result.exitCode).toBe(1);
+    expect(result.stderr).toMatch(/non-negative/);
   });
 });
 
@@ -231,6 +249,26 @@ describe('erc7730 diff', () => {
     expect(result.exitCode).toBe(1);
     expect(result.stdout).toMatch(/deposit\(\)\.intent/);
   });
+
+  it('exits 1 when a deployment has no official match', async () => {
+    const dir = await tempDir();
+    const local = join(dir, 'calldata-weth.json');
+    const descriptor = loadJson(join(sdkFixtures, 'official/weth-calldata-weth.json')) as {
+      context: { contract: { deployments: Array<{ chainId: number; address: string }> } };
+    };
+    descriptor.context.contract.deployments.push({
+      chainId: 1,
+      address: '0x0000000000000000000000000000000000000001',
+    });
+    await writeFile(local, `${JSON.stringify(descriptor, null, 2)}\n`);
+
+    const result = await runCli(
+      ['diff', local, '--against', 'official', '--pin', PIN],
+      io({ cwd: dir })
+    );
+    expect(result.exitCode).toBe(1);
+    expect(result.stderr).toMatch(/eip155:1:0x0000000000000000000000000000000000000001/);
+  });
 });
 
 describe('erc7730 registry update', () => {
@@ -247,6 +285,34 @@ describe('erc7730 registry update', () => {
       'utf8'
     );
     expect(written).toContain('Wrap');
+    const marker = await readFile(join(dir, 'registry', PIN, '.complete'), 'utf8');
+    expect(marker).toBe('');
+  });
+
+  it('does not use a cache that never finished updating', async () => {
+    const dir = await tempDir();
+    const cached = join(dir, 'registry', PIN);
+    await mkdir(cached, { recursive: true });
+    await writeFile(join(cached, 'index.calldata.json'), '{}\n');
+
+    const result = await runCli(
+      [
+        'preview',
+        '--data',
+        '0xd0e30db0',
+        '--to',
+        WETH,
+        '--chain-id',
+        '1',
+        '--value',
+        '1000000000000000000',
+        '--pin',
+        PIN,
+      ],
+      io({ env: { ERC7730_CACHE_DIR: dir } })
+    );
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout).toMatch(/Intent: Wrap/);
   });
 });
 

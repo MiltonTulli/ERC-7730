@@ -94,9 +94,11 @@ export async function lintDescriptor(
   }
 
   const descriptor = validated.descriptor;
+  let toWalk = descriptor;
   if (typeof descriptor.includes === 'string' && options?.fromPath) {
     try {
-      await resolveDescriptor(descriptor, createFsIncludeLoader(options.fromPath));
+      const resolved = await resolveDescriptor(descriptor, createFsIncludeLoader(options.fromPath));
+      toWalk = resolved.merged;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       issues.push({
@@ -108,7 +110,7 @@ export async function lintDescriptor(
     }
   }
 
-  walkFormats(descriptor, issues);
+  walkFormats(toWalk, issues);
   return issues;
 }
 
@@ -155,23 +157,33 @@ export async function runLint(args: string[], ctx: CliContext): Promise<CliResul
 
   for (const raw of positionals) {
     const target = resolvePath(ctx.io.cwd, raw);
-    if (!(await pathExists(target))) {
+    let files: string[];
+    try {
+      if (!(await pathExists(target))) {
+        reports.push({
+          file: raw,
+          issues: [
+            {
+              level: 'error',
+              path: '/',
+              message: `File not found: ${target}`,
+              rule: 'io',
+            },
+          ],
+        });
+        hadError = true;
+        continue;
+      }
+      files = await collectJsonFiles(target);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
       reports.push({
         file: raw,
-        issues: [
-          {
-            level: 'error',
-            path: '/',
-            message: `File not found: ${target}`,
-            rule: 'io',
-          },
-        ],
+        issues: [{ level: 'error', path: '/', message, rule: 'io' }],
       });
       hadError = true;
       continue;
     }
-
-    const files = await collectJsonFiles(target);
     if (files.length === 0) {
       reports.push({
         file: raw,

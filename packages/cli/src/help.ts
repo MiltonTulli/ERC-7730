@@ -54,5 +54,5 @@ Download index.calldata.json, index.eip712.json, and referenced descriptor
 files (including relative includes) into the local cache.
 
   Default cache: ~/.erc7730/registry/<pin>
-  Override with --cache-dir, ERC7730_CACHE_DIR, or ERC7730_REGISTRY_PATH
+  Override with --cache-dir or ERC7730_CACHE_DIR
 `;

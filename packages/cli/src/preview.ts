@@ -20,14 +20,19 @@ function parseValue(value: string | undefined): TransactionInput['value'] {
   if (value === undefined) {
     return undefined;
   }
-  if (HEX_RE.test(value)) {
-    return value as Hex;
-  }
+  let parsed: bigint;
   try {
-    return BigInt(value);
+    parsed = BigInt(value);
   } catch {
     throw new UsageError('--value must be a decimal integer or 0x-prefixed hex');
   }
+  if (parsed < 0n) {
+    throw new UsageError('--value must be non-negative');
+  }
+  if (HEX_RE.test(value)) {
+    return value as Hex;
+  }
+  return parsed;
 }
 
 function formatPreview(result: Awaited<ReturnType<typeof decodeTransaction>>): string {
