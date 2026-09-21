@@ -5,6 +5,7 @@ import {
   inferFormat,
   inferIntent,
   looksLikeErc20,
+  solidityEnumName,
 } from '../generate/index.js';
 import { validateDescriptor } from '../schema/validate.js';
 
@@ -294,12 +295,43 @@ describe('generateDescriptor', () => {
 
     const validated = validateDescriptor(draft);
     expect(validated, JSON.stringify(validated)).toMatchObject({ ok: true, version: '2' });
-    expect(draft.metadata?.enums).toEqual({ InterestRateMode: {} });
+    expect(draft.metadata?.enums).toEqual({ IPool_InterestRateMode: {} });
     expect(
       field(formatsOf(draft), 'borrow(address,uint256,uint8)', '#.interestRateMode')
     ).toMatchObject({
       format: 'enum',
-      params: { $ref: '$.metadata.enums.InterestRateMode' },
+      params: { $ref: '$.metadata.enums.IPool_InterestRateMode' },
+    });
+  });
+
+  it('keeps distinct metadata.enums keys for qualified enums that share a final name', () => {
+    const draft = generateDescriptor({
+      chainId: 1,
+      address: '0x1111111111111111111111111111111111111111',
+      abi: [
+        {
+          type: 'function',
+          name: 'setStatus',
+          stateMutability: 'nonpayable',
+          inputs: [
+            { name: 'fromStatus', type: 'uint8', internalType: 'enum PoolA.Status' },
+            { name: 'toStatus', type: 'uint8', internalType: 'enum PoolB.Status' },
+          ],
+        },
+      ],
+    });
+
+    const validated = validateDescriptor(draft);
+    expect(validated, JSON.stringify(validated)).toMatchObject({ ok: true, version: '2' });
+    expect(draft.metadata?.enums).toEqual({ PoolA_Status: {}, PoolB_Status: {} });
+    const formats = formatsOf(draft);
+    expect(field(formats, 'setStatus(uint8,uint8)', '#.fromStatus')).toMatchObject({
+      format: 'enum',
+      params: { $ref: '$.metadata.enums.PoolA_Status' },
+    });
+    expect(field(formats, 'setStatus(uint8,uint8)', '#.toStatus')).toMatchObject({
+      format: 'enum',
+      params: { $ref: '$.metadata.enums.PoolB_Status' },
     });
   });
 
@@ -319,6 +351,16 @@ describe('generateDescriptor', () => {
     const formats = formatsOf(draft);
     expect(formats['pokeOracle(uint256)']?.intent).toBe('Call pokeOracle');
     expect(field(formats, 'pokeOracle(uint256)', '#.wad')).toMatchObject({ format: 'tokenAmount' });
+  });
+});
+
+describe('solidityEnumName', () => {
+  it('keeps unqualified enum identifiers and path-safes qualified names', () => {
+    expect(solidityEnumName('enum Status')).toBe('Status');
+    expect(solidityEnumName('enum IPool.InterestRateMode')).toBe('IPool_InterestRateMode');
+    expect(solidityEnumName('enum PoolA.Status')).toBe('PoolA_Status');
+    expect(solidityEnumName('enum PoolB.Status')).toBe('PoolB_Status');
+    expect(solidityEnumName('uint8')).toBeUndefined();
   });
 });
 

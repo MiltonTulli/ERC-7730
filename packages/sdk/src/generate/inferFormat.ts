@@ -73,14 +73,21 @@ const DATE_KEYS = [
 const TOKEN_AMOUNT_KEYS = ['amount', 'value', 'assets', 'wad', 'balance', 'quantity'];
 
 /**
- * Last identifier of `enum Foo.Bar` / `enum Bar`.
+ * Path-safe `metadata.enums` key from Solidity `internalType`.
+ *
+ * Unqualified `enum Status` stays `Status`. Qualified names keep the prefix so
+ * `enum PoolA.Status` and `enum PoolB.Status` do not share a key. Dots and `$`
+ * become `_` because `$ref` is `$.metadata.enums.${key}` (dot-separated path).
  */
 export function solidityEnumName(internalType: string | undefined): string | undefined {
   if (!internalType) {
     return undefined;
   }
-  const match = internalType.trim().match(/^enum\s+(?:[\w$.]+\.)?(\w+)$/);
-  return match?.[1];
+  const match = internalType.trim().match(/^enum\s+([\w$.]+)$/);
+  if (!match) {
+    return undefined;
+  }
+  return match[1].replace(/[.$]+/g, '_');
 }
 
 /**
