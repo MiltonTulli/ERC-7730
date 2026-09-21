@@ -1,17 +1,21 @@
 /**
- * Infer human-readable intent from function name
+ * Infer human-readable intent from function name.
+ *
+ * Known ABI verbs get a short phrase. Anything else falls back to
+ * `Call {functionName}` — authors must edit intents before a registry PR.
  */
 
 interface IntentPattern {
   keywords: string[];
   intent: string;
-  priority: number; // Higher = more specific, checked first
+  priority: number;
 }
 
 const INTENT_PATTERNS: IntentPattern[] = [
-  // Compound patterns (more specific, higher priority)
   { keywords: ['swap', 'exact', 'input'], intent: 'Swap exact input amount', priority: 10 },
   { keywords: ['swap', 'exact', 'output'], intent: 'Swap for exact output amount', priority: 10 },
+  { keywords: ['exact', 'input'], intent: 'Swap exact input amount', priority: 9 },
+  { keywords: ['exact', 'output'], intent: 'Swap for exact output amount', priority: 9 },
   { keywords: ['add', 'liquidity'], intent: 'Add liquidity', priority: 10 },
   { keywords: ['remove', 'liquidity'], intent: 'Remove liquidity', priority: 10 },
   { keywords: ['claim', 'reward'], intent: 'Claim rewards', priority: 10 },
@@ -24,7 +28,6 @@ const INTENT_PATTERNS: IntentPattern[] = [
   { keywords: ['decrease', 'allowance'], intent: 'Decrease allowance', priority: 10 },
   { keywords: ['permit', 'transfer'], intent: 'Permit and transfer', priority: 10 },
 
-  // Single keyword patterns (lower priority)
   { keywords: ['transfer'], intent: 'Transfer', priority: 5 },
   { keywords: ['approve'], intent: 'Approve spending', priority: 5 },
   { keywords: ['swap'], intent: 'Swap tokens', priority: 5 },
@@ -72,19 +75,16 @@ const INTENT_PATTERNS: IntentPattern[] = [
 ];
 
 /**
- * Infer intent from function name
+ * Infer intent from function name.
  */
 export function inferIntent(functionName: string): string {
   if (!functionName) {
-    return 'Contract interaction';
+    return 'Call unknown';
   }
 
   const lowerName = functionName.toLowerCase();
-
-  // Sort patterns by priority (descending)
   const sortedPatterns = [...INTENT_PATTERNS].sort((a, b) => b.priority - a.priority);
 
-  // Find matching pattern
   for (const pattern of sortedPatterns) {
     const allKeywordsMatch = pattern.keywords.every((kw) => lowerName.includes(kw.toLowerCase()));
     if (allKeywordsMatch) {
@@ -92,19 +92,5 @@ export function inferIntent(functionName: string): string {
     }
   }
 
-  // Fallback: capitalize function name
-  return formatFunctionName(functionName);
-}
-
-/**
- * Format function name as readable text
- */
-function formatFunctionName(name: string): string {
-  // Convert camelCase to Title Case
-  const spaced = name
-    .replace(/([A-Z])/g, ' $1')
-    .replace(/^./, (str) => str.toUpperCase())
-    .trim();
-
-  return spaced;
+  return `Call ${functionName}`;
 }

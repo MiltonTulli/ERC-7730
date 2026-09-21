@@ -69,21 +69,25 @@ function rewriteDisplay(display: unknown): unknown {
 }
 
 /**
- * Adapt `generateDescriptor()` output so it validates as ERC-7730 v2.
+ * Ensure `generateDescriptor()` output validates as ERC-7730 v2.
  *
- * The SDK generator still emits a v1-shaped draft (runtime Sourcify fallback).
- * CLI generate rewrites `$schema` and maps v1 `addressName` type `nft` →
- * `collection` (the v2 enum).
+ * The SDK generator already emits a v2 draft. This pass keeps `$schema` /
+ * `$comment` canonical and maps leftover v1 `addressName` type `nft` →
+ * `collection`.
  */
-export function toV2Draft(descriptor: ERC7730Descriptor): InputDescriptor {
+export function toV2Draft(descriptor: InputDescriptor | ERC7730Descriptor): InputDescriptor {
+  const rec = descriptor as Record<string, unknown>;
   const out: Record<string, unknown> = {
     $schema: V2_SCHEMA_URI,
-    $comment: GENERATED_COMMENT,
-    context: descriptor.context,
+    $comment: typeof rec.$comment === 'string' ? rec.$comment : GENERATED_COMMENT,
+    context: rec.context,
   };
-  if (descriptor.metadata) {
-    out.metadata = descriptor.metadata;
+  if (rec.metadata) {
+    out.metadata = rec.metadata;
   }
-  out.display = rewriteDisplay(descriptor.display);
+  if (rec.includes) {
+    out.includes = rec.includes;
+  }
+  out.display = rewriteDisplay(rec.display);
   return out as InputDescriptor;
 }

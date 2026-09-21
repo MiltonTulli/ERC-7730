@@ -206,7 +206,9 @@ const draft = generateDescriptor({
   abi: contractABI,
   owner: 'My Protocol',
 });
-// draft is a starting point for an upstream registry PR — never confidence: "high"
+// v2 draft with guessed formats (tokenAmount, date, addressName, enums).
+// Review intents before an upstream registry PR — never confidence: "high"
+
 ```
 
 ## Security Warnings

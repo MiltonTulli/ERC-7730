@@ -59,7 +59,7 @@ export interface LintIssue {
 export const V2_SCHEMA_URI = 'https://eips.ethereum.org/assets/eip-7730/erc7730-v2.schema.json';
 
 export const GENERATED_COMMENT =
-  'Generated draft. Review intents and formats before submitting to the official registry. Never a high-confidence runtime source.';
+  'TODO: generated draft — review intents and formats before submitting to the official registry. Never a high-confidence runtime source.';
 
 export const ADDRESS_RE = /^0x[0-9a-fA-F]{40}$/;
 export const HEX_RE = /^0x[0-9a-fA-F]*$/;
