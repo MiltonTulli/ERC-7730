@@ -82,6 +82,9 @@ export {
   inferIntent,
   inferFormat,
   inferLabel,
+  looksLikeErc20,
+  V2_SCHEMA_URI,
+  GENERATED_DESCRIPTOR_COMMENT,
 } from './generate/index.js';
 
 export { validateDescriptor } from './schema/index.js';
@@ -123,6 +126,8 @@ export {
 
 export type {
   GenerateOptions,
+  GenerateInput,
+  GeneratedDescriptor,
   ABI,
   ABIFunction,
   ABIParameter,

@@ -1,147 +1,153 @@
 /**
- * Infer ERC-7730 field format from ABI parameter name and type
- * Based on python-erc7730 logic
+ * Infer ERC-7730 v2 field format from ABI parameter name and type.
+ *
+ * Spec format names come from erc7730-v2.schema.json (`addressName`, not the
+ * ROADMAP alias `addressOrName`). Generated drafts are untrusted.
  */
 
-import type { AddressNameParams, DateParams, FieldFormat, FormatParams } from '../types/erc7730.js';
+import type { ERC7730V2FieldFormat, FieldParams } from '../types/v2.js';
 
-interface InferredFormat {
-  format: FieldFormat;
-  params?: FormatParams;
+export interface InferredFormat {
+  format: ERC7730V2FieldFormat;
+  params?: FieldParams;
+  /** Set when the ABI `internalType` is a Solidity enum. */
+  enumName?: string;
 }
 
+export interface InferFormatContext {
+  /** When the ABI looks like ERC-20, token amounts use `tokenPath: "@.to"`. */
+  looksLikeErc20?: boolean;
+  /** Solidity `internalType` from the ABI JSON (e.g. `enum IPool.InterestRateMode`). */
+  internalType?: string;
+}
+
+const SHORT_KEYWORD = 3;
+
 /**
- * Check if name contains any of the given keywords (case-insensitive)
+ * Split camelCase / snake_case names so short keywords like `to` do not match
+ * inside `token` or `total`.
  */
+export function nameTokens(name: string): string[] {
+  return name
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .replace(/[_-]+/g, ' ')
+    .toLowerCase()
+    .split(/\s+/)
+    .filter(Boolean);
+}
+
 function containsAny(name: string, keywords: string[]): boolean {
   const lower = name.toLowerCase();
-  return keywords.some((kw) => lower.includes(kw.toLowerCase()));
+  const parts = nameTokens(name);
+  return keywords.some((keyword) => {
+    const needle = keyword.toLowerCase();
+    if (needle.length <= SHORT_KEYWORD) {
+      return parts.includes(needle);
+    }
+    return lower.includes(needle) || parts.includes(needle);
+  });
+}
+
+const ADDRESS_RECIPIENT_KEYS = [
+  'from',
+  'to',
+  'owner',
+  'recipient',
+  'receiver',
+  'account',
+  'sender',
+  'user',
+];
+
+const DATE_KEYS = [
+  'deadline',
+  'expiration',
+  'expiry',
+  'until',
+  'time',
+  'timestamp',
+  'validUntil',
+  'validAfter',
+];
+
+const TOKEN_AMOUNT_KEYS = ['amount', 'value', 'assets', 'wad', 'balance', 'quantity'];
+
+/**
+ * Last identifier of `enum Foo.Bar` / `enum Bar`.
+ */
+export function solidityEnumName(internalType: string | undefined): string | undefined {
+  if (!internalType) {
+    return undefined;
+  }
+  const match = internalType.trim().match(/^enum\s+(?:[\w$.]+\.)?(\w+)$/);
+  return match?.[1];
 }
 
 /**
- * Infer format from ABI parameter name and type
+ * Infer format from ABI parameter name and type.
  */
-export function inferFormat(name: string, type: string): InferredFormat {
+export function inferFormat(
+  name: string,
+  type: string,
+  ctx: InferFormatContext = {}
+): InferredFormat {
   const normalizedType = type.toLowerCase();
+  const enumName = solidityEnumName(ctx.internalType);
 
-  // Address type
+  if (enumName) {
+    return {
+      format: 'enum',
+      params: { $ref: `$.metadata.enums.${enumName}` },
+      enumName,
+    };
+  }
+
   if (normalizedType === 'address') {
     if (containsAny(name, ['collection', 'nft'])) {
-      return {
-        format: 'addressName',
-        params: { types: ['nft'] } as AddressNameParams,
-      };
+      return { format: 'addressName', params: { types: ['collection'] } };
     }
     if (containsAny(name, ['spender', 'operator'])) {
-      return {
-        format: 'addressName',
-        params: { types: ['contract'] } as AddressNameParams,
-      };
+      return { format: 'addressName', params: { types: ['contract'] } };
     }
     if (containsAny(name, ['asset', 'token', 'currency'])) {
-      return {
-        format: 'addressName',
-        params: { types: ['token'] } as AddressNameParams,
-      };
+      return { format: 'addressName', params: { types: ['token'] } };
     }
-    if (
-      containsAny(name, [
-        'from',
-        'to',
-        'owner',
-        'recipient',
-        'receiver',
-        'account',
-        'sender',
-        'user',
-      ])
-    ) {
-      return {
-        format: 'addressName',
-        params: { types: ['eoa', 'contract'] } as AddressNameParams,
-      };
+    if (containsAny(name, ADDRESS_RECIPIENT_KEYS)) {
+      return { format: 'addressName', params: { types: ['eoa', 'contract'] } };
     }
-    // Default for address
     return { format: 'addressName' };
   }
 
-  // Unsigned integer types
-  if (normalizedType.startsWith('uint')) {
+  if (normalizedType.startsWith('uint') || normalizedType.startsWith('int')) {
     if (containsAny(name, ['duration', 'period', 'interval'])) {
       return { format: 'duration' };
     }
-    if (containsAny(name, ['height', 'block'])) {
-      return {
-        format: 'date',
-        params: { encoding: 'blockheight' } as DateParams,
-      };
+    if (normalizedType.startsWith('uint') && containsAny(name, ['height', 'block'])) {
+      return { format: 'date', params: { encoding: 'blockheight' } };
+    }
+    if (containsAny(name, DATE_KEYS)) {
+      return { format: 'date', params: { encoding: 'timestamp' } };
     }
     if (
-      containsAny(name, [
-        'deadline',
-        'expiration',
-        'expiry',
-        'until',
-        'time',
-        'timestamp',
-        'validUntil',
-        'validAfter',
-      ])
+      containsAny(name, TOKEN_AMOUNT_KEYS) ||
+      (normalizedType.startsWith('int') && containsAny(name, ['delta']))
     ) {
-      return {
-        format: 'date',
-        params: { encoding: 'timestamp' } as DateParams,
-      };
-    }
-    if (containsAny(name, ['amount', 'value', 'price', 'balance', 'quantity', 'fee', 'cost'])) {
-      return { format: 'tokenAmount' };
-    }
-    // Default for uint - could be token amount or raw
-    return { format: 'raw' };
-  }
-
-  // Signed integer types
-  if (normalizedType.startsWith('int')) {
-    if (containsAny(name, ['amount', 'value', 'delta'])) {
-      return { format: 'tokenAmount' };
+      const inferred: InferredFormat = { format: 'tokenAmount' };
+      if (ctx.looksLikeErc20) {
+        inferred.params = { tokenPath: '@.to' };
+      }
+      return inferred;
     }
     return { format: 'raw' };
   }
 
-  // Bytes types
-  if (normalizedType === 'bytes' || normalizedType.match(/^bytes\d+$/)) {
-    return { format: 'raw' };
-  }
-
-  // Bool type
-  if (normalizedType === 'bool') {
-    return { format: 'raw' };
-  }
-
-  // String type
-  if (normalizedType === 'string') {
-    return { format: 'raw' };
-  }
-
-  // Array types - use raw format
-  if (normalizedType.includes('[]')) {
-    return { format: 'raw' };
-  }
-
-  // Tuple types - use raw format
-  if (normalizedType === 'tuple') {
-    return { format: 'raw' };
-  }
-
-  // Default
   return { format: 'raw' };
 }
 
 /**
- * Generate a human-readable label from parameter name
+ * Generate a human-readable label from parameter name.
  */
 export function inferLabel(name: string): string {
-  // Handle common abbreviations
   const abbreviations: Record<string, string> = {
     amt: 'Amount',
     addr: 'Address',
@@ -158,28 +164,20 @@ export function inferLabel(name: string): string {
     nft: 'NFT',
     erc: 'ERC',
     eth: 'ETH',
+    wad: 'Wad',
   };
 
-  // Convert camelCase/snake_case to Title Case
-  let label = name
-    // Insert space before uppercase letters
+  const label = name
     .replace(/([A-Z])/g, ' $1')
-    // Replace underscores with spaces
     .replace(/_/g, ' ')
-    // Trim and collapse multiple spaces
     .trim()
-    .replace(/\s+/g, ' ');
-
-  // Capitalize first letter of each word
-  label = label
+    .replace(/\s+/g, ' ')
     .split(' ')
     .map((word) => {
       const lower = word.toLowerCase();
-      // Check for abbreviations
       if (abbreviations[lower]) {
         return abbreviations[lower];
       }
-      // Capitalize first letter
       return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
     })
     .join(' ');

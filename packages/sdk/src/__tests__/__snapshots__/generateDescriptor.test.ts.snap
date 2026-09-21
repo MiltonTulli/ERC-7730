@@ -1,0 +1,354 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`generateDescriptor > emits a v2-valid ERC-20 draft and matches snapshot 1`] = `
+{
+  "$comment": "TODO: generated draft — review intents and formats before submitting to the official registry. Never a high-confidence runtime source.",
+  "$schema": "https://eips.ethereum.org/assets/eip-7730/erc7730-v2.schema.json",
+  "context": {
+    "$id": "USD Coin",
+    "contract": {
+      "deployments": [
+        {
+          "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+          "chainId": 1,
+        },
+      ],
+    },
+  },
+  "display": {
+    "formats": {
+      "approve(address,uint256)": {
+        "fields": [
+          {
+            "format": "addressName",
+            "label": "Spender",
+            "params": {
+              "types": [
+                "contract",
+              ],
+            },
+            "path": "#.spender",
+          },
+          {
+            "format": "tokenAmount",
+            "label": "Amount",
+            "params": {
+              "tokenPath": "@.to",
+            },
+            "path": "#.amount",
+          },
+        ],
+        "intent": "Approve spending",
+      },
+      "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)": {
+        "fields": [
+          {
+            "format": "addressName",
+            "label": "Owner",
+            "params": {
+              "types": [
+                "eoa",
+                "contract",
+              ],
+            },
+            "path": "#.owner",
+          },
+          {
+            "format": "addressName",
+            "label": "Spender",
+            "params": {
+              "types": [
+                "contract",
+              ],
+            },
+            "path": "#.spender",
+          },
+          {
+            "format": "tokenAmount",
+            "label": "Value",
+            "params": {
+              "tokenPath": "@.to",
+            },
+            "path": "#.value",
+          },
+          {
+            "format": "date",
+            "label": "Deadline",
+            "params": {
+              "encoding": "timestamp",
+            },
+            "path": "#.deadline",
+          },
+          {
+            "format": "raw",
+            "label": "V",
+            "path": "#.v",
+          },
+          {
+            "format": "raw",
+            "label": "R",
+            "path": "#.r",
+          },
+          {
+            "format": "raw",
+            "label": "S",
+            "path": "#.s",
+          },
+        ],
+        "intent": "Permit",
+      },
+      "transfer(address,uint256)": {
+        "fields": [
+          {
+            "format": "addressName",
+            "label": "To",
+            "params": {
+              "types": [
+                "eoa",
+                "contract",
+              ],
+            },
+            "path": "#.to",
+          },
+          {
+            "format": "tokenAmount",
+            "label": "Amount",
+            "params": {
+              "tokenPath": "@.to",
+            },
+            "path": "#.amount",
+          },
+        ],
+        "intent": "Transfer",
+      },
+      "transferFrom(address,address,uint256)": {
+        "fields": [
+          {
+            "format": "addressName",
+            "label": "From",
+            "params": {
+              "types": [
+                "eoa",
+                "contract",
+              ],
+            },
+            "path": "#.from",
+          },
+          {
+            "format": "addressName",
+            "label": "To",
+            "params": {
+              "types": [
+                "eoa",
+                "contract",
+              ],
+            },
+            "path": "#.to",
+          },
+          {
+            "format": "tokenAmount",
+            "label": "Amount",
+            "params": {
+              "tokenPath": "@.to",
+            },
+            "path": "#.amount",
+          },
+        ],
+        "intent": "Transfer",
+      },
+    },
+  },
+  "metadata": {
+    "contractName": "USD Coin",
+    "info": {
+      "url": "https://www.circle.com/",
+    },
+    "owner": "Centre",
+  },
+}
+`;
+
+exports[`generateDescriptor > emits a v2-valid router draft and matches snapshot 1`] = `
+{
+  "$comment": "TODO: generated draft — review intents and formats before submitting to the official registry. Never a high-confidence runtime source.",
+  "$schema": "https://eips.ethereum.org/assets/eip-7730/erc7730-v2.schema.json",
+  "context": {
+    "$id": "Uniswap V2 Router",
+    "contract": {
+      "deployments": [
+        {
+          "address": "0x7a250d5630b4cf539739df2c5dacb4c659f2488d",
+          "chainId": 1,
+        },
+      ],
+    },
+  },
+  "display": {
+    "formats": {
+      "addLiquidity(address,address,uint256,uint256,uint256,uint256,address,uint256)": {
+        "fields": [
+          {
+            "format": "addressName",
+            "label": "Token A",
+            "params": {
+              "types": [
+                "token",
+              ],
+            },
+            "path": "#.tokenA",
+          },
+          {
+            "format": "addressName",
+            "label": "Token B",
+            "params": {
+              "types": [
+                "token",
+              ],
+            },
+            "path": "#.tokenB",
+          },
+          {
+            "format": "tokenAmount",
+            "label": "Amount A Desired",
+            "path": "#.amountADesired",
+          },
+          {
+            "format": "tokenAmount",
+            "label": "Amount B Desired",
+            "path": "#.amountBDesired",
+          },
+          {
+            "format": "tokenAmount",
+            "label": "Amount A Min",
+            "path": "#.amountAMin",
+          },
+          {
+            "format": "tokenAmount",
+            "label": "Amount B Min",
+            "path": "#.amountBMin",
+          },
+          {
+            "format": "addressName",
+            "label": "To",
+            "params": {
+              "types": [
+                "eoa",
+                "contract",
+              ],
+            },
+            "path": "#.to",
+          },
+          {
+            "format": "date",
+            "label": "Deadline",
+            "params": {
+              "encoding": "timestamp",
+            },
+            "path": "#.deadline",
+          },
+        ],
+        "intent": "Add liquidity",
+      },
+      "exactInputSingle((address,address,uint24,address,uint256,uint256,uint160))": {
+        "fields": [
+          {
+            "format": "addressName",
+            "label": "Token In",
+            "params": {
+              "types": [
+                "token",
+              ],
+            },
+            "path": "#.params.tokenIn",
+          },
+          {
+            "format": "addressName",
+            "label": "Token Out",
+            "params": {
+              "types": [
+                "token",
+              ],
+            },
+            "path": "#.params.tokenOut",
+          },
+          {
+            "format": "raw",
+            "label": "Fee",
+            "path": "#.params.fee",
+          },
+          {
+            "format": "addressName",
+            "label": "Recipient",
+            "params": {
+              "types": [
+                "eoa",
+                "contract",
+              ],
+            },
+            "path": "#.params.recipient",
+          },
+          {
+            "format": "tokenAmount",
+            "label": "Amount In",
+            "path": "#.params.amountIn",
+          },
+          {
+            "format": "tokenAmount",
+            "label": "Amount Out Minimum",
+            "path": "#.params.amountOutMinimum",
+          },
+          {
+            "format": "raw",
+            "label": "Sqrt Price Limit X96",
+            "path": "#.params.sqrtPriceLimitX96",
+          },
+        ],
+        "intent": "Swap exact input amount",
+      },
+      "swapExactTokensForTokens(uint256,uint256,address[],address,uint256)": {
+        "fields": [
+          {
+            "format": "tokenAmount",
+            "label": "Amount In",
+            "path": "#.amountIn",
+          },
+          {
+            "format": "tokenAmount",
+            "label": "Amount Out Min",
+            "path": "#.amountOutMin",
+          },
+          {
+            "format": "raw",
+            "label": "Path",
+            "path": "#.path",
+          },
+          {
+            "format": "addressName",
+            "label": "To",
+            "params": {
+              "types": [
+                "eoa",
+                "contract",
+              ],
+            },
+            "path": "#.to",
+          },
+          {
+            "format": "date",
+            "label": "Deadline",
+            "params": {
+              "encoding": "timestamp",
+            },
+            "path": "#.deadline",
+          },
+        ],
+        "intent": "Swap tokens",
+      },
+    },
+  },
+  "metadata": {
+    "contractName": "Uniswap V2 Router",
+    "owner": "Uniswap",
+  },
+}
+`;

@@ -1,7 +1,7 @@
 import {
   type ABI,
   type DecodedOperation,
-  type ERC7730Descriptor,
+  type GeneratedDescriptor,
   type InputDescriptor,
   SUPPORTED_CHAINS,
   VENDORED_REGISTRY_COMMIT,
@@ -50,8 +50,8 @@ const EXAMPLES = {
 // Current state
 let currentInput: { calldata: string; contract: string; chainId: number; rpcUrl: string } | null =
   null;
-let customDescriptor: ERC7730Descriptor | null = null;
-let lastGeneratedDescriptor: ERC7730Descriptor | null = null;
+let customDescriptor: GeneratedDescriptor | null = null;
+let lastGeneratedDescriptor: GeneratedDescriptor | null = null;
 
 // ============================================================================
 // DOM Elements - Decode Tab
@@ -130,7 +130,7 @@ chainSelect.addEventListener('change', updateRpcPlaceholder);
 // ============================================================================
 // Custom Descriptor Management
 // ============================================================================
-function setCustomDescriptor(descriptor: ERC7730Descriptor) {
+function setCustomDescriptor(descriptor: GeneratedDescriptor) {
   customDescriptor = descriptor;
   customDescriptorIndicator.style.display = 'flex';
 }
@@ -342,7 +342,7 @@ useForDecodeBtn.addEventListener('click', () => {
 // ============================================================================
 // GitHub Contribution
 // ============================================================================
-function generateFileName(descriptor: ERC7730Descriptor): string {
+function generateFileName(descriptor: GeneratedDescriptor): string {
   const deployment = descriptor.context.contract?.deployments?.[0];
   const address = deployment?.address?.toLowerCase() || 'unknown';
   const chainId = deployment?.chainId || 1;
@@ -350,7 +350,7 @@ function generateFileName(descriptor: ERC7730Descriptor): string {
   return `${owner}-${chainId}-${address.slice(0, 10)}.json`;
 }
 
-async function openContributePR(descriptor: ERC7730Descriptor) {
+async function openContributePR(descriptor: GeneratedDescriptor) {
   const fileName = generateFileName(descriptor);
   const content = JSON.stringify(descriptor, replacer, 2);
 
@@ -419,7 +419,7 @@ function showClipboardInstructions(fileName: string) {
   });
 }
 
-function showContributePopup(descriptor: ERC7730Descriptor) {
+function showContributePopup(descriptor: GeneratedDescriptor) {
   // Create modal overlay
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
@@ -753,7 +753,7 @@ function renderResult(result: DecodedOperation) {
   resultDiv.style.display = 'block';
 }
 
-function renderGenerateResult(descriptor: ERC7730Descriptor, fromSourcify = false) {
+function renderGenerateResult(descriptor: GeneratedDescriptor, fromSourcify = false) {
   const functionCount = Object.keys(descriptor.display.formats).length;
   const functions = Object.keys(descriptor.display.formats);
   const trust: TrustDisplay = {
@@ -897,7 +897,7 @@ function renderGenerateResult(descriptor: ERC7730Descriptor, fromSourcify = fals
   generateResultDiv.style.display = 'block';
 }
 
-function generateDescriptorUsageCode(descriptor: ERC7730Descriptor): string {
+function generateDescriptorUsageCode(descriptor: GeneratedDescriptor): string {
   return `import { createClearSigner, generateDescriptor, officialOrLocalPolicy } from '@erc7730/sdk';
 
 // Generated / Sourcify drafts are untrusted — never confidence: "high".

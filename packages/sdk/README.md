@@ -208,7 +208,7 @@ const draft = generateDescriptor({
   abi: contractABI,
   owner: 'My Protocol'
 });
-// Starting point for an upstream registry PR — never confidence: "high"
+// v2 draft with guessed formats — review intents; never confidence: "high"
 
 const signer = createClearSigner({ trust: officialOrLocalPolicy(), useSourcifyFallback: false });
 signer.extend([draft]);
