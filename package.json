@@ -10,7 +10,7 @@
     "lint:fix": "biome check --write .",
     "format": "biome format --write .",
     "clean": "turbo clean && rm -rf node_modules/.cache",
-    "typecheck": "tsc -b",
+    "typecheck": "tsc -b && pnpm --filter @erc7730/sdk typecheck:consumer",
     "prepare": "simple-git-hooks",
     "golden:python": "tsx scripts/golden-python-erc7730.ts",
     "changeset": "changeset",
