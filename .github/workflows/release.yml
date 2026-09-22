@@ -114,23 +114,33 @@ jobs:
           pnpm typecheck
           pnpm test
 
-      - name: Read version and skip if already on npm
+      - name: Plan SDK publish and GitHub Release
         id: plan
         working-directory: packages/sdk
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           VERSION=$(node -p "require('./package.json').version")
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           PUBLISHED=$(npm view "@erc7730/sdk@${VERSION}" version 2>/dev/null || true)
           if [ "$PUBLISHED" = "$VERSION" ]; then
-            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "publish=false" >> "$GITHUB_OUTPUT"
             echo "Already on npm: @erc7730/sdk@$VERSION"
           else
-            echo "skip=false" >> "$GITHUB_OUTPUT"
+            echo "publish=true" >> "$GITHUB_OUTPUT"
             echo "Will publish @erc7730/sdk@$VERSION"
+          fi
+          # Checked independently of npm so a failed release step is retried on the next run.
+          if gh release view "sdk-v${VERSION}" >/dev/null 2>&1; then
+            echo "release=false" >> "$GITHUB_OUTPUT"
+            echo "GitHub Release sdk-v$VERSION already exists"
+          else
+            echo "release=true" >> "$GITHUB_OUTPUT"
+            echo "Will create GitHub Release sdk-v$VERSION"
           fi
 
       - name: Pack and inspect tarball
-        if: steps.plan.outputs.skip != 'true'
+        if: steps.plan.outputs.publish == 'true'
         working-directory: packages/sdk
         run: |
           VERSION="${{ steps.plan.outputs.version }}"
@@ -150,14 +160,21 @@ jobs:
           echo "Tarball looks clean: $TARBALL"
 
       - name: Publish to npm
-        if: steps.plan.outputs.skip != 'true'
+        if: steps.plan.outputs.publish == 'true'
         working-directory: packages/sdk
         run: |
           VERSION="${{ steps.plan.outputs.version }}"
           npm publish "erc7730-sdk-${VERSION}.tgz" --access public --provenance
 
+      - name: Fetch published SDK tarball (release recovery)
+        if: steps.plan.outputs.publish != 'true' && steps.plan.outputs.release == 'true'
+        working-directory: packages/sdk
+        env:
+          VERSION: ${{ steps.plan.outputs.version }}
+        run: npm pack "@erc7730/sdk@${VERSION}"
+
       - name: GitHub Release (SDK)
-        if: steps.plan.outputs.skip != 'true'
+        if: steps.plan.outputs.release == 'true'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: sdk-v${{ steps.plan.outputs.version }}
@@ -170,28 +187,39 @@ jobs:
           fail_on_unmatched_files: true
           files: packages/sdk/erc7730-sdk-${{ steps.plan.outputs.version }}.tgz
 
-      - name: Read CLI version and skip if already on npm
+      - name: Plan CLI publish and GitHub Release
         id: cli
         working-directory: packages/cli
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           VERSION=$(node -p "require('./package.json').version")
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           if [ "$VERSION" = "0.0.0" ]; then
-            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+            echo "release=false" >> "$GITHUB_OUTPUT"
             echo "CLI is still 0.0.0 (waiting for Version PR)"
             exit 0
           fi
           PUBLISHED=$(npm view "@erc7730/cli@${VERSION}" version 2>/dev/null || true)
           if [ "$PUBLISHED" = "$VERSION" ]; then
-            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "publish=false" >> "$GITHUB_OUTPUT"
             echo "Already on npm: @erc7730/cli@$VERSION"
           else
-            echo "skip=false" >> "$GITHUB_OUTPUT"
+            echo "publish=true" >> "$GITHUB_OUTPUT"
             echo "Will publish @erc7730/cli@$VERSION"
+          fi
+          # Checked independently of npm so a failed release step is retried on the next run.
+          if gh release view "cli-v${VERSION}" >/dev/null 2>&1; then
+            echo "release=false" >> "$GITHUB_OUTPUT"
+            echo "GitHub Release cli-v$VERSION already exists"
+          else
+            echo "release=true" >> "$GITHUB_OUTPUT"
+            echo "Will create GitHub Release cli-v$VERSION"
           fi
 
       - name: Pack CLI tarball
-        if: steps.cli.outputs.skip != 'true'
+        if: steps.cli.outputs.publish == 'true'
         working-directory: packages/cli
         env:
           VERSION: ${{ steps.cli.outputs.version }}
@@ -212,15 +240,22 @@ jobs:
           echo "Tarball looks clean: $TARBALL"
 
       - name: Publish @erc7730/cli
-        if: steps.cli.outputs.skip != 'true'
+        if: steps.cli.outputs.publish == 'true'
         working-directory: packages/cli
         env:
           VERSION: ${{ steps.cli.outputs.version }}
         run: |
           npm publish "erc7730-cli-${VERSION}.tgz" --access public --provenance
 
+      - name: Fetch published CLI tarball (release recovery)
+        if: steps.cli.outputs.publish != 'true' && steps.cli.outputs.release == 'true'
+        working-directory: packages/cli
+        env:
+          VERSION: ${{ steps.cli.outputs.version }}
+        run: npm pack "@erc7730/cli@${VERSION}"
+
       - name: GitHub Release (CLI)
-        if: steps.cli.outputs.skip != 'true'
+        if: steps.cli.outputs.release == 'true'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: cli-v${{ steps.cli.outputs.version }}
