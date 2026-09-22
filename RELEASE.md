@@ -56,9 +56,11 @@ On `push` to `main` (and optional `workflow_dispatch` of this same file):
 4. If `packages/sdk/package.json` version is **already on npm**, the job succeeds without publishing. Docs-only merges to `main` stay green.
 5. Otherwise `npm pack` in `packages/sdk` (and `packages/cli` when that version is not on npm). Fails if a tarball contains `src/`, tests, or `.map` files.
 6. `npm publish <tarball> --access public --provenance` via **OIDC Trusted Publishing** (no `NPM_TOKEN`) for each package whose version is new.
-7. `softprops/action-gh-release` creates tag `vX.Y.Z` from the **SDK** version on the current SHA and a GitHub Release, and attaches the SDK `.tgz`.
+7. For each package that was actually published in that run, `softprops/action-gh-release` creates a **package-specific** tag on the current SHA, a GitHub Release named after that package and version, and attaches that package's `.tgz`:
+   - `sdk-vX.Y.Z` → "@erc7730/sdk vX.Y.Z"
+   - `cli-vX.Y.Z` → "@erc7730/cli vX.Y.Z"
 
-`@erc7730/sdk` and `@erc7730/cli` are published independently when their version is not already on npm. The GitHub Release tag follows the SDK version. The Environment is on the **publish** job only, so opening a Version PR does not wait for approval.
+`@erc7730/sdk` and `@erc7730/cli` are versioned, published, and released independently: a package whose version is already on npm gets no new tag/release in that run. There is no shared/generic `vX.Y.Z` tag. The Environment is on the **publish** job only, so opening a Version PR does not wait for approval.
 
 First publish of `@erc7730/cli` needs npm Trusted Publishing configured for that package (same workflow filename `release.yml`, GitHub Environment `npm`).
 
@@ -121,7 +123,7 @@ npm pack
 npm publish "erc7730-sdk-${VERSION}.tgz" --access public
 ```
 
-Do **not** `git push origin vX.Y.Z` expecting a publish. Tags no longer trigger `release.yml`. If npm already has the version but the GitHub Release is missing, create the release (and tag) from the GitHub UI on that `main` SHA.
+Do **not** `git push origin sdk-vX.Y.Z` / `cli-vX.Y.Z` expecting a publish. Tags no longer trigger `release.yml`. If npm already has the version but the GitHub Release is missing, create the release (and tag) from the GitHub UI on that `main` SHA, using the package-specific tag (`sdk-vX.Y.Z` or `cli-vX.Y.Z`) — never a bare `vX.Y.Z`.
 
 ## Rollback
 

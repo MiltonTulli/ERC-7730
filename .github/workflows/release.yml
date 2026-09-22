@@ -72,7 +72,7 @@ jobs:
           HUSKY: "0"
 
   publish:
-    name: Publish @erc7730/sdk
+    name: Publish packages
     needs: version
     if: needs.version.outputs.has_changesets == 'false'
     runs-on: ubuntu-latest
@@ -156,11 +156,16 @@ jobs:
           VERSION="${{ steps.plan.outputs.version }}"
           npm publish "erc7730-sdk-${VERSION}.tgz" --access public --provenance
 
-      - name: GitHub Release
+      - name: GitHub Release (SDK)
         if: steps.plan.outputs.skip != 'true'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ steps.plan.outputs.version }}
+          tag_name: sdk-v${{ steps.plan.outputs.version }}
+          name: "@erc7730/sdk v${{ steps.plan.outputs.version }}"
+          body: |
+            Package: `@erc7730/sdk`
+            Version: `${{ steps.plan.outputs.version }}`
+          append_body: true
           generate_release_notes: true
           fail_on_unmatched_files: true
           files: packages/sdk/erc7730-sdk-${{ steps.plan.outputs.version }}.tgz
@@ -213,3 +218,17 @@ jobs:
           VERSION: ${{ steps.cli.outputs.version }}
         run: |
           npm publish "erc7730-cli-${VERSION}.tgz" --access public --provenance
+
+      - name: GitHub Release (CLI)
+        if: steps.cli.outputs.skip != 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: cli-v${{ steps.cli.outputs.version }}
+          name: "@erc7730/cli v${{ steps.cli.outputs.version }}"
+          body: |
+            Package: `@erc7730/cli`
+            Version: `${{ steps.cli.outputs.version }}`
+          append_body: true
+          generate_release_notes: true
+          fail_on_unmatched_files: true
+          files: packages/cli/erc7730-cli-${{ steps.cli.outputs.version }}.tgz
