@@ -106,6 +106,35 @@ console.log(result.warnings);     // e.g. untrusted_descriptor, infinite_approva
 
 Production lookups should use `createOfficialRegistry({ pin })`, not the v1 embedded snapshot.
 
+## viem adapters
+
+Install the optional peer with `npm install @erc7730/sdk viem`, then import adapters
+from the dedicated subpath:
+
+```ts
+import { officialOnlyPolicy } from '@erc7730/sdk';
+import { decodeViemTransaction } from '@erc7730/sdk/viem';
+import { encodeFunctionData, erc20Abi } from 'viem';
+
+const result = await decodeViemTransaction({
+  to: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  data: encodeFunctionData({
+    abi: erc20Abi,
+    functionName: 'transfer',
+    args: ['0xd8da6bf26964af9d7eed9e03e53415d37aa96045', 100_000_000n],
+  }),
+  chainId: 1,
+}, { trust: officialOnlyPolicy(), useSourcifyFallback: false });
+
+console.log(result.intent, result.trust);
+```
+
+Supply a pinned official registry for trusted metadata; without one this example
+shows untrusted fallback output. See the [SDK viem guide](./packages/sdk/README.md#viem-adapters)
+for `decodeViemTypedData`, input requirements, and a docs-only wagmi hook.
+The adapters are not re-exported from the root. They add no runtime viem imports,
+but the existing decode core still uses viem internally; the SDK is not viem-free.
+
 ## Official registry
 
 The canonical catalog is [`ethereum/clear-signing-erc7730-registry`](https://github.com/ethereum/clear-signing-erc7730-registry). Production lookups pin a **commit SHA** (never floating `master` / `main`).

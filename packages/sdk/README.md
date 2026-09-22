@@ -95,6 +95,110 @@ console.log(result.fields);
 
 Production lookups should use `createOfficialRegistry({ pin })`, not the v1 embedded snapshot.
 
+## viem adapters
+
+```bash
+npm install @erc7730/sdk viem
+```
+
+`@erc7730/sdk/viem` exposes `decodeViemTransaction` and `decodeViemTypedData`.
+Both accept the same `DecodeOptions` and return the same `DecodedOperation` as
+the core functions, including warnings and trust results. No signing is performed.
+
+```ts
+import { createOfficialRegistry, officialOnlyPolicy } from '@erc7730/sdk';
+import { decodeViemTransaction, decodeViemTypedData } from '@erc7730/sdk/viem';
+import { encodeFunctionData, erc20Abi, type TypedDataDefinition } from 'viem';
+
+const token = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48' as const;
+const recipient = '0xd8da6bf26964af9d7eed9e03e53415d37aa96045' as const;
+const options = {
+  registry: createOfficialRegistry({ pin: '9f37816afde954ff6617fb5baa346133e5af26c5' }),
+  trust: officialOnlyPolicy(),
+  useSourcifyFallback: false,
+};
+
+const transaction = await decodeViemTransaction({
+  to: token,
+  data: encodeFunctionData({
+    abi: erc20Abi,
+    functionName: 'transfer',
+    args: [recipient, 100_000_000n],
+  }),
+  value: 0n,
+  chainId: 1,
+}, options);
+
+const permit = {
+  domain: { name: 'USD Coin', version: '2', chainId: 1, verifyingContract: token },
+  types: {
+    Permit: [
+      { name: 'owner', type: 'address' },
+      { name: 'spender', type: 'address' },
+      { name: 'value', type: 'uint256' },
+      { name: 'nonce', type: 'uint256' },
+      { name: 'deadline', type: 'uint256' },
+    ],
+  },
+  primaryType: 'Permit',
+  message: {
+    owner: recipient,
+    spender: '0x1111111254eeb25477b68fb85ed929f73a960582',
+    value: 100_000_000n,
+    nonce: 0n,
+    deadline: 1_735_689_600n,
+  },
+} as const satisfies TypedDataDefinition;
+
+const typedData = await decodeViemTypedData(permit, options);
+console.log(transaction.intent, typedData.intent, typedData.warnings);
+```
+
+Transaction input requires `to`, `data`, and an explicit numeric `chainId`;
+`value` (bigint) and `from` are optional. Add the chain ID when adapting a viem
+transaction request; contract-creation transactions (`to: null`) are not supported.
+RPC transaction responses use `input` instead of `data` and need that field mapped.
+For requests with `account`, pass its address as `from` if sender context is needed.
+
+Typed-data definitions may use readonly type arrays (`as const`) and omit `domain`.
+The adapter copies those arrays for the core API and defaults an omitted domain to
+`{}`. It does not infer a chain: without `domain.chainId`, the core cannot resolve
+official metadata by chain. Bigint values are not serialized or coerced to numbers.
+
+Domain-only definitions (`primaryType: 'EIP712Domain'`) may omit `types` and
+`message`. The adapter decodes the domain itself as the signed fields, using an
+explicit `types.EIP712Domain` when supplied or viem's canonical domain field
+order and presence rules otherwise. These fields also appear in `raw.message`.
+
+The viem peer remains optional in the package manifest, and the root entry point
+does not re-export these adapters. Their viem imports are type-only. **This does
+not make the existing SDK core viem-free:** core decoding/hashing already imports
+viem at runtime, so install viem when using these decoding functions.
+
+### wagmi (docs-only)
+
+In an app that already uses wagmi, a small hook can bind the connected chain.
+No React or wagmi dependency is shipped in this package:
+
+```ts
+import { useCallback } from 'react';
+import { useChainId } from 'wagmi';
+import type { DecodeOptions } from '@erc7730/sdk';
+import { decodeViemTransaction, type ViemTransactionInput } from '@erc7730/sdk/viem';
+
+export function useDecodeTransaction(options: DecodeOptions) {
+  const chainId = useChainId();
+  return useCallback(
+    (tx: Omit<ViemTransactionInput, 'chainId'>) =>
+      decodeViemTransaction({ ...tx, chainId }, options),
+    [chainId, options],
+  );
+}
+```
+
+Pass explicit registry/trust options as above, and inspect the returned warnings
+and `trust.accepted` before presenting the result as trusted clear signing.
+
 ## Official registry
 
 The product catalog is [`ethereum/clear-signing-erc7730-registry`](https://github.com/ethereum/clear-signing-erc7730-registry). Pin a commit SHA in production — never `master`.
