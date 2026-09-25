@@ -1,16 +1,59 @@
-# ERC-7730 SDK
+# ERC-7730
 
-TypeScript runtime for [ERC-7730](https://eips.ethereum.org/EIPS/eip-7730) clear signing: validate descriptors, pin the official registry, resolve includes/`$ref`, and render human-readable calls.
+TypeScript tooling for [ERC-7730](https://eips.ethereum.org/EIPS/eip-7730) clear signing.
 
-See [ROADMAP.md](./ROADMAP.md) for v0.2–v0.5, the official-registry strategy, and the public API sketch.
-
-See [RELEASE.md](./RELEASE.md) to version `@erc7730/sdk` with Changesets. Merging the Version PR publishes to npm after Environment `npm` approval.
-
-[![npm version](https://img.shields.io/npm/v/@erc7730/sdk.svg)](https://www.npmjs.com/package/@erc7730/sdk)
+[![npm sdk](https://img.shields.io/npm/v/@erc7730/sdk.svg?label=%40erc7730%2Fsdk)](https://www.npmjs.com/package/@erc7730/sdk)
+[![npm cli](https://img.shields.io/npm/v/@erc7730/cli.svg?label=%40erc7730%2Fcli)](https://www.npmjs.com/package/@erc7730/cli)
 [![ERC-7730](https://img.shields.io/badge/schema-v1%20%2B%20v2-3b82f6)](https://eips.ethereum.org/EIPS/eip-7730)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-This package is **not** a descriptor catalog. The source of truth is [`ethereum/clear-signing-erc7730-registry`](https://github.com/ethereum/clear-signing-erc7730-registry). New protocol metadata belongs there, not in this repo.
+This repository is a small toolkit. It is **not** the descriptor catalog. The source of truth is [`ethereum/clear-signing-erc7730-registry`](https://github.com/ethereum/clear-signing-erc7730-registry). New protocol metadata belongs there, not in this repo.
+
+## Packages
+
+| Package | Role | npm |
+| --- | --- | --- |
+| [`@erc7730/sdk`](./packages/sdk/README.md) | Runtime library: validate descriptors, pin the official registry, resolve includes/`$ref`, and decode calls and typed data | [published](https://www.npmjs.com/package/@erc7730/sdk) |
+| [`@erc7730/cli`](./packages/cli/README.md) | CLI for generating, linting, previewing, and diffing descriptors | [published](https://www.npmjs.com/package/@erc7730/cli) |
+| `@erc7730/registry` | Historical snapshot and test fixtures. Not a contribution target | private |
+| `@erc7730/web` | Browser demo. Shows `source`, warnings, and `trust.accepted` | private |
+
+`@erc7730/sdk` and `@erc7730/cli` are versioned and released independently. The monorepo stays one repository.
+
+Product direction: [ROADMAP.md](./ROADMAP.md). Release steps: [RELEASE.md](./RELEASE.md).
+
+## Install
+
+```bash
+npm install @erc7730/sdk
+npm install -D @erc7730/cli
+```
+
+`@erc7730/cli` is a **CLI-only** package. Its public surface is the `erc7730` binary. It does not publish `main`, `types`, or `exports`. Import `@erc7730/sdk` for the runtime API.
+
+## Versions and tags
+
+Changesets bump each published package on its own line. `.github/workflows/release.yml` publishes to npm on `push` to `main` after the GitHub Environment `npm` is approved. A package whose version is already on npm is left alone, so an SDK release does not republish the CLI and the reverse.
+
+GitHub Releases use package-specific tags. There is no shared `vX.Y.Z` tag.
+
+| Tag | GitHub Release |
+| --- | --- |
+| `sdk-vX.Y.Z` | `@erc7730/sdk` vX.Y.Z |
+| `cli-vX.Y.Z` | `@erc7730/cli` vX.Y.Z |
+
+On 0.x, a minor changeset is the usual feature bump. See [RELEASE.md](./RELEASE.md) for the Version PR, Trusted Publishing, and recovery.
+
+## Schema compatibility
+
+ERC-7730 schema versions move with the standard. Package versions move with this repository. A `0.x` package version is not a schema version.
+
+| Package line | ERC-7730 schema |
+| --- | --- |
+| SDK 0.x | Reads v1. `validateDescriptor` accepts v1 and v2 |
+| CLI 0.x | Lints v1 and v2. `generate` writes a v2 draft |
+
+The runtime guide below is the SDK. Command reference: [`packages/cli/README.md`](./packages/cli/README.md). Full SDK reference: [`packages/sdk/README.md`](./packages/sdk/README.md).
 
 ## Why ERC-7730?
 
@@ -64,13 +107,6 @@ When `trust` is omitted, decode uses a stub (`policy: "unspecified"`) that follo
 - **Warnings** — untrusted descriptors, infinite approvals, expired typed-data deadlines
 - **CLI** — `@erc7730/cli` (`erc7730 generate` / `lint` / `preview` / `diff` / `registry update`)
 - **Tree-shakeable** — no heavy default network catalog in the published tarball
-
-## Installation
-
-```bash
-npm install @erc7730/sdk
-npm install -D @erc7730/cli   # optional authoring CLI
-```
 
 ## Quick Start
 
@@ -169,7 +205,7 @@ JSON is fetched on miss into an in-memory cache. Pass `cache` for optional fs / 
 
 ## CLI
 
-`@erc7730/cli` is for protocol teams authoring descriptors next to a JS frontend. It does not open PRs against the official registry.
+`@erc7730/cli` is the authoring CLI for protocol teams working next to a JS frontend. It is a separate published package, not an SDK subcommand, and it does not open PRs against the official registry. The binary is the only public entry point.
 
 ```bash
 erc7730 generate --chain-id 1 --address 0x... --abi ./abi.json --owner "My Protocol"
@@ -303,11 +339,14 @@ signer.extend({
 ## Project Structure
 
 ```
-erc7730-sdk/
+ERC-7730/
 ├── packages/
-│   ├── sdk/           # Core TypeScript SDK (npm package)
-│   ├── registry/      # Legacy snapshot / test fixtures (not the product catalog)
-│   └── web/           # Demo: always shows source + warnings
+│   ├── sdk/           # @erc7730/sdk — runtime library (published)
+│   ├── cli/           # @erc7730/cli — authoring CLI, bin only (published)
+│   ├── registry/      # @erc7730/registry — fixtures (not published)
+│   └── web/           # @erc7730/web — demo (not published)
+├── RELEASE.md         # Independent versions, sdk-v* / cli-v* tags
+└── ROADMAP.md
 ```
 
 ## Web Demo

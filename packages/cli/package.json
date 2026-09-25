@@ -6,17 +6,9 @@
   "bin": {
     "erc7730": "./dist/index.js"
   },
-  "main": "./dist/run.js",
-  "types": "./dist/run.d.ts",
-  "exports": {
-    ".": {
-      "types": "./dist/run.d.ts",
-      "import": "./dist/run.js"
-    }
-  },
   "files": ["dist", "!dist/**/*.map", "!dist/**/*.tsbuildinfo"],
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && chmod +x dist/index.js",
     "dev": "tsc --watch",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -24,7 +16,8 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@erc7730/sdk": "workspace:*"
+    "@erc7730/sdk": "workspace:*",
+    "viem": "^2.21.0"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",
