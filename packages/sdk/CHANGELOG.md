@@ -1,5 +1,12 @@
 # @erc7730/sdk
 
+## 0.4.0
+
+### Minor Changes
+
+- 1c82ce4: `generateDescriptor()` now emits a draft ERC-7730 v2 file with ABI heuristics (`tokenAmount` + `@.to` on ERC-20, `date` timestamps, `addressName`, Solidity `metadata.enums`) and a TODO `$comment`. Output validates as v2 and is never a high-confidence runtime source. Authors still need to edit intents before an official-registry PR.
+- a938246: Add `@erc7730/sdk/viem` with `decodeViemTransaction` and `decodeViemTypedData` adapters, readonly and domain-only typed-data support, and viem/wagmi integration examples. The separate entry point preserves core decode options and trust results without adding runtime viem imports to the adapter. Existing core viem dependencies remain unchanged.
+
 ## 0.3.0
 
 ### Minor Changes
