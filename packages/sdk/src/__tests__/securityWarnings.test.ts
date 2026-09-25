@@ -11,9 +11,18 @@ import {
   type SecurityWarningType,
 } from '../decode/types.js';
 import { createOfficialRegistry } from '../official-registry/index.js';
+import { fetchFromSourcify } from '../providers/sourcify.js';
 import { createMemoryIncludeLoader, resolveDescriptor } from '../resolve/index.js';
 import type { InputDescriptor, ResolvedDescriptor } from '../types/descriptor.js';
 import type { TypedDataInput } from '../types/index.js';
+
+async function sourcifyLoader(chainId: number, address: `0x${string}`) {
+  const result = await fetchFromSourcify(chainId, address);
+  if (!result.verified || !result.abi) {
+    return null;
+  }
+  return { abi: result.abi, name: result.name || undefined };
+}
 
 const here = dirname(fileURLToPath(import.meta.url));
 const fixtures = join(here, 'fixtures');
@@ -191,6 +200,8 @@ describe('SECURITY_WARNING_TYPES', () => {
       expired_deadline: true,
       selector_mismatch: true,
       missing_metadata: true,
+      interpolation_failed: true,
+      NO_TRUSTED_ATTESTATION: true,
     };
     expect([...SECURITY_WARNING_TYPES].sort()).toEqual(Object.keys(required).sort());
   });
@@ -512,7 +523,11 @@ describe('decode security warnings', () => {
 
     const result = await decodeTransaction(
       { to: RANDOM, data: APPROVE_MAX, chainId: 1 },
-      { provider: null }
+      {
+        provider: null,
+        useSourcifyFallback: true,
+        loadVerifiedAbi: sourcifyLoader,
+      }
     );
     const warning = result.warnings.find((item) => item.type === 'selector_mismatch');
     expect(result.source).not.toBe('sourcify');

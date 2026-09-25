@@ -5,9 +5,18 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { decodeTransaction } from '../decode/decodeTransaction.js';
 import type { TrustContext, TrustPolicy } from '../decode/types.js';
 import { createOfficialRegistry } from '../official-registry/index.js';
+import { fetchFromSourcify } from '../providers/sourcify.js';
 import { createMemoryIncludeLoader, resolveDescriptor } from '../resolve/index.js';
 import { composePolicies, officialOnlyPolicy, officialOrLocalPolicy } from '../trust/index.js';
 import type { InputDescriptor, ResolvedDescriptor } from '../types/descriptor.js';
+
+async function sourcifyLoader(chainId: number, address: `0x${string}`) {
+  const result = await fetchFromSourcify(chainId, address);
+  if (!result.verified || !result.abi) {
+    return null;
+  }
+  return { abi: result.abi, name: result.name || undefined };
+}
 
 const here = dirname(fileURLToPath(import.meta.url));
 const fixtures = join(here, 'fixtures');
@@ -224,7 +233,12 @@ describe('decodeTransaction + TrustPolicy', () => {
 
     const result = await decodeTransaction(
       { to: USDC, data: TRANSFER_100_USDC, chainId: 1 },
-      { trust: officialOnlyPolicy(), provider: null }
+      {
+        trust: officialOnlyPolicy(),
+        provider: null,
+        useSourcifyFallback: true,
+        loadVerifiedAbi: sourcifyLoader,
+      }
     );
 
     expect(result.source).toBe('sourcify');

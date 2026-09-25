@@ -5,6 +5,7 @@ export { OfficialRegistryError } from './error.js';
 export { createMemoryDescriptorCache } from './cache.js';
 export { isCommitSha } from './pin.js';
 export { toCaip10, DEFAULT_OFFICIAL_REGISTRY_BASE_URL, OFFICIAL_REGISTRY_REPO } from './paths.js';
+export { fetchPrebuiltRegistryIndex } from './prefetch.js';
 
 /**
  * Commit of `ethereum/clear-signing-erc7730-registry` from which JSON Schema
@@ -15,8 +16,16 @@ export const VENDORED_REGISTRY_COMMIT = String(source.commit);
 export type {
   Address,
   Caip10,
+  CalldataIndex,
   DescriptorCache,
+  Eip712Index,
   OfficialRegistry,
   OfficialRegistryConfig,
+  OfficialRegistryIndexes,
   RegistryLookupKey,
 } from './types.js';
+
+export type {
+  PrefetchRegistryIndexOptions,
+  PrefetchedRegistryIndexes,
+} from './prefetch.js';

@@ -15,6 +15,7 @@ export const ERC721_DESCRIPTOR: ERC7730Descriptor = {
   metadata: {
     owner: 'ERC-721 Standard',
     info: {
+      legalName: 'ERC-721 Non-Fungible Token Standard',
       url: 'https://eips.ethereum.org/EIPS/eip-721',
     },
   },

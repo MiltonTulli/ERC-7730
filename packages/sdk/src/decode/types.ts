@@ -10,6 +10,7 @@ export type DecodeSource =
   | 'official-registry'
   | 'attested'
   | 'local-override'
+  | 'trusted-token'
   | 'sourcify'
   | 'generated'
   | 'inferred'
@@ -43,6 +44,8 @@ export interface DecodedField {
   rawValue: unknown;
   required: boolean;
   params?: Record<string, unknown>;
+  /** Inner `decodeTransaction` when `format` is `calldata`. Not Multicall3. */
+  embedded?: DecodedOperation;
 }
 
 /**
@@ -59,6 +62,8 @@ export const SECURITY_WARNING_TYPES = [
   'expired_deadline',
   'selector_mismatch',
   'missing_metadata',
+  'interpolation_failed',
+  'NO_TRUSTED_ATTESTATION',
 ] as const;
 
 export type SecurityWarningType = (typeof SECURITY_WARNING_TYPES)[number];
@@ -94,6 +99,11 @@ export interface DecodedOperation {
   confidence: Confidence;
   source: DecodeSource;
   intent: string;
+  /**
+   * Sentence with field values filled in. Omitted when the descriptor has no
+   * template or a `{path}` placeholder cannot be resolved.
+   */
+  interpolatedIntent?: string;
   functionName?: string;
   signature?: string;
   selector?: Hex;
@@ -138,9 +148,55 @@ export interface DecodeRegistry {
   }): Promise<ResolvedDescriptor | null>;
 }
 
+export type TrustedTokenStandard = 'erc20' | 'erc721';
+
+/** chainId → address → standard. Addresses are matched case-insensitively. */
+export type TrustedTokens = Record<number, Record<string, TrustedTokenStandard>>;
+
+export interface TokenInfo {
+  symbol: string;
+  decimals: number;
+  name?: string;
+}
+
+export interface ChainInfo {
+  name: string;
+  symbol: string;
+  decimals?: number;
+}
+
+/**
+ * Wallet-supplied reads. The decode core does not open RPC or ENS itself
+ * when these methods are present.
+ */
+export interface ExternalDataProvider {
+  resolveToken?(chainId: number, address: Address): Promise<TokenInfo | null>;
+  resolveEnsName?(address: Address): Promise<string | null>;
+  resolveLocalName?(address: Address): Promise<string | null>;
+  resolveNftCollectionName?(chainId: number, address: Address): Promise<string | null>;
+  resolveBlockTimestamp?(chainId: number, blockHeight: bigint): Promise<number | null>;
+  resolveChainInfo?(chainId: number): Promise<ChainInfo | null>;
+  chainClient?: {
+    call(chainId: number, req: { to: Address; data: Hex }): Promise<Hex>;
+  };
+}
+
+/** ABI returned by an optional verified-source adapter (Sourcify). */
+export interface VerifiedContractAbi {
+  abi: readonly unknown[];
+  name?: string;
+}
+
 export interface DecodeOptions {
   provider?: Provider | null;
   registry?: DecodeRegistry | OfficialRegistry;
+  /** Injected token, name, NFT, and chain reads. No network inside the SDK. */
+  externalDataProvider?: ExternalDataProvider;
+  /**
+   * Bundled ERC-20 / ERC-721 templates when no registry descriptor matches.
+   * Never `confidence: "high"` under `officialOnlyPolicy()`.
+   */
+  trustedTokens?: TrustedTokens;
   /**
    * Wallet-supplied policy. When omitted, decode uses a stub
    * (`policy: "unspecified"`) that accepts official-registry / attested /
@@ -148,8 +204,18 @@ export interface DecodeOptions {
    * Production should pass `officialOnlyPolicy()`.
    */
   trust?: TrustPolicy;
-  /** @default true */
+  /**
+   * Opt-in Sourcify ABI fallback. Default false: decode does not touch the network.
+   * The full `@erc7730/sdk` entry registers the client; `@erc7730/sdk/lite` does not.
+   * Never `confidence: "high"`.
+   */
   useSourcifyFallback?: boolean;
+  /**
+   * Replaces the built-in Sourcify loader. Used by tests and by the full package entry.
+   */
+  loadVerifiedAbi?: (chainId: number, address: Address) => Promise<VerifiedContractAbi | null>;
+  /** @internal Recursion guard for nested `calldata` fields. */
+  calldataDepth?: number;
   /** BCP-47 locale for dates / amounts. @default "en" */
   locale?: string;
   /**

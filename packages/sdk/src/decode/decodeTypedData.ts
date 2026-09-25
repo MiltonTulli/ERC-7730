@@ -1,14 +1,19 @@
 import type { Hex, ResolvedDescriptor } from '../types/descriptor.js';
 import type { TransactionInput, TypedDataInput } from '../types/index.js';
 import {
+  absorbEmbedded,
   appendUntrustedWarning,
   asAddress,
   asRecord,
+  attestationFailed,
   confidenceFor,
-  intentFromFormat,
+  interpolationFailedWarning,
+  noTrustedAttestationWarning,
   readMetadata,
+  renderIntent,
   resolveTrust,
   sourceFromResolved,
+  withAttestedSource,
 } from './common.js';
 import { matchContext } from './context.js';
 import { type FormatOptions, flattenFields, formatDisplayField } from './format.js';
@@ -22,6 +27,7 @@ import type {
   DecodedField,
   DecodedOperation,
   SecurityWarning,
+  TrustReport,
 } from './types.js';
 import { finalizeDecodedWarnings } from './warnings.js';
 
@@ -119,6 +125,7 @@ async function renderFromDescriptor(
   const formatOptions: FormatOptions = {
     provider: options?.provider ?? null,
     locale: options?.locale ?? 'en',
+    externalDataProvider: options?.externalDataProvider,
   };
 
   const excluded = matched.format.excluded ?? [];
@@ -144,26 +151,34 @@ async function renderFromDescriptor(
   appendUntrustedWarning(warnings, trust, source);
   const meta = readMetadata(resolved.merged);
   const fallbackIntent = `Sign ${data.primaryType}`;
+  const rendered = renderIntent(
+    matched.format.intent,
+    matched.format.interpolatedIntent,
+    fields,
+    options?.locale ?? 'en'
+  );
+  if (rendered.interpolationFailed) {
+    warnings.push(interpolationFailedWarning());
+  }
+  const intent = rendered.intent === 'Contract interaction' ? fallbackIntent : rendered.intent;
+  const absorbed = absorbEmbedded(fields, warnings, confidenceFor(source, trust.accepted));
 
   return {
-    confidence: confidenceFor(source, trust.accepted),
+    confidence: absorbed.confidence,
     source,
-    intent: intentFromFormat(
-      matched.format.intent,
-      matched.format.interpolatedIntent,
-      fields,
-      options?.locale ?? 'en'
-    ).replace(/^Contract interaction$/, fallbackIntent),
+    intent,
+    interpolatedIntent: rendered.interpolatedIntent,
     functionName: data.primaryType,
     signature: matched.key,
     fields,
     excluded,
-    warnings,
+    warnings: absorbed.warnings,
     trust,
     metadata: {
       ...meta,
       chainId,
       contractAddress: address,
+      registryPath: resolved.registryPath,
     },
     raw: {
       message,
@@ -199,7 +214,8 @@ async function fallbackOperation(
   encoded: string,
   chainId: number,
   address: Address | undefined,
-  options: DecodeOptions | undefined
+  options: DecodeOptions | undefined,
+  trustOverride?: TrustReport
 ): Promise<DecodedOperation> {
   const source: DecodeSource = 'inferred';
   const fields: DecodedField[] = [];
@@ -232,8 +248,10 @@ async function fallbackOperation(
     }
   }
 
-  const trust = await resolveTrust(options, source, undefined, chainId, address);
-  appendUntrustedWarning(warnings, trust, source);
+  const trust = trustOverride ?? (await resolveTrust(options, source, undefined, chainId, address));
+  if (!trustOverride) {
+    appendUntrustedWarning(warnings, trust, source);
+  }
   return {
     confidence: confidenceFor(source, trust.accepted),
     source,
@@ -251,6 +269,42 @@ async function fallbackOperation(
     raw: {
       message,
     },
+  };
+}
+
+async function presentDescriptorResult(
+  rendered: DecodedOperation,
+  data: TypedDataInput,
+  message: Record<string, unknown>,
+  encoded: string,
+  chainId: number,
+  address: Address | undefined,
+  options: DecodeOptions | undefined
+): Promise<DecodedOperation> {
+  const upgraded = withAttestedSource(rendered);
+  if (!attestationFailed(upgraded.trust)) {
+    return upgraded;
+  }
+  const fallback = await fallbackOperation(
+    data,
+    message,
+    encoded,
+    chainId,
+    address,
+    options,
+    upgraded.trust
+  );
+  const warnings = [...fallback.warnings];
+  if (!warnings.some((warning) => warning.type === 'NO_TRUSTED_ATTESTATION')) {
+    warnings.push(noTrustedAttestationWarning());
+  }
+  return {
+    ...fallback,
+    source: upgraded.source === 'attested' ? 'official-registry' : upgraded.source,
+    confidence: 'low',
+    trust: upgraded.trust,
+    metadata: upgraded.metadata,
+    warnings,
   };
 }
 
@@ -291,7 +345,18 @@ export async function decodeTypedData(
         options
       );
       if (rendered) {
-        return finalizeDecodedWarnings(rendered, options);
+        return finalizeDecodedWarnings(
+          await presentDescriptorResult(
+            rendered,
+            data,
+            message,
+            encoded,
+            chainId,
+            address,
+            options
+          ),
+          options
+        );
       }
     }
   }

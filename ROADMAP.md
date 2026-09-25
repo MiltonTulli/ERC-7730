@@ -38,11 +38,11 @@ Publicado: `@erc7730/sdk@0.4.0`, `@erc7730/cli@0.2.0`.
 | `@erc7730/cli` generate / lint / preview / diff | Hecho |
 | Heurística ABI → descriptor | Hecho |
 | Adapters `@erc7730/sdk/viem` + export `lite` | Hecho |
-| `interpolatedIntent` | 0.5 |
-| EIP-5792 batch | 0.5 |
-| `ExternalDataProvider` | 0.5 |
-| `trustedTokens` templates ERC-20/721 | 0.5 |
-| ERC-8176 `attestedPolicy` | 0.5 |
+| `interpolatedIntent` | Hecho (#53) |
+| EIP-5792 batch | Hecho (#53) |
+| `ExternalDataProvider` | Hecho (#53) |
+| `trustedTokens` templates ERC-20/721 | Hecho (#53) |
+| ERC-8176 `attestedPolicy` | Hecho (#53) |
 | Multicall3 / Safe inner calls | 0.6 |
 | `decodeUserOp` | 0.6 |
 | Compat `format()` + matriz interop | 0.6 |

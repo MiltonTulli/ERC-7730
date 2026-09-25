@@ -16,6 +16,7 @@ export const ERC20_DESCRIPTOR: ERC7730Descriptor = {
   metadata: {
     owner: 'ERC-20 Standard',
     info: {
+      legalName: 'ERC-20 Token Standard',
       url: 'https://eips.ethereum.org/EIPS/eip-20',
     },
   },

@@ -102,9 +102,10 @@ When `trust` is omitted, decode uses a stub (`policy: "unspecified"`) that follo
 - **Context matchers** — `matchContext()` binds descriptors with `deployments`, `factory.deployEvent`, and EIP-1967 / EIP-1167 proxies; a familiar selector on an unbound address is not `confidence: "high"`
 - **`decodeTypedData`** — apply official EIP-712 descriptors (`index.eip712.json`, Permit + `encodeType` hash)
 - **`createClearSigner`** — bind `DecodeOptions` for repeated `decodeTransaction` / `decodeTypedData` (`ClearSigner.decode` is a deprecated alias)
-- **TrustPolicy** — `officialOnlyPolicy` / `officialOrLocalPolicy` / `composePolicies`; Sourcify is never accepted
-- **Untrusted fallback** — Sourcify / `generateDescriptor` are labeled by `source`, never trusted
-- **Warnings** — untrusted descriptors, infinite approvals, expired typed-data deadlines
+- **TrustPolicy** — `officialOnlyPolicy` / `officialOrLocalPolicy` / `attestedPolicy` (ERC-8176) / `composePolicies`; Sourcify is never accepted
+- **Wallet drop-in** — `interpolatedIntent`, `decodeBatch` (EIP-5792), `ExternalDataProvider`, `trustedTokens` templates; see [`docs/GUIDE.md`](./docs/GUIDE.md)
+- **Untrusted fallback** — Sourcify / `generateDescriptor` are labeled by `source`, never trusted (opt-in)
+- **Warnings** — untrusted descriptors, infinite approvals, expired typed-data deadlines, attestation failures
 - **CLI** — `@erc7730/cli` (`erc7730 generate` / `lint` / `preview` / `diff` / `registry update`)
 - **Tree-shakeable** — no heavy default network catalog in the published tarball
 
@@ -130,17 +131,58 @@ const result = await decodeTransaction(
   { registry, trust: officialOnlyPolicy(), useSourcifyFallback: false }
 );
 
-console.log(result.intent);       // "Send" + formatted fields when a descriptor matches
-console.log(result.source);       // e.g. "official-registry" | "local-override" | "sourcify" | "inferred" | "basic"
-console.log(result.confidence);   // "high" only when official-registry / attested is accepted
-console.log(result.trust);        // { accepted, policy: "official-only", descriptorHash, reasons }
-console.log(result.fields);       // [{ label: "Amount", value: "100 USDC", format: "tokenAmount" }, ...]
-console.log(result.warnings);     // e.g. untrusted_descriptor, infinite_approval, untrusted_spender
+console.log(result.intent);               // filled sentence when interpolation succeeds
+console.log(result.interpolatedIntent);   // same sentence; omit fields for a compact UI
+console.log(result.source);               // e.g. "official-registry" | "attested" | "trusted-token" | ...
+console.log(result.confidence);           // "high" only when official-registry / attested is accepted
+console.log(result.trust);                // { accepted, policy: "official-only", descriptorHash, reasons }
+console.log(result.fields);               // [{ label: "Amount", value: "100 USDC", format: "tokenAmount" }, ...]
+console.log(result.warnings);             // e.g. untrusted_descriptor, infinite_approval, NO_TRUSTED_ATTESTATION
 ```
 
 `ClearSigner.decode` is a deprecated alias of `decodeTransaction` (one minor). Prefer the functions, or `createClearSigner(options)` to bind registry / trust / provider.
 
-Production lookups should use `createOfficialRegistry({ pin })`, not the v1 embedded snapshot.
+Production lookups should use `createOfficialRegistry({ pin })`, not the v1 embedded snapshot. Wallet integrators: [`docs/GUIDE.md`](./docs/GUIDE.md).
+
+### Wallet drop-in (0.5)
+
+```ts
+import {
+  attestedPolicy,
+  createOfficialRegistry,
+  decodeBatch,
+  decodeTransaction,
+  fetchPrebuiltRegistryIndex,
+  officialOnlyPolicy,
+} from '@erc7730/sdk';
+
+const pin = '9f37816afde954ff6617fb5baa346133e5af26c5';
+const indexes = await fetchPrebuiltRegistryIndex({ pin });
+const registry = createOfficialRegistry({ pin, indexes, attachAttestations: true });
+
+const externalDataProvider = {
+  resolveToken: async (_chainId, _address) => ({ symbol: 'USDC', decimals: 6 }),
+  chainClient: {
+    call: async (chainId, { to, data }) => rpcEthCall(chainId, to, data),
+  },
+};
+
+const opts = {
+  registry,
+  trust: attestedPolicy({
+    attesters: ['0x3846c3A30E62075Fa916216b35EF04B8F53931f6'],
+    eas: externalDataProvider.chainClient,
+  }),
+  // or trust: officialOnlyPolicy(),
+  externalDataProvider,
+  trustedTokens: {
+    1: { '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48': 'erc20' },
+  },
+};
+
+await decodeTransaction(tx, opts);
+await decodeBatch({ chainId: 1, from: user, calls: batchCalls }, opts);
+```
 
 ## viem adapters
 
@@ -378,6 +420,9 @@ import {
 export function createClearSigner(options?: DecodeOptions): ClearSigner;
 export function decodeTransaction(tx: TransactionInput, options?: DecodeOptions): Promise<DecodedOperation>;
 export function decodeTypedData(data: TypedDataInput, options?: DecodeOptions): Promise<DecodedOperation>;
+export function decodeBatch(batch: BatchInput, options?: DecodeOptions): Promise<BatchDecodeResult>;
+export function attestedPolicy(config: AttestedPolicyConfig): TrustPolicy;
+export function fetchPrebuiltRegistryIndex(options: PrefetchRegistryIndexOptions): Promise<PrefetchedRegistryIndexes>;
 ```
 
 ```typescript
@@ -393,7 +438,9 @@ interface DecodeOptions {
   provider?: Provider | null;
   registry?: DecodeRegistry | OfficialRegistry;
   trust?: TrustPolicy;            // default stub policy: "unspecified"
-  useSourcifyFallback?: boolean;  // default true; never confidence "high"
+  externalDataProvider?: ExternalDataProvider;
+  trustedTokens?: TrustedTokens;
+  useSourcifyFallback?: boolean;  // default false; never confidence "high"
   locale?: string;                // BCP-47, default "en"
   now?: number | (() => number);  // unix seconds for expired_deadline
   fromBlock?: bigint | LogBlockTag;
@@ -412,7 +459,7 @@ await signer.decodeTransaction(tx);
 await signer.decodeTypedData(typedData);
 ```
 
-Also exported: `matchContext`, `officialOnlyPolicy`, `officialOrLocalPolicy`, `composePolicies`, `resolvePath`, `createOfficialRegistry`, `validateDescriptor`, `resolveDescriptor`, `generateDescriptor`.
+Also exported: `matchContext`, `officialOnlyPolicy`, `officialOrLocalPolicy`, `attestedPolicy`, `composePolicies`, `resolvePath`, `createOfficialRegistry`, `fetchPrebuiltRegistryIndex`, `validateDescriptor`, `resolveDescriptor`, `generateDescriptor`.
 
 ### `decodeTransaction`
 
@@ -421,7 +468,7 @@ const result = await decodeTransaction(tx, {
   registry,                 // OfficialRegistry (or any { findCalldata })
   trust: officialOnlyPolicy(), // or officialOrLocalPolicy() / composePolicies(...)
   provider: null,           // no RPC; pass a viem PublicClient for ENS / token metadata / factory logs
-  useSourcifyFallback: true // default; never confidence "high" / never trust.accepted
+  useSourcifyFallback: true // opt-in; never confidence "high" / never trust.accepted
 });
 ```
 
@@ -506,6 +553,7 @@ Default confidence (`officialOnlyPolicy` / documented stub):
 | --- | --- | --- |
 | official-registry / attested | `true` | `high` |
 | local-override | `false` under official-only; `true` under official-or-local | `medium` if accepted |
+| trusted-token (bundled ERC-20/721 template) | `false` under official-only | always `low` |
 | sourcify / generated / inferred / basic | `false` | `low` |
 
 ### Response Types
@@ -518,11 +566,14 @@ interface DecodedOperation {
     | 'official-registry'
     | 'attested'
     | 'local-override'
+    | 'trusted-token'
     | 'sourcify'
     | 'generated'
     | 'inferred'
     | 'basic';
   intent: string;
+  /** Prefer this over intent + fields when present (ERC-7730 display option 1). */
+  interpolatedIntent?: string;
   functionName?: string;
   signature?: string;
   selector?: string;

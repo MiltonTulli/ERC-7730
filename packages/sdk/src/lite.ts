@@ -38,6 +38,7 @@ export { validateDescriptor } from './schema/index.js';
 export {
   decodeTransaction,
   decodeTypedData,
+  decodeBatch,
   matchContext,
   resolveImplementation,
   EIP1967_IMPLEMENTATION_SLOT,
@@ -47,6 +48,10 @@ export {
   composePolicies,
   officialOnlyPolicy,
   officialOrLocalPolicy,
+  attestedPolicy,
+  ERC8176_SCHEMA_UID,
+  EAS_CONTRACT,
+  EAS_CHAIN_ID,
 } from './trust/index.js';
 
 export {
@@ -67,6 +72,7 @@ export {
   DEFAULT_OFFICIAL_REGISTRY_BASE_URL,
   OFFICIAL_REGISTRY_REPO,
   VENDORED_REGISTRY_COMMIT,
+  fetchPrebuiltRegistryIndex,
 } from './official-registry/index.js';
 
 export type {
@@ -87,10 +93,16 @@ export type {
   DescriptorCache,
   OfficialRegistry,
   OfficialRegistryConfig,
+  OfficialRegistryIndexes,
+  PrefetchRegistryIndexOptions,
+  PrefetchedRegistryIndexes,
   RegistryLookupKey,
 } from './official-registry/index.js';
 
 export type {
+  BatchDecodeResult,
+  BatchInput,
+  ChainInfo,
   Confidence,
   ContextMatch,
   ContextMatchVia,
@@ -98,11 +110,18 @@ export type {
   DecodeOptions,
   DecodeRegistry,
   DecodeSource,
+  ExternalDataProvider,
   MatchContextOptions,
+  TokenInfo,
+  TrustedTokenStandard,
+  TrustedTokens,
   TrustContext,
   TrustPolicy,
   TrustReport,
+  VerifiedContractAbi,
 } from './decode/index.js';
+
+export type { AttestedPolicyConfig } from './trust/index.js';
 
 /**
  * @deprecated Use {@link DecodeOptions} with {@link createClearSigner}.
