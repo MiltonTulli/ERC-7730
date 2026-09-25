@@ -183,11 +183,14 @@ describe('erc7730 generate', () => {
       child.stderr.on('data', (chunk: string) => {
         output += chunk;
       });
+      // The binary loads the SDK before printing help. A blocked stdin read never
+      // exits; a slow runner can take longer than a second and still be fine.
       await new Promise<void>((resolve, reject) => {
         const timer = setTimeout(() => {
           child.kill();
-          reject(new Error(`timed out waiting for: erc7730 ${args.join(' ')}`));
-        }, 1000);
+          const seen = output.trim() ? ` output: ${output.trim().slice(0, 120)}` : '';
+          reject(new Error(`timed out waiting for: erc7730 ${args.join(' ')}${seen}`));
+        }, 10_000);
         child.on('exit', () => {
           clearTimeout(timer);
           resolve();
@@ -201,7 +204,7 @@ describe('erc7730 generate', () => {
       /--abi/
     );
     await expect(runWithoutClosingStdin(['lint', '--abi', '-'])).resolves.toMatch(/Unknown option/);
-  });
+  }, 35_000);
 });
 
 describe('erc7730 lint', () => {
