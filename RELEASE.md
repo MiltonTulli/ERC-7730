@@ -51,14 +51,18 @@ Filename stays **`release.yml`** so npm Trusted Publishing (OIDC) keeps matching
 On `push` to `main` (and optional `workflow_dispatch` of this same file):
 
 1. Job **Open Version PR** (no Environment). If `.changeset/*.md` files exist besides `README.md`, `changesets/action` opens or updates PR `chore: version packages` (`pnpm version-packages`, then `biome check --write` on `packages/sdk/package.json` and `CHANGELOG.md` so Lint & Format stays green). If there are pending changesets, the publish job is skipped.
-2. Job **Publish @erc7730/sdk** (`environment: npm`) runs only when there are **no** pending changesets (typical after merging the Version PR).
+2. Job **Publish packages** (`environment: npm`) runs only when there are **no** pending changesets (typical after merging the Version PR).
 3. `pnpm install --frozen-lockfile`, then `pnpm build` / `typecheck` / `test`.
-4. If `packages/sdk/package.json` version is **already on npm**, the job succeeds without publishing. Docs-only merges to `main` stay green.
+4. For each package, the job checks two things independently: whether its version is **already on npm**, and whether its GitHub Release (`sdk-vX.Y.Z` / `cli-vX.Y.Z`) **already exists**. If both are true, nothing happens for that package. Docs-only merges to `main` stay green.
 5. Otherwise `npm pack` in `packages/sdk` (and `packages/cli` when that version is not on npm). Fails if a tarball contains `src/`, tests, or `.map` files.
 6. `npm publish <tarball> --access public --provenance` via **OIDC Trusted Publishing** (no `NPM_TOKEN`) for each package whose version is new.
-7. `softprops/action-gh-release` creates tag `vX.Y.Z` from the **SDK** version on the current SHA and a GitHub Release, and attaches the SDK `.tgz`.
+7. For each package whose GitHub Release is missing, `softprops/action-gh-release` creates a **package-specific** tag at the **verified publication commit**, a GitHub Release named after that package and version, and attaches that package's `.tgz`:
+   - `sdk-vX.Y.Z` → "@erc7730/sdk vX.Y.Z"
+   - `cli-vX.Y.Z` → "@erc7730/cli vX.Y.Z"
 
-`@erc7730/sdk` and `@erc7730/cli` are published independently when their version is not already on npm. The GitHub Release tag follows the SDK version. The Environment is on the **publish** job only, so opening a Version PR does not wait for approval.
+When this run publishes the package, the tag points at the workflow SHA (`github.sha`). On a recovery run the tag points at the `gitCommit` in the npm provenance attestation, after `scripts/resolve-publication-commit.sh` verifies that attestation with cosign (GitHub Actions OIDC, `.github/workflows/release.yml`, this repository) against the published tarball. If provenance is missing, verification fails, or that commit is not in the repository, the release step fails instead of tagging the current `main`.
+
+`@erc7730/sdk` and `@erc7730/cli` are versioned, published, and released independently: a package whose version is already on npm **and** already has its GitHub Release gets nothing new in that run. If a run publishes to npm but the GitHub Release step fails, the next run (re-run or `workflow_dispatch`) skips `npm publish` and only creates the missing release, attaching the tarball downloaded from npm (`npm pack @erc7730/<pkg>@X.Y.Z`) so it matches what was published. There is no shared/generic `vX.Y.Z` tag. The Environment is on the **publish** job only, so opening a Version PR does not wait for approval.
 
 First publish of `@erc7730/cli` needs npm Trusted Publishing configured for that package (same workflow filename `release.yml`, GitHub Environment `npm`).
 
@@ -121,7 +125,7 @@ npm pack
 npm publish "erc7730-sdk-${VERSION}.tgz" --access public
 ```
 
-Do **not** `git push origin vX.Y.Z` expecting a publish. Tags no longer trigger `release.yml`. If npm already has the version but the GitHub Release is missing, create the release (and tag) from the GitHub UI on that `main` SHA.
+Do **not** `git push origin sdk-vX.Y.Z` / `cli-vX.Y.Z` expecting a publish. Tags no longer trigger `release.yml`. If npm already has the version but the GitHub Release is missing, re-run the Release workflow. It recreates only the missing release and tags the commit recorded in npm provenance, not whatever `main` is at recovery time. A laptop publish has no provenance, so that recovery path refuses to create the release. In that case, create the release from the GitHub UI on the commit you built, using the package-specific tag (`sdk-vX.Y.Z` or `cli-vX.Y.Z`), never a bare `vX.Y.Z`.
 
 ## Rollback
 
