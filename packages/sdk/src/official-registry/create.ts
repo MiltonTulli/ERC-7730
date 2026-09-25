@@ -195,23 +195,41 @@ export function createOfficialRegistry(config: OfficialRegistryConfig): Official
     const dir = descriptorPath.slice(0, slash);
     const base = descriptorPath.slice(slash + 1).replace(/\.json$/i, '');
     const sigsDir = `${dir}/sigs`;
-    const listUrl = `${GITHUB_API}/repos/${OFFICIAL_REGISTRY_REPO}/contents/${sigsDir}?ref=${pin}`;
-    let response: Response;
-    try {
-      response = await fetchImpl(listUrl, {
-        headers: { Accept: 'application/vnd.github+json' },
-      });
-    } catch {
-      return [];
-    }
-    if (!response.ok) {
-      return [];
-    }
-    let listing: unknown;
-    try {
-      listing = await response.json();
-    } catch {
-      return [];
+    const listKey = cacheKey(pin, `${sigsDir}/__listing__`);
+    let listing: unknown = await readCache(listKey);
+    if (listing === undefined) {
+      // baseUrl is a raw-file prefix, not a GitHub contents API. Listing
+      // attestations for a custom mirror is the caller's job.
+      if (baseUrl !== DEFAULT_OFFICIAL_REGISTRY_BASE_URL) {
+        throw new OfficialRegistryError(
+          'attachAttestations lists sigs through the GitHub contents API of the official repo. Pass descriptor.attestations when baseUrl is a custom gateway.'
+        );
+      }
+      const listUrl = `${GITHUB_API}/repos/${OFFICIAL_REGISTRY_REPO}/contents/${sigsDir}?ref=${pin}`;
+      let response: Response;
+      try {
+        response = await fetchImpl(listUrl, {
+          headers: { Accept: 'application/vnd.github+json' },
+        });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        throw new OfficialRegistryError(`Failed to list ${sigsDir}: ${message}`);
+      }
+      if (response.status === 404) {
+        listing = [];
+      } else if (!response.ok) {
+        throw new OfficialRegistryError(
+          `Failed to list ${sigsDir} (${response.status}) from pin ${pin}`
+        );
+      } else {
+        try {
+          listing = await response.json();
+        } catch (error) {
+          const message = error instanceof Error ? error.message : String(error);
+          throw new OfficialRegistryError(`Failed to parse ${sigsDir} listing: ${message}`);
+        }
+      }
+      await writeCache(listKey, listing);
     }
     if (!Array.isArray(listing)) {
       return [];

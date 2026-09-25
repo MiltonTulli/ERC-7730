@@ -1,6 +1,7 @@
 import type { Hex, ResolvedDescriptor } from '../types/descriptor.js';
 import type { TransactionInput, TypedDataInput } from '../types/index.js';
 import {
+  absorbEmbedded,
   appendUntrustedWarning,
   asAddress,
   asRecord,
@@ -160,9 +161,10 @@ async function renderFromDescriptor(
     warnings.push(interpolationFailedWarning());
   }
   const intent = rendered.intent === 'Contract interaction' ? fallbackIntent : rendered.intent;
+  const absorbed = absorbEmbedded(fields, warnings, confidenceFor(source, trust.accepted));
 
   return {
-    confidence: confidenceFor(source, trust.accepted),
+    confidence: absorbed.confidence,
     source,
     intent,
     interpolatedIntent: rendered.interpolatedIntent,
@@ -170,7 +172,7 @@ async function renderFromDescriptor(
     signature: matched.key,
     fields,
     excluded,
-    warnings,
+    warnings: absorbed.warnings,
     trust,
     metadata: {
       ...meta,

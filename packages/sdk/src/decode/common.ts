@@ -11,6 +11,8 @@ import type {
   TrustReport,
 } from './types.js';
 
+const CONFIDENCE_RANK: Record<Confidence, number> = { low: 0, medium: 1, high: 2 };
+
 export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000' as Address;
 
 export function asAddress(value: string): Address {
@@ -57,9 +59,11 @@ export function renderIntent(
     return { intent: short, interpolationFailed: false };
   }
   const replaced = interpolated.replace(/\{([^{}]+)\}/g, (full, path: string) => {
-    const match = fields.find(
-      (field) => field.path === path || field.path === `#.${path}` || field.path.endsWith(path)
+    const exact = fields.find((field) => field.path === path || field.path === `#.${path}`);
+    const suffix = fields.find(
+      (field) => field.path.endsWith(`.${path}`) || field.path.endsWith(`].${path}`)
     );
+    const match = exact ?? suffix;
     return match ? match.value : full;
   });
   if (/\{[^{}]+\}/.test(replaced)) {
@@ -120,6 +124,39 @@ export function noTrustedAttestationWarning(): SecurityWarning {
     severity: 'high',
     message: 'No trusted ERC-8176 attestation for this descriptor',
   };
+}
+
+function lowerConfidence(current: Confidence, next: Confidence): Confidence {
+  return CONFIDENCE_RANK[next] < CONFIDENCE_RANK[current] ? next : current;
+}
+
+/**
+ * Nested `calldata` stays on `field.embedded`. Copy its warnings onto the
+ * outer operation (path-prefixed) and never report a higher confidence than
+ * the inner display.
+ */
+export function absorbEmbedded(
+  fields: DecodedField[],
+  warnings: SecurityWarning[],
+  confidence: Confidence
+): { warnings: SecurityWarning[]; confidence: Confidence } {
+  let next = confidence;
+  const extra: SecurityWarning[] = [];
+  for (const field of fields) {
+    const embedded = field.embedded;
+    if (!embedded) {
+      continue;
+    }
+    for (const warning of embedded.warnings) {
+      const path = warning.path ? `${field.path}.${warning.path}` : field.path;
+      extra.push({ ...warning, path });
+    }
+    next = lowerConfidence(next, embedded.confidence);
+    if (!embedded.trust.accepted) {
+      next = 'low';
+    }
+  }
+  return { warnings: extra.length > 0 ? [...warnings, ...extra] : warnings, confidence: next };
 }
 
 export function interpolationFailedWarning(): SecurityWarning {

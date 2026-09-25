@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { type Hex, encodePacked, keccak256, stringToHex, zeroAddress, zeroHash } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { describe, expect, it } from 'vitest';
+import { absorbEmbedded, renderIntent } from '../decode/common.js';
 import { decodeBatch } from '../decode/decodeBatch.js';
 import { decodeTransaction } from '../decode/decodeTransaction.js';
 import type { DecodeRegistry, ExternalDataProvider } from '../decode/types.js';
@@ -395,6 +396,7 @@ describe('wallet drop-in parity (#53)', () => {
       attestations: [attestation],
     };
 
+    let revocationCall: string | undefined;
     const accepted = await decodeTransaction(
       { to: USDC, data: TRANSFER_100_USDC, chainId: 1 },
       {
@@ -404,7 +406,10 @@ describe('wallet drop-in parity (#53)', () => {
         trust: attestedPolicy({
           attesters: [attesterAccount.address],
           eas: {
-            call: async () => '0x0000000000000000000000000000000000000000000000000000000000000000',
+            call: async (_chainId, req) => {
+              revocationCall = req.data;
+              return '0x0000000000000000000000000000000000000000000000000000000000000000';
+            },
           },
         }),
       }
@@ -412,6 +417,8 @@ describe('wallet drop-in parity (#53)', () => {
     expect(accepted.source).toBe('attested');
     expect(accepted.confidence).toBe('high');
     expect(accepted.trust.accepted).toBe(true);
+    // getRevokeOffchain(address,bytes32) selector on the EAS contract.
+    expect(revocationCall?.startsWith('0xb469318d')).toBe(true);
     expect(accepted.trust.attesters?.[0]?.toLowerCase()).toBe(
       attesterAccount.address.toLowerCase()
     );
@@ -565,6 +572,103 @@ describe('wallet drop-in parity (#53)', () => {
         }
       }
     }
+  });
+});
+
+describe('renderIntent path matching', () => {
+  it('prefers an exact path over a suffix match', () => {
+    const rendered = renderIntent(
+      'Send',
+      'Send {value} to {to}',
+      [
+        {
+          path: 'order.to',
+          label: 'To',
+          format: 'raw',
+          value: 'WRONG',
+          rawValue: 'WRONG',
+          required: true,
+        },
+        {
+          path: 'to',
+          label: 'To',
+          format: 'raw',
+          value: 'RIGHT',
+          rawValue: 'RIGHT',
+          required: true,
+        },
+        {
+          path: 'value',
+          label: 'Amount',
+          format: 'raw',
+          value: '1',
+          rawValue: 1,
+          required: true,
+        },
+      ],
+      'en'
+    );
+    expect(rendered.interpolatedIntent).toBe('Send 1 to RIGHT');
+  });
+
+  it('does not treat {to} as a suffix of autoTo', () => {
+    const rendered = renderIntent(
+      'Send',
+      'Send to {to}',
+      [
+        {
+          path: '#.autoTo',
+          label: 'X',
+          format: 'raw',
+          value: 'NO',
+          rawValue: 'NO',
+          required: true,
+        },
+      ],
+      'en'
+    );
+    expect(rendered.interpolationFailed).toBe(true);
+    expect(rendered.intent).toBe('Send');
+  });
+});
+
+describe('absorbEmbedded', () => {
+  it('prefixes nested warnings and caps confidence when the inner trust is rejected', () => {
+    const absorbed = absorbEmbedded(
+      [
+        {
+          path: 'data',
+          label: 'Inner',
+          format: 'calldata',
+          value: 'Send',
+          rawValue: '0x',
+          required: true,
+          embedded: {
+            confidence: 'high',
+            source: 'official-registry',
+            intent: 'Send',
+            fields: [],
+            excluded: [],
+            warnings: [
+              {
+                type: 'infinite_approval',
+                severity: 'high',
+                message: 'unlimited',
+                path: 'value',
+              },
+            ],
+            trust: { accepted: false, policy: 'official-only', reasons: ['rejected'] },
+            metadata: { chainId: 1 },
+            raw: {},
+          },
+        },
+      ],
+      [],
+      'high'
+    );
+    expect(absorbed.confidence).toBe('low');
+    expect(absorbed.warnings[0]?.type).toBe('infinite_approval');
+    expect(absorbed.warnings[0]?.path).toBe('data.value');
   });
 });
 

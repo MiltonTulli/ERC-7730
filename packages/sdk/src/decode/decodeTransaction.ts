@@ -11,6 +11,7 @@ import { decodeNamedArgs, parseDeclaration } from './abi.js';
 import { getDefaultVerifiedAbiLoader } from './abiLoader.js';
 import {
   ZERO_ADDRESS,
+  absorbEmbedded,
   appendUntrustedWarning,
   asAddress,
   attestationFailed,
@@ -189,8 +190,10 @@ async function renderFromDescriptor(
     warnings.push(interpolationFailedWarning());
   }
 
+  const absorbed = absorbEmbedded(fields, warnings, confidenceFor(source, trust.accepted));
+
   return {
-    confidence: confidenceFor(source, trust.accepted),
+    confidence: absorbed.confidence,
     source,
     intent: rendered.intent,
     interpolatedIntent: rendered.interpolatedIntent,
@@ -199,7 +202,7 @@ async function renderFromDescriptor(
     selector,
     fields,
     excluded,
-    warnings,
+    warnings: absorbed.warnings,
     trust,
     metadata: {
       ...meta,

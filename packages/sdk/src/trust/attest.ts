@@ -40,7 +40,7 @@ const ATTEST_TYPES = {
 const REVOKE_ABI = [
   {
     type: 'function',
-    name: 'revokeOffchain',
+    name: 'getRevokeOffchain',
     stateMutability: 'view',
     inputs: [
       { name: 'revoker', type: 'address' },
@@ -283,7 +283,7 @@ async function isRevoked(
 ): Promise<boolean> {
   const data = encodeFunctionData({
     abi: REVOKE_ABI,
-    functionName: 'revokeOffchain',
+    functionName: 'getRevokeOffchain',
     args: [attester, uid],
   });
   const result = await call(EAS_CHAIN_ID, { to: EAS_CONTRACT as Address, data });
