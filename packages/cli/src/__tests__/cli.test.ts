@@ -1,4 +1,4 @@
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawn } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -164,6 +164,43 @@ describe('erc7730 generate', () => {
     );
     const draft = JSON.parse(stdout) as { $schema?: string };
     expect(String(draft.$schema)).toContain('erc7730-v2');
+  });
+
+  it('does not wait on stdin for help or non-generate commands', async () => {
+    const binary = join(here, '../../dist/index.js');
+    expect(existsSync(binary), 'build @erc7730/cli before this test').toBe(true);
+
+    async function runWithoutClosingStdin(args: string[]): Promise<string> {
+      const child = spawn(process.execPath, [binary, ...args], {
+        stdio: ['pipe', 'pipe', 'pipe'],
+      });
+      let output = '';
+      child.stdout.setEncoding('utf8');
+      child.stderr.setEncoding('utf8');
+      child.stdout.on('data', (chunk: string) => {
+        output += chunk;
+      });
+      child.stderr.on('data', (chunk: string) => {
+        output += chunk;
+      });
+      await new Promise<void>((resolve, reject) => {
+        const timer = setTimeout(() => {
+          child.kill();
+          reject(new Error(`timed out waiting for: erc7730 ${args.join(' ')}`));
+        }, 1000);
+        child.on('exit', () => {
+          clearTimeout(timer);
+          resolve();
+        });
+      });
+      return output;
+    }
+
+    await expect(runWithoutClosingStdin(['--help', '--abi', '-'])).resolves.toMatch(/Usage/);
+    await expect(runWithoutClosingStdin(['generate', '--help', '--abi', '-'])).resolves.toMatch(
+      /--abi/
+    );
+    await expect(runWithoutClosingStdin(['lint', '--abi', '-'])).resolves.toMatch(/Unknown option/);
   });
 });
 
