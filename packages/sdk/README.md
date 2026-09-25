@@ -102,6 +102,8 @@ console.log(result.fields);
 
 Production lookups should use `createOfficialRegistry({ pin })`, not the v1 embedded snapshot.
 
+Wallet drop-in (0.5): `decodeBatch`, `attestedPolicy`, `ExternalDataProvider`, `trustedTokens`, and `fetchPrebuiltRegistryIndex`. Integrator walkthrough: [`docs/GUIDE.md`](../../docs/GUIDE.md).
+
 ## viem adapters
 
 ```bash

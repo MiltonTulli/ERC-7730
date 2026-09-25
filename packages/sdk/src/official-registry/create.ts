@@ -7,6 +7,7 @@ import { cacheKey, createMemoryDescriptorCache } from './cache.js';
 import { OfficialRegistryError } from './error.js';
 import {
   DEFAULT_OFFICIAL_REGISTRY_BASE_URL,
+  OFFICIAL_REGISTRY_REPO,
   assertSafeRegistryPath,
   normalizeAddress,
   registryFileUrl,
@@ -26,6 +27,7 @@ import type {
 
 const CALLDATA_INDEX = 'index.calldata.json';
 const EIP712_INDEX = 'index.eip712.json';
+const GITHUB_API = 'https://api.github.com';
 
 function asInputDescriptor(value: unknown, path: string): InputDescriptor {
   if (!isPlainObject(value)) {
@@ -118,6 +120,13 @@ export function createOfficialRegistry(config: OfficialRegistryConfig): Official
 
   async function loadJson(path: string): Promise<unknown> {
     assertSafeRegistryPath(path);
+    if (path === CALLDATA_INDEX && config.indexes?.calldata) {
+      return config.indexes.calldata;
+    }
+    if (path === EIP712_INDEX && config.indexes?.eip712) {
+      return config.indexes.eip712;
+    }
+
     const key = cacheKey(pin, path);
     const cached = await readCache(key);
     if (cached !== undefined) {
@@ -178,6 +187,57 @@ export function createOfficialRegistry(config: OfficialRegistryConfig): Official
     };
   }
 
+  async function loadAttestations(descriptorPath: string): Promise<unknown[]> {
+    const slash = descriptorPath.lastIndexOf('/');
+    if (slash < 0) {
+      return [];
+    }
+    const dir = descriptorPath.slice(0, slash);
+    const base = descriptorPath.slice(slash + 1).replace(/\.json$/i, '');
+    const sigsDir = `${dir}/sigs`;
+    const listUrl = `${GITHUB_API}/repos/${OFFICIAL_REGISTRY_REPO}/contents/${sigsDir}?ref=${pin}`;
+    let response: Response;
+    try {
+      response = await fetchImpl(listUrl, {
+        headers: { Accept: 'application/vnd.github+json' },
+      });
+    } catch {
+      return [];
+    }
+    if (!response.ok) {
+      return [];
+    }
+    let listing: unknown;
+    try {
+      listing = await response.json();
+    } catch {
+      return [];
+    }
+    if (!Array.isArray(listing)) {
+      return [];
+    }
+
+    const out: unknown[] = [];
+    for (const item of listing) {
+      if (!isPlainObject(item) || typeof item.name !== 'string') {
+        continue;
+      }
+      if (!item.name.startsWith(`${base}.`) || !item.name.endsWith('.json')) {
+        continue;
+      }
+      const path =
+        typeof item.path === 'string' && item.path.length > 0
+          ? item.path
+          : `${sigsDir}/${item.name}`;
+      try {
+        out.push(await loadJson(path));
+      } catch {
+        // Skip a missing or invalid attestation file.
+      }
+    }
+    return out;
+  }
+
   async function resolvePath(path: string): Promise<ResolvedDescriptor> {
     const input = await loadDescriptor(path);
     return resolveDescriptor(input, includeLoader(path));
@@ -185,7 +245,13 @@ export function createOfficialRegistry(config: OfficialRegistryConfig): Official
 
   async function resolveOfficial(path: string): Promise<ResolvedDescriptor> {
     const resolved = await resolvePath(path);
-    return { ...resolved, source: 'official-registry' as const };
+    const attestations = config.attachAttestations ? await loadAttestations(path) : undefined;
+    return {
+      ...resolved,
+      source: 'official-registry' as const,
+      registryPath: path,
+      ...(attestations && attestations.length > 0 ? { attestations } : {}),
+    };
   }
 
   async function resolveOverride(input: InputDescriptor): Promise<ResolvedDescriptor> {

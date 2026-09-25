@@ -1,20 +1,27 @@
 import { decodeCalldata, extractSelector } from '../core/decoder.js';
 import { getSignatureBySelector } from '../core/signatures.js';
 import { generateDescriptor } from '../generate/generate.js';
-import { fetchFromSourcify } from '../providers/sourcify.js';
+import type { ABI } from '../generate/generate.js';
+import { ERC20_DESCRIPTOR } from '../registry/erc20.js';
+import { ERC721_DESCRIPTOR } from '../registry/erc721.js';
 import { createMemoryIncludeLoader, resolveDescriptor } from '../resolve/index.js';
 import type { Hex, InputDescriptor, ResolvedDescriptor } from '../types/descriptor.js';
 import type { TransactionInput } from '../types/index.js';
 import { decodeNamedArgs, parseDeclaration } from './abi.js';
+import { getDefaultVerifiedAbiLoader } from './abiLoader.js';
 import {
   ZERO_ADDRESS,
   appendUntrustedWarning,
   asAddress,
+  attestationFailed,
   confidenceFor,
-  intentFromFormat,
+  interpolationFailedWarning,
+  noTrustedAttestationWarning,
   readMetadata,
+  renderIntent,
   resolveTrust,
   sourceFromResolved,
+  withAttestedSource,
 } from './common.js';
 import { matchContext } from './context.js';
 import { type FormatOptions, flattenFields, formatDisplayField } from './format.js';
@@ -26,6 +33,8 @@ import type {
   DecodedField,
   DecodedOperation,
   SecurityWarning,
+  TrustReport,
+  TrustedTokenStandard,
 } from './types.js';
 import { finalizeDecodedWarnings, sourcifySelectorMismatch } from './warnings.js';
 
@@ -85,6 +94,24 @@ function selectorFromTx(tx: TransactionInput): Hex | undefined {
   }
 }
 
+function lookupTrustedToken(
+  options: DecodeOptions | undefined,
+  chainId: number,
+  address: string
+): TrustedTokenStandard | undefined {
+  const map = options?.trustedTokens?.[chainId];
+  if (!map) {
+    return undefined;
+  }
+  const want = address.toLowerCase();
+  for (const [key, standard] of Object.entries(map)) {
+    if (key.toLowerCase() === want) {
+      return standard;
+    }
+  }
+  return undefined;
+}
+
 async function renderFromDescriptor(
   tx: TransactionInput,
   resolved: ResolvedDescriptor,
@@ -113,9 +140,20 @@ async function renderFromDescriptor(
     descriptor: resolved,
     envelope,
   };
+  const depth = options?.calldataDepth ?? 0;
   const formatOptions: FormatOptions = {
     provider: options?.provider ?? null,
     locale: options?.locale ?? 'en',
+    externalDataProvider: options?.externalDataProvider,
+    calldataDepth: depth,
+    onCalldata:
+      depth < 2
+        ? (inner) =>
+            decodeTransaction(inner, {
+              ...options,
+              calldataDepth: depth + 1,
+            })
+        : undefined,
   };
 
   const excluded = matched.format.excluded ?? [];
@@ -141,16 +179,21 @@ async function renderFromDescriptor(
   appendUntrustedWarning(warnings, trust, source);
   const meta = readMetadata(resolved.merged);
   const declaration = matched.declaration;
+  const rendered = renderIntent(
+    matched.format.intent,
+    matched.format.interpolatedIntent,
+    fields,
+    options?.locale ?? 'en'
+  );
+  if (rendered.interpolationFailed) {
+    warnings.push(interpolationFailedWarning());
+  }
 
   return {
     confidence: confidenceFor(source, trust.accepted),
     source,
-    intent: intentFromFormat(
-      matched.format.intent,
-      matched.format.interpolatedIntent,
-      fields,
-      options?.locale ?? 'en'
-    ),
+    intent: rendered.intent,
+    interpolatedIntent: rendered.interpolatedIntent,
     functionName: declaration?.name,
     signature: declaration?.canonical ?? matched.key,
     selector,
@@ -162,6 +205,7 @@ async function renderFromDescriptor(
       ...meta,
       chainId: tx.chainId,
       contractAddress: asAddress(tx.to),
+      registryPath: resolved.registryPath,
     },
     raw: {
       selector,
@@ -170,7 +214,7 @@ async function renderFromDescriptor(
   };
 }
 
-async function trySourcify(
+async function tryVerifiedAbi(
   tx: TransactionInput,
   selector: Hex | undefined,
   options: DecodeOptions | undefined
@@ -178,16 +222,23 @@ async function trySourcify(
   if (!tx.to || tx.to.toLowerCase() === ZERO_ADDRESS) {
     return { operation: null, selectorMismatch: false };
   }
+  const useFallback = options?.useSourcifyFallback === true;
+  const loader =
+    options?.loadVerifiedAbi ?? (useFallback ? getDefaultVerifiedAbiLoader() : undefined);
+  if (!useFallback || !loader) {
+    return { operation: null, selectorMismatch: false };
+  }
   try {
-    const result = await fetchFromSourcify(tx.chainId, tx.to);
-    if (!result.verified || !result.abi) {
+    const result = await loader(tx.chainId, asAddress(tx.to));
+    if (!result?.abi) {
       return { operation: null, selectorMismatch: false };
     }
-    const selectorMismatch = selector ? sourcifySelectorMismatch(result.abi, selector) : false;
+    const abi = result.abi as ABI;
+    const selectorMismatch = selector ? sourcifySelectorMismatch(abi, selector) : false;
     const generated = generateDescriptor({
       chainId: tx.chainId,
       address: tx.to,
-      abi: result.abi,
+      abi,
       owner: result.name || undefined,
     });
     const resolved = await resolveDescriptor(
@@ -201,9 +252,10 @@ async function trySourcify(
   }
 }
 
-function fallbackOperation(
+async function fallbackOperation(
   tx: TransactionInput,
-  options: DecodeOptions | undefined
+  options: DecodeOptions | undefined,
+  trustOverride?: TrustReport
 ): Promise<DecodedOperation> {
   const selector = selectorFromTx(tx);
   const raw = selector ? decodeCalldata(tx) : null;
@@ -235,43 +287,91 @@ function fallbackOperation(
     }
   }
 
-  return resolveTrust(options, source, undefined, tx.chainId, asAddress(tx.to)).then((trust) => {
-    const warnings: SecurityWarning[] = [];
+  const trust =
+    trustOverride ?? (await resolveTrust(options, source, undefined, tx.chainId, asAddress(tx.to)));
+  const warnings: SecurityWarning[] = [];
+  if (!trustOverride) {
     appendUntrustedWarning(warnings, trust, source);
-    return {
-      confidence: confidenceFor(source, trust.accepted),
-      source,
-      intent: inferIntentName(raw?.functionName ?? known?.name ?? null),
-      functionName: raw?.functionName ?? known?.name ?? undefined,
-      signature: raw?.signature ?? known?.signature ?? selector,
+  }
+  return {
+    confidence: confidenceFor(source, trust.accepted),
+    source,
+    intent: inferIntentName(raw?.functionName ?? known?.name ?? null),
+    functionName: raw?.functionName ?? known?.name ?? undefined,
+    signature: raw?.signature ?? known?.signature ?? selector,
+    selector,
+    fields,
+    excluded: [],
+    warnings,
+    trust,
+    metadata: {
+      chainId: tx.chainId,
+      contractAddress: asAddress(tx.to),
+    },
+    raw: {
       selector,
-      fields,
-      excluded: [],
-      warnings,
-      trust,
-      metadata: {
-        chainId: tx.chainId,
-        contractAddress: asAddress(tx.to),
-      },
-      raw: {
-        selector,
-        args: raw?.args,
-      },
-    };
-  });
+      args: raw?.args,
+    },
+  };
+}
+
+async function presentDescriptorResult(
+  rendered: DecodedOperation,
+  tx: TransactionInput,
+  options: DecodeOptions | undefined
+): Promise<DecodedOperation> {
+  const upgraded = withAttestedSource(rendered);
+  if (!attestationFailed(upgraded.trust)) {
+    return upgraded;
+  }
+  const fallback = await fallbackOperation(tx, options, upgraded.trust);
+  const warnings = [...fallback.warnings];
+  if (!warnings.some((warning) => warning.type === 'NO_TRUSTED_ATTESTATION')) {
+    warnings.push(noTrustedAttestationWarning());
+  }
+  return {
+    ...fallback,
+    source: upgraded.source === 'attested' ? 'official-registry' : upgraded.source,
+    confidence: 'low',
+    trust: upgraded.trust,
+    metadata: upgraded.metadata,
+    warnings,
+  };
+}
+
+async function tryTrustedToken(
+  tx: TransactionInput,
+  selector: Hex | undefined,
+  options: DecodeOptions | undefined
+): Promise<DecodedOperation | null> {
+  if (!selector || !tx.to) {
+    return null;
+  }
+  const standard = lookupTrustedToken(options, tx.chainId, tx.to);
+  if (!standard) {
+    return null;
+  }
+  const template = standard === 'erc721' ? ERC721_DESCRIPTOR : ERC20_DESCRIPTOR;
+  const resolved = await resolveDescriptor(
+    template as InputDescriptor,
+    createMemoryIncludeLoader({})
+  );
+  const rendered = await renderFromDescriptor(tx, resolved, 'trusted-token', selector, options);
+  return rendered;
 }
 
 /**
  * Decode a transaction using an official (or override) descriptor's
- * `display.formats`. Without a match, falls back to Sourcify (optional) then
- * inferred / basic — never `confidence: "high"` for those sources.
+ * `display.formats`. Without a match, falls back to trusted-token templates,
+ * optional Sourcify, then inferred / basic — never `confidence: "high"` for
+ * those sources.
  */
 export async function decodeTransaction(
   tx: TransactionInput,
   options?: DecodeOptions
 ): Promise<DecodedOperation> {
   const selector = selectorFromTx(tx);
-  const useSourcify = options?.useSourcifyFallback ?? true;
+  const useSourcify = options?.useSourcifyFallback === true;
 
   if (options?.registry && selector) {
     const found = await options.registry.findCalldata({
@@ -297,20 +397,30 @@ export async function decodeTransaction(
           options
         );
         if (rendered) {
-          return finalizeDecodedWarnings(rendered, options);
+          return finalizeDecodedWarnings(
+            await presentDescriptorResult(rendered, tx, options),
+            options
+          );
         }
       }
     }
   }
 
+  if (selector) {
+    const trusted = await tryTrustedToken(tx, selector, options);
+    if (trusted) {
+      return finalizeDecodedWarnings(trusted, options);
+    }
+  }
+
   if (useSourcify && selector) {
-    const sourcify = await trySourcify(tx, selector, options);
-    if (sourcify.operation) {
-      return finalizeDecodedWarnings(sourcify.operation, options, {
-        selectorMismatch: sourcify.selectorMismatch,
+    const verified = await tryVerifiedAbi(tx, selector, options);
+    if (verified.operation) {
+      return finalizeDecodedWarnings(verified.operation, options, {
+        selectorMismatch: verified.selectorMismatch,
       });
     }
-    if (sourcify.selectorMismatch) {
+    if (verified.selectorMismatch) {
       const fallback = await fallbackOperation(tx, options);
       return finalizeDecodedWarnings(fallback, options, { selectorMismatch: true });
     }

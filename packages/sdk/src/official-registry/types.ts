@@ -37,6 +37,11 @@ export interface OfficialRegistry {
   extend(descriptors: InputDescriptor[]): void;
 }
 
+export interface OfficialRegistryIndexes {
+  calldata?: CalldataIndex;
+  eip712?: Eip712Index;
+}
+
 export interface OfficialRegistryConfig {
   /** Full 40-character git commit SHA. Required. Never `master` / `main`. */
   pin: string;
@@ -46,6 +51,16 @@ export interface OfficialRegistryConfig {
   cache?: DescriptorCache;
   /** Injected `fetch` (tests, custom gateways). Defaults to `globalThis.fetch`. */
   fetch?: typeof globalThis.fetch;
+  /**
+   * Caller-owned index objects (from {@link fetchPrebuiltRegistryIndex}).
+   * When set, those files are not fetched again.
+   */
+  indexes?: OfficialRegistryIndexes;
+  /**
+   * Load ERC-8176 attestation JSON from `registry/<project>/sigs/` next to
+   * each official descriptor. Default false (keeps unit-test mocks simple).
+   */
+  attachAttestations?: boolean;
 }
 
 export type CalldataIndex = Record<string, string>;

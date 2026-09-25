@@ -11,12 +11,27 @@ import type { Provider } from '../types/index.js';
 import type { DisplayField, DisplayFieldItem, ERC7730V2Metadata } from '../types/v2.js';
 import type { PathContext } from './path.js';
 import { resolvePath } from './path.js';
-import type { DecodedField, FieldFormat, SecurityWarning, TransactionInput } from './types.js';
+import type {
+  DecodedField,
+  DecodedOperation,
+  ExternalDataProvider,
+  FieldFormat,
+  SecurityWarning,
+  TransactionInput,
+} from './types.js';
 
 export interface FormatOptions {
   provider?: Provider | null;
   locale?: string;
+  externalDataProvider?: ExternalDataProvider;
+  /** Nested `calldata` decode. Set by the outer decoder. */
+  onCalldata?: (tx: TransactionInput) => Promise<DecodedOperation>;
+  calldataDepth?: number;
 }
+
+const MAX_CALLDATA_DEPTH = 2;
+const ADDRESS_RE = /^0x[0-9a-fA-F]{40}$/;
+const HEX_RE = /^0x[0-9a-fA-F]*$/;
 
 function asRecord(value: unknown): Record<string, unknown> | undefined {
   return isPlainObject(value) ? value : undefined;
@@ -72,23 +87,38 @@ function formatDuration(value: unknown): string {
   return seconds < 0n ? `-${formatted}` : formatted;
 }
 
-function formatDate(value: unknown, encoding: string | undefined, locale: string): string {
-  const n = toBigInt(value);
-  if (n === undefined) {
-    return formatRaw(value);
-  }
-  if (encoding === 'blockheight') {
-    return `block ${n.toString()}`;
-  }
-  const millis = Number(n) * 1000;
+function formatUnixDate(seconds: bigint | number, locale: string): string {
+  const n = typeof seconds === 'bigint' ? Number(seconds) : seconds;
+  const millis = n * 1000;
   if (!Number.isFinite(millis)) {
-    return n.toString();
+    return String(seconds);
   }
   try {
     return new Date(millis).toLocaleString(locale, { timeZone: 'UTC' });
   } catch {
     return new Date(millis).toISOString();
   }
+}
+
+async function formatDate(
+  value: unknown,
+  encoding: string | undefined,
+  locale: string,
+  tx: TransactionInput,
+  options: FormatOptions
+): Promise<string> {
+  const n = toBigInt(value);
+  if (n === undefined) {
+    return formatRaw(value);
+  }
+  if (encoding === 'blockheight') {
+    const ts = await options.externalDataProvider?.resolveBlockTimestamp?.(tx.chainId, n);
+    if (ts !== null && ts !== undefined) {
+      return formatUnixDate(ts, locale);
+    }
+    return `block ${n.toString()}`;
+  }
+  return formatUnixDate(n, locale);
 }
 
 function formatRaw(value: unknown): string {
@@ -282,13 +312,27 @@ async function resolveTokenInfo(
     return fromMeta;
   }
 
+  const chainRaw =
+    params?.chainIdPath !== undefined
+      ? resolvePath(String(params.chainIdPath), ctx)
+      : resolveParamPath(params?.chainId, ctx);
+  const chainId = toBigInt(chainRaw);
+  const lookupChain = chainId !== undefined ? Number(chainId) : tx.chainId;
+  const lookupAddress = tokenAddress ?? tx.to;
+
+  if (options.externalDataProvider?.resolveToken && ADDRESS_RE.test(lookupAddress)) {
+    const info = await options.externalDataProvider.resolveToken(
+      lookupChain,
+      lookupAddress as `0x${string}`
+    );
+    if (info) {
+      return { symbol: info.symbol, decimals: info.decimals };
+    }
+    // Provider was asked and returned null: do not fall through to RPC catalogs.
+    return null;
+  }
+
   if (tokenAddress) {
-    const chainRaw =
-      params?.chainIdPath !== undefined
-        ? resolvePath(String(params.chainIdPath), ctx)
-        : resolveParamPath(params?.chainId, ctx);
-    const chainId = toBigInt(chainRaw);
-    const lookupChain = chainId !== undefined ? Number(chainId) : tx.chainId;
     return getTokenInfo(tokenAddress, lookupChain, options.provider);
   }
 
@@ -303,15 +347,30 @@ async function formatAddressName(
   if (!rawValue || typeof rawValue !== 'string') {
     return formatRaw(rawValue);
   }
+  const address = rawValue as `0x${string}`;
+  const edp = options.externalDataProvider;
+  if (edp?.resolveEnsName || edp?.resolveLocalName) {
+    const ens = edp.resolveEnsName ? await edp.resolveEnsName(address) : null;
+    if (ens) {
+      return formatAddress(address, ens);
+    }
+    const local = edp.resolveLocalName ? await edp.resolveLocalName(address) : null;
+    if (local) {
+      return formatAddress(address, local);
+    }
+    return formatAddress(address);
+  }
   const resolved = await resolveAddress(rawValue, tx.chainId, options.provider);
   return formatAddress(resolved.address, resolved.name);
 }
 
-function formatNftName(
+async function formatNftName(
   rawValue: unknown,
   params: Record<string, unknown> | undefined,
-  ctx: PathContext
-): string {
+  ctx: PathContext,
+  tx: TransactionInput,
+  options: FormatOptions
+): Promise<string> {
   const id = formatRaw(rawValue);
   let collection: unknown;
   if (typeof params?.collectionPath === 'string') {
@@ -320,6 +379,15 @@ function formatNftName(
     collection = resolveParamPath(params.collection, ctx);
   }
   if (typeof collection === 'string' && collection) {
+    if (ADDRESS_RE.test(collection) && options.externalDataProvider?.resolveNftCollectionName) {
+      const name = await options.externalDataProvider.resolveNftCollectionName(
+        tx.chainId,
+        collection as `0x${string}`
+      );
+      if (name) {
+        return `${name} #${id}`;
+      }
+    }
     const short =
       collection.startsWith('0x') && collection.length === 42
         ? formatAddress(collection)
@@ -329,13 +397,85 @@ function formatNftName(
   return `#${id}`;
 }
 
-function formatNativeAmount(rawValue: unknown, tx: TransactionInput): string {
+async function formatNativeAmount(
+  rawValue: unknown,
+  tx: TransactionInput,
+  options: FormatOptions
+): Promise<string> {
   const amount = toBigInt(rawValue);
   if (amount === undefined) {
     return formatRaw(rawValue);
   }
+  if (options.externalDataProvider?.resolveChainInfo) {
+    const info = await options.externalDataProvider.resolveChainInfo(tx.chainId);
+    if (info) {
+      return formatAmount(amount, info.decimals ?? 18, info.symbol);
+    }
+  }
   const native = NATIVE_CURRENCY[tx.chainId] ?? { symbol: 'ETH', decimals: 18 };
   return formatAmount(amount, native.decimals, native.symbol);
+}
+
+async function formatCalldataField(
+  rawValue: unknown,
+  params: Record<string, unknown> | undefined,
+  ctx: PathContext,
+  tx: TransactionInput,
+  options: FormatOptions
+): Promise<{ value: string; embedded?: DecodedOperation }> {
+  const hex = typeof rawValue === 'string' && HEX_RE.test(rawValue) ? rawValue : undefined;
+  if (!hex) {
+    return { value: formatRaw(rawValue) };
+  }
+
+  let callee: unknown;
+  if (typeof params?.calleePath === 'string') {
+    callee = resolvePath(params.calleePath, ctx);
+  } else if (params?.callee !== undefined) {
+    callee = resolveParamPath(params.callee, ctx);
+  }
+  if (typeof callee !== 'string' || !ADDRESS_RE.test(callee)) {
+    return { value: hex.length > 66 ? `${hex.slice(0, 10)}…${hex.slice(-8)}` : hex };
+  }
+
+  let data = hex;
+  let selector: unknown;
+  if (typeof params?.selectorPath === 'string') {
+    selector = resolvePath(params.selectorPath, ctx);
+  } else if (params?.selector !== undefined) {
+    selector = resolveParamPath(params.selector, ctx);
+  }
+  if (typeof selector === 'string' && /^0x[0-9a-fA-F]{8}$/.test(selector)) {
+    if (!data.startsWith(selector.toLowerCase()) && data.length === 2) {
+      data = selector;
+    } else if (data === '0x' || data.length < 10) {
+      data = `${selector}${data.slice(2)}`;
+    }
+  }
+
+  let valueWei: bigint | undefined;
+  if (typeof params?.amountPath === 'string') {
+    valueWei = toBigInt(resolvePath(params.amountPath, ctx));
+  } else if (params?.amount !== undefined) {
+    valueWei = toBigInt(resolveParamPath(params.amount, ctx));
+  }
+
+  const depth = options.calldataDepth ?? 0;
+  if (depth >= MAX_CALLDATA_DEPTH || !options.onCalldata) {
+    return { value: hex.length > 66 ? `${hex.slice(0, 10)}…${hex.slice(-8)}` : hex };
+  }
+
+  const embedded = await options.onCalldata({
+    to: callee,
+    data: data as `0x${string}`,
+    chainId: tx.chainId,
+    from: tx.from,
+    value: valueWei,
+  });
+  return {
+    value: embedded.interpolatedIntent ?? embedded.intent,
+    embedded,
+  };
 }
 
 export interface FormattedFieldResult {
@@ -368,6 +508,8 @@ export async function formatDisplayField(
   let value: string;
   const warnings: SecurityWarning[] = [];
 
+  let embedded: DecodedOperation | undefined;
+
   switch (format) {
     case 'tokenAmount': {
       const formatted = await formatTokenAmount(rawValue, params, ctx, tx, options);
@@ -391,13 +533,15 @@ export async function formatDisplayField(
       break;
     }
     case 'amount':
-      value = formatNativeAmount(rawValue, tx);
+      value = await formatNativeAmount(rawValue, tx, options);
       break;
     case 'date':
-      value = formatDate(
+      value = await formatDate(
         rawValue,
         typeof params?.encoding === 'string' ? params.encoding : 'timestamp',
-        options.locale ?? 'en'
+        options.locale ?? 'en',
+        tx,
+        options
       );
       break;
     case 'duration':
@@ -414,8 +558,24 @@ export async function formatDisplayField(
       break;
     }
     case 'nftName':
-      value = formatNftName(rawValue, params, ctx);
+      value = await formatNftName(rawValue, params, ctx, tx, options);
       break;
+    case 'calldata': {
+      const nested = await formatCalldataField(rawValue, params, ctx, tx, options);
+      value = nested.value;
+      embedded = nested.embedded;
+      break;
+    }
+    case 'chainId': {
+      const chain = toBigInt(rawValue);
+      if (chain === undefined) {
+        value = formatRaw(rawValue);
+        break;
+      }
+      const info = await options.externalDataProvider?.resolveChainInfo?.(Number(chain));
+      value = info?.name ?? chain.toString();
+      break;
+    }
     case 'unit': {
       const decimals = typeof params?.decimals === 'number' ? params.decimals : 0;
       const amount = toBigInt(rawValue);
@@ -447,6 +607,7 @@ export async function formatDisplayField(
       rawValue,
       required,
       params,
+      embedded,
     },
     warnings,
   };

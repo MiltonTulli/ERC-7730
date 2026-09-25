@@ -3,18 +3,16 @@
  * {@link decodeTransaction} / {@link decodeTypedData} APIs.
  */
 
-import { http, createPublicClient } from 'viem';
 import { matchContext, resolveImplementation } from '../decode/context.js';
 import { decodeTransaction } from '../decode/decodeTransaction.js';
 import { decodeTypedData } from '../decode/decodeTypedData.js';
 import type { DecodeOptions, DecodeRegistry, DecodedOperation } from '../decode/types.js';
 import type { OfficialRegistry } from '../official-registry/types.js';
-import { chainNameToId, getChain, getDefaultRpc } from '../providers/rpc.js';
 import { createMemoryIncludeLoader, resolveDescriptor } from '../resolve/index.js';
 import { isPlainObject } from '../resolve/util.js';
 import { validateDescriptor } from '../schema/index.js';
 import type { InputDescriptor, ResolvedDescriptor } from '../types/descriptor.js';
-import type { ChainName, Provider, TransactionInput, TypedDataInput } from '../types/index.js';
+import type { Provider, TransactionInput, TypedDataInput } from '../types/index.js';
 
 type BoundRegistry = DecodeRegistry & {
   extend(descriptors: InputDescriptor[]): void;
@@ -164,24 +162,6 @@ function asDescriptorList(
 export class ClearSigner {
   private readonly options: DecodeOptions;
   private readonly registry: BoundRegistry;
-
-  /**
-   * Create a ClearSigner instance for a specific chain (default public RPC).
-   */
-  static forChain(chain: ChainName): ClearSigner {
-    const chainId = chainNameToId(chain);
-    const viemChain = getChain(chainId);
-    const rpcUrl = getDefaultRpc(chainId);
-    if (!viemChain || !rpcUrl) {
-      return new ClearSigner({ provider: null });
-    }
-    return new ClearSigner({
-      provider: createPublicClient({
-        chain: viemChain,
-        transport: http(rpcUrl),
-      }),
-    });
-  }
 
   constructor(options: DecodeOptions = {}) {
     this.registry = createBoundRegistry(options.registry);

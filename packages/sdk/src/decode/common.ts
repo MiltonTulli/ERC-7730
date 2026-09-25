@@ -6,6 +6,7 @@ import type {
   DecodeOptions,
   DecodeSource,
   DecodedField,
+  DecodedOperation,
   SecurityWarning,
   TrustReport,
 } from './types.js';
@@ -20,23 +21,7 @@ export function asRecord(value: unknown): Record<string, unknown> | undefined {
   return isPlainObject(value) ? value : undefined;
 }
 
-export function intentFromFormat(
-  intent: unknown,
-  interpolated: unknown,
-  fields: DecodedField[],
-  locale: string
-): string {
-  if (typeof interpolated === 'string' && interpolated.length > 0) {
-    const replaced = interpolated.replace(/\{([^{}]+)\}/g, (full, path: string) => {
-      const match = fields.find(
-        (field) => field.path === path || field.path === `#.${path}` || field.path.endsWith(path)
-      );
-      return match ? match.value : full;
-    });
-    if (!/\{[^{}]+\}/.test(replaced)) {
-      return replaced;
-    }
-  }
+function staticIntent(intent: unknown, locale: string): string {
   if (typeof intent === 'string' && intent.length > 0) {
     return intent;
   }
@@ -51,7 +36,53 @@ export function intentFromFormat(
   return 'Contract interaction';
 }
 
+export interface RenderedIntent {
+  intent: string;
+  interpolatedIntent?: string;
+  interpolationFailed: boolean;
+}
+
+/**
+ * Prefer the filled sentence when every `{path}` resolves. Keep the short
+ * intent when the template is missing or incomplete.
+ */
+export function renderIntent(
+  intent: unknown,
+  interpolated: unknown,
+  fields: DecodedField[],
+  locale: string
+): RenderedIntent {
+  const short = staticIntent(intent, locale);
+  if (typeof interpolated !== 'string' || interpolated.length === 0) {
+    return { intent: short, interpolationFailed: false };
+  }
+  const replaced = interpolated.replace(/\{([^{}]+)\}/g, (full, path: string) => {
+    const match = fields.find(
+      (field) => field.path === path || field.path === `#.${path}` || field.path.endsWith(path)
+    );
+    return match ? match.value : full;
+  });
+  if (/\{[^{}]+\}/.test(replaced)) {
+    return { intent: short, interpolationFailed: true };
+  }
+  // Keep `intent` as the filled sentence for wallets that only read that field.
+  return { intent: replaced, interpolatedIntent: replaced, interpolationFailed: false };
+}
+
+/** @deprecated Prefer {@link renderIntent}. */
+export function intentFromFormat(
+  intent: unknown,
+  interpolated: unknown,
+  fields: DecodedField[],
+  locale: string
+): string {
+  return renderIntent(intent, interpolated, fields, locale).intent;
+}
+
 export function confidenceFor(source: DecodeSource, accepted: boolean): Confidence {
+  if (source === 'trusted-token') {
+    return 'low';
+  }
   if (source === 'official-registry' || source === 'attested') {
     return accepted ? 'high' : 'low';
   }
@@ -59,6 +90,44 @@ export function confidenceFor(source: DecodeSource, accepted: boolean): Confiden
     return accepted ? 'medium' : 'low';
   }
   return 'low';
+}
+
+export function attestationFailed(trust: TrustReport): boolean {
+  return trust.reasons.some(
+    (reason) => reason === 'NO_TRUSTED_ATTESTATION' || reason === 'ATTESTATION_OPTIONS_INCOMPLETE'
+  );
+}
+
+export function withAttestedSource(operation: DecodedOperation): DecodedOperation {
+  if (
+    operation.trust.accepted &&
+    operation.trust.attesters &&
+    operation.trust.attesters.length > 0 &&
+    (operation.source === 'official-registry' || operation.source === 'attested')
+  ) {
+    return {
+      ...operation,
+      source: 'attested',
+      confidence: confidenceFor('attested', true),
+    };
+  }
+  return operation;
+}
+
+export function noTrustedAttestationWarning(): SecurityWarning {
+  return {
+    type: 'NO_TRUSTED_ATTESTATION',
+    severity: 'high',
+    message: 'No trusted ERC-8176 attestation for this descriptor',
+  };
+}
+
+export function interpolationFailedWarning(): SecurityWarning {
+  return {
+    type: 'interpolation_failed',
+    severity: 'low',
+    message: 'Intent template could not be filled; showing the short intent and fields',
+  };
 }
 
 export function stubTrust(source: DecodeSource, hash?: Hex): TrustReport {

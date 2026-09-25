@@ -56,6 +56,13 @@ export interface ResolvedDescriptor {
    * from an `extend()` override. `resolveDescriptor` does not set this.
    */
   source?: 'official-registry' | 'local-override';
+  /** Registry path of the official file, when known. */
+  registryPath?: string;
+  /**
+   * ERC-8176 offchain attestation JSON blobs (e.g. `registry/<project>/sigs/`).
+   * Consumed by `attestedPolicy`.
+   */
+  attestations?: readonly unknown[];
 }
 
 export interface ValidationIssue {
