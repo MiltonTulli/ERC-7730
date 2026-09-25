@@ -32,6 +32,9 @@ importers:
       '@erc7730/sdk':
         specifier: workspace:*
         version: link:../sdk
+      viem:
+        specifier: ^2.21.0
+        version: 2.56.8(typescript@5.9.3)
     devDependencies:
       '@types/node':
         specifier: ^20.11.0

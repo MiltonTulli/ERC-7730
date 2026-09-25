@@ -1,6 +1,6 @@
 # @erc7730/sdk
 
-TypeScript runtime for [ERC-7730](https://eips.ethereum.org/EIPS/eip-7730) clear signing.
+TypeScript runtime for [ERC-7730](https://eips.ethereum.org/EIPS/eip-7730) clear signing. This is the library package in the [ERC-7730 toolkit](https://github.com/MiltonTulli/ERC-7730). Authoring commands (`generate`, `lint`, `preview`, `diff`) are [`@erc7730/cli`](https://www.npmjs.com/package/@erc7730/cli), a separate CLI-only package.
 
 [![npm version](https://img.shields.io/npm/v/@erc7730/sdk.svg)](https://www.npmjs.com/package/@erc7730/sdk)
 [![ERC-7730](https://img.shields.io/badge/schema-v1%20%2B%20v2-3b82f6)](https://eips.ethereum.org/EIPS/eip-7730)
@@ -28,6 +28,14 @@ Send tokens
 
 ## Trust model
 
+Clear signing depends on where the metadata came from. Keep these apart:
+
+- **Official registry data** — `createOfficialRegistry({ pin })` reads [`ethereum/clear-signing-erc7730-registry`](https://github.com/ethereum/clear-signing-erc7730-registry) at a commit SHA. `source` is `official-registry` (or `attested` once attestation verification exists).
+- **Local overrides** — `extend()` / a custom registry. App-supplied descriptors, `source` `local-override`. Not a contribution path to the catalog.
+- **Generated descriptors** — `generateDescriptor()` and the Sourcify fallback. ABI guesses, `source` `generated` or `sourcify`. Never `confidence: "high"`.
+- **Inferred / basic decoding** — no descriptor matched. A 4-byte guess (`inferred`) or a raw selector (`basic`). `confidence` is `"low"`.
+- **Trust policies** — `officialOnlyPolicy()`, `officialOrLocalPolicy()`, and `composePolicies()` set `trust.accepted`. They do not change the descriptor text. Production wallets should pass `officialOnlyPolicy()`.
+
 Separate **trusted metadata** from **ABI guesses**. Sourcify and `generateDescriptor` are untrusted fallbacks — **never** `confidence: "high"`.
 
 | `source` | `officialOnlyPolicy` | `officialOrLocalPolicy` | `confidence` if accepted |
@@ -52,7 +60,6 @@ Separate **trusted metadata** from **ABI guesses**. Sourcify and `generateDescri
 - **`createClearSigner`** — bind `DecodeOptions` (`ClearSigner.decode` is a deprecated alias of `decodeTransaction`)
 - **TrustPolicy** — `officialOnlyPolicy` / `officialOrLocalPolicy` / `composePolicies`
 - **Untrusted fallback** — Sourcify / `generateDescriptor`, labeled by `source`
-- **CLI** — companion package `@erc7730/cli` for generate / lint / preview / diff
 - **Warnings** — untrusted descriptors, infinite approvals, and similar risks
 - **Tree-shakeable** — minimal dependencies
 
@@ -456,6 +463,14 @@ The demo shows `source`, `warnings`, and `trust.accepted` on every decode. Prefe
 Protocol descriptors belong in [`ethereum/clear-signing-erc7730-registry`](https://github.com/ethereum/clear-signing-erc7730-registry).
 
 SDK issues and features: [MiltonTulli/ERC-7730](https://github.com/MiltonTulli/ERC-7730).
+
+## Schema compatibility
+
+| Package line | ERC-7730 schema |
+| --- | --- |
+| SDK 0.x | Reads v1. `validateDescriptor` accepts v1 and v2 |
+
+Schema versions follow the ERC-7730 standard. This package's `0.x` version does not name a schema version. `@erc7730/sdk` and `@erc7730/cli` publish on independent versions; GitHub tags are `sdk-vX.Y.Z` and `cli-vX.Y.Z`. See [RELEASE.md](https://github.com/MiltonTulli/ERC-7730/blob/main/RELEASE.md).
 
 ## License
 

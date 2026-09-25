@@ -58,6 +58,9 @@ jobs:
       - name: Run tests
         run: pnpm test
 
+      - name: CLI pack smoke
+        run: node scripts/cli-pack-smoke.mjs
+
       - name: Check package exports
         run: |
           cd packages/sdk
