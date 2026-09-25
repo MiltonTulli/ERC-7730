@@ -120,7 +120,7 @@ jobs:
           CHANGED=$(git diff --name-only origin/main...HEAD)
           echo "Changed files:"
           echo "$CHANGED"
-          PUBLISHED_TOUCHED=$(echo "$CHANGED" | grep -E '^(packages/sdk/src/|packages/sdk/package.json$|packages/cli/src/|packages/cli/package.json$)' || true)
+          PUBLISHED_TOUCHED=$(echo "$CHANGED" | grep -E '^(packages/sdk/src/|packages/sdk/package.json$|packages/cli/src/|packages/cli/package.json$)' | grep -vE '/__tests__/' || true)
           CHANGESETS=$(echo "$CHANGED" | grep -E '^\.changeset/.+\.md$' | grep -v 'README.md' || true)
           if [ -n "$PUBLISHED_TOUCHED" ] && [ -z "$CHANGESETS" ]; then
             echo "::error::SDK or CLI source/package.json changed without a .changeset/*.md file. Run: pnpm changeset"
