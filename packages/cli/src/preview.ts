@@ -38,13 +38,22 @@ function parseValue(value: string | undefined): TransactionInput['value'] {
 function formatPreview(result: Awaited<ReturnType<typeof decodeTransaction>>): string {
   const lines: string[] = [];
   lines.push(`Intent: ${result.intent}`);
+  if (result.interpolatedIntent) {
+    lines.push(`Interpolated: ${result.interpolatedIntent}`);
+  }
   lines.push(
     `Source: ${result.source}    Confidence: ${result.confidence}    Trust: ${
       result.trust.accepted ? 'accepted' : 'rejected'
     } (${result.trust.policy})`
   );
+  if (result.trust.reasons.length > 0) {
+    lines.push(`Trust reasons: ${result.trust.reasons.join(', ')}`);
+  }
   if (result.signature) {
     lines.push(`Signature: ${result.signature}`);
+  }
+  if (result.children && result.children.length > 0) {
+    lines.push(`Children: ${result.children.length}`);
   }
   lines.push('');
   lines.push('Fields:');

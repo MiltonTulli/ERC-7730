@@ -333,7 +333,18 @@ export function createOfficialRegistry(config: OfficialRegistryConfig): Official
       if (impl && impl !== address && deploymentsHit(resolved, key.chainId, impl)) {
         return resolved;
       }
-      if (kind !== 'calldata') {
+      if (kind === 'eip712') {
+        if (!key.typedData) {
+          continue;
+        }
+        const bound = await matchContext(resolved, key.typedData, {
+          provider: key.provider,
+          fromBlock: key.fromBlock,
+          toBlock: key.toBlock,
+        });
+        if (bound.matched) {
+          return resolved;
+        }
         continue;
       }
       const bound = await matchContext(

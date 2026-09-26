@@ -71,6 +71,7 @@ function createBoundRegistry(base?: DecodeRegistry | OfficialRegistry): BoundReg
     key: {
       chainId: number;
       address: `0x${string}`;
+      typedData?: import('../types/index.js').TypedDataInput;
       provider?: Provider | null;
       fromBlock?: DecodeOptions['fromBlock'];
       toBlock?: DecodeOptions['toBlock'];
@@ -90,7 +91,18 @@ function createBoundRegistry(base?: DecodeRegistry | OfficialRegistry): BoundReg
       if (impl && impl !== address && deploymentsHit(resolved, key.chainId, impl)) {
         return resolved;
       }
-      if (kind !== 'calldata') {
+      if (kind === 'eip712') {
+        if (!key.typedData) {
+          continue;
+        }
+        const bound = await matchContext(resolved, key.typedData, {
+          provider: key.provider,
+          fromBlock: key.fromBlock,
+          toBlock: key.toBlock,
+        });
+        if (bound.matched) {
+          return resolved;
+        }
         continue;
       }
       const bound = await matchContext(

@@ -5,6 +5,7 @@ import type {
   TrustPolicy,
   TrustReport,
 } from '../decode/types.js';
+import { sourceAcceptedReason, sourceRejectedReason } from './reasons.js';
 
 const OFFICIAL_SOURCES: ReadonlySet<DecodeSource> = new Set(['official-registry', 'attested']);
 
@@ -25,8 +26,8 @@ function reportFor(
     policy: id,
     descriptorHash: ctx.descriptor?.hash,
     reasons: accepted
-      ? [`source "${ctx.source}" accepted`]
-      : [`source "${ctx.source}" rejected`, 'untrusted_descriptor'],
+      ? [sourceAcceptedReason(ctx.source)]
+      : [sourceRejectedReason(ctx.source), 'untrusted_descriptor'],
   };
 }
 
@@ -89,7 +90,7 @@ export function composePolicies(policies: TrustPolicy[], mode: 'all' | 'any'): T
           accepted: false,
           policy: id,
           descriptorHash: ctx.descriptor?.hash,
-          reasons: ['no policies to compose'],
+          reasons: ['no_policies'],
         };
       }
 
@@ -122,7 +123,7 @@ export function composePolicies(policies: TrustPolicy[], mode: 'all' | 'any'): T
         reasons:
           reasons.length > 0
             ? reasons
-            : [accepted ? `source "${ctx.source}" accepted` : `source "${ctx.source}" rejected`],
+            : [accepted ? sourceAcceptedReason(ctx.source) : sourceRejectedReason(ctx.source)],
       };
     },
   };
