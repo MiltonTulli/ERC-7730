@@ -13,6 +13,7 @@ const fixtures = join(here, 'fixtures');
 const sdkFixtures = join(here, '../../../sdk/src/__tests__/fixtures');
 const PIN = VENDORED_REGISTRY_COMMIT;
 const WETH = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2';
+const STETH = '0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84';
 const ERC20_ABI = join(fixtures, 'erc20.abi.json');
 
 const dirs: string[] = [];
@@ -53,10 +54,14 @@ function officialFiles(): Record<string, unknown> {
       'eip155:1:0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2': 'registry/weth/calldata-weth.json',
       'eip155:11155111:0xfff9976782d46cc05630d1f6ebab18b2324d6b14':
         'registry/weth/calldata-weth.json',
+      'eip155:1:0xae7ab96520de3a18e5e111b5eaab095312d7fe84': 'registry/lido/calldata-stETH.json',
     },
     'index.eip712.json': {},
     'registry/weth/calldata-weth.json': loadJson(
       join(sdkFixtures, 'official/weth-calldata-weth.json')
+    ),
+    'registry/lido/calldata-stETH.json': loadJson(
+      join(sdkFixtures, 'official/lido-calldata-stETH.json')
     ),
   };
 }
@@ -241,10 +246,65 @@ describe('erc7730 lint', () => {
     expect(result.stdout).not.toMatch(/missing_display/);
     expect(result.stdout).not.toMatch(/missing_formats/);
   });
+
+  it('validates testsv2 files with --tests', async () => {
+    const dir = await tempDir();
+    const testsPath = join(dir, 'sample.tests.json');
+    await writeFile(
+      testsPath,
+      JSON.stringify({
+        descriptor: '../calldata-sample.json',
+        tests: [
+          {
+            description: 'sample',
+            rawTx: '0xd0e30db0',
+            expected: { intent: 'Wrap', fields: [] },
+          },
+        ],
+      }),
+      'utf8'
+    );
+    const ok = await runCli(['lint', '--tests', testsPath], io({ cwd: dir }));
+    expect(ok.exitCode).toBe(0);
+
+    await writeFile(testsPath, JSON.stringify({ descriptor: '../x.json', tests: [] }), 'utf8');
+    const bad = await runCli(['lint', '--tests', testsPath, '--json'], io({ cwd: dir }));
+    expect(bad.exitCode).toBe(1);
+  });
+});
+
+describe('erc7730 scaffold', () => {
+  it('writes calldata + testsv2 tree', async () => {
+    const dir = await tempDir();
+    const out = join(dir, 'draft');
+    const result = await runCli(
+      [
+        'scaffold',
+        '--chain-id',
+        '1',
+        '--address',
+        WETH,
+        '--abi',
+        ERC20_ABI,
+        '--owner',
+        'WETH',
+        '--out',
+        out,
+      ],
+      io({ cwd: dir })
+    );
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout).toMatch(/calldata-weth\.json/);
+    expect(result.stdout).toMatch(/testsv2/);
+    const linted = await runCli(['lint', join(out, 'calldata-weth.json')], io({ cwd: dir }));
+    expect(linted.exitCode).toBe(0);
+    const tests = await runCli(['lint', '--tests', join(out, 'testsv2')], io({ cwd: dir }));
+    expect(tests.exitCode).toBe(0);
+  });
 });
 
 describe('erc7730 preview', () => {
-  it('prints intent and fields for a WETH deposit', async () => {
+  it('prints intent and trust for a WETH deposit', async () => {
     const result = await runCli(
       [
         'preview',
@@ -264,9 +324,35 @@ describe('erc7730 preview', () => {
 
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toMatch(/Intent: Wrap/);
+    expect(result.stdout).toMatch(/Trust: accepted/);
     expect(result.stdout).toMatch(/Amount/);
     expect(result.stdout).toMatch(/1 ETH/);
     expect(result.stdout).toMatch(/official-registry/);
+  });
+
+  it('prints interpolatedIntent for a Lido submit with --pin', async () => {
+    // submit(address) selector 0xa1903eab + zero referral
+    const data = '0xa1903eab0000000000000000000000000000000000000000000000000000000000000000';
+    const result = await runCli(
+      [
+        'preview',
+        '--data',
+        data,
+        '--to',
+        STETH,
+        '--chain-id',
+        '1',
+        '--value',
+        '1000000000000000000',
+        '--pin',
+        PIN,
+      ],
+      io()
+    );
+
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout).toMatch(/Interpolated: Stake/);
+    expect(result.stdout).toMatch(/Trust: accepted/);
   });
 
   it('rejects a negative --value', async () => {

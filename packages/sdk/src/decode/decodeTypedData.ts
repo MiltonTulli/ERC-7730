@@ -74,6 +74,7 @@ async function lookupEip712(
     address,
     signature: data.primaryType,
     encodeTypeHash,
+    typedData: data,
     provider: options?.provider,
     fromBlock: options?.fromBlock,
     toBlock: options?.toBlock,

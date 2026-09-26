@@ -5,6 +5,7 @@ Commands:
   lint       Validate descriptor files (exit 1 on errors)
   preview    Decode a transaction and print intent + fields
   diff       Compare a local descriptor to the official registry
+  scaffold   Lay out calldata-*.json (+ testsv2) for an official-registry PR
   registry   Refresh a pinned official registry cache
 
 Environment:
@@ -28,10 +29,13 @@ Output is a starting point for an official-registry PR — never confidence: "hi
   --out        Also write the JSON to this path
 `;
 
-export const LINT_HELP = `Usage: erc7730 lint <file-or-dir...> [--json]
+export const LINT_HELP = `Usage: erc7730 lint <file-or-dir...> [--json] [--tests]
 
 Validate ERC-7730 descriptor files against the official JSON Schema, then run
 local semantic checks. Does not call Etherscan / Sourcify.
+
+With --tests, validate registry testsv2 files against
+specs/erc7730-tests-v2.schema.json instead of descriptor schema.
 
 Exit 1 if any error-level issue is reported.
 `;
@@ -39,7 +43,17 @@ Exit 1 if any error-level issue is reported.
 export const PREVIEW_HELP = `Usage: erc7730 preview --data <hex> --to <addr> --chain-id <id> [--from <addr>] [--value <n>] [--pin <sha>] [--registry-path <dir>] [--json]
 
 Decode a transaction with the official registry (or ERC7730_REGISTRY_PATH) and
-print intent + fields to stdout.
+print intent, interpolatedIntent, fields, and trust to stdout.
+`;
+
+export const SCAFFOLD_HELP = `Usage: erc7730 scaffold --chain-id <id> --address <addr> --abi <file> --owner <name> --out <dir> [--url <url>]
+
+Write a registry-shaped directory tree for an official-registry PR:
+  <out>/calldata-<slug>.json
+  <out>/testsv2/<slug>.tests.json
+
+Does not open a GitHub PR. Copy the tree into a fork of
+ethereum/clear-signing-erc7730-registry and submit there.
 `;
 
 export const DIFF_HELP = `Usage: erc7730 diff <file> --against official [--pin <sha>] [--registry-path <dir>]

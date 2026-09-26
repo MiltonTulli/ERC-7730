@@ -111,6 +111,8 @@ export interface DecodedOperation {
   excluded: string[];
   warnings: SecurityWarning[];
   trust: TrustReport;
+  /** Nested Multicall3 / Safe CALL / UserOp inner targets. */
+  children?: DecodedOperation[];
   metadata: {
     owner?: string;
     contractName?: string;
@@ -142,6 +144,8 @@ export interface DecodeRegistry {
     address: Address;
     signature?: string;
     encodeTypeHash?: Hex;
+    /** Full typed data for domain / domainSeparator matching on overrides. */
+    typedData?: TypedDataInput;
     provider?: Provider | null;
     fromBlock?: bigint | LogBlockTag;
     toBlock?: bigint | LogBlockTag;
@@ -205,6 +209,11 @@ export interface DecodeOptions {
    */
   trust?: TrustPolicy;
   /**
+   * Wallet-known spenders / operators. Suppresses `untrusted_spender` when the
+   * approve / permit / setApprovalForAll target is on this list (case-insensitive).
+   */
+  spenderAllowlist?: Address[];
+  /**
    * Opt-in Sourcify ABI fallback. Default false: decode does not touch the network.
    * The full `@erc7730/sdk` entry registers the client; `@erc7730/sdk/lite` does not.
    * Never `confidence: "high"`.
@@ -216,7 +225,13 @@ export interface DecodeOptions {
   loadVerifiedAbi?: (chainId: number, address: Address) => Promise<VerifiedContractAbi | null>;
   /** @internal Recursion guard for nested `calldata` fields. */
   calldataDepth?: number;
-  /** BCP-47 locale for dates / amounts. @default "en" */
+  /** @internal Recursion guard for Multicall3 / Safe / UserOp children. */
+  nestedDepth?: number;
+  /**
+   * BCP-47 locale for dates / amounts only. Descriptor `intent` strings are
+   * never translated — string form, else `en`, else the first string value.
+   * @default "en"
+   */
   locale?: string;
   /**
    * Unix time in seconds for `expired_deadline`. Tests inject a frozen clock.

@@ -1,6 +1,6 @@
 # @erc7730/cli
 
-Command-line tools for ERC-7730 authors working in a JavaScript repo: generate a draft v2 descriptor from an ABI, lint files against the official schema, preview a decoded call, and diff against the pinned official registry.
+Command-line tools for ERC-7730 authors working in a JavaScript repo: generate a draft v2 descriptor from an ABI, lint descriptors and registry testsv2 files, preview a decoded call (intent + trust), scaffold a registry-shaped directory tree, and diff against the pinned official registry.
 
 This package is the authoring CLI in the [ERC-7730 toolkit](https://github.com/MiltonTulli/ERC-7730). Runtime decoding lives in [`@erc7730/sdk`](https://www.npmjs.com/package/@erc7730/sdk).
 
@@ -33,7 +33,9 @@ erc7730 <command> --help
 ```bash
 erc7730 generate --chain-id 1 --address 0x... --abi ./abi.json --owner "My Protocol" [--url https://...] [--out ./calldata.json]
 erc7730 lint ./calldata-Foo.json [--json]
+erc7730 lint --tests ./testsv2/
 erc7730 preview --data 0x... --to 0x... --chain-id 1 [--value <n>] [--pin <sha>]
+erc7730 scaffold --chain-id 1 --address 0x... --abi ./abi.json --owner "My Protocol" --out ./draft
 erc7730 diff ./calldata-Foo.json --against official [--pin <sha>]
 erc7730 registry update [--pin <sha>] [--cache-dir <dir>]
 ```
@@ -60,13 +62,18 @@ Validate one or more descriptor files or directories against the official JSON S
 ```bash
 erc7730 lint ./calldata-Foo.json ./more/
 erc7730 lint ./calldata-Foo.json --json
+erc7730 lint --tests ./testsv2/Foo.tests.json
 ```
 
-`--json` prints a JSON report. The text report is one summary line per file plus `level`, JSON pointer, message, and rule.
+`--tests` validates registry `testsv2` files against `specs/erc7730-tests-v2.schema.json`. `--json` prints a JSON report. The text report is one summary line per file plus `level`, JSON pointer, message, and rule.
 
 ### `preview`
 
-Decode one transaction and print intent and fields. Pass `--json` for the full `DecodedOperation` from `@erc7730/sdk`.
+Decode one transaction and print intent, interpolated intent, fields, and trust. Pass `--json` for the full `DecodedOperation` from `@erc7730/sdk`.
+
+### `scaffold`
+
+Write a registry-shaped directory (`calldata-<slug>.json` + `testsv2/<slug>.tests.json`) for an official-registry PR. Does not open the PR.
 
 | Flag | Required | Meaning |
 | --- | --- | --- |
