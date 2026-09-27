@@ -46,14 +46,15 @@ Decode a transaction with the official registry (or ERC7730_REGISTRY_PATH) and
 print intent, interpolatedIntent, fields, and trust to stdout.
 `;
 
-export const SCAFFOLD_HELP = `Usage: erc7730 scaffold --chain-id <id> --address <addr> --abi <file> --owner <name> --out <dir> [--url <url>]
+export const SCAFFOLD_HELP = `Usage: erc7730 scaffold --chain-id <id> --address <addr> --abi <file> --owner <name> --out <dir> [--url <url>] [--force]
 
 Write a registry-shaped directory tree for an official-registry PR:
   <out>/calldata-<slug>.json
-  <out>/testsv2/<slug>.tests.json
+  <out>/testsv2/calldata-<slug>.tests.json
 
 Does not open a GitHub PR. Copy the tree into a fork of
 ethereum/clear-signing-erc7730-registry and submit there.
+Refuses to overwrite existing files unless --force is set.
 `;
 
 export const DIFF_HELP = `Usage: erc7730 diff <file> --against official [--pin <sha>] [--registry-path <dir>]

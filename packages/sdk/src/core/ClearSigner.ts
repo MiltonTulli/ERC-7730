@@ -6,6 +6,7 @@
 import { matchContext, resolveImplementation } from '../decode/context.js';
 import { decodeTransaction } from '../decode/decodeTransaction.js';
 import { decodeTypedData } from '../decode/decodeTypedData.js';
+import { eip712FormatMatchesLookup } from '../decode/match.js';
 import type { DecodeOptions, DecodeRegistry, DecodedOperation } from '../decode/types.js';
 import type { OfficialRegistry } from '../official-registry/types.js';
 import { createMemoryIncludeLoader, resolveDescriptor } from '../resolve/index.js';
@@ -83,6 +84,9 @@ function createBoundRegistry(base?: DecodeRegistry | OfficialRegistry): BoundReg
     for (const input of overrides) {
       const resolved = await resolveOverride(input);
       if (overrideKind(resolved) !== kind) {
+        continue;
+      }
+      if (kind === 'eip712' && !eip712FormatMatchesLookup(resolved.merged, key)) {
         continue;
       }
       if (deploymentsHit(resolved, key.chainId, address)) {

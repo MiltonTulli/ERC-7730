@@ -238,6 +238,15 @@ export function attachChildren(
     ...parent,
     children,
     confidence,
+    warnings: [
+      ...parent.warnings,
+      ...children.flatMap((child, i) =>
+        child.warnings.map((warning) => ({
+          ...warning,
+          path: `children[${i}]${warning.path ? `.${warning.path}` : ''}`,
+        }))
+      ),
+    ],
     intent: joined ?? parent.intent,
     interpolatedIntent: joined ?? parent.interpolatedIntent,
   };
@@ -291,7 +300,7 @@ export async function expandNestedCalls(
   }
   const children = await decodeInnerCalls(
     calls,
-    { chainId: tx.chainId, from: asAddress(tx.from ?? tx.to) },
+    { chainId: tx.chainId, from: tx.to ? asAddress(tx.to) : undefined },
     options
   );
   return attachChildren(operation, children);

@@ -237,6 +237,57 @@ describe('nested Multicall3 / Safe', () => {
 
     expect(result.children).toBeUndefined();
   });
+
+  it('copies child warnings onto the parent with a children[i] path', async () => {
+    const usdc = await resolved(tokenDescriptor(USDC, 'USDC', 6));
+    const approve = encodeFunctionData({
+      abi: erc20Abi,
+      functionName: 'approve',
+      args: [SPENDER, 2n ** 256n - 1n],
+    });
+    const data = encodeFunctionData({
+      abi: multicallAbi,
+      functionName: 'aggregate3',
+      args: [[{ target: USDC, allowFailure: false, callData: approve }]],
+    });
+
+    const result = await decodeTransaction(
+      { chainId: 1, to: MULTICALL3, data },
+      { registry: registryFrom([usdc]), trust: officialOrLocalPolicy() }
+    );
+    expect(result.children?.[0].warnings.some((w) => w.type === 'untrusted_spender')).toBe(true);
+    expect(
+      result.warnings.some(
+        (w) => w.type === 'untrusted_spender' && w.path?.startsWith('children[0]')
+      )
+    ).toBe(true);
+  });
+
+  it('uses the wrapper contract as @.from on nested calls', async () => {
+    const descriptor = tokenDescriptor(USDC, 'USDC', 6);
+    const transferFormat = (
+      descriptor.display as { formats: Record<string, { fields: unknown[] }> }
+    ).formats['transfer(address to,uint256 value)'];
+    transferFormat.fields.push({ path: '@.from', label: 'Sender', format: 'addressName' });
+    const usdc = await resolved(descriptor);
+    const transferUsdc = encodeFunctionData({
+      abi: erc20Abi,
+      functionName: 'transfer',
+      args: [VITALIK, 1n],
+    });
+    const data = encodeFunctionData({
+      abi: multicallAbi,
+      functionName: 'aggregate3',
+      args: [[{ target: USDC, allowFailure: false, callData: transferUsdc }]],
+    });
+
+    const result = await decodeTransaction(
+      { chainId: 1, from: VITALIK, to: MULTICALL3, data },
+      { registry: registryFrom([usdc]), trust: officialOrLocalPolicy() }
+    );
+    const sender = result.children?.[0].fields.find((f) => f.path === '@.from');
+    expect(String(sender?.rawValue).toLowerCase()).toBe(MULTICALL3.toLowerCase());
+  });
 });
 
 describe('format compat + spender allowlist', () => {

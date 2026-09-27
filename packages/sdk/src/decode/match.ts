@@ -1,7 +1,9 @@
 import { computeSelector, getSignatureBySelector } from '../core/signatures.js';
 import { isPlainObject } from '../resolve/util.js';
+import type { TypedDataInput } from '../types/index.js';
 import type { DisplayFormat } from '../types/v2.js';
 import { type ParsedDeclaration, canonicalizeDeclaration, parseDeclaration } from './abi.js';
+import { encodeType } from './typedData.js';
 
 export interface MatchedFormat {
   key: string;
@@ -120,4 +122,21 @@ export function matchEip712Format(
   }
 
   return byPrimary ?? byCanonical;
+}
+
+/**
+ * Whether an EIP-712 override's display formats cover the lookup payload.
+ * When `typedData` is absent the caller cannot disambiguate types, so this
+ * returns true and domain / deployment matching stays as-is.
+ */
+export function eip712FormatMatchesLookup(
+  merged: unknown,
+  key: { typedData?: TypedDataInput }
+): boolean {
+  const data = key.typedData;
+  if (!data) {
+    return true;
+  }
+  const encoded = encodeType(data.primaryType, data.types);
+  return matchEip712Format(merged, data.primaryType, encoded) !== null;
 }

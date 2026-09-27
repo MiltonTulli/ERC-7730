@@ -71,10 +71,6 @@ erc7730 lint --tests ./testsv2/Foo.tests.json
 
 Decode one transaction and print intent, interpolated intent, fields, and trust. Pass `--json` for the full `DecodedOperation` from `@erc7730/sdk`.
 
-### `scaffold`
-
-Write a registry-shaped directory (`calldata-<slug>.json` + `testsv2/<slug>.tests.json`) for an official-registry PR. Does not open the PR.
-
 | Flag | Required | Meaning |
 | --- | --- | --- |
 | `--data` | yes | Calldata hex |
@@ -86,6 +82,20 @@ Write a registry-shaped directory (`calldata-<slug>.json` + `testsv2/<slug>.test
 | `--registry-path` | no | Local registry checkout |
 | `--json` | no | Print `DecodedOperation` JSON |
 | `--sourcify` | no | Allow the untrusted Sourcify / generated fallback |
+
+### `scaffold`
+
+Write a registry-shaped directory (`calldata-<slug>.json` + `testsv2/calldata-<slug>.tests.json`) for an official-registry PR. Does not open the PR. Refuses to overwrite existing files unless `--force` is set.
+
+| Flag | Required | Meaning |
+| --- | --- | --- |
+| `--chain-id` | yes | EIP-155 chain id |
+| `--address` | yes | Contract address |
+| `--abi` | yes | ABI file, or `-` for stdin |
+| `--owner` | yes | Protocol / owner display name |
+| `--out` | yes | Output directory |
+| `--url` | no | Protocol URL |
+| `--force` | no | Overwrite existing descriptor / tests files |
 
 ### `diff`
 

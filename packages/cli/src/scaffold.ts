@@ -4,6 +4,7 @@ import { type ABI, generateDescriptor, validateDescriptor } from '@erc7730/sdk';
 import {
   parseAddress,
   parseChainId,
+  pathExists,
   prettyJson,
   readJsonFile,
   resolvePath,
@@ -63,6 +64,7 @@ export async function runScaffold(args: string[], ctx: CliContext): Promise<CliR
     owner?: string;
     url?: string;
     out?: string;
+    force?: boolean;
   };
   try {
     values = parseArgs({
@@ -75,6 +77,7 @@ export async function runScaffold(args: string[], ctx: CliContext): Promise<CliR
         owner: { type: 'string' },
         url: { type: 'string' },
         out: { type: 'string' },
+        force: { type: 'boolean' },
       },
     }).values;
   } catch (error) {
@@ -127,7 +130,7 @@ export async function runScaffold(args: string[], ctx: CliContext): Promise<CliR
   const descriptorName = `calldata-${slug}.json`;
   const descriptorPath = resolvePath(outDir, descriptorName);
   const testsDir = resolvePath(outDir, 'testsv2');
-  const testsName = `${slug}.tests.json`;
+  const testsName = `calldata-${slug}.tests.json`;
   const testsPath = resolvePath(testsDir, testsName);
 
   const testsDoc = {
@@ -145,6 +148,21 @@ export async function runScaffold(args: string[], ctx: CliContext): Promise<CliR
       },
     ],
   };
+
+  if (!values.force) {
+    const existing = (
+      await Promise.all([
+        (await pathExists(descriptorPath)) ? descriptorPath : null,
+        (await pathExists(testsPath)) ? testsPath : null,
+      ])
+    ).filter((path): path is string => Boolean(path));
+    if (existing.length > 0) {
+      throw new UsageError(
+        `Refusing to overwrite ${existing.join(', ')}. Pass --force to replace.`,
+        SCAFFOLD_HELP
+      );
+    }
+  }
 
   await writeTextFile(descriptorPath, prettyJson(draft));
   await writeTextFile(testsPath, prettyJson(testsDoc));

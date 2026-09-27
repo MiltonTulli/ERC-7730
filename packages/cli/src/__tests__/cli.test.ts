@@ -295,11 +295,50 @@ describe('erc7730 scaffold', () => {
     );
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toMatch(/calldata-weth\.json/);
+    expect(result.stdout).toMatch(/calldata-weth\.tests\.json/);
     expect(result.stdout).toMatch(/testsv2/);
     const linted = await runCli(['lint', join(out, 'calldata-weth.json')], io({ cwd: dir }));
     expect(linted.exitCode).toBe(0);
     const tests = await runCli(['lint', '--tests', join(out, 'testsv2')], io({ cwd: dir }));
     expect(tests.exitCode).toBe(0);
+
+    const again = await runCli(
+      [
+        'scaffold',
+        '--chain-id',
+        '1',
+        '--address',
+        WETH,
+        '--abi',
+        ERC20_ABI,
+        '--owner',
+        'WETH',
+        '--out',
+        out,
+      ],
+      io({ cwd: dir })
+    );
+    expect(again.exitCode).toBe(1);
+    expect(again.stderr).toMatch(/Refusing to overwrite/);
+
+    const forced = await runCli(
+      [
+        'scaffold',
+        '--chain-id',
+        '1',
+        '--address',
+        WETH,
+        '--abi',
+        ERC20_ABI,
+        '--owner',
+        'WETH',
+        '--out',
+        out,
+        '--force',
+      ],
+      io({ cwd: dir })
+    );
+    expect(forced.exitCode).toBe(0);
   });
 });
 

@@ -19,11 +19,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
+        with:
+          version: 10
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: pnpm
-      - run: pnpm add -g @erc7730/cli
+      - run: npm install -g @erc7730/cli
       - name: Lint descriptor
         run: erc7730 lint erc7730/calldata-*.json
       - name: Lint testsv2 (if present)
@@ -33,9 +34,10 @@ jobs:
           fi
       - name: ABI fingerprint vs descriptor comment
         run: |
-          # Example: store the keccak of the ABI next to the descriptor and
+          # Example: store a SHA-256 of the ABI next to the descriptor and
           # fail when it drifts. Replace paths with your layout.
-          ABI_HASH=$(node -e "const fs=require('fs');const {keccak256,toBytes}=require('viem');const abi=fs.readFileSync('abi/Contract.json');process.stdout.write(keccak256(toBytes(abi)))")
+          # Uses Node crypto (no viem / lockfile required in the protocol repo).
+          ABI_HASH=$(node -e "const fs=require('fs');const crypto=require('crypto');process.stdout.write(crypto.createHash('sha256').update(fs.readFileSync('abi/Contract.json')).digest('hex'))")
           grep -q "$ABI_HASH" erc7730/calldata-*.json \
             || (echo "ABI changed — update the ERC-7730 descriptor (and the embedded ABI hash comment)" && exit 1)
 ```

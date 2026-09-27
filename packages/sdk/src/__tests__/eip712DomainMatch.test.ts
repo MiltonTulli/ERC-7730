@@ -132,4 +132,35 @@ describe('EIP-712 domain / domainSeparator binding', () => {
     });
     expect(missed).toBeNull();
   });
+
+  it('skips a domain-matched override whose format is a different primary type', async () => {
+    const orderOnly: InputDescriptor = {
+      ...domainOnlyDescriptor,
+      context: {
+        $id: 'DomainOnlyOrder',
+        eip712: { domain: { name: 'DomainOnlyPermit', version: '1', chainId: 1 } },
+      },
+      display: {
+        formats: {
+          'Order(address maker,uint256 amount)': {
+            intent: 'Order domain-only',
+            fields: [{ path: 'maker', label: 'Maker', format: 'addressName' }],
+          },
+        },
+      },
+    };
+    const registry = createOfficialRegistry({
+      pin: '9f37816afde954ff6617fb5baa346133e5af26c5',
+      fetch: async () => new Response('{}', { status: 200 }),
+      indexes: { calldata: {}, eip712: {} },
+    });
+    registry.extend([orderOnly, domainOnlyDescriptor]);
+
+    const result = await decodeTypedData(typedData, {
+      registry,
+      trust: officialOrLocalPolicy(),
+    });
+    expect(result.source).toBe('local-override');
+    expect(result.intent).toBe('Permit domain-only');
+  });
 });
