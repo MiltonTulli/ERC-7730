@@ -1,5 +1,11 @@
 # @erc7730/sdk
 
+## 0.6.1
+
+### Patch Changes
+
+- 66ee78c: Emit `@erc7730/sdk` and `@erc7730/cli` with tsdown instead of `tsc`. Source imports are extensionless. No intentional runtime API change.
+
 ## 0.6.0
 
 ### Minor Changes
