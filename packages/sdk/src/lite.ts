@@ -16,7 +16,7 @@
 
 export { ClearSigner as ClearSignerLite, createClearSigner } from './core/ClearSigner';
 
-// Core utilities only (no registry)
+// Core utilities only (no embedded registry)
 export { decodeCalldata, extractSelector } from './core/decoder';
 export { getSignatureBySelector, COMMON_SIGNATURES } from './core/signatures';
 
@@ -67,6 +67,7 @@ export {
 
 export { resolvePath, PathResolveError } from './path';
 
+// Pinned official-registry client. Lite still omits the embedded catalog and Sourcify.
 export {
   createOfficialRegistry,
   createMemoryDescriptorCache,

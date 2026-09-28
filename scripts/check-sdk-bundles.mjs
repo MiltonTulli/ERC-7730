@@ -72,6 +72,7 @@ if (statSync(liteFile).size >= statSync(join(dist, 'index.js')).size) {
   );
 }
 
+// Lite keeps the official-registry client. Sourcify and the embedded catalog stay out.
 const banned = ['sourcify.dev', 'fetchFromSourcify', 'EMBEDDED_REGISTRY', 'node:fs', 'node:path'];
 for (const { file, code } of relativeChunks(liteFile)) {
   for (const token of banned) {
