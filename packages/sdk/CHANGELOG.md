@@ -1,5 +1,11 @@
 # @erc7730/sdk
 
+## 0.6.0
+
+### Minor Changes
+
+- 1947692: v0.6 coverage, policies, and authoring: Multicall3 / Safe CALL `children[]`, `decodeUserOp` (Simple Account), EIP-712 domain-only `extend()` match, stable trust reason codes, spender allowlist, `format` / `formatTypedData` compat aliases, CLI `scaffold` + `lint --tests` + preview trust/interpolatedIntent, and `docs/interop.md`.
+
 ## 0.5.0
 
 ### Minor Changes
