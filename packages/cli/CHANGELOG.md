@@ -1,5 +1,13 @@
 # @erc7730/cli
 
+## 0.3.3
+
+### Patch Changes
+
+- 3a9dd6f: Importing `@erc7730/sdk` no longer registers a Sourcify ABI loader. Opt in with `enableSourcifyAbiLoader()` or `loadVerifiedAbi: sourcifyVerifiedAbiLoader`, and set `useSourcifyFallback: true`. `erc7730 preview --sourcify` passes that loader.
+- Updated dependencies [3a9dd6f]
+  - @erc7730/sdk@0.6.2
+
 ## 0.3.2
 
 ### Patch Changes
