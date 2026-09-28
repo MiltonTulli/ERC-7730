@@ -1,4 +1,5 @@
 import { isPlainObject } from '../resolve/util.js';
+import { sourceAcceptedReason, sourceRejectedReason } from '../trust/reasons.js';
 import type { Hex, ResolvedDescriptor } from '../types/descriptor.js';
 import type {
   Address,
@@ -23,13 +24,16 @@ export function asRecord(value: unknown): Record<string, unknown> | undefined {
   return isPlainObject(value) ? value : undefined;
 }
 
-function staticIntent(intent: unknown, locale: string): string {
+/**
+ * Intent strings are never locale-translated. `locale` only formats amounts/dates.
+ * Prefer a plain string, else `en`, else the first string value on the map.
+ */
+function staticIntent(intent: unknown, _locale: string): string {
   if (typeof intent === 'string' && intent.length > 0) {
     return intent;
   }
   if (isPlainObject(intent)) {
     return (
-      (typeof intent[locale] === 'string' && intent[locale]) ||
       (typeof intent.en === 'string' && intent.en) ||
       (Object.values(intent).find((value) => typeof value === 'string') as string | undefined) ||
       'Contract interaction'
@@ -175,8 +179,8 @@ export function stubTrust(source: DecodeSource, hash?: Hex): TrustReport {
     policy: 'unspecified',
     descriptorHash: hash,
     reasons: accepted
-      ? [`source "${source}" accepted`]
-      : [`source "${source}" rejected`, 'untrusted_descriptor'],
+      ? [sourceAcceptedReason(source)]
+      : [sourceRejectedReason(source), 'untrusted_descriptor'],
   };
 }
 
@@ -198,8 +202,8 @@ export function finalizeTrust(
     Array.isArray(report.reasons) && report.reasons.length > 0
       ? report.reasons
       : accepted
-        ? [`source "${source}" accepted`]
-        : [`source "${source}" rejected`];
+        ? [sourceAcceptedReason(source)]
+        : [sourceRejectedReason(source)];
   return {
     accepted,
     policy: report.policy || policyId || 'unspecified',

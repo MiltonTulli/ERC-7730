@@ -307,6 +307,15 @@ async function lookupSpender(
   return null;
 }
 
+function allowlistedSpender(spender: Address, options: DecodeOptions | undefined): boolean {
+  const list = options?.spenderAllowlist;
+  if (!list || list.length === 0) {
+    return false;
+  }
+  const want = spender.toLowerCase();
+  return list.some((entry) => entry.toLowerCase() === want);
+}
+
 async function untrustedSpenderWarning(
   scan: WarningScan,
   functionName: string | undefined,
@@ -315,6 +324,9 @@ async function untrustedSpenderWarning(
 ): Promise<SecurityWarning | undefined> {
   const spender = spenderFromScan(scan, functionName);
   if (!spender) {
+    return undefined;
+  }
+  if (allowlistedSpender(spender.address, options)) {
     return undefined;
   }
   const found = await lookupSpender(spender.address, chainId, options);

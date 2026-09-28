@@ -6,6 +6,7 @@ import { ROOT_HELP } from './help.js';
 import { runLint } from './lint.js';
 import { runPreview } from './preview.js';
 import { runRegistry } from './registry.js';
+import { runScaffold } from './scaffold.js';
 import type { CliIo, CliResult } from './types.js';
 import { Output, UsageError } from './types.js';
 
@@ -51,6 +52,8 @@ export async function runCli(argv: string[], io?: Partial<CliIo>): Promise<CliRe
         return await runPreview(rest, ctx);
       case 'diff':
         return await runDiff(rest, ctx);
+      case 'scaffold':
+        return await runScaffold(rest, ctx);
       case 'registry':
         return await runRegistry(rest, ctx);
       default:

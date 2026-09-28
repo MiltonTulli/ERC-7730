@@ -1,4 +1,5 @@
 import { matchContext, resolveImplementation } from '../decode/context.js';
+import { eip712FormatMatchesLookup } from '../decode/match.js';
 import { resolveDescriptor } from '../resolve/resolve.js';
 import { isPlainObject } from '../resolve/util.js';
 import { validateDescriptor } from '../schema/validate.js';
@@ -325,6 +326,9 @@ export function createOfficialRegistry(config: OfficialRegistryConfig): Official
       if (overrideKind(resolved) !== kind) {
         continue;
       }
+      if (kind === 'eip712' && !eip712FormatMatchesLookup(resolved.merged, key)) {
+        continue;
+      }
       if (deploymentsHit(resolved, key.chainId, address)) {
         return resolved;
       }
@@ -333,7 +337,18 @@ export function createOfficialRegistry(config: OfficialRegistryConfig): Official
       if (impl && impl !== address && deploymentsHit(resolved, key.chainId, impl)) {
         return resolved;
       }
-      if (kind !== 'calldata') {
+      if (kind === 'eip712') {
+        if (!key.typedData) {
+          continue;
+        }
+        const bound = await matchContext(resolved, key.typedData, {
+          provider: key.provider,
+          fromBlock: key.fromBlock,
+          toBlock: key.toBlock,
+        });
+        if (bound.matched) {
+          return resolved;
+        }
         continue;
       }
       const bound = await matchContext(

@@ -43,9 +43,9 @@ Publicado: `@erc7730/sdk@0.4.0`, `@erc7730/cli@0.2.0`.
 | `ExternalDataProvider` | Hecho (#53) |
 | `trustedTokens` templates ERC-20/721 | Hecho (#53) |
 | ERC-8176 `attestedPolicy` | Hecho (#53) |
-| Multicall3 / Safe inner calls | 0.6 |
-| `decodeUserOp` | 0.6 |
-| Compat `format()` + matriz interop | 0.6 |
+| Multicall3 / Safe inner calls | Hecho (#54) |
+| `decodeUserOp` | Hecho (#54) |
+| Compat `format()` + matriz interop | Hecho (#54) |
 
 ---
 

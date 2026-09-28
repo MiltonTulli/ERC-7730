@@ -183,6 +183,30 @@ export const COMMON_SIGNATURES: Record<string, FunctionSignature> = {
       'execTransaction(address,uint256,bytes,uint8,uint256,uint256,uint256,address,address,bytes)',
     name: 'execTransaction',
   },
+
+  // Multicall3
+  '0x252dba42': {
+    selector: '0x252dba42',
+    signature: 'aggregate((address,bytes)[])',
+    name: 'aggregate',
+  },
+  '0x82ad56cb': {
+    selector: '0x82ad56cb',
+    signature: 'aggregate3((address,bool,bytes)[])',
+    name: 'aggregate3',
+  },
+
+  // eth-infinitism Simple Account
+  '0xb61d27f6': {
+    selector: '0xb61d27f6',
+    signature: 'execute(address,uint256,bytes)',
+    name: 'execute',
+  },
+  '0x47e1da2a': {
+    selector: '0x47e1da2a',
+    signature: 'executeBatch(address[],uint256[],bytes[])',
+    name: 'executeBatch',
+  },
 };
 
 /**

@@ -1,6 +1,8 @@
 export { decodeTransaction } from './decodeTransaction.js';
 export { decodeTypedData } from './decodeTypedData.js';
 export { decodeBatch } from './decodeBatch.js';
+export { decodeUserOp } from './decodeUserOp.js';
+export { format, formatTypedData } from './compat.js';
 export { resolvePath, PathResolveError } from './path.js';
 export { matchFormat } from './match.js';
 export { matchContext, resolveImplementation, EIP1967_IMPLEMENTATION_SLOT } from './context.js';
@@ -31,6 +33,7 @@ export type {
 } from './types.js';
 
 export type { BatchDecodeResult, BatchInput } from './decodeBatch.js';
+export type { UserOpInput } from './decodeUserOp.js';
 
 export type { ContextMatch, ContextMatchVia, MatchContextOptions } from './context.js';
 

@@ -26,6 +26,7 @@ import {
 } from './common.js';
 import { matchContext } from './context.js';
 import { type FormatOptions, flattenFields, formatDisplayField } from './format.js';
+import { expandNestedCalls } from './innerCalls.js';
 import { matchFormat } from './match.js';
 import type { PathContext } from './path.js';
 import type {
@@ -363,13 +364,7 @@ async function tryTrustedToken(
   return rendered;
 }
 
-/**
- * Decode a transaction using an official (or override) descriptor's
- * `display.formats`. Without a match, falls back to trusted-token templates,
- * optional Sourcify, then inferred / basic — never `confidence: "high"` for
- * those sources.
- */
-export async function decodeTransaction(
+async function decodeTransactionCore(
   tx: TransactionInput,
   options?: DecodeOptions
 ): Promise<DecodedOperation> {
@@ -430,4 +425,18 @@ export async function decodeTransaction(
   }
 
   return finalizeDecodedWarnings(await fallbackOperation(tx, options), options);
+}
+
+/**
+ * Decode a transaction using an official (or override) descriptor's
+ * `display.formats`. Without a match, falls back to trusted-token templates,
+ * optional Sourcify, then inferred / basic — never `confidence: "high"` for
+ * those sources. Multicall3 / Safe CALL expand into `children`.
+ */
+export async function decodeTransaction(
+  tx: TransactionInput,
+  options?: DecodeOptions
+): Promise<DecodedOperation> {
+  const core = await decodeTransactionCore(tx, options);
+  return expandNestedCalls(core, tx, options);
 }

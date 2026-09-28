@@ -106,6 +106,12 @@ import {
   decodeTransaction,
   decodeTypedData,
   decodeBatch,
+  decodeUserOp,
+  format,
+  composePolicies,
+  officialOnlyPolicy,
+  officialOrLocalPolicy,
+  attestedPolicy,
 } from '@erc7730/sdk';
 
 const opts = {
@@ -114,6 +120,8 @@ const opts = {
   externalDataProvider,
   trustedTokens,
   useSourcifyFallback: false, // default; ABI fallback is opt-in
+  // Optional: known routers / operators suppress `untrusted_spender`
+  // spenderAllowlist: [router],
 };
 
 const txDisplay = await decodeTransaction(tx, opts);
@@ -122,22 +130,41 @@ const batchDisplay = await decodeBatch(
   { chainId: 1, from: user, calls: [{ to, data }, { to, data }] },
   opts
 );
+const userOpDisplay = await decodeUserOp(
+  { chainId: 1, sender: account, callData },
+  opts
+);
 ```
 
 | Function | When |
 |---|---|
-| `decodeTransaction` | `eth_sendTransaction` / `eth_signTransaction` |
+| `decodeTransaction` | `eth_sendTransaction` / `eth_signTransaction` (Multicall3 / Safe CALL → `children`) |
 | `decodeTypedData` | `eth_signTypedData` |
 | `decodeBatch` | EIP-5792 `wallet_sendCalls` |
+| `decodeUserOp` | ERC-4337 Simple Account `execute` / `executeBatch` |
+| `format` / `formatTypedData` | Compat aliases of `decode*` (+ default `officialOrLocalPolicy` when a registry is set) |
 
-Batch `interpolatedIntent` joins per-call sentences with `" and "`.
+Batch / nested `interpolatedIntent` joins per-call sentences with `" and "`.
+
+### Policy recipes
+
+| Recipe | Code |
+|---|---|
+| Pin only | `trust: officialOnlyPolicy()` |
+| Pin + local `extend()` | `trust: officialOrLocalPolicy()` |
+| ERC-8176 attesters | `trust: attestedPolicy({ attesters, eas })` |
+| Pin **or** attested | `trust: composePolicies([officialOnlyPolicy(), attestedPolicy(...)], 'any')` |
+| Pin **and** attested | `composePolicies([officialOnlyPolicy(), attestedPolicy(...)], 'all')` |
+
+`trust.reasons` are stable codes (`source:official-registry:accepted`, `ATTESTED`, …) — safe for telemetry / i18n. Prefer them over free-form sentences.
 
 ## 7. What to show
 
 - Prefer `interpolatedIntent` when present (spec option 1). Fields may still be shown.
 - Otherwise show `intent` + `fields`.
 - Surface `warnings` (e.g. `NO_TRUSTED_ATTESTATION`, `interpolation_failed`, `infinite_approval`).
-- Nested `format: "calldata"` fields expose `field.embedded` (another `DecodedOperation`). Multicall3 / Safe inner expansion is a later release.
+- Nested `format: "calldata"` fields expose `field.embedded`. Multicall3 / Safe CALL / UserOp expose `children: DecodedOperation[]` with per-child `source` and `trust`.
+- `locale` only formats numbers and dates. Descriptor intent strings are never translated.
 
 ## 8. Sourcify ABI fallback
 
@@ -146,6 +173,8 @@ Opt in with `useSourcifyFallback: true` on the full `@erc7730/sdk` entry. Result
 ## See also
 
 - Root [README.md](../README.md) — API overview and trust table
+- [interop.md](./interop.md) — vs python-erc7730 / Sourcify TS
+- [github-action.md](./github-action.md) — protocol ABI-vs-descriptor CI snippet
 - [ROADMAP.md](../ROADMAP.md) — v0.5 / v0.6 scope
 - Official registry — https://github.com/ethereum/clear-signing-erc7730-registry
 - ERC-7730 — https://eips.ethereum.org/EIPS/eip-7730

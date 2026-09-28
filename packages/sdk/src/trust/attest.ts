@@ -426,7 +426,7 @@ export function attestedPolicy(config: AttestedPolicyConfig): TrustPolicy {
           policy: 'attested',
           descriptorHash,
           attesters: [signer],
-          reasons: [`attested by ${signer}`],
+          reasons: ['ATTESTED'],
         };
       }
 

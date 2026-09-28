@@ -6,6 +6,7 @@
 import { matchContext, resolveImplementation } from '../decode/context.js';
 import { decodeTransaction } from '../decode/decodeTransaction.js';
 import { decodeTypedData } from '../decode/decodeTypedData.js';
+import { eip712FormatMatchesLookup } from '../decode/match.js';
 import type { DecodeOptions, DecodeRegistry, DecodedOperation } from '../decode/types.js';
 import type { OfficialRegistry } from '../official-registry/types.js';
 import { createMemoryIncludeLoader, resolveDescriptor } from '../resolve/index.js';
@@ -71,6 +72,7 @@ function createBoundRegistry(base?: DecodeRegistry | OfficialRegistry): BoundReg
     key: {
       chainId: number;
       address: `0x${string}`;
+      typedData?: import('../types/index.js').TypedDataInput;
       provider?: Provider | null;
       fromBlock?: DecodeOptions['fromBlock'];
       toBlock?: DecodeOptions['toBlock'];
@@ -84,13 +86,27 @@ function createBoundRegistry(base?: DecodeRegistry | OfficialRegistry): BoundReg
       if (overrideKind(resolved) !== kind) {
         continue;
       }
+      if (kind === 'eip712' && !eip712FormatMatchesLookup(resolved.merged, key)) {
+        continue;
+      }
       if (deploymentsHit(resolved, key.chainId, address)) {
         return resolved;
       }
       if (impl && impl !== address && deploymentsHit(resolved, key.chainId, impl)) {
         return resolved;
       }
-      if (kind !== 'calldata') {
+      if (kind === 'eip712') {
+        if (!key.typedData) {
+          continue;
+        }
+        const bound = await matchContext(resolved, key.typedData, {
+          provider: key.provider,
+          fromBlock: key.fromBlock,
+          toBlock: key.toBlock,
+        });
+        if (bound.matched) {
+          return resolved;
+        }
         continue;
       }
       const bound = await matchContext(

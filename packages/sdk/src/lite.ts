@@ -39,6 +39,9 @@ export {
   decodeTransaction,
   decodeTypedData,
   decodeBatch,
+  decodeUserOp,
+  format,
+  formatTypedData,
   matchContext,
   resolveImplementation,
   EIP1967_IMPLEMENTATION_SLOT,
@@ -52,6 +55,7 @@ export {
   ERC8176_SCHEMA_UID,
   EAS_CONTRACT,
   EAS_CHAIN_ID,
+  TRUST_REASON_CODES,
 } from './trust/index.js';
 
 export {
@@ -118,10 +122,11 @@ export type {
   TrustContext,
   TrustPolicy,
   TrustReport,
+  UserOpInput,
   VerifiedContractAbi,
 } from './decode/index.js';
 
-export type { AttestedPolicyConfig } from './trust/index.js';
+export type { AttestedPolicyConfig, TrustReasonCode } from './trust/index.js';
 
 /**
  * @deprecated Use {@link DecodeOptions} with {@link createClearSigner}.

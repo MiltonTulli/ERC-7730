@@ -104,9 +104,12 @@ When `trust` is omitted, decode uses a stub (`policy: "unspecified"`) that follo
 - **`createClearSigner`** — bind `DecodeOptions` for repeated `decodeTransaction` / `decodeTypedData` (`ClearSigner.decode` is a deprecated alias)
 - **TrustPolicy** — `officialOnlyPolicy` / `officialOrLocalPolicy` / `attestedPolicy` (ERC-8176) / `composePolicies`; Sourcify is never accepted
 - **Wallet drop-in** — `interpolatedIntent`, `decodeBatch` (EIP-5792), `ExternalDataProvider`, `trustedTokens` templates; see [`docs/GUIDE.md`](./docs/GUIDE.md)
+- **Nested execution (0.6)** — Multicall3 / Safe CALL → `children[]`; `decodeUserOp` for Simple Account; EIP-712 domain-only `extend()` match
+- **Compat `format` / `formatTypedData`** — thin aliases of `decode*` (DecodedOperation stays the source of truth)
 - **Untrusted fallback** — Sourcify / `generateDescriptor` are labeled by `source`, never trusted (opt-in)
-- **Warnings** — untrusted descriptors, infinite approvals, expired typed-data deadlines, attestation failures
-- **CLI** — `@erc7730/cli` (`erc7730 generate` / `lint` / `preview` / `diff` / `registry update`)
+- **Warnings** — untrusted descriptors, infinite approvals, expired typed-data deadlines, attestation failures, spender allowlist
+- **CLI** — `@erc7730/cli` (`erc7730 generate` / `lint` / `preview` / `scaffold` / `diff` / `registry update`); `lint --tests` for registry testsv2
+- **Interop** — [`docs/interop.md`](./docs/interop.md) vs python-erc7730 / Sourcify TS. Complements Sourcify (pin + policy + JS authoring); not a second registry
 - **Tree-shakeable** — no heavy default network catalog in the published tarball
 
 ## Quick Start
@@ -252,12 +255,14 @@ JSON is fetched on miss into an in-memory cache. Pass `cache` for optional fs / 
 ```bash
 erc7730 generate --chain-id 1 --address 0x... --abi ./abi.json --owner "My Protocol"
 erc7730 lint ./calldata-Foo.json
+erc7730 lint --tests ./testsv2/
 erc7730 preview --data 0x... --to 0x... --chain-id 1 --pin <sha>
+erc7730 scaffold --chain-id 1 --address 0x... --abi ./abi.json --owner "My Protocol" --out ./draft
 erc7730 diff ./calldata-Foo.json --against official --pin <sha>
 erc7730 registry update --pin <sha>
 ```
 
-`generate` writes a **v2** draft (schema-valid starting point, never `confidence: "high"`). `lint` exits `1` on error-level issues. `preview` prints intent + fields. Pin the official registry with `--pin` / `ERC7730_REGISTRY_PIN`, or point `ERC7730_REGISTRY_PATH` at a local clone. `registry update` fills `~/.erc7730/registry/<pin>`.
+`generate` writes a **v2** draft (schema-valid starting point, never `confidence: "high"`). `lint` exits `1` on error-level issues; `--tests` validates registry testsv2 files. `preview` prints intent, interpolated intent, fields, and trust. `scaffold` lays out a registry-shaped tree (does not open the PR). Pin with `--pin` / `ERC7730_REGISTRY_PIN`, or point `ERC7730_REGISTRY_PATH` at a local clone. See [`docs/interop.md`](./docs/interop.md) and [`docs/github-action.md`](./docs/github-action.md).
 
 See [`packages/cli/README.md`](./packages/cli/README.md).
 

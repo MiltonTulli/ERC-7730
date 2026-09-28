@@ -166,14 +166,14 @@ describe('composePolicies', () => {
     expect(allReport.accepted).toBe(false);
     expect(allReport.reasons).toContain('denied');
     expect(anyReport.accepted).toBe(true);
-    expect(anyReport.reasons).toContain('source "official-registry" accepted');
+    expect(anyReport.reasons).toContain('source:official-registry:accepted');
   });
 
   it('rejects an empty compose and an unknown mode', async () => {
     const empty = composePolicies([], 'any');
     const report = await empty.evaluate(ctx('official-registry'));
     expect(report.accepted).toBe(false);
-    expect(report.reasons).toContain('no policies to compose');
+    expect(report.reasons).toContain('no_policies');
     expect(() => composePolicies([], 'maybe' as 'all')).toThrow(/all" or "any"/);
   });
 });

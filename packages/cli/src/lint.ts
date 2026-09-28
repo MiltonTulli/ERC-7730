@@ -5,6 +5,7 @@ import {
   type ValidationIssue,
   resolveDescriptor,
   validateDescriptor,
+  validateDescriptorTests,
 } from '@erc7730/sdk';
 import {
   asInputDescriptor,
@@ -127,7 +128,7 @@ function formatIssues(file: string, issues: LintIssue[]): string[] {
 }
 
 export async function runLint(args: string[], ctx: CliContext): Promise<CliResult> {
-  let values: { help?: boolean; json?: boolean };
+  let values: { help?: boolean; json?: boolean; tests?: boolean };
   let positionals: string[];
   try {
     const parsed = parseArgs({
@@ -136,6 +137,7 @@ export async function runLint(args: string[], ctx: CliContext): Promise<CliResul
       options: {
         help: { type: 'boolean', short: 'h' },
         json: { type: 'boolean' },
+        tests: { type: 'boolean' },
       },
     });
     values = parsed.values;
@@ -212,6 +214,16 @@ export async function runLint(args: string[], ctx: CliContext): Promise<CliResul
           issues: [{ level: 'error', path: '/', message, rule: 'json' }],
         });
         hadError = true;
+        continue;
+      }
+
+      if (values.tests) {
+        const validated = validateDescriptorTests(json);
+        const issues = validated.ok ? [] : schemaIssues(validated.errors);
+        if (issues.some((issue) => issue.level === 'error')) {
+          hadError = true;
+        }
+        reports.push({ file: label, issues });
         continue;
       }
 
