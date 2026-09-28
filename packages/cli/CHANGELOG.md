@@ -1,5 +1,11 @@
 # @erc7730/cli
 
+## 0.3.1
+
+### Patch Changes
+
+- a5393bc: Document `--sourcify` on `erc7730 preview --help` so help matches the published flag.
+
 ## 0.3.0
 
 ### Minor Changes
