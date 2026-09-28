@@ -7,6 +7,7 @@ import {
   VENDORED_REGISTRY_COMMIT,
   createClearSigner,
   createOfficialRegistry,
+  enableSourcifyAbiLoader,
   fetchFromSourcify,
   generateDescriptor,
   getChain,
@@ -14,6 +15,9 @@ import {
   officialOrLocalPolicy,
 } from '@erc7730/sdk';
 import { http, createPublicClient } from 'viem';
+
+// The SDK does not register Sourcify on import. The playground opts in.
+enableSourcifyAbiLoader();
 
 // GitHub repository configuration
 const GITHUB_REPO = 'ethereum/clear-signing-erc7730-registry';
@@ -522,9 +526,12 @@ signer.extend([customDescriptor]);
 import {
   createClearSigner,
   createOfficialRegistry,
+  enableSourcifyAbiLoader,
   getChain,
   officialOrLocalPolicy,
 } from '@erc7730/sdk';
+
+enableSourcifyAbiLoader();
 ${rpcNote}
 const chain = getChain(${currentInput.chainId});
 const rpcUrl = '${rpcUrl}';

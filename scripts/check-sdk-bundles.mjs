@@ -61,7 +61,10 @@ const index = indexGraph.map((entry) => entry.code).join('\n');
 const liteFile = join(dist, 'lite.js');
 
 if (!index.includes('fetchFromSourcify') && !index.includes('sourcify.dev')) {
-  fail('dist/index.js no longer registers the Sourcify loader');
+  fail('dist/index.js no longer includes the Sourcify client');
+}
+if (!index.includes('enableSourcifyAbiLoader')) {
+  fail('dist/index.js no longer exports enableSourcifyAbiLoader');
 }
 if (!/from\s*['"]ajv\/dist\/2020\.js['"]/.test(index)) {
   fail('SDK bundle does not keep ajv/dist/2020.js external');
@@ -73,7 +76,15 @@ if (statSync(liteFile).size >= statSync(join(dist, 'index.js')).size) {
 }
 
 // Lite keeps the official-registry client. Sourcify and the embedded catalog stay out.
-const banned = ['sourcify.dev', 'fetchFromSourcify', 'EMBEDDED_REGISTRY', 'node:fs', 'node:path'];
+const banned = [
+  'sourcify.dev',
+  'fetchFromSourcify',
+  'enableSourcifyAbiLoader',
+  'sourcifyVerifiedAbiLoader',
+  'EMBEDDED_REGISTRY',
+  'node:fs',
+  'node:path',
+];
 for (const { file, code } of relativeChunks(liteFile)) {
   for (const token of banned) {
     if (code.includes(token)) {

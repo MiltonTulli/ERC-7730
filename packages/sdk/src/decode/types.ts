@@ -215,12 +215,13 @@ export interface DecodeOptions {
   spenderAllowlist?: Address[];
   /**
    * Opt-in Sourcify ABI fallback. Default false: decode does not touch the network.
-   * The full `@erc7730/sdk` entry registers the client; `@erc7730/sdk/lite` does not.
-   * Never `confidence: "high"`.
+   * Also requires a loader: `loadVerifiedAbi`, or `enableSourcifyAbiLoader()` first.
+   * Importing `@erc7730/sdk` does not register one. Never `confidence: "high"`.
    */
   useSourcifyFallback?: boolean;
   /**
-   * Replaces the built-in Sourcify loader. Used by tests and by the full package entry.
+   * Verified-ABI loader used when `useSourcifyFallback` is true.
+   * Pass `sourcifyVerifiedAbiLoader`, or omit this after `enableSourcifyAbiLoader()`.
    */
   loadVerifiedAbi?: (chainId: number, address: Address) => Promise<VerifiedContractAbi | null>;
   /** @internal Recursion guard for nested `calldata` fields. */

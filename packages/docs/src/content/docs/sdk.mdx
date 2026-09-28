@@ -17,9 +17,9 @@ npm install viem
 
 | Import | What you get |
 | --- | --- |
-| `@erc7730/sdk` | Full runtime. Registers a Sourcify ABI loader on import; `useSourcifyFallback` still defaults to `false` |
-| `@erc7730/sdk/lite` | Decode / trust / resolve / path / official registry **without** Sourcify client registration, without `generateDescriptor`, and without catalog helpers (`KNOWN_TOKENS`, `SUPPORTED_CHAINS`, `Registry`, …) |
-| `@erc7730/sdk/viem` | `decodeViemTransaction` / `decodeViemTypedData` adapters (also registers Sourcify on import) |
+| `@erc7730/sdk` | Full runtime. Sourcify is opt-in (`enableSourcifyAbiLoader` or `loadVerifiedAbi`); import does not register a loader. `useSourcifyFallback` defaults to `false` |
+| `@erc7730/sdk/lite` | Decode / trust / resolve / path / official registry **without** the Sourcify client, without `generateDescriptor`, and without catalog helpers (`KNOWN_TOKENS`, `SUPPORTED_CHAINS`, `Registry`, …) |
+| `@erc7730/sdk/viem` | `decodeViemTransaction` / `decodeViemTypedData` adapters (does not register a Sourcify loader) |
 
 ## Quick start
 
