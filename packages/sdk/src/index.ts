@@ -16,17 +16,6 @@
  * ```
  */
 
-import { setDefaultVerifiedAbiLoader } from './decode/abiLoader';
-import { fetchFromSourcify } from './providers/sourcify';
-
-setDefaultVerifiedAbiLoader(async (chainId, address) => {
-  const result = await fetchFromSourcify(chainId, address);
-  if (!result.verified || !result.abi) {
-    return null;
-  }
-  return { abi: result.abi, name: result.name || undefined };
-});
-
 export { ClearSigner, createClearSigner } from './core/ClearSigner';
 
 // Core utilities
@@ -66,9 +55,11 @@ export {
   isChainSupported,
   getChainName,
   getBlockExplorer,
-  // Sourcify integration
+  // Sourcify integration. Opt-in: importing this module does not register a loader.
+  enableSourcifyAbiLoader,
   fetchFromSourcify,
   isVerifiedOnSourcify,
+  sourcifyVerifiedAbiLoader,
 } from './providers';
 
 export type {

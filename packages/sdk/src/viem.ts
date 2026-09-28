@@ -1,17 +1,7 @@
 import type { Address, Hex, TypedData, TypedDataDefinition } from 'viem';
-import { setDefaultVerifiedAbiLoader } from './decode/abiLoader';
 import { decodeTransaction } from './decode/decodeTransaction';
 import { decodeTypedData } from './decode/decodeTypedData';
 import type { DecodeOptions, DecodedOperation } from './decode/types';
-import { fetchFromSourcify } from './providers/sourcify';
-
-setDefaultVerifiedAbiLoader(async (chainId, address) => {
-  const result = await fetchFromSourcify(chainId, address);
-  if (!result.verified || !result.abi) {
-    return null;
-  }
-  return { abi: result.abi, name: result.name || undefined };
-});
 
 /** A viem transaction request with an explicit destination, calldata and chain. */
 export interface ViemTransactionInput {

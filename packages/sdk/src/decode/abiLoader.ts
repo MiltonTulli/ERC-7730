@@ -7,7 +7,10 @@ export type VerifiedAbiLoader = (
 
 let defaultLoader: VerifiedAbiLoader | undefined;
 
-/** Registered by the full package entry so lite never imports Sourcify. */
+/**
+ * Advanced hook for a process-wide verified-ABI loader.
+ * Package entries do not call this. Callers opt in with an explicit loader.
+ */
 export function setDefaultVerifiedAbiLoader(loader: VerifiedAbiLoader | undefined): void {
   defaultLoader = loader;
 }

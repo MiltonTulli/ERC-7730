@@ -11,8 +11,10 @@ export {
 } from './rpc';
 
 export {
+  enableSourcifyAbiLoader,
   fetchFromSourcify,
   isVerifiedOnSourcify,
+  sourcifyVerifiedAbiLoader,
   type SourcifyResult,
   type SourcifyMatch,
   type SourcifyContractDetails,

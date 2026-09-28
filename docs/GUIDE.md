@@ -10,7 +10,7 @@ npm install @erc7730/sdk
 npm install viem
 ```
 
-Use `@erc7730/sdk/lite` when you want the decode surface without the full package’s Sourcify client registration.
+Use `@erc7730/sdk/lite` when you want the decode surface without the Sourcify client in the bundle. Importing `@erc7730/sdk` does not register an ABI loader.
 
 ## 2. Prefetch the official indexes
 
@@ -168,7 +168,29 @@ Batch / nested `interpolatedIntent` joins per-call sentences with `" and "`.
 
 ## 8. Sourcify ABI fallback
 
-Opt in with `useSourcifyFallback: true` on the full `@erc7730/sdk` entry. Result `source` is `"sourcify"` and confidence is never high. That path verifies an ABI; it is not clear-signing metadata. `@erc7730/sdk/lite` does not register the Sourcify client.
+Importing `@erc7730/sdk`, `@erc7730/sdk/lite`, or `@erc7730/sdk/viem` does not contact Sourcify and does not install a default ABI loader. `fetchFromSourcify` stays exported for apps that want the client.
+
+Opt in per call. `useSourcifyFallback: true` still does nothing until a loader is set:
+
+```ts
+import {
+  decodeTransaction,
+  enableSourcifyAbiLoader,
+  sourcifyVerifiedAbiLoader,
+} from '@erc7730/sdk';
+
+// Process-wide default. Inert until useSourcifyFallback is true.
+enableSourcifyAbiLoader();
+await decodeTransaction(tx, { useSourcifyFallback: true });
+
+// Or pass the loader on this call only.
+await decodeTransaction(tx, {
+  useSourcifyFallback: true,
+  loadVerifiedAbi: sourcifyVerifiedAbiLoader,
+});
+```
+
+Result `source` is `"sourcify"` and confidence is never high. That path verifies an ABI; it is not clear-signing metadata. `@erc7730/sdk/lite` does not import the Sourcify client.
 
 ## See also
 

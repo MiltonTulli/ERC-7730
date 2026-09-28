@@ -1,5 +1,10 @@
 import { parseArgs } from 'node:util';
-import { type Hex, type TransactionInput, decodeTransaction } from '@erc7730/sdk';
+import {
+  type Hex,
+  type TransactionInput,
+  decodeTransaction,
+  sourcifyVerifiedAbiLoader,
+} from '@erc7730/sdk';
 import { parseAddress, parseChainId } from './fsjson';
 import { PREVIEW_HELP } from './help';
 import { openRegistry, resolvePin } from './registry';
@@ -142,10 +147,12 @@ export async function runPreview(args: string[], ctx: CliContext): Promise<CliRe
     registryPath: values['registry-path'],
   });
 
+  const useSourcify = values.sourcify === true;
   const decoded = await decodeTransaction(tx, {
     registry,
     provider: null,
-    useSourcifyFallback: values.sourcify === true,
+    useSourcifyFallback: useSourcify,
+    ...(useSourcify ? { loadVerifiedAbi: sourcifyVerifiedAbiLoader } : {}),
     now: ctx.io.now,
   });
 
