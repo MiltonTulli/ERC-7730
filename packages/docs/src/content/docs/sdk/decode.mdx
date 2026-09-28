@@ -1,0 +1,52 @@
+---
+title: Decode
+description: decodeTransaction, decodeTypedData, decodeBatch, decodeUserOp, and format aliases.
+---
+
+import sdkPkg from '../../../../../sdk/package.json';
+
+<p class="version-line">@erc7730/sdk@{sdkPkg.version}</p>
+
+Primary wallet surface:
+
+| Function | When |
+| --- | --- |
+| `decodeTransaction` | `eth_sendTransaction` / `eth_signTransaction` (Multicall3 / Safe CALL → `children`) |
+| `decodeTypedData` | `eth_signTypedData` |
+| `decodeBatch` | EIP-5792 `wallet_sendCalls` |
+| `decodeUserOp` | ERC-4337 Simple Account `execute` / `executeBatch` |
+| `format` / `formatTypedData` | Compat aliases of `decode*` |
+
+Signatures and types: see the [generated API](/ERC-7730/sdk/api/).
+
+## What to show
+
+- Prefer `interpolatedIntent` when present (spec option 1).
+- Otherwise show `intent` + `fields`.
+- Surface `warnings` (e.g. `infinite_approval`, `NO_TRUSTED_ATTESTATION`, `interpolation_failed`).
+- Nested `format: "calldata"` fields expose `field.embedded`. Multicall3 / Safe CALL / UserOp expose `children: DecodedOperation[]` with per-child `source` and `trust`.
+- `locale` only formats numbers and dates. Descriptor intent strings are never translated.
+
+## `format` aliases
+
+`format` / `formatTypedData` call the same decode pipeline. When a registry is set and no `trust` policy is passed, they default to `officialOrLocalPolicy()`. `DecodedOperation` remains the source of truth — not Sourcify’s `DisplayModel`.
+
+For production wallets, pass `trust: officialOnlyPolicy()` (or `attestedPolicy`) explicitly on `decode*` rather than relying on the compat default.
+
+## Context matching
+
+Before a descriptor is applied, `matchContext` must succeed: deployments, EIP-1967 / EIP-1167, factory `deployEvent` logs, EIP-712 domain / `domainSeparator`. A familiar selector on an unbound address is inferred / low — never high under official-only.
+
+## Factory log range
+
+`Provider.getLogs` defaults to `fromBlock: "earliest"` / `toBlock: "latest"`. Pass bounded ranges on public RPCs via `DecodeOptions` / `MatchContextOptions`.
+
+## ClearSigner
+
+`createClearSigner(options?)` binds `DecodeOptions` for repeated calls. `ClearSigner.decode` is a **deprecated** alias of `decodeTransaction` and returns `DecodedOperation`.
+
+## See also
+
+- [Wallet guide](/ERC-7730/guide/)
+- [Trust](/ERC-7730/trust/)
+- [API reference](/ERC-7730/sdk/api/)

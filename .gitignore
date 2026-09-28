@@ -64,3 +64,16 @@ coverage/
 
 # Vite
 packages/web/.vite/
+
+# Playwright MCP local artifacts
+.playwright-mcp/
+
+# Docs site (generated content + Astro cache)
+packages/docs/.astro/
+packages/docs/src/content/docs/guide.md
+packages/docs/src/content/docs/interop.md
+packages/docs/src/content/docs/action.md
+packages/docs/src/content/docs/divergences.md
+packages/docs/src/content/docs/trust.md
+packages/docs/src/content/docs/cli/generate.md
+packages/docs/src/content/docs/sdk/api/

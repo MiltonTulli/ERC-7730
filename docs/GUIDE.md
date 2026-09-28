@@ -32,7 +32,7 @@ Passing `indexes` means those two files are not fetched again. You can also bund
 
 ## 3. Production trust policy
 
-Do not show unreviewed registry metadata as high confidence in production.
+Do not show unreviewed registry metadata as high confidence in production. Full source × policy × confidence table: [`trust-table.md`](./trust-table.md) (also [/trust](https://miltontulli.github.io/ERC-7730/trust/) on the docs site).
 
 ```ts
 import { officialOnlyPolicy, attestedPolicy } from '@erc7730/sdk';
@@ -172,10 +172,12 @@ Opt in with `useSourcifyFallback: true` on the full `@erc7730/sdk` entry. Result
 
 ## See also
 
-- Root [README.md](../README.md) — API overview and trust table
+- Docs site — https://miltontulli.github.io/ERC-7730/
+- [trust-table.md](./trust-table.md) — source × policy × confidence
+- Root [README.md](../README.md) — install + short start
 - [interop.md](./interop.md) — vs python-erc7730 / Sourcify TS
 - [github-action.md](./github-action.md) — protocol ABI-vs-descriptor CI snippet
-- [ROADMAP.md](../ROADMAP.md) — v0.5 / v0.6 scope
+- [ROADMAP.md](../ROADMAP.md) — shipped scope
 - Official registry — https://github.com/ethereum/clear-signing-erc7730-registry
 - ERC-7730 — https://eips.ethereum.org/EIPS/eip-7730
 - ERC-8176 — https://github.com/ethereum/ERCs/pull/1576

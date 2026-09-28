@@ -837,7 +837,11 @@
       <strong>Untrusted:</strong> Sourcify and <code>generateDescriptor</code> — never
       <code>confidence: "high"</code>.
       New protocol metadata goes to the official registry, not this repo.
-      <code>trust.accepted</code> is a placeholder until TrustPolicy ships.
+      This playground injects <code>officialOrLocalPolicy()</code>; production wallets should use
+      <code>officialOnlyPolicy()</code> or <code>attestedPolicy()</code>.
+      Every decode shows <code>source</code>, <code>confidence</code>, <code>warnings</code>, and
+      <code>trust.accepted</code>.
+      <a href=".." id="docs-home-link">Docs</a>
     </div>
 
     <!-- Main Tabs -->
@@ -850,7 +854,7 @@
     <div id="main-tab-decode" class="main-tab-content active">
       <!-- Custom Descriptor Indicator (hidden by default) -->
       <div id="custom-descriptor-indicator" class="custom-descriptor-indicator" style="display: none;">
-        <span>📋 Using local override (untrusted until TrustPolicy)</span>
+        <span>📋 Using local override (<code>source: local-override</code>). This playground policy may accept it; <code>officialOnlyPolicy()</code> would not.</span>
         <button id="clear-custom-descriptor">Clear</button>
       </div>
 
@@ -993,7 +997,8 @@
 
     <footer>
       <p>
-        Open source on <a href="https://github.com/MiltonTulli/ERC-7730" target="_blank" rel="noreferrer">GitHub</a>
+        <a href=".." id="docs-footer-link">Docs</a>
+        · Open source on <a href="https://github.com/MiltonTulli/ERC-7730" target="_blank" rel="noreferrer">GitHub</a>
         · <a href="https://eips.ethereum.org/EIPS/eip-7730" target="_blank" rel="noreferrer">EIP-7730</a>
         · <a href="https://clearsigning.org" target="_blank" rel="noreferrer">clearsigning.org</a>
         · <a href="https://github.com/ethereum/clear-signing-erc7730-registry" target="_blank" rel="noreferrer">official registry</a>

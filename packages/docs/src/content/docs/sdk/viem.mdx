@@ -1,0 +1,30 @@
+---
+title: viem adapters
+description: decodeViemTransaction and decodeViemTypedData from @erc7730/sdk/viem.
+---
+
+import sdkPkg from '../../../../../sdk/package.json';
+
+<p class="version-line">@erc7730/sdk@{sdkPkg.version} — entry <code>@erc7730/sdk/viem</code></p>
+
+`viem` is an **optional peer** of `@erc7730/sdk`. Install it when you use these adapters or pass a viem `PublicClient` as `provider`.
+
+```ts
+import { decodeViemTransaction, decodeViemTypedData } from '@erc7730/sdk/viem';
+import { officialOnlyPolicy } from '@erc7730/sdk';
+
+const result = await decodeViemTransaction(txRequest, {
+  registry,
+  trust: officialOnlyPolicy(),
+  provider: publicClient,
+});
+
+const typed = await decodeViemTypedData(typedDataDefinition, {
+  registry,
+  trust: officialOnlyPolicy(),
+});
+```
+
+Both helpers return `DecodedOperation` and reuse the same trust / matchContext pipeline as `decodeTransaction` / `decodeTypedData`. Importing `@erc7730/sdk/viem` registers the Sourcify ABI loader (same as the main entry). Prefer `@erc7730/sdk/lite` when you want decode without that registration.
+
+API details: [generated docs](/ERC-7730/sdk/api/) for `decodeViemTransaction`, `decodeViemTypedData`, and `ViemTransactionInput`.

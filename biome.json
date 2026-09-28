@@ -45,6 +45,15 @@
       "packages/sdk/test/golden/snapshots/**",
       "packages/sdk/test/golden/includes/**",
       "packages/registry/dist",
+      "packages/docs/dist",
+      "packages/docs/.astro",
+      "packages/docs/src/content/docs/sdk/api",
+      "packages/docs/src/content/docs/guide.md",
+      "packages/docs/src/content/docs/interop.md",
+      "packages/docs/src/content/docs/action.md",
+      "packages/docs/src/content/docs/divergences.md",
+      "packages/docs/src/content/docs/trust.md",
+      "packages/docs/src/content/docs/cli/generate.md",
       "**/CHANGELOG.md"
     ]
   },

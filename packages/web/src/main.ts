@@ -19,6 +19,22 @@ import { http, createPublicClient } from 'viem';
 const GITHUB_REPO = 'ethereum/clear-signing-erc7730-registry';
 const GITHUB_REGISTRY_PATH = 'registry';
 
+/** When mounted under /ERC-7730/demo/, docs live at the parent path. */
+function docsHomeHref(): string {
+  const base = import.meta.env.BASE_URL ?? '/';
+  if (base.includes('/demo')) {
+    return new URL('..', window.location.origin + base).pathname;
+  }
+  return 'https://miltontulli.github.io/ERC-7730/';
+}
+
+for (const id of ['docs-home-link', 'docs-footer-link']) {
+  const el = document.getElementById(id);
+  if (el instanceof HTMLAnchorElement) {
+    el.href = docsHomeHref();
+  }
+}
+
 // Example transactions
 const EXAMPLES = {
   transfer: {

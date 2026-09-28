@@ -1,0 +1,52 @@
+---
+title: SDK overview
+description: Install @erc7730/sdk — runtime for ERC-7730 clear signing.
+---
+
+import sdkPkg from '../../../../sdk/package.json';
+
+<p class="version-line">This page describes <strong>@erc7730/sdk@{sdkPkg.version}</strong> from this repository checkout. The CLI is versioned independently.</p>
+
+```bash
+npm install @erc7730/sdk
+# optional peer for PublicClient / adapters
+npm install viem
+```
+
+## Entry points
+
+| Import | What you get |
+| --- | --- |
+| `@erc7730/sdk` | Full runtime. Registers a Sourcify ABI loader on import; `useSourcifyFallback` still defaults to `false` |
+| `@erc7730/sdk/lite` | Decode / trust / resolve / path / official registry **without** Sourcify client registration, without `generateDescriptor`, and without catalog helpers (`KNOWN_TOKENS`, `SUPPORTED_CHAINS`, `Registry`, …) |
+| `@erc7730/sdk/viem` | `decodeViemTransaction` / `decodeViemTypedData` adapters (also registers Sourcify on import) |
+
+## Quick start
+
+```ts
+import {
+  createOfficialRegistry,
+  decodeTransaction,
+  officialOnlyPolicy,
+  VENDORED_REGISTRY_COMMIT,
+} from '@erc7730/sdk';
+
+const registry = createOfficialRegistry({ pin: VENDORED_REGISTRY_COMMIT });
+const result = await decodeTransaction(tx, {
+  registry,
+  trust: officialOnlyPolicy(),
+});
+
+console.log(result.interpolatedIntent ?? result.intent);
+console.log(result.source, result.confidence, result.trust.accepted);
+```
+
+Prefer [the wallet guide](/ERC-7730/guide/) for prefetch, `ExternalDataProvider`, `trustedTokens`, batch, and UserOp.
+
+## Next
+
+- [Decode](/ERC-7730/sdk/decode/) — `decodeTransaction` / `decodeTypedData` / `decodeBatch` / `decodeUserOp`
+- [Validate & resolve](/ERC-7730/sdk/validate-resolve/) — schema, includes, path engine
+- [viem adapters](/ERC-7730/sdk/viem/)
+- [Generated API](/ERC-7730/sdk/api/) — TypeDoc from exported symbols
+- [Trust](/ERC-7730/trust/) · [Registry](/ERC-7730/registry/)

@@ -22,7 +22,7 @@ Tracker: [#2](https://github.com/MiltonTulli/ERC-7730/issues/2). Preferir **poco
 
 ## Estado (septiembre 2026)
 
-Publicado: `@erc7730/sdk@0.4.0`, `@erc7730/cli@0.2.0`.
+Publicado en este checkout: ver `packages/sdk/package.json` y `packages/cli/package.json` (líneas independientes en npm: `@erc7730/sdk`, `@erc7730/cli`). Docs del toolkit: [miltontulli.github.io/ERC-7730](https://miltontulli.github.io/ERC-7730/) ([#43](https://github.com/MiltonTulli/ERC-7730/issues/43)).
 
 | Capacidad | Estado |
 |---|---|
@@ -32,10 +32,10 @@ Publicado: `@erc7730/sdk@0.4.0`, `@erc7730/cli@0.2.0`.
 | Paths `#` `$` `@` | Hecho |
 | `decodeTransaction` / `decodeTypedData` | Hecho |
 | Proxy / factory / addressMatcher | Hecho |
-| `TrustPolicy` (`officialOnly` / `officialOrLocal` / compose) | Hecho |
+| `TrustPolicy` (`officialOnly` / `officialOrLocal` / `attested` / compose) | Hecho |
 | Security warnings | Hecho |
 | Golden vs `python-erc7730` | Hecho |
-| `@erc7730/cli` generate / lint / preview / diff | Hecho |
+| `@erc7730/cli` generate / lint / preview / diff / scaffold | Hecho |
 | Heurística ABI → descriptor | Hecho |
 | Adapters `@erc7730/sdk/viem` + export `lite` | Hecho |
 | `interpolatedIntent` | Hecho (#53) |
@@ -46,6 +46,7 @@ Publicado: `@erc7730/sdk@0.4.0`, `@erc7730/cli@0.2.0`.
 | Multicall3 / Safe inner calls | Hecho (#54) |
 | `decodeUserOp` | Hecho (#54) |
 | Compat `format()` + matriz interop | Hecho (#54) |
+| Docs site (Pages = docs + `/demo`) | [#43](https://github.com/MiltonTulli/ERC-7730/issues/43) |
 
 ---
 
@@ -63,9 +64,9 @@ Display fiel al spec, `decodeTransaction` + `decodeTypedData`, context matchers,
 
 CLI `generate` / `lint` / `preview` / `diff`, heurística de formats, `@erc7730/sdk/viem`.
 
-### v0.5.0 — Wallet drop-in parity — [#53](https://github.com/MiltonTulli/ERC-7730/issues/53)
+### v0.5.0 — Wallet drop-in parity — shipped ([#53](https://github.com/MiltonTulli/ERC-7730/issues/53))
 
-**Un PR.** Una wallet que hoy usa `@ethereum-sourcify/clear-signing` puede cambiar el import sin perder pantallas ni attestations.
+Una wallet que hoy usa `@ethereum-sourcify/clear-signing` puede cambiar el import sin perder pantallas ni attestations.
 
 - `interpolatedIntent` (fallback a intent + fields)
 - `decodeBatch` / EIP-5792 (`" and "` entre intents)
@@ -77,9 +78,9 @@ CLI `generate` / `lint` / `preview` / `diff`, heurística de formats, `@erc7730/
 
 Fuera de 0.5: Multicall3, UserOp, i18n, playground, dashboard.
 
-### v0.6.0 — Coverage + policies + authoring — [#54](https://github.com/MiltonTulli/ERC-7730/issues/54)
+### v0.6.0 — Coverage + policies + authoring — shipped ([#54](https://github.com/MiltonTulli/ERC-7730/issues/54))
 
-**Un PR.** Donde la propuesta es estrictamente mejor que un formatter de referencia.
+Donde la propuesta es estrictamente mejor que un formatter de referencia.
 
 - Multicall3 (`children[]`); Safe `execTransaction` si entra barato
 - `decodeUserOp` (Simple Account `execute` / `executeBatch`)
@@ -155,8 +156,6 @@ Confidence (sin cambios):
 
 | Issue | Release | PR |
 |---|---|---|
-| [#53](https://github.com/MiltonTulli/ERC-7730/issues/53) wallet drop-in | 0.5 | uno |
-| [#54](https://github.com/MiltonTulli/ERC-7730/issues/54) coverage + authoring | 0.6 | uno |
-| [#43](https://github.com/MiltonTulli/ERC-7730/issues/43) docs site | later | — |
+| [#43](https://github.com/MiltonTulli/ERC-7730/issues/43) docs site | later | docs + `/demo` en Pages |
 
-Cerrados como absorbed: #18 → #53; #19 y #20 → #54.
+Shipped: #53 → 0.5; #54 → 0.6. Cerrados como absorbed: #18 → #53; #19 y #20 → #54.

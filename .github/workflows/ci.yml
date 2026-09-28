@@ -104,6 +104,32 @@ jobs:
       - name: Check resolve/lint goldens
         run: pnpm golden:python
 
+  docs:
+    name: Docs site
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          # Astro 7 / Starlight require Node >= 22.12
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build packages (sdk, cli, web, registry)
+        run: pnpm build
+
+      - name: Build docs site
+        run: pnpm --filter @erc7730/docs build:site
+
   changeset:
     name: Changeset (when SDK or CLI source changes)
     if: github.event_name == 'pull_request'

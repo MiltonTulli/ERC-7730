@@ -1,0 +1,31 @@
+{
+  "name": "@erc7730/docs",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Documentation site for @erc7730/sdk and @erc7730/cli (GitHub Pages)",
+  "scripts": {
+    "prepare:content": "node scripts/include-canonical.mjs && node scripts/generate-cli-ref.mjs",
+    "build:site": "node scripts/build-site.mjs",
+    "dev": "node scripts/prepare-and-dev.mjs",
+    "preview": "astro preview --host 127.0.0.1",
+    "smoke": "node scripts/docs-smoke.mjs",
+    "check-stale": "node scripts/check-stale-phrases.mjs",
+    "clean": "rm -rf dist .astro src/content/docs/guide.md src/content/docs/interop.md src/content/docs/action.md src/content/docs/divergences.md src/content/docs/trust.md src/content/docs/cli/generate.md src/content/docs/sdk/api"
+  },
+  "dependencies": {
+    "@astrojs/starlight": "^0.42.4",
+    "@erc7730/sdk": "workspace:*",
+    "@erc7730/web": "workspace:*",
+    "astro": "^7.3.5",
+    "sharp": "^0.34.2"
+  },
+  "devDependencies": {
+    "starlight-typedoc": "^0.23.1",
+    "typedoc": "^0.28.20",
+    "typedoc-plugin-markdown": "^4.13.1"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}
