@@ -1,7 +1,7 @@
-import { OfficialRegistryError } from './error.js';
-import { DEFAULT_OFFICIAL_REGISTRY_BASE_URL, registryFileUrl } from './paths.js';
-import { assertRegistryPin } from './pin.js';
-import type { CalldataIndex, Eip712Index } from './types.js';
+import { OfficialRegistryError } from './error';
+import { DEFAULT_OFFICIAL_REGISTRY_BASE_URL, registryFileUrl } from './paths';
+import { assertRegistryPin } from './pin';
+import type { CalldataIndex, Eip712Index } from './types';
 
 export interface PrefetchRegistryIndexOptions {
   /** Full 40-character git commit SHA. */

@@ -1,7 +1,7 @@
 import { encodeAbiParameters, parseAbiParameters } from 'viem';
 import { describe, expect, it } from 'vitest';
-import { computeSelector } from '../core/signatures.js';
-import { canonicalizeDeclaration, decodeNamedArgs, parseDeclaration } from '../decode/abi.js';
+import { computeSelector } from '../core/signatures';
+import { canonicalizeDeclaration, decodeNamedArgs, parseDeclaration } from '../decode/abi';
 
 const VITALIK = '0xd8da6bf26964af9d7eed9e03e53415d37aa96045';
 

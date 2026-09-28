@@ -13,7 +13,7 @@ import type {
   InputDescriptor,
   ValidationIssue,
   ValidationResult,
-} from '../types/descriptor.js';
+} from '../types/descriptor';
 import v1Schema from './official/erc7730-v1.schema.json' with { type: 'json' };
 import v2Schema from './official/erc7730-v2.schema.json' with { type: 'json' };
 

@@ -1,21 +1,21 @@
 import { createRequire } from 'node:module';
 import { homedir } from 'node:os';
-import { runDiff } from './diff.js';
-import { runGenerate } from './generate.js';
-import { ROOT_HELP } from './help.js';
-import { runLint } from './lint.js';
-import { runPreview } from './preview.js';
-import { runRegistry } from './registry.js';
-import { runScaffold } from './scaffold.js';
-import type { CliIo, CliResult } from './types.js';
-import { Output, UsageError } from './types.js';
+import { runDiff } from './diff';
+import { runGenerate } from './generate';
+import { ROOT_HELP } from './help';
+import { runLint } from './lint';
+import { runPreview } from './preview';
+import { runRegistry } from './registry';
+import { runScaffold } from './scaffold';
+import type { CliIo, CliResult } from './types';
+import { Output, UsageError } from './types';
 
 const require = createRequire(import.meta.url);
 const pkg = require('../package.json') as { version: string };
 
-export type { CliIo, CliResult, LintIssue } from './types.js';
-export { lintDescriptor } from './lint.js';
-export { toV2Draft } from './v2.js';
+export type { CliIo, CliResult, LintIssue } from './types';
+export { lintDescriptor } from './lint';
+export { toV2Draft } from './v2';
 
 function defaultIo(io?: Partial<CliIo>): CliIo {
   return {

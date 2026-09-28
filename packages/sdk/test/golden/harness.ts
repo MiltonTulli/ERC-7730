@@ -10,8 +10,8 @@
 import { cpSync, mkdirSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { parseDeclaration } from '../../src/decode/abi.js';
-import type { IncludeLoader, InputDescriptor } from '../../src/types/descriptor.js';
+import { parseDeclaration } from '../../src/decode/abi';
+import type { IncludeLoader, InputDescriptor } from '../../src/types/descriptor';
 
 export const SDK_ROOT = join(dirname(fileURLToPath(import.meta.url)), '../..');
 export const GOLDEN_ROOT = dirname(fileURLToPath(import.meta.url));

@@ -1,14 +1,14 @@
-import { decodeCalldata, extractSelector } from '../core/decoder.js';
-import { getSignatureBySelector } from '../core/signatures.js';
-import { generateDescriptor } from '../generate/generate.js';
-import type { ABI } from '../generate/generate.js';
-import { ERC20_DESCRIPTOR } from '../registry/erc20.js';
-import { ERC721_DESCRIPTOR } from '../registry/erc721.js';
-import { createMemoryIncludeLoader, resolveDescriptor } from '../resolve/index.js';
-import type { Hex, InputDescriptor, ResolvedDescriptor } from '../types/descriptor.js';
-import type { TransactionInput } from '../types/index.js';
-import { decodeNamedArgs, parseDeclaration } from './abi.js';
-import { getDefaultVerifiedAbiLoader } from './abiLoader.js';
+import { decodeCalldata, extractSelector } from '../core/decoder';
+import { getSignatureBySelector } from '../core/signatures';
+import { generateDescriptor } from '../generate/generate';
+import type { ABI } from '../generate/generate';
+import { ERC20_DESCRIPTOR } from '../registry/erc20';
+import { ERC721_DESCRIPTOR } from '../registry/erc721';
+import { createMemoryIncludeLoader, resolveDescriptor } from '../resolve';
+import type { TransactionInput } from '../types';
+import type { Hex, InputDescriptor, ResolvedDescriptor } from '../types/descriptor';
+import { decodeNamedArgs, parseDeclaration } from './abi';
+import { getDefaultVerifiedAbiLoader } from './abiLoader';
 import {
   ZERO_ADDRESS,
   absorbEmbedded,
@@ -23,12 +23,12 @@ import {
   resolveTrust,
   sourceFromResolved,
   withAttestedSource,
-} from './common.js';
-import { matchContext } from './context.js';
-import { type FormatOptions, flattenFields, formatDisplayField } from './format.js';
-import { expandNestedCalls } from './innerCalls.js';
-import { matchFormat } from './match.js';
-import type { PathContext } from './path.js';
+} from './common';
+import { matchContext } from './context';
+import { type FormatOptions, flattenFields, formatDisplayField } from './format';
+import { expandNestedCalls } from './innerCalls';
+import { matchFormat } from './match';
+import type { PathContext } from './path';
 import type {
   DecodeOptions,
   DecodeSource,
@@ -37,8 +37,8 @@ import type {
   SecurityWarning,
   TrustReport,
   TrustedTokenStandard,
-} from './types.js';
-import { finalizeDecodedWarnings, sourcifySelectorMismatch } from './warnings.js';
+} from './types';
+import { finalizeDecodedWarnings, sourcifySelectorMismatch } from './warnings';
 
 function asHex(value: string): Hex {
   return value as Hex;

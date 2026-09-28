@@ -1,6 +1,6 @@
-import type { OfficialRegistry } from '../official-registry/types.js';
-import type { Hex, ResolvedDescriptor } from '../types/descriptor.js';
-import type { LogBlockTag, Provider, TransactionInput, TypedDataInput } from '../types/index.js';
+import type { OfficialRegistry } from '../official-registry/types';
+import type { LogBlockTag, Provider, TransactionInput, TypedDataInput } from '../types';
+import type { Hex, ResolvedDescriptor } from '../types/descriptor';
 
 export type Address = `0x${string}`;
 

@@ -1,8 +1,8 @@
-import { computeSelector, getSignatureBySelector } from '../core/signatures.js';
-import type { ABI, ABIParameter } from '../generate/generate.js';
-import type { Hex, ResolvedDescriptor } from '../types/descriptor.js';
-import { parseDeclaration, wellKnownAliases } from './abi.js';
-import { asAddress, nowSeconds, resolveTrust, sourceFromResolved } from './common.js';
+import { computeSelector, getSignatureBySelector } from '../core/signatures';
+import type { ABI, ABIParameter } from '../generate/generate';
+import type { Hex, ResolvedDescriptor } from '../types/descriptor';
+import { parseDeclaration, wellKnownAliases } from './abi';
+import { asAddress, nowSeconds, resolveTrust, sourceFromResolved } from './common';
 import type {
   Address,
   DecodeOptions,
@@ -11,7 +11,7 @@ import type {
   DecodedOperation,
   SecurityWarning,
   SecurityWarningType,
-} from './types.js';
+} from './types';
 
 const DEADLINE_PATH = /(?:^|[.[\]])(deadline|expiry|expiration|sigDeadline)$/i;
 const SPENDER_PATH = /(?:^|[.[\]])(spender|operator)$/i;

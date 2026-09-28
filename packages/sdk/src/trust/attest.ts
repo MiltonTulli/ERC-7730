@@ -11,8 +11,8 @@ import {
   zeroAddress,
   zeroHash,
 } from 'viem';
-import type { Address, TrustContext, TrustPolicy, TrustReport } from '../decode/types.js';
-import { isPlainObject } from '../resolve/util.js';
+import type { Address, TrustContext, TrustPolicy, TrustReport } from '../decode/types';
+import { isPlainObject } from '../resolve/util';
 
 /** ERC-8176 schema UID on Ethereum mainnet (`bytes32 descriptorHash`). */
 export const ERC8176_SCHEMA_UID =

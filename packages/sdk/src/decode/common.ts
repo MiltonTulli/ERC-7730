@@ -1,6 +1,6 @@
-import { isPlainObject } from '../resolve/util.js';
-import { sourceAcceptedReason, sourceRejectedReason } from '../trust/reasons.js';
-import type { Hex, ResolvedDescriptor } from '../types/descriptor.js';
+import { isPlainObject } from '../resolve/util';
+import { sourceAcceptedReason, sourceRejectedReason } from '../trust/reasons';
+import type { Hex, ResolvedDescriptor } from '../types/descriptor';
 import type {
   Address,
   Confidence,
@@ -10,7 +10,7 @@ import type {
   DecodedOperation,
   SecurityWarning,
   TrustReport,
-} from './types.js';
+} from './types';
 
 const CONFIDENCE_RANK: Record<Confidence, number> = { low: 0, medium: 1, high: 2 };
 

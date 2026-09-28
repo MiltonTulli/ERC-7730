@@ -32,7 +32,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node: [20, 22]
+        node: [22, 24]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -58,13 +58,11 @@ jobs:
       - name: Run tests
         run: pnpm test
 
+      - name: Check SDK bundle graph
+        run: node scripts/check-sdk-bundles.mjs
+
       - name: CLI pack smoke
         run: node scripts/cli-pack-smoke.mjs
-
-      - name: Check package exports
-        run: |
-          cd packages/sdk
-          node -e "import('@erc7730/sdk').then(m => console.log('SDK exports:', Object.keys(m)))"
 
       - name: publint + attw
         working-directory: packages/sdk

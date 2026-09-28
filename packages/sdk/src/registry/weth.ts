@@ -2,7 +2,7 @@
  * ERC-7730 descriptor for WETH (Wrapped Ether)
  */
 
-import type { ERC7730Descriptor } from '../types/erc7730.js';
+import type { ERC7730Descriptor } from '../types/erc7730';
 
 export const WETH_DESCRIPTOR: ERC7730Descriptor = {
   $schema: 'https://eips.ethereum.org/assets/eip-7730/erc7730-v1.schema.json',

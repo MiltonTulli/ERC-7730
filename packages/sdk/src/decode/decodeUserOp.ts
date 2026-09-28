@@ -1,5 +1,5 @@
-import type { Hex } from '../types/descriptor.js';
-import { asAddress, stubTrust } from './common.js';
+import type { Hex } from '../types/descriptor';
+import { asAddress, stubTrust } from './common';
 import {
   SIMPLE_ACCOUNT_EXECUTE,
   SIMPLE_ACCOUNT_EXECUTE_BATCH,
@@ -9,8 +9,8 @@ import {
   joinSentences,
   mergeTrust,
   minConfidence,
-} from './innerCalls.js';
-import type { Address, DecodeOptions, DecodedOperation } from './types.js';
+} from './innerCalls';
+import type { Address, DecodeOptions, DecodedOperation } from './types';
 
 export interface UserOpInput {
   chainId: number;

@@ -2,7 +2,7 @@
 
 import { readFileSync } from 'node:fs';
 import { homedir } from 'node:os';
-import { runCli } from './run.js';
+import { runCli } from './run';
 
 const argv = process.argv.slice(2);
 

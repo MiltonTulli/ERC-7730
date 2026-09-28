@@ -4,7 +4,7 @@
  * Output is a starting point for authors — never a high-confidence runtime source.
  */
 
-import type { InputDescriptor } from '../types/descriptor.js';
+import type { InputDescriptor } from '../types/descriptor';
 import type {
   DisplayField,
   DisplayFormat,
@@ -12,9 +12,9 @@ import type {
   ERC7730V2Display,
   ERC7730V2Metadata,
   EnumDefinition,
-} from '../types/v2.js';
-import { inferFormat, inferLabel } from './inferFormat.js';
-import { inferIntent } from './inferIntent.js';
+} from '../types/v2';
+import { inferFormat, inferLabel } from './inferFormat';
+import { inferIntent } from './inferIntent';
 
 export const V2_SCHEMA_URI = 'https://eips.ethereum.org/assets/eip-7730/erc7730-v2.schema.json';
 

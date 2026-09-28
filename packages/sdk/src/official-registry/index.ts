@@ -1,11 +1,11 @@
 import source from '../schema/official/source.json' with { type: 'json' };
 
-export { createOfficialRegistry } from './create.js';
-export { OfficialRegistryError } from './error.js';
-export { createMemoryDescriptorCache } from './cache.js';
-export { isCommitSha } from './pin.js';
-export { toCaip10, DEFAULT_OFFICIAL_REGISTRY_BASE_URL, OFFICIAL_REGISTRY_REPO } from './paths.js';
-export { fetchPrebuiltRegistryIndex } from './prefetch.js';
+export { createOfficialRegistry } from './create';
+export { OfficialRegistryError } from './error';
+export { createMemoryDescriptorCache } from './cache';
+export { isCommitSha } from './pin';
+export { toCaip10, DEFAULT_OFFICIAL_REGISTRY_BASE_URL, OFFICIAL_REGISTRY_REPO } from './paths';
+export { fetchPrebuiltRegistryIndex } from './prefetch';
 
 /**
  * Commit of `ethereum/clear-signing-erc7730-registry` from which JSON Schema
@@ -23,9 +23,9 @@ export type {
   OfficialRegistryConfig,
   OfficialRegistryIndexes,
   RegistryLookupKey,
-} from './types.js';
+} from './types';
 
 export type {
   PrefetchRegistryIndexOptions,
   PrefetchedRegistryIndexes,
-} from './prefetch.js';
+} from './prefetch';

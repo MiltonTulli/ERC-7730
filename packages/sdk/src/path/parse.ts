@@ -1,5 +1,5 @@
-import { PathResolveError } from './error.js';
-import type { ParsedPath, PathRoot, PathSegment } from './types.js';
+import { PathResolveError } from './error';
+import type { ParsedPath, PathRoot, PathSegment } from './types';
 
 const FIELD_RE = /^[a-zA-Z0-9_]+/;
 const INDEX_RE = /^-?[0-9]+$/;

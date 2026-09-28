@@ -8,8 +8,8 @@
   },
   "files": ["dist", "!dist/**/*.map", "!dist/**/*.tsbuildinfo"],
   "scripts": {
-    "build": "tsc && chmod +x dist/index.js",
-    "dev": "tsc --watch",
+    "build": "tsdown",
+    "dev": "tsdown --watch",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
@@ -21,6 +21,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.11.0",
+    "tsdown": "0.23.0",
     "typescript": "^5.3.3",
     "vitest": "^1.2.0"
   },

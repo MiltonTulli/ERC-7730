@@ -1,9 +1,9 @@
 import type { Address, Hex, TypedData, TypedDataDefinition } from 'viem';
-import { setDefaultVerifiedAbiLoader } from './decode/abiLoader.js';
-import { decodeTransaction } from './decode/decodeTransaction.js';
-import { decodeTypedData } from './decode/decodeTypedData.js';
-import type { DecodeOptions, DecodedOperation } from './decode/types.js';
-import { fetchFromSourcify } from './providers/sourcify.js';
+import { setDefaultVerifiedAbiLoader } from './decode/abiLoader';
+import { decodeTransaction } from './decode/decodeTransaction';
+import { decodeTypedData } from './decode/decodeTypedData';
+import type { DecodeOptions, DecodedOperation } from './decode/types';
+import { fetchFromSourcify } from './providers/sourcify';
 
 setDefaultVerifiedAbiLoader(async (chainId, address) => {
   const result = await fetchFromSourcify(chainId, address);

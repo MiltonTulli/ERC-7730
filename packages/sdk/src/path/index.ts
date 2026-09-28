@@ -1,4 +1,4 @@
-export { PathResolveError } from './error.js';
-export type { PathResolveErrorCode } from './error.js';
-export { resolvePath } from './resolve.js';
-export type { PathContext, PathEnvelope } from './types.js';
+export { PathResolveError } from './error';
+export type { PathResolveErrorCode } from './error';
+export { resolvePath } from './resolve';
+export type { PathContext, PathEnvelope } from './types';

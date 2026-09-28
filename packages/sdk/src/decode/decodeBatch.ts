@@ -1,6 +1,6 @@
-import type { TransactionInput } from '../types/index.js';
-import { decodeTransaction } from './decodeTransaction.js';
-import type { Address, DecodeOptions, DecodedOperation, SecurityWarning } from './types.js';
+import type { TransactionInput } from '../types';
+import { decodeTransaction } from './decodeTransaction';
+import type { Address, DecodeOptions, DecodedOperation, SecurityWarning } from './types';
 
 export interface BatchInput {
   chainId: number;

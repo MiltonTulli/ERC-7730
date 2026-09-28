@@ -2,11 +2,11 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { PathResolveError, resolvePath } from '../path/index.js';
-import { parsePath } from '../path/parse.js';
-import type { PathContext, PathEnvelope } from '../path/types.js';
-import { createMemoryIncludeLoader, resolveDescriptor } from '../resolve/index.js';
-import type { Hex, InputDescriptor, ResolvedDescriptor } from '../types/descriptor.js';
+import { PathResolveError, resolvePath } from '../path';
+import { parsePath } from '../path/parse';
+import type { PathContext, PathEnvelope } from '../path/types';
+import { createMemoryIncludeLoader, resolveDescriptor } from '../resolve';
+import type { Hex, InputDescriptor, ResolvedDescriptor } from '../types/descriptor';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const officialDir = join(here, 'fixtures/official');

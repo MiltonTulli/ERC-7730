@@ -3,8 +3,8 @@
  */
 
 import { type Hex, decodeAbiParameters, parseAbiParameters } from 'viem';
-import type { TransactionInput } from '../types/index.js';
-import { getSignatureBySelector, parseSignature } from './signatures.js';
+import type { TransactionInput } from '../types';
+import { getSignatureBySelector, parseSignature } from './signatures';
 
 export interface RawDecodedTransaction {
   selector: string;

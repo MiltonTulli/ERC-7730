@@ -14,26 +14,26 @@
  * ```
  */
 
-export { ClearSigner as ClearSignerLite, createClearSigner } from './core/ClearSigner.js';
+export { ClearSigner as ClearSignerLite, createClearSigner } from './core/ClearSigner';
 
-// Core utilities only (no registry)
-export { decodeCalldata, extractSelector } from './core/decoder.js';
-export { getSignatureBySelector, COMMON_SIGNATURES } from './core/signatures.js';
+// Core utilities only (no embedded registry)
+export { decodeCalldata, extractSelector } from './core/decoder';
+export { getSignatureBySelector, COMMON_SIGNATURES } from './core/signatures';
 
 // Format utilities
 export {
   formatAmount,
   getTokenInfo,
   isInfiniteApproval,
-} from './formats/tokenAmount.js';
+} from './formats/tokenAmount';
 
 export {
   resolveAddress,
   formatAddress,
-} from './formats/addressName.js';
+} from './formats/addressName';
 
 // Types
-export { validateDescriptor } from './schema/index.js';
+export { validateDescriptor } from './schema';
 
 export {
   decodeTransaction,
@@ -45,7 +45,7 @@ export {
   matchContext,
   resolveImplementation,
   EIP1967_IMPLEMENTATION_SLOT,
-} from './decode/index.js';
+} from './decode';
 
 export {
   composePolicies,
@@ -56,17 +56,18 @@ export {
   EAS_CONTRACT,
   EAS_CHAIN_ID,
   TRUST_REASON_CODES,
-} from './trust/index.js';
+} from './trust';
 
 export {
   resolveDescriptor,
   descriptorHash,
   createMemoryIncludeLoader,
   DescriptorResolveError,
-} from './resolve/index.js';
+} from './resolve';
 
-export { resolvePath, PathResolveError } from './path/index.js';
+export { resolvePath, PathResolveError } from './path';
 
+// Pinned official-registry client. Lite still omits the embedded catalog and Sourcify.
 export {
   createOfficialRegistry,
   createMemoryDescriptorCache,
@@ -77,7 +78,7 @@ export {
   OFFICIAL_REGISTRY_REPO,
   VENDORED_REGISTRY_COMMIT,
   fetchPrebuiltRegistryIndex,
-} from './official-registry/index.js';
+} from './official-registry';
 
 export type {
   DescriptorVersion,
@@ -88,9 +89,9 @@ export type {
   ResolvedDeployment,
   ValidationIssue,
   ValidationResult,
-} from './types/descriptor.js';
+} from './types/descriptor';
 
-export type { PathContext, PathEnvelope, PathResolveErrorCode } from './path/index.js';
+export type { PathContext, PathEnvelope, PathResolveErrorCode } from './path';
 
 export type {
   Caip10,
@@ -101,7 +102,7 @@ export type {
   PrefetchRegistryIndexOptions,
   PrefetchedRegistryIndexes,
   RegistryLookupKey,
-} from './official-registry/index.js';
+} from './official-registry';
 
 export type {
   BatchDecodeResult,
@@ -124,14 +125,14 @@ export type {
   TrustReport,
   UserOpInput,
   VerifiedContractAbi,
-} from './decode/index.js';
+} from './decode';
 
-export type { AttestedPolicyConfig, TrustReasonCode } from './trust/index.js';
+export type { AttestedPolicyConfig, TrustReasonCode } from './trust';
 
 /**
  * @deprecated Use {@link DecodeOptions} with {@link createClearSigner}.
  */
-export type { DecodeOptions as ClearSignerConfig } from './decode/index.js';
+export type { DecodeOptions as ClearSignerConfig } from './decode';
 
 export type {
   RegistryConfig,
@@ -144,4 +145,4 @@ export type {
   DecodedTransaction,
   DecodedField,
   SecurityWarning,
-} from './types/index.js';
+} from './types';

@@ -1,4 +1,4 @@
-import type { DecodeSource } from '../decode/types.js';
+import type { DecodeSource } from '../decode/types';
 
 /**
  * Stable `trust.reasons` codes for telemetry / UI i18n.

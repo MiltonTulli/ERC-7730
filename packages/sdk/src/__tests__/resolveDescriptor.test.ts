@@ -7,9 +7,9 @@ import {
   createMemoryIncludeLoader,
   descriptorHash,
   resolveDescriptor,
-} from '../resolve/index.js';
-import { collectFieldRefs } from '../resolve/refs.js';
-import type { IncludeLoader, InputDescriptor } from '../types/descriptor.js';
+} from '../resolve';
+import { collectFieldRefs } from '../resolve/refs';
+import type { IncludeLoader, InputDescriptor } from '../types/descriptor';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const officialDir = join(here, 'fixtures/official');

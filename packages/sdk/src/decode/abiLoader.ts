@@ -1,4 +1,4 @@
-import type { Address, VerifiedContractAbi } from './types.js';
+import type { Address, VerifiedContractAbi } from './types';
 
 export type VerifiedAbiLoader = (
   chainId: number,

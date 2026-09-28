@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { ClearSigner, createClearSigner } from '../core/ClearSigner.js';
-import { decodeTransaction } from '../decode/decodeTransaction.js';
-import { decodeTypedData } from '../decode/decodeTypedData.js';
-import type { DecodeRegistry } from '../decode/types.js';
-import { officialOnlyPolicy, officialOrLocalPolicy } from '../trust/index.js';
-import type { InputDescriptor, ResolvedDescriptor } from '../types/descriptor.js';
+import { ClearSigner, createClearSigner } from '../core/ClearSigner';
+import { decodeTransaction } from '../decode/decodeTransaction';
+import { decodeTypedData } from '../decode/decodeTypedData';
+import type { DecodeRegistry } from '../decode/types';
+import { officialOnlyPolicy, officialOrLocalPolicy } from '../trust';
+import type { InputDescriptor, ResolvedDescriptor } from '../types/descriptor';
 
 const USDC = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48' as const;
 const VITALIK = 'd8da6bf26964af9d7eed9e03e53415d37aa96045';

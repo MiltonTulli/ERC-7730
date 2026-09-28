@@ -9,11 +9,11 @@ import {
   readJsonFile,
   resolvePath,
   writeTextFile,
-} from './fsjson.js';
-import { SCAFFOLD_HELP } from './help.js';
-import type { CliContext, CliResult } from './types.js';
-import { UsageError } from './types.js';
-import { toV2Draft } from './v2.js';
+} from './fsjson';
+import { SCAFFOLD_HELP } from './help';
+import type { CliContext, CliResult } from './types';
+import { UsageError } from './types';
+import { toV2Draft } from './v2';
 
 function parseAbi(value: unknown, source: string): ABI {
   if (Array.isArray(value)) {

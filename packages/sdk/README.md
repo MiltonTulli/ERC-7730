@@ -53,6 +53,10 @@ Wallet walkthrough (prefetch, `ExternalDataProvider`, batch, UserOp): [`docs/GUI
 
 SDK 0.x reads v1 and validates v1/v2. Package versions are independent of the ERC-7730 schema version.
 
+## Developing
+
+Source imports are extensionless. Build and typecheck notes: [CONTRIBUTING.md](../../CONTRIBUTING.md).
+
 ## License
 
 MIT

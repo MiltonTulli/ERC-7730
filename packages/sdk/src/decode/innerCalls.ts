@@ -1,7 +1,7 @@
-import { decodeCalldata } from '../core/decoder.js';
-import type { Hex, TransactionInput } from '../types/index.js';
-import { asAddress } from './common.js';
-import type { Address, Confidence, DecodeOptions, DecodedOperation, TrustReport } from './types.js';
+import { decodeCalldata } from '../core/decoder';
+import type { Hex, TransactionInput } from '../types';
+import { asAddress } from './common';
+import type { Address, Confidence, DecodeOptions, DecodedOperation, TrustReport } from './types';
 
 /** Multicall3 `aggregate((address,bytes)[])` */
 export const MULTICALL3_AGGREGATE = '0x252dba42' as Hex;
@@ -258,7 +258,7 @@ export async function decodeInnerCalls(
   options: DecodeOptions | undefined
 ): Promise<DecodedOperation[]> {
   // Dynamic import breaks the decodeTransaction ↔ innerCalls cycle.
-  const { decodeTransaction } = await import('./decodeTransaction.js');
+  const { decodeTransaction } = await import('./decodeTransaction');
   const depth = options?.nestedDepth ?? 0;
   const childOptions: DecodeOptions = {
     ...options,

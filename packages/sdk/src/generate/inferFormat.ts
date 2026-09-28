@@ -5,7 +5,7 @@
  * ROADMAP alias `addressOrName`). Generated drafts are untrusted.
  */
 
-import type { ERC7730V2FieldFormat, FieldParams } from '../types/v2.js';
+import type { ERC7730V2FieldFormat, FieldParams } from '../types/v2';
 
 export interface InferredFormat {
   format: ERC7730V2FieldFormat;

@@ -1,7 +1,7 @@
 import { mkdir, readFile, readdir, stat, writeFile } from 'node:fs/promises';
 import { dirname, extname, isAbsolute, join, resolve } from 'node:path';
 import type { IncludeLoader, InputDescriptor } from '@erc7730/sdk';
-import { ADDRESS_RE, UsageError } from './types.js';
+import { ADDRESS_RE, UsageError } from './types';
 
 export function resolvePath(cwd: string, path: string): string {
   return isAbsolute(path) ? path : resolve(cwd, path);

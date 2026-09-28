@@ -5,7 +5,7 @@
  * that can provide ABIs for verified contracts.
  */
 
-import type { ABI } from '../generate/generate.js';
+import type { ABI } from '../generate/generate';
 
 const SOURCIFY_API_V2_BASE = 'https://sourcify.dev/server';
 

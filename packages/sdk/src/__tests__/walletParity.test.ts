@@ -4,20 +4,15 @@ import { fileURLToPath } from 'node:url';
 import { type Hex, encodePacked, keccak256, stringToHex, zeroAddress, zeroHash } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { describe, expect, it } from 'vitest';
-import { absorbEmbedded, renderIntent } from '../decode/common.js';
-import { decodeBatch } from '../decode/decodeBatch.js';
-import { decodeTransaction } from '../decode/decodeTransaction.js';
-import type { DecodeRegistry, ExternalDataProvider } from '../decode/types.js';
-import { createOfficialRegistry } from '../official-registry/index.js';
-import { createMemoryIncludeLoader, resolveDescriptor } from '../resolve/index.js';
-import {
-  EAS_CONTRACT,
-  ERC8176_SCHEMA_UID,
-  attestedPolicy,
-  offchainAttestationUid,
-} from '../trust/index.js';
-import { officialOnlyPolicy } from '../trust/policy.js';
-import type { InputDescriptor, ResolvedDescriptor } from '../types/descriptor.js';
+import { absorbEmbedded, renderIntent } from '../decode/common';
+import { decodeBatch } from '../decode/decodeBatch';
+import { decodeTransaction } from '../decode/decodeTransaction';
+import type { DecodeRegistry, ExternalDataProvider } from '../decode/types';
+import { createOfficialRegistry } from '../official-registry';
+import { createMemoryIncludeLoader, resolveDescriptor } from '../resolve';
+import { EAS_CONTRACT, ERC8176_SCHEMA_UID, attestedPolicy, offchainAttestationUid } from '../trust';
+import { officialOnlyPolicy } from '../trust/policy';
+import type { InputDescriptor, ResolvedDescriptor } from '../types/descriptor';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const fixtures = join(here, 'fixtures');
@@ -560,15 +555,23 @@ describe('wallet drop-in parity (#53)', () => {
         if (!spec) {
           continue;
         }
-        const resolved = j(
-          dir(file),
-          spec.endsWith('.js') ? spec.replace(/\.js$/, '.ts') : `${spec}.ts`
-        );
-        try {
-          read(resolved);
+        if (spec.endsWith('.json')) {
+          continue;
+        }
+        const stem = spec.endsWith('.js') ? spec.slice(0, -3) : spec;
+        const base = dir(file);
+        const candidates = [j(base, `${stem}.ts`), j(base, stem, 'index.ts')];
+        const resolved = candidates.find((candidate) => {
+          try {
+            read(candidate);
+            return true;
+          } catch {
+            return false;
+          }
+        });
+        expect(resolved, `unresolved import ${spec} from ${file}`).toBeTruthy();
+        if (resolved) {
           queue.push(resolved);
-        } catch {
-          // skip missing (json, etc.)
         }
       }
     }

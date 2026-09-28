@@ -4,9 +4,9 @@ import {
   EIP1967_IMPLEMENTATION_SLOT,
   matchContext,
   resolveImplementation,
-} from '../decode/context.js';
-import type { InputDescriptor } from '../types/descriptor.js';
-import type { Address, Provider } from '../types/index.js';
+} from '../decode/context';
+import type { Address, Provider } from '../types';
+import type { InputDescriptor } from '../types/descriptor';
 
 const USDC = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48' as const;
 const SAFE = '0x41675C099F32341bf84BFc5382aF534df5C7461a' as const;

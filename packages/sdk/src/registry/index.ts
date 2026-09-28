@@ -4,18 +4,18 @@
  * Manages both built-in descriptors and the external community registry.
  */
 
-import { computeSelector, registerSignature } from '../core/signatures.js';
-import { type ValidationResult, validateDescriptor } from '../schema/index.js';
-import type { ERC7730Descriptor, FunctionFormat } from '../types/erc7730.js';
-import { ERC20_DESCRIPTOR } from './erc20.js';
-import { ERC721_DESCRIPTOR } from './erc721.js';
+import { computeSelector, registerSignature } from '../core/signatures';
+import { type ValidationResult, validateDescriptor } from '../schema';
+import type { ERC7730Descriptor, FunctionFormat } from '../types/erc7730';
+import { ERC20_DESCRIPTOR } from './erc20';
+import { ERC721_DESCRIPTOR } from './erc721';
 import {
   findByAddress as findExternalByAddress,
   findBySelector as findExternalBySelector,
   getExternalDescriptors,
   getStats,
-} from './external.js';
-import { WETH_DESCRIPTOR } from './weth.js';
+} from './external';
+import { WETH_DESCRIPTOR } from './weth';
 
 // Built-in descriptors for common standards
 // These are always available and serve as fallbacks

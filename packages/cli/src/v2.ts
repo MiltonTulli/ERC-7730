@@ -1,5 +1,5 @@
 import type { ERC7730Descriptor, InputDescriptor } from '@erc7730/sdk';
-import { GENERATED_COMMENT, V2_SCHEMA_URI } from './types.js';
+import { GENERATED_COMMENT, V2_SCHEMA_URI } from './types';
 
 const ADDRESS_NAME_TYPES = new Set(['wallet', 'eoa', 'contract', 'token', 'collection']);
 

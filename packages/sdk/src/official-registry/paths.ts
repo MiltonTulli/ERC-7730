@@ -1,5 +1,5 @@
-import { OfficialRegistryError } from './error.js';
-import type { Address, Caip10 } from './types.js';
+import { OfficialRegistryError } from './error';
+import type { Address, Caip10 } from './types';
 
 const ADDRESS_RE = /^0x[0-9a-fA-F]{40}$/;
 

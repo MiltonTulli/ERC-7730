@@ -5,7 +5,7 @@
 import type { ErrorObject, Options, ValidateFunction } from 'ajv';
 import * as addFormatsModule from 'ajv-formats';
 import * as Ajv2020Module from 'ajv/dist/2020.js';
-import type { ValidationIssue } from '../types/descriptor.js';
+import type { ValidationIssue } from '../types/descriptor';
 import testsSchema from './official/erc7730-tests-v2.schema.json' with { type: 'json' };
 
 type Ajv2020Ctor = new (opts?: Options) => import('ajv').default;

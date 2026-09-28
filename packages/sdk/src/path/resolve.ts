@@ -12,9 +12,9 @@
  * `PathResolveError` — they do not return `undefined`.
  */
 
-import { PathResolveError } from './error.js';
-import { concatDataPath, parsePath } from './parse.js';
-import type { ParsedPath, PathContext, PathEnvelope, PathSegment } from './types.js';
+import { PathResolveError } from './error';
+import { concatDataPath, parsePath } from './parse';
+import type { ParsedPath, PathContext, PathEnvelope, PathSegment } from './types';
 
 const HEX_RE = /^0x[0-9a-fA-F]*$/;
 const WORD_BYTES = 32;

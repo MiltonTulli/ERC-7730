@@ -9,7 +9,7 @@ export {
   asInputDescriptor,
   V2_SCHEMA_URI,
   GENERATED_DESCRIPTOR_COMMENT,
-} from './generate.js';
+} from './generate';
 export type {
   GenerateOptions,
   GenerateInput,
@@ -17,15 +17,15 @@ export type {
   ABI,
   ABIFunction,
   ABIParameter,
-} from './generate.js';
+} from './generate';
 
-export { validateDescriptor } from '../schema/index.js';
+export { validateDescriptor } from '../schema';
 export type {
   ValidationResult,
   ValidationIssue,
   ValidationIssue as ValidationError,
-} from '../schema/index.js';
+} from '../schema';
 
-export { inferFormat, inferLabel, solidityEnumName, nameTokens } from './inferFormat.js';
-export type { InferredFormat, InferFormatContext } from './inferFormat.js';
-export { inferIntent } from './inferIntent.js';
+export { inferFormat, inferLabel, solidityEnumName, nameTokens } from './inferFormat';
+export type { InferredFormat, InferFormatContext } from './inferFormat';
+export { inferIntent } from './inferIntent';

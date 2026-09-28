@@ -1,13 +1,13 @@
-export { decodeTransaction } from './decodeTransaction.js';
-export { decodeTypedData } from './decodeTypedData.js';
-export { decodeBatch } from './decodeBatch.js';
-export { decodeUserOp } from './decodeUserOp.js';
-export { format, formatTypedData } from './compat.js';
-export { resolvePath, PathResolveError } from './path.js';
-export { matchFormat } from './match.js';
-export { matchContext, resolveImplementation, EIP1967_IMPLEMENTATION_SLOT } from './context.js';
-export { canonicalizeDeclaration, parseDeclaration } from './abi.js';
-export { SECURITY_WARNING_TYPES } from './types.js';
+export { decodeTransaction } from './decodeTransaction';
+export { decodeTypedData } from './decodeTypedData';
+export { decodeBatch } from './decodeBatch';
+export { decodeUserOp } from './decodeUserOp';
+export { format, formatTypedData } from './compat';
+export { resolvePath, PathResolveError } from './path';
+export { matchFormat } from './match';
+export { matchContext, resolveImplementation, EIP1967_IMPLEMENTATION_SLOT } from './context';
+export { canonicalizeDeclaration, parseDeclaration } from './abi';
+export { SECURITY_WARNING_TYPES } from './types';
 
 export type {
   Address,
@@ -30,13 +30,13 @@ export type {
   TrustReport,
   TypedDataInput,
   VerifiedContractAbi,
-} from './types.js';
+} from './types';
 
-export type { BatchDecodeResult, BatchInput } from './decodeBatch.js';
-export type { UserOpInput } from './decodeUserOp.js';
+export type { BatchDecodeResult, BatchInput } from './decodeBatch';
+export type { UserOpInput } from './decodeUserOp';
 
-export type { ContextMatch, ContextMatchVia, MatchContextOptions } from './context.js';
+export type { ContextMatch, ContextMatchVia, MatchContextOptions } from './context';
 
-export type { PathContext, PathEnvelope } from './path.js';
-export type { MatchedFormat } from './match.js';
-export type { ParsedDeclaration, ParsedParam } from './abi.js';
+export type { PathContext, PathEnvelope } from './path';
+export type { MatchedFormat } from './match';
+export type { ParsedDeclaration, ParsedParam } from './abi';

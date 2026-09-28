@@ -1,6 +1,6 @@
-import type { IncludeLoader, InputDescriptor } from '../types/descriptor.js';
-import { DescriptorResolveError } from './error.js';
-import { cloneJson, isPlainObject } from './util.js';
+import type { IncludeLoader, InputDescriptor } from '../types/descriptor';
+import { DescriptorResolveError } from './error';
+import { cloneJson, isPlainObject } from './util';
 
 const MAX_INCLUDE_DEPTH = 32;
 

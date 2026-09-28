@@ -3,17 +3,17 @@
  * {@link decodeTransaction} / {@link decodeTypedData} APIs.
  */
 
-import { matchContext, resolveImplementation } from '../decode/context.js';
-import { decodeTransaction } from '../decode/decodeTransaction.js';
-import { decodeTypedData } from '../decode/decodeTypedData.js';
-import { eip712FormatMatchesLookup } from '../decode/match.js';
-import type { DecodeOptions, DecodeRegistry, DecodedOperation } from '../decode/types.js';
-import type { OfficialRegistry } from '../official-registry/types.js';
-import { createMemoryIncludeLoader, resolveDescriptor } from '../resolve/index.js';
-import { isPlainObject } from '../resolve/util.js';
-import { validateDescriptor } from '../schema/index.js';
-import type { InputDescriptor, ResolvedDescriptor } from '../types/descriptor.js';
-import type { Provider, TransactionInput, TypedDataInput } from '../types/index.js';
+import { matchContext, resolveImplementation } from '../decode/context';
+import { decodeTransaction } from '../decode/decodeTransaction';
+import { decodeTypedData } from '../decode/decodeTypedData';
+import { eip712FormatMatchesLookup } from '../decode/match';
+import type { DecodeOptions, DecodeRegistry, DecodedOperation } from '../decode/types';
+import type { OfficialRegistry } from '../official-registry/types';
+import { createMemoryIncludeLoader, resolveDescriptor } from '../resolve';
+import { isPlainObject } from '../resolve/util';
+import { validateDescriptor } from '../schema';
+import type { Provider, TransactionInput, TypedDataInput } from '../types';
+import type { InputDescriptor, ResolvedDescriptor } from '../types/descriptor';
 
 type BoundRegistry = DecodeRegistry & {
   extend(descriptors: InputDescriptor[]): void;
@@ -72,7 +72,7 @@ function createBoundRegistry(base?: DecodeRegistry | OfficialRegistry): BoundReg
     key: {
       chainId: number;
       address: `0x${string}`;
-      typedData?: import('../types/index.js').TypedDataInput;
+      typedData?: import('../types').TypedDataInput;
       provider?: Provider | null;
       fromBlock?: DecodeOptions['fromBlock'];
       toBlock?: DecodeOptions['toBlock'];
