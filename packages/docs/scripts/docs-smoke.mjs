@@ -109,11 +109,8 @@ if (!flagLine) {
   process.exit(1);
 }
 for (const flag of flagLine[1].split(',')) {
-  if (!cliRef.includes(flag) && flag !== '--sourcify') {
-    // --sourcify may appear only in the note if help is stale; still require the marker list
-  }
-  if (flag === '--sourcify' && !cliRef.includes('--sourcify')) {
-    console.error('docs smoke: CLI reference must mention --sourcify');
+  if (!cliRef.includes(flag)) {
+    console.error(`docs smoke: CLI reference missing ${flag}`);
     process.exit(1);
   }
 }

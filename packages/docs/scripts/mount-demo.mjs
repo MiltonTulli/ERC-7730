@@ -17,9 +17,9 @@ async function exists(path) {
   }
 }
 
-const needsRebuild =
-  !(await exists(join(webDist, 'index.html'))) ||
-  (!process.env.GITHUB_ACTIONS && !process.env.ERC7730_DOCS_SITE);
+// Outside GitHub Actions, always rebuild. A leftover web dist may have been
+// produced with base `/` even if ERC7730_DOCS_SITE is already set in the env.
+const needsRebuild = !(await exists(join(webDist, 'index.html'))) || !process.env.GITHUB_ACTIONS;
 
 if (needsRebuild) {
   console.log('Building @erc7730/web with docs-site base /ERC-7730/demo/ …');
