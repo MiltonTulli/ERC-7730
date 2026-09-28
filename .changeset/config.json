@@ -7,5 +7,5 @@
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "ignore": ["@erc7730/web", "@erc7730/registry"]
+  "ignore": ["@erc7730/web", "@erc7730/registry", "@erc7730/docs"]
 }

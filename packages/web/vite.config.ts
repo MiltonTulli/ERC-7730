@@ -2,8 +2,8 @@ import { resolve } from 'node:path';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  // Use repo name for GitHub Pages (https://miltontulli.github.io/ERC-7730/)
-  base: process.env.GITHUB_ACTIONS ? '/ERC-7730/' : '/',
+  // Docs site mounts the playground at /ERC-7730/demo/ on GitHub Pages.
+  base: process.env.GITHUB_ACTIONS || process.env.ERC7730_DOCS_SITE ? '/ERC-7730/demo/' : '/',
   build: {
     outDir: 'dist',
     sourcemap: false, // Disable sourcemaps for smaller build

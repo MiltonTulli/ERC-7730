@@ -1,0 +1,71 @@
+---
+title: ERC-7730 toolkit
+description: TypeScript runtime and authoring CLI for ERC-7730 clear signing — not a second registry.
+template: splash
+hero:
+  tagline: Decode with a pinned official registry and a TrustPolicy. Author descriptors next to a JS stack. Submit curated metadata to ethereum/clear-signing-erc7730-registry — not here.
+  actions:
+    - text: Wallet guide
+      link: /ERC-7730/guide/
+      icon: right-arrow
+      variant: primary
+    - text: CLI walkthrough
+      link: /ERC-7730/cli/walkthrough/
+      icon: right-arrow
+      variant: secondary
+    - text: Playground
+      link: /ERC-7730/demo/
+      variant: minimal
+      attrs:
+        target: _self
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+This repository is a **toolkit**. It is **not** a descriptor catalog and **not** the reference TypeScript implementation. The catalog is [`ethereum/clear-signing-erc7730-registry`](https://github.com/ethereum/clear-signing-erc7730-registry). Pin it by commit SHA.
+
+## Three ways in
+
+<div class="audience-grid">
+  <div class="audience-card">
+    <h3>Wallet / dApp</h3>
+    <p>Pin a SHA, inject <code>TrustPolicy</code>, decode transactions, typed data, EIP-5792 batches, and Simple Account UserOps. Read <code>source</code>, <code>confidence</code>, and <code>trust.accepted</code>.</p>
+    <p><a href="/ERC-7730/guide/">Guide</a> · <a href="/ERC-7730/trust/">Trust</a> · <a href="/ERC-7730/sdk/">SDK</a></p>
+  </div>
+  <div class="audience-card">
+    <h3>Protocol author</h3>
+    <p>Next to a JS frontend: <code>generate</code> → <code>lint</code> → <code>preview</code> → <code>scaffold</code>. Open the PR on the official registry yourself.</p>
+    <p><a href="/ERC-7730/cli/">CLI</a> · <a href="/ERC-7730/cli/walkthrough/">Walkthrough</a> · <a href="/ERC-7730/action/">CI snippet</a></p>
+  </div>
+  <div class="audience-card">
+    <h3>Toolkit contributor</h3>
+    <p>Compare resolve/lint to Ledger <code>python-erc7730</code> and Sourcify TS. Documented divergences. Explicit “what we are not”.</p>
+    <p><a href="/ERC-7730/interop/">Interop</a> · <a href="/ERC-7730/divergences/">Divergences</a> · <a href="/ERC-7730/not-this/">Not this</a></p>
+  </div>
+</div>
+
+## Runtime vs authoring vs the rest
+
+| Piece | Role |
+| --- | --- |
+| **`@erc7730/sdk`** | TypeScript **runtime**: validate, resolve, pin the official registry, decode with pluggable trust |
+| **`@erc7730/cli`** | **Authoring** binary (`erc7730`) for generate / lint / preview / scaffold / diff |
+| **Ledger `python-erc7730`** | Authoring / firmware tooling the **official registry CI** runs |
+| **Sourcify `@ethereum-sourcify/clear-signing`** | Reference-oriented TS clear-signing; this toolkit complements it with pin + policy + JS CLI |
+
+Packages are versioned independently (`sdk-v*` / `cli-v*` tags). Generated and Sourcify drafts are **never** `confidence: "high"` under `officialOnlyPolicy()`.
+
+<CardGrid>
+  <Card title="Trust model" icon="approve-check">
+    Production wallets use `officialOnlyPolicy()` or `attestedPolicy()`. The [playground](/ERC-7730/demo/) uses `officialOrLocalPolicy()` on purpose.
+  </Card>
+  <Card title="Official registry" icon="external">
+    Commit SHA pins only. `extend()` is local. New protocol metadata goes to the [official registry](https://github.com/ethereum/clear-signing-erc7730-registry).
+  </Card>
+  <Card title="Generated API" icon="seti:json">
+    [`/sdk/api`](/ERC-7730/sdk/api/) is TypeDoc from exported `@erc7730/sdk` and `@erc7730/sdk/viem` symbols — no hand-written symbol list.
+  </Card>
+  <Card title="Search" icon="magnifier">
+    Full-text search (Pagefind) works on this static site. No third-party search account.
+  </Card>
+</CardGrid>

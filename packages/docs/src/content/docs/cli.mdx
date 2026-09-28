@@ -1,0 +1,39 @@
+---
+title: CLI overview
+description: Install @erc7730/cli — authoring binary for ERC-7730 descriptors.
+---
+
+import cliPkg from '../../../../cli/package.json';
+
+<p class="version-line">This page describes <strong>@erc7730/cli@{cliPkg.version}</strong>. The SDK is versioned independently.</p>
+
+```bash
+npm install -D @erc7730/cli
+erc7730 --help
+```
+
+Requires Node 18+. npm also installs `@erc7730/sdk` and `viem` (the SDK runtime imports viem; the SDK lists that peer as optional, so the CLI depends on it directly).
+
+## CLI-only package
+
+The published public surface is the `erc7730` binary. The manifest does **not** set `main`, `types`, or `exports`. Do not import this package from application code.
+
+## Commands
+
+```bash
+erc7730 generate --chain-id 1 --address 0x... --abi ./abi.json --owner "My Protocol"
+erc7730 lint ./calldata-Foo.json
+erc7730 lint --tests ./testsv2/
+erc7730 preview --data 0x... --to 0x... --chain-id 1 --pin <sha>
+erc7730 scaffold --chain-id 1 --address 0x... --abi ./abi.json --owner "My Protocol" --out ./draft
+erc7730 diff ./calldata-Foo.json --against official --pin <sha>
+erc7730 registry update --pin <sha>
+```
+
+Generated drafts are never `confidence: "high"`. The CLI does **not** open PRs against the official registry — copy a scaffold into a fork of [`ethereum/clear-signing-erc7730-registry`](https://github.com/ethereum/clear-signing-erc7730-registry).
+
+## Next
+
+- [Command reference](/ERC-7730/cli/generate/) — generated from `help.ts`
+- [Walkthrough](/ERC-7730/cli/walkthrough/) — generate → lint → preview → scaffold
+- [Protocol CI](/ERC-7730/action/) — ABI vs descriptor stale check
