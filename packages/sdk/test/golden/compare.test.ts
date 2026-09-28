@@ -2,7 +2,7 @@ import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { resolveDescriptor } from '../../src/resolve/index.js';
+import { resolveDescriptor } from '../../src/resolve';
 import {
   type GoldenCase,
   fileLoader,
@@ -12,7 +12,7 @@ import {
   projectResolved,
   stageCases,
   stagedBaseDir,
-} from './harness.js';
+} from './harness';
 
 const manifest = loadManifest();
 let stageRoot: string;

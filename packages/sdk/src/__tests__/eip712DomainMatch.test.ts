@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { decodeTypedData } from '../decode/decodeTypedData.js';
-import { createOfficialRegistry } from '../official-registry/index.js';
-import { officialOrLocalPolicy } from '../trust/policy.js';
-import type { InputDescriptor } from '../types/descriptor.js';
+import { decodeTypedData } from '../decode/decodeTypedData';
+import { createOfficialRegistry } from '../official-registry';
+import { officialOrLocalPolicy } from '../trust/policy';
+import type { InputDescriptor } from '../types/descriptor';
 
 const VERIFYING = '0x000000000022D473030F116dDEE9F6B43aC78BA3' as const;
 

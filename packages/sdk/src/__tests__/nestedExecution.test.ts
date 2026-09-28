@@ -1,11 +1,11 @@
 import { type Hex, encodeFunctionData, parseAbi } from 'viem';
 import { describe, expect, it } from 'vitest';
-import { format } from '../decode/compat.js';
-import { decodeTransaction } from '../decode/decodeTransaction.js';
-import type { DecodeRegistry } from '../decode/types.js';
-import { createMemoryIncludeLoader, resolveDescriptor } from '../resolve/index.js';
-import { officialOrLocalPolicy } from '../trust/policy.js';
-import type { InputDescriptor, ResolvedDescriptor } from '../types/descriptor.js';
+import { format } from '../decode/compat';
+import { decodeTransaction } from '../decode/decodeTransaction';
+import type { DecodeRegistry } from '../decode/types';
+import { createMemoryIncludeLoader, resolveDescriptor } from '../resolve';
+import { officialOrLocalPolicy } from '../trust/policy';
+import type { InputDescriptor, ResolvedDescriptor } from '../types/descriptor';
 
 const USDC = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48' as const;
 const USDT = '0xdAC17F958D2ee523a2206206994597C13D831ec7' as const;

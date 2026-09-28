@@ -1,9 +1,9 @@
-import { computeSelector, getSignatureBySelector } from '../core/signatures.js';
-import { isPlainObject } from '../resolve/util.js';
-import type { TypedDataInput } from '../types/index.js';
-import type { DisplayFormat } from '../types/v2.js';
-import { type ParsedDeclaration, canonicalizeDeclaration, parseDeclaration } from './abi.js';
-import { encodeType } from './typedData.js';
+import { computeSelector, getSignatureBySelector } from '../core/signatures';
+import { isPlainObject } from '../resolve/util';
+import type { TypedDataInput } from '../types';
+import type { DisplayFormat } from '../types/v2';
+import { type ParsedDeclaration, canonicalizeDeclaration, parseDeclaration } from './abi';
+import { encodeType } from './typedData';
 
 export interface MatchedFormat {
   key: string;

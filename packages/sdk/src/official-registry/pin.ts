@@ -1,4 +1,4 @@
-import { OfficialRegistryError } from './error.js';
+import { OfficialRegistryError } from './error';
 
 const COMMIT_SHA_RE = /^[0-9a-f]{40}$/i;
 const FLOATING_REFS = new Set(['master', 'main', 'head', 'origin/master', 'origin/main']);

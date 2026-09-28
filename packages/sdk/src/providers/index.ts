@@ -8,7 +8,7 @@ export {
   isChainSupported,
   getChainName,
   getBlockExplorer,
-} from './rpc.js';
+} from './rpc';
 
 export {
   fetchFromSourcify,
@@ -16,4 +16,4 @@ export {
   type SourcifyResult,
   type SourcifyMatch,
   type SourcifyContractDetails,
-} from './sourcify.js';
+} from './sourcify';

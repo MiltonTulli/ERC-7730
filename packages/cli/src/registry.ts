@@ -8,10 +8,10 @@ import {
   createOfficialRegistry,
   isCommitSha,
 } from '@erc7730/sdk';
-import { pathExists, readJsonFile, resolveIncludePath, writeTextFile } from './fsjson.js';
-import { REGISTRY_HELP } from './help.js';
-import type { CliContext, CliResult } from './types.js';
-import { PIN_RE, UsageError } from './types.js';
+import { pathExists, readJsonFile, resolveIncludePath, writeTextFile } from './fsjson';
+import { REGISTRY_HELP } from './help';
+import type { CliContext, CliResult } from './types';
+import { PIN_RE, UsageError } from './types';
 
 const CALLDATA_INDEX = 'index.calldata.json';
 const EIP712_INDEX = 'index.eip712.json';

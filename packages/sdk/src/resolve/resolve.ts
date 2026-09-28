@@ -17,19 +17,19 @@
  * - `fields` arrays merge by `path` per EIP-7730; python-erc7730 overwrites the array.
  */
 
-import { validateDescriptor } from '../schema/validate.js';
+import { validateDescriptor } from '../schema/validate';
 import type {
   DescriptorVersion,
   IncludeLoader,
   InputDescriptor,
   ResolvedDeployment,
   ResolvedDescriptor,
-} from '../types/descriptor.js';
-import { DescriptorResolveError } from './error.js';
-import { descriptorHash } from './hash.js';
-import { mergeIncludes } from './merge.js';
-import { inlineFieldRefs } from './refs.js';
-import { cloneJson, isPlainObject } from './util.js';
+} from '../types/descriptor';
+import { DescriptorResolveError } from './error';
+import { descriptorHash } from './hash';
+import { mergeIncludes } from './merge';
+import { inlineFieldRefs } from './refs';
+import { cloneJson, isPlainObject } from './util';
 
 const ADDRESS_RE = /^0x[0-9a-fA-F]{40}$/;
 

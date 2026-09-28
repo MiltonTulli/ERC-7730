@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { PathResolveError, resolvePath } from '../decode/path.js';
-import type { ResolvedDescriptor } from '../types/descriptor.js';
+import { PathResolveError, resolvePath } from '../decode/path';
+import type { ResolvedDescriptor } from '../types/descriptor';
 
 const descriptor = {
   merged: {

@@ -1,7 +1,7 @@
 import type { AbiParameter } from 'abitype';
 import { parseAbiParameter, parseAbiParameters } from 'abitype';
-import { decodeParameters } from '../core/decoder.js';
-import { computeSelector } from '../core/signatures.js';
+import { decodeParameters } from '../core/decoder';
+import { computeSelector } from '../core/signatures';
 
 export interface ParsedParam {
   type: string;

@@ -1,5 +1,5 @@
-import { isPlainObject } from '../resolve/util.js';
-import type { ResolvedDescriptor } from '../types/descriptor.js';
+import { isPlainObject } from '../resolve/util';
+import type { ResolvedDescriptor } from '../types/descriptor';
 
 export class PathResolveError extends Error {
   readonly path: string;

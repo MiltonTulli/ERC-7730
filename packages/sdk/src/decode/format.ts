@@ -1,16 +1,16 @@
-import { formatAddress, resolveAddress } from '../formats/addressName.js';
+import { formatAddress, resolveAddress } from '../formats/addressName';
 import {
   NATIVE_CURRENCY,
   formatAmount,
   getTokenInfo,
   isInfiniteApproval,
-} from '../formats/tokenAmount.js';
-import { isPlainObject } from '../resolve/util.js';
-import type { ResolvedDescriptor } from '../types/descriptor.js';
-import type { Provider } from '../types/index.js';
-import type { DisplayField, DisplayFieldItem, ERC7730V2Metadata } from '../types/v2.js';
-import type { PathContext } from './path.js';
-import { resolvePath } from './path.js';
+} from '../formats/tokenAmount';
+import { isPlainObject } from '../resolve/util';
+import type { Provider } from '../types';
+import type { ResolvedDescriptor } from '../types/descriptor';
+import type { DisplayField, DisplayFieldItem, ERC7730V2Metadata } from '../types/v2';
+import type { PathContext } from './path';
+import { resolvePath } from './path';
 import type {
   DecodedField,
   DecodedOperation,
@@ -18,7 +18,7 @@ import type {
   FieldFormat,
   SecurityWarning,
   TransactionInput,
-} from './types.js';
+} from './types';
 
 export interface FormatOptions {
   provider?: Provider | null;

@@ -16,11 +16,11 @@
 import type { AbiEvent, AbiParameter } from 'abitype';
 import { parseAbiItem, parseAbiParameters } from 'abitype';
 import { decodeEventLog, encodeAbiParameters, keccak256, toBytes } from 'viem';
-import { isPlainObject } from '../resolve/util.js';
-import type { Hex, InputDescriptor, ResolvedDescriptor } from '../types/descriptor.js';
-import type { LogBlockTag, Provider, TransactionInput, TypedDataInput } from '../types/index.js';
-import { ZERO_ADDRESS, asAddress, asRecord } from './common.js';
-import type { Address } from './types.js';
+import { isPlainObject } from '../resolve/util';
+import type { LogBlockTag, Provider, TransactionInput, TypedDataInput } from '../types';
+import type { Hex, InputDescriptor, ResolvedDescriptor } from '../types/descriptor';
+import { ZERO_ADDRESS, asAddress, asRecord } from './common';
+import type { Address } from './types';
 
 const ADDRESS_RE = /^0x[0-9a-fA-F]{40}$/;
 

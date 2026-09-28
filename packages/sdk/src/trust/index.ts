@@ -1,15 +1,15 @@
-export { composePolicies, officialOnlyPolicy, officialOrLocalPolicy } from './policy.js';
+export { composePolicies, officialOnlyPolicy, officialOrLocalPolicy } from './policy';
 export {
   attestedPolicy,
   ERC8176_SCHEMA_UID,
   EAS_CONTRACT,
   EAS_CHAIN_ID,
   offchainAttestationUid,
-} from './attest.js';
+} from './attest';
 export {
   TRUST_REASON_CODES,
   sourceAcceptedReason,
   sourceRejectedReason,
-} from './reasons.js';
-export type { AttestedPolicyConfig } from './attest.js';
-export type { TrustReasonCode } from './reasons.js';
+} from './reasons';
+export type { AttestedPolicyConfig } from './attest';
+export type { TrustReasonCode } from './reasons';

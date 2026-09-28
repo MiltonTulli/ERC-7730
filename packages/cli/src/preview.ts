@@ -1,10 +1,10 @@
 import { parseArgs } from 'node:util';
 import { type Hex, type TransactionInput, decodeTransaction } from '@erc7730/sdk';
-import { parseAddress, parseChainId } from './fsjson.js';
-import { PREVIEW_HELP } from './help.js';
-import { openRegistry, resolvePin } from './registry.js';
-import type { CliContext, CliResult } from './types.js';
-import { HEX_RE, UsageError } from './types.js';
+import { parseAddress, parseChainId } from './fsjson';
+import { PREVIEW_HELP } from './help';
+import { openRegistry, resolvePin } from './registry';
+import type { CliContext, CliResult } from './types';
+import { HEX_RE, UsageError } from './types';
 
 function parseHex(value: string | undefined, flag: string): Hex {
   if (!value) {

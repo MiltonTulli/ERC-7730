@@ -14,10 +14,10 @@ import {
   pathExists,
   readJsonFile,
   resolvePath,
-} from './fsjson.js';
-import { LINT_HELP } from './help.js';
-import type { CliContext, CliResult, LintIssue } from './types.js';
-import { UsageError } from './types.js';
+} from './fsjson';
+import { LINT_HELP } from './help';
+import type { CliContext, CliResult, LintIssue } from './types';
+import { UsageError } from './types';
 
 function schemaIssues(errors: ValidationIssue[]): LintIssue[] {
   return errors.map((error) => ({

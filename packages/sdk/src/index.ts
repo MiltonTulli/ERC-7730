@@ -16,8 +16,8 @@
  * ```
  */
 
-import { setDefaultVerifiedAbiLoader } from './decode/abiLoader.js';
-import { fetchFromSourcify } from './providers/sourcify.js';
+import { setDefaultVerifiedAbiLoader } from './decode/abiLoader';
+import { fetchFromSourcify } from './providers/sourcify';
 
 setDefaultVerifiedAbiLoader(async (chainId, address) => {
   const result = await fetchFromSourcify(chainId, address);
@@ -27,10 +27,10 @@ setDefaultVerifiedAbiLoader(async (chainId, address) => {
   return { abi: result.abi, name: result.name || undefined };
 });
 
-export { ClearSigner, createClearSigner } from './core/ClearSigner.js';
+export { ClearSigner, createClearSigner } from './core/ClearSigner';
 
 // Core utilities
-export { decodeCalldata, extractSelector } from './core/decoder.js';
+export { decodeCalldata, extractSelector } from './core/decoder';
 export {
   getSignatureBySelector,
   COMMON_SIGNATURES,
@@ -38,7 +38,7 @@ export {
   registerSignatures,
   computeSelector,
   clearCustomSignatures,
-} from './core/signatures.js';
+} from './core/signatures';
 
 // Format utilities
 export {
@@ -47,13 +47,13 @@ export {
   isInfiniteApproval,
   KNOWN_TOKENS,
   NATIVE_CURRENCY,
-} from './formats/tokenAmount.js';
+} from './formats/tokenAmount';
 
 export {
   resolveAddress,
   formatAddress,
   KNOWN_ADDRESSES,
-} from './formats/addressName.js';
+} from './formats/addressName';
 
 // Provider utilities
 export {
@@ -69,13 +69,13 @@ export {
   // Sourcify integration
   fetchFromSourcify,
   isVerifiedOnSourcify,
-} from './providers/index.js';
+} from './providers';
 
 export type {
   SourcifyResult,
   SourcifyMatch,
   SourcifyContractDetails,
-} from './providers/index.js';
+} from './providers';
 
 // Registry
 export {
@@ -84,7 +84,7 @@ export {
   ERC20_DESCRIPTOR,
   ERC721_DESCRIPTOR,
   WETH_DESCRIPTOR,
-} from './registry/index.js';
+} from './registry';
 
 // Descriptor generation
 export {
@@ -96,9 +96,9 @@ export {
   looksLikeErc20,
   V2_SCHEMA_URI,
   GENERATED_DESCRIPTOR_COMMENT,
-} from './generate/index.js';
+} from './generate';
 
-export { validateDescriptor, validateDescriptorTests } from './schema/index.js';
+export { validateDescriptor, validateDescriptorTests } from './schema';
 
 export {
   decodeTransaction,
@@ -111,7 +111,7 @@ export {
   resolveImplementation,
   EIP1967_IMPLEMENTATION_SLOT,
   SECURITY_WARNING_TYPES,
-} from './decode/index.js';
+} from './decode';
 
 export {
   composePolicies,
@@ -122,16 +122,16 @@ export {
   EAS_CONTRACT,
   EAS_CHAIN_ID,
   TRUST_REASON_CODES,
-} from './trust/index.js';
+} from './trust';
 
 export {
   resolveDescriptor,
   descriptorHash,
   createMemoryIncludeLoader,
   DescriptorResolveError,
-} from './resolve/index.js';
+} from './resolve';
 
-export { resolvePath, PathResolveError } from './path/index.js';
+export { resolvePath, PathResolveError } from './path';
 
 export {
   createOfficialRegistry,
@@ -143,7 +143,7 @@ export {
   OFFICIAL_REGISTRY_REPO,
   VENDORED_REGISTRY_COMMIT,
   fetchPrebuiltRegistryIndex,
-} from './official-registry/index.js';
+} from './official-registry';
 
 export type {
   GenerateOptions,
@@ -152,7 +152,7 @@ export type {
   ABI,
   ABIFunction,
   ABIParameter,
-} from './generate/index.js';
+} from './generate';
 
 export type {
   DescriptorVersion,
@@ -164,7 +164,7 @@ export type {
   ValidationIssue,
   ValidationIssue as ValidationError,
   ValidationResult,
-} from './schema/index.js';
+} from './schema';
 
 export type {
   Address as RegistryAddress,
@@ -173,9 +173,9 @@ export type {
   OfficialRegistry,
   OfficialRegistryConfig,
   RegistryLookupKey,
-} from './official-registry/index.js';
+} from './official-registry';
 
-export type { PathContext, PathEnvelope, PathResolveErrorCode } from './path/index.js';
+export type { PathContext, PathEnvelope, PathResolveErrorCode } from './path';
 
 export type {
   BatchDecodeResult,
@@ -199,20 +199,20 @@ export type {
   TrustReport,
   UserOpInput,
   VerifiedContractAbi,
-} from './decode/index.js';
+} from './decode';
 
-export type { AttestedPolicyConfig, TrustReasonCode } from './trust/index.js';
+export type { AttestedPolicyConfig, TrustReasonCode } from './trust';
 
 export type {
   PrefetchRegistryIndexOptions,
   PrefetchedRegistryIndexes,
   OfficialRegistryIndexes,
-} from './official-registry/index.js';
+} from './official-registry';
 
 /**
  * @deprecated Use {@link DecodeOptions} with {@link createClearSigner}.
  */
-export type { DecodeOptions as ClearSignerConfig } from './decode/index.js';
+export type { DecodeOptions as ClearSignerConfig } from './decode';
 
 // Types
 export type {
@@ -242,4 +242,4 @@ export type {
   DecodedTransaction,
   DecodedField,
   SecurityWarning,
-} from './types/index.js';
+} from './types';

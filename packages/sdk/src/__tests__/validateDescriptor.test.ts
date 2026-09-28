@@ -2,9 +2,9 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { validateDescriptor } from '../schema/validate.js';
-import type { InputDescriptor } from '../types/descriptor.js';
-import type { ERC7730V2Descriptor } from '../types/v2.js';
+import { validateDescriptor } from '../schema/validate';
+import type { InputDescriptor } from '../types/descriptor';
+import type { ERC7730V2Descriptor } from '../types/v2';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const officialDir = join(here, 'fixtures/official');

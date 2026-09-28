@@ -1,7 +1,7 @@
 import { encodeAbiParameters, parseAbiParameters } from 'viem';
 import { describe, expect, it } from 'vitest';
-import { createClearSigner } from '../core/ClearSigner.js';
-import { decodeCalldata, decodeParameters, extractSelector } from '../core/decoder.js';
+import { createClearSigner } from '../core/ClearSigner';
+import { decodeCalldata, decodeParameters, extractSelector } from '../core/decoder';
 
 describe('extractSelector', () => {
   it('extracts selector from calldata', () => {

@@ -10,8 +10,8 @@ import type {
   FieldDefinition,
   FieldFormat,
   FunctionFormat,
-} from '../types/erc7730.js';
-import { EMBEDDED_REGISTRY } from './embedded.js';
+} from '../types/erc7730';
+import { EMBEDDED_REGISTRY } from './embedded';
 
 // Use the embedded registry
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

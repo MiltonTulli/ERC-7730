@@ -1,6 +1,6 @@
-export { validateDescriptor } from './validate.js';
-export { validateDescriptorTests } from './validateTests.js';
-export type { TestsValidationResult } from './validateTests.js';
+export { validateDescriptor } from './validate';
+export { validateDescriptorTests } from './validateTests';
+export type { TestsValidationResult } from './validateTests';
 export type {
   DescriptorVersion,
   Hex,
@@ -10,4 +10,4 @@ export type {
   ResolvedDeployment,
   ValidationIssue,
   ValidationResult,
-} from '../types/descriptor.js';
+} from '../types/descriptor';

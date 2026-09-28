@@ -1,6 +1,6 @@
 import { keccak256, toBytes } from 'viem';
-import { isPlainObject } from '../resolve/util.js';
-import type { Hex } from '../types/descriptor.js';
+import { isPlainObject } from '../resolve/util';
+import type { Hex } from '../types/descriptor';
 
 export interface TypedDataField {
   name: string;

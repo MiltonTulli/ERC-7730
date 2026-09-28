@@ -2,19 +2,19 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it } from 'vitest';
-import { computeSelector } from '../core/signatures.js';
-import { decodeTransaction } from '../decode/decodeTransaction.js';
-import { decodeTypedData } from '../decode/decodeTypedData.js';
+import { computeSelector } from '../core/signatures';
+import { decodeTransaction } from '../decode/decodeTransaction';
+import { decodeTypedData } from '../decode/decodeTypedData';
 import {
   type DecodeRegistry,
   SECURITY_WARNING_TYPES,
   type SecurityWarningType,
-} from '../decode/types.js';
-import { createOfficialRegistry } from '../official-registry/index.js';
-import { fetchFromSourcify } from '../providers/sourcify.js';
-import { createMemoryIncludeLoader, resolveDescriptor } from '../resolve/index.js';
-import type { InputDescriptor, ResolvedDescriptor } from '../types/descriptor.js';
-import type { TypedDataInput } from '../types/index.js';
+} from '../decode/types';
+import { createOfficialRegistry } from '../official-registry';
+import { fetchFromSourcify } from '../providers/sourcify';
+import { createMemoryIncludeLoader, resolveDescriptor } from '../resolve';
+import type { TypedDataInput } from '../types';
+import type { InputDescriptor, ResolvedDescriptor } from '../types/descriptor';
 
 async function sourcifyLoader(chainId: number, address: `0x${string}`) {
   const result = await fetchFromSourcify(chainId, address);

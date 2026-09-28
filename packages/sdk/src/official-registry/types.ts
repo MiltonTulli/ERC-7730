@@ -1,5 +1,5 @@
-import type { Hex, InputDescriptor, ResolvedDescriptor } from '../types/descriptor.js';
-import type { LogBlockTag, Provider, TypedDataInput } from '../types/index.js';
+import type { LogBlockTag, Provider, TypedDataInput } from '../types';
+import type { Hex, InputDescriptor, ResolvedDescriptor } from '../types/descriptor';
 
 export type Address = `0x${string}`;
 

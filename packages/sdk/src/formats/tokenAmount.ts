@@ -3,7 +3,7 @@
  * Converts raw uint256 to human-readable amount with symbol
  */
 
-import type { Provider } from '../types/index.js';
+import type { Provider } from '../types';
 
 // Well-known tokens (chainId -> address -> info)
 export const KNOWN_TOKENS: Record<number, Record<string, { symbol: string; decimals: number }>> = {

@@ -3,7 +3,7 @@
  * Resolves addresses to human-readable names (ENS, known contracts, etc.)
  */
 
-import type { Provider } from '../types/index.js';
+import type { Provider } from '../types';
 
 // Well-known contract addresses (chainId -> address -> name)
 export const KNOWN_ADDRESSES: Record<number, Record<string, string>> = {

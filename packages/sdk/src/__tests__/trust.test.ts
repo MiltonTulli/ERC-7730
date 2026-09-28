@@ -2,13 +2,13 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it } from 'vitest';
-import { decodeTransaction } from '../decode/decodeTransaction.js';
-import type { TrustContext, TrustPolicy } from '../decode/types.js';
-import { createOfficialRegistry } from '../official-registry/index.js';
-import { fetchFromSourcify } from '../providers/sourcify.js';
-import { createMemoryIncludeLoader, resolveDescriptor } from '../resolve/index.js';
-import { composePolicies, officialOnlyPolicy, officialOrLocalPolicy } from '../trust/index.js';
-import type { InputDescriptor, ResolvedDescriptor } from '../types/descriptor.js';
+import { decodeTransaction } from '../decode/decodeTransaction';
+import type { TrustContext, TrustPolicy } from '../decode/types';
+import { createOfficialRegistry } from '../official-registry';
+import { fetchFromSourcify } from '../providers/sourcify';
+import { createMemoryIncludeLoader, resolveDescriptor } from '../resolve';
+import { composePolicies, officialOnlyPolicy, officialOrLocalPolicy } from '../trust';
+import type { InputDescriptor, ResolvedDescriptor } from '../types/descriptor';
 
 async function sourcifyLoader(chainId: number, address: `0x${string}`) {
   const result = await fetchFromSourcify(chainId, address);

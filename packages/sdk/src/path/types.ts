@@ -1,4 +1,4 @@
-import type { ResolvedDescriptor } from '../types/descriptor.js';
+import type { ResolvedDescriptor } from '../types/descriptor';
 
 /**
  * Transaction / EIP-712 envelope fields addressable with `@.`.

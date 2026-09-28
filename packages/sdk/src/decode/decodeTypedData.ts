@@ -1,5 +1,5 @@
-import type { Hex, ResolvedDescriptor } from '../types/descriptor.js';
-import type { TransactionInput, TypedDataInput } from '../types/index.js';
+import type { TransactionInput, TypedDataInput } from '../types';
+import type { Hex, ResolvedDescriptor } from '../types/descriptor';
 import {
   absorbEmbedded,
   appendUntrustedWarning,
@@ -14,12 +14,12 @@ import {
   resolveTrust,
   sourceFromResolved,
   withAttestedSource,
-} from './common.js';
-import { matchContext } from './context.js';
-import { type FormatOptions, flattenFields, formatDisplayField } from './format.js';
-import { matchEip712Format } from './match.js';
-import type { PathContext } from './path.js';
-import { encodeType, hashEncodeType, normalizeTypedDataMessage } from './typedData.js';
+} from './common';
+import { matchContext } from './context';
+import { type FormatOptions, flattenFields, formatDisplayField } from './format';
+import { matchEip712Format } from './match';
+import type { PathContext } from './path';
+import { encodeType, hashEncodeType, normalizeTypedDataMessage } from './typedData';
 import type {
   Address,
   DecodeOptions,
@@ -28,8 +28,8 @@ import type {
   DecodedOperation,
   SecurityWarning,
   TrustReport,
-} from './types.js';
-import { finalizeDecodedWarnings } from './warnings.js';
+} from './types';
+import { finalizeDecodedWarnings } from './warnings';
 
 function chainIdOf(data: TypedDataInput): number | undefined {
   const raw = data.chainId ?? data.domain.chainId;

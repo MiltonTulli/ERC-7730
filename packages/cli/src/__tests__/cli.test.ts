@@ -6,7 +6,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { VENDORED_REGISTRY_COMMIT, validateDescriptor } from '@erc7730/sdk';
 import { afterEach, describe, expect, it } from 'vitest';
-import { runCli } from '../run.js';
+import { runCli } from '../run';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const fixtures = join(here, 'fixtures');

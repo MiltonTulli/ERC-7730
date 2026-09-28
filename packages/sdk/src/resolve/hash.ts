@@ -7,8 +7,8 @@
  */
 
 import { keccak256, toBytes } from 'viem';
-import type { Hex, InputDescriptor } from '../types/descriptor.js';
-import { isPlainObject } from './util.js';
+import type { Hex, InputDescriptor } from '../types/descriptor';
+import { isPlainObject } from './util';
 
 const ADDRESS_RE = /^0x[0-9a-fA-F]{40}$/;
 

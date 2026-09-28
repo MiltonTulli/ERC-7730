@@ -1,4 +1,4 @@
-import type { DescriptorCache } from './types.js';
+import type { DescriptorCache } from './types';
 
 export function createMemoryDescriptorCache(): DescriptorCache {
   const store = new Map<string, unknown>();

@@ -1,6 +1,6 @@
-export * from './erc7730.js';
-export * from './descriptor.js';
-export * from './v2.js';
+export * from './erc7730';
+export * from './descriptor';
+export * from './v2';
 
 /**
  * Transaction input for decoding
@@ -94,7 +94,7 @@ export interface RegistryConfig {
   embedded?: boolean;
 
   /** Additional custom descriptors */
-  custom?: import('./erc7730.js').ERC7730Descriptor[];
+  custom?: import('./erc7730').ERC7730Descriptor[];
 }
 
 /**

@@ -3,7 +3,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { keccak256, toBytes } from 'viem';
 import { describe, expect, it } from 'vitest';
-import { EIP1967_IMPLEMENTATION_SLOT } from '../decode/context.js';
+import { EIP1967_IMPLEMENTATION_SLOT } from '../decode/context';
 import {
   OfficialRegistryError,
   VENDORED_REGISTRY_COMMIT,
@@ -11,9 +11,9 @@ import {
   createOfficialRegistry,
   isCommitSha,
   toCaip10,
-} from '../official-registry/index.js';
-import type { InputDescriptor } from '../types/descriptor.js';
-import type { Provider } from '../types/index.js';
+} from '../official-registry';
+import type { Provider } from '../types';
+import type { InputDescriptor } from '../types/descriptor';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const fixtures = join(here, 'fixtures');

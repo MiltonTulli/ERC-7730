@@ -11,11 +11,11 @@ import {
   parseAddress,
   readJsonFile,
   resolvePath,
-} from './fsjson.js';
-import { DIFF_HELP } from './help.js';
-import { openRegistry, resolvePin } from './registry.js';
-import type { CliContext, CliResult } from './types.js';
-import { UsageError } from './types.js';
+} from './fsjson';
+import { DIFF_HELP } from './help';
+import { openRegistry, resolvePin } from './registry';
+import type { CliContext, CliResult } from './types';
+import { UsageError } from './types';
 
 interface FieldSlice {
   path?: unknown;

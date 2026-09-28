@@ -1,9 +1,9 @@
 import type { TransactionRequest, TypedDataDefinition } from 'viem';
 import { describe, expect, it } from 'vitest';
-import { decodeTransaction } from '../decode/decodeTransaction.js';
-import { decodeTypedData } from '../decode/decodeTypedData.js';
-import { officialOnlyPolicy } from '../trust/index.js';
-import { decodeViemTransaction, decodeViemTypedData } from '../viem.js';
+import { decodeTransaction } from '../decode/decodeTransaction';
+import { decodeTypedData } from '../decode/decodeTypedData';
+import { officialOnlyPolicy } from '../trust';
+import { decodeViemTransaction, decodeViemTypedData } from '../viem';
 
 const to = '0x1111111111111111111111111111111111111111' as const;
 const options = {

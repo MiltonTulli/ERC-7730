@@ -6,8 +6,8 @@ import {
   inferIntent,
   looksLikeErc20,
   solidityEnumName,
-} from '../generate/index.js';
-import { validateDescriptor } from '../schema/validate.js';
+} from '../generate';
+import { validateDescriptor } from '../schema/validate';
 
 const USDC = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48';
 const ROUTER = '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D';

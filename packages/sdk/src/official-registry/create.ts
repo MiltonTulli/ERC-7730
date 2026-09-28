@@ -1,11 +1,11 @@
-import { matchContext, resolveImplementation } from '../decode/context.js';
-import { eip712FormatMatchesLookup } from '../decode/match.js';
-import { resolveDescriptor } from '../resolve/resolve.js';
-import { isPlainObject } from '../resolve/util.js';
-import { validateDescriptor } from '../schema/validate.js';
-import type { IncludeLoader, InputDescriptor, ResolvedDescriptor } from '../types/descriptor.js';
-import { cacheKey, createMemoryDescriptorCache } from './cache.js';
-import { OfficialRegistryError } from './error.js';
+import { matchContext, resolveImplementation } from '../decode/context';
+import { eip712FormatMatchesLookup } from '../decode/match';
+import { resolveDescriptor } from '../resolve/resolve';
+import { isPlainObject } from '../resolve/util';
+import { validateDescriptor } from '../schema/validate';
+import type { IncludeLoader, InputDescriptor, ResolvedDescriptor } from '../types/descriptor';
+import { cacheKey, createMemoryDescriptorCache } from './cache';
+import { OfficialRegistryError } from './error';
 import {
   DEFAULT_OFFICIAL_REGISTRY_BASE_URL,
   OFFICIAL_REGISTRY_REPO,
@@ -14,8 +14,8 @@ import {
   registryFileUrl,
   resolveRegistryPath,
   toCaip10,
-} from './paths.js';
-import { assertRegistryPin } from './pin.js';
+} from './paths';
+import { assertRegistryPin } from './pin';
 import type {
   CalldataIndex,
   DescriptorCache,
@@ -24,7 +24,7 @@ import type {
   OfficialRegistry,
   OfficialRegistryConfig,
   RegistryLookupKey,
-} from './types.js';
+} from './types';
 
 const CALLDATA_INDEX = 'index.calldata.json';
 const EIP712_INDEX = 'index.eip712.json';

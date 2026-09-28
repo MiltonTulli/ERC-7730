@@ -21,7 +21,7 @@ This repository is a small toolkit. It is **not** the descriptor catalog and **n
 | `@erc7730/web` | Browser playground (mounted at `/demo` on Pages) | private |
 | `@erc7730/docs` | Starlight docs site deployed to GitHub Pages | private |
 
-`@erc7730/sdk` and `@erc7730/cli` are versioned and released independently (`sdk-v*` / `cli-v*` tags). See [RELEASE.md](./RELEASE.md). Product direction: [ROADMAP.md](./ROADMAP.md).
+`@erc7730/sdk` and `@erc7730/cli` are versioned and released independently (`sdk-v*` / `cli-v*` tags). See [RELEASE.md](./RELEASE.md). Product direction: [ROADMAP.md](./ROADMAP.md). Authoring imports: [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## Install
 

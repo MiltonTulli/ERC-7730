@@ -4,8 +4,8 @@ import type {
   TrustContext,
   TrustPolicy,
   TrustReport,
-} from '../decode/types.js';
-import { sourceAcceptedReason, sourceRejectedReason } from './reasons.js';
+} from '../decode/types';
+import { sourceAcceptedReason, sourceRejectedReason } from './reasons';
 
 const OFFICIAL_SOURCES: ReadonlySet<DecodeSource> = new Set(['official-registry', 'attested']);
 

@@ -1,8 +1,8 @@
-import { officialOrLocalPolicy } from '../trust/policy.js';
-import type { TransactionInput, TypedDataInput } from '../types/index.js';
-import { decodeTransaction } from './decodeTransaction.js';
-import { decodeTypedData } from './decodeTypedData.js';
-import type { DecodeOptions, DecodedOperation } from './types.js';
+import { officialOrLocalPolicy } from '../trust/policy';
+import type { TransactionInput, TypedDataInput } from '../types';
+import { decodeTransaction } from './decodeTransaction';
+import { decodeTypedData } from './decodeTypedData';
+import type { DecodeOptions, DecodedOperation } from './types';
 
 function withDefaultPolicy(options?: DecodeOptions): DecodeOptions | undefined {
   if (options?.trust) {

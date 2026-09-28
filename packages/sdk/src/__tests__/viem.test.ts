@@ -1,11 +1,11 @@
 import { readFile } from 'node:fs/promises';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { decodeTransaction } from '../decode/decodeTransaction.js';
-import { decodeTypedData } from '../decode/decodeTypedData.js';
-import type { DecodeOptions } from '../decode/types.js';
+import { decodeTransaction } from '../decode/decodeTransaction';
+import { decodeTypedData } from '../decode/decodeTypedData';
+import type { DecodeOptions } from '../decode/types';
 
-vi.mock('../decode/decodeTransaction.js', () => ({ decodeTransaction: vi.fn() }));
-vi.mock('../decode/decodeTypedData.js', () => ({ decodeTypedData: vi.fn() }));
+vi.mock('../decode/decodeTransaction', () => ({ decodeTransaction: vi.fn() }));
+vi.mock('../decode/decodeTypedData', () => ({ decodeTypedData: vi.fn() }));
 
 const to = '0x1111111111111111111111111111111111111111' as const;
 
@@ -15,7 +15,7 @@ beforeEach(() => {
 
 describe('viem transaction adapter', () => {
   it('forwards the transaction and decode options without losing bigint precision', async () => {
-    const adapter = await import('../viem.js');
+    const adapter = await import('../viem');
     const tx = { to, data: '0x12345678' as const, chainId: 1, value: 2n ** 100n, from: to };
     const options: DecodeOptions = { provider: null, useSourcifyFallback: false, locale: 'es' };
     const result = { intent: 'test result' };
@@ -29,7 +29,7 @@ describe('viem transaction adapter', () => {
   });
 
   it('preserves omitted options and propagates core failures', async () => {
-    const adapter = await import('../viem.js');
+    const adapter = await import('../viem');
     const tx = { to, data: '0x' as const, chainId: 1 };
     const error = new Error('registry unavailable');
     vi.mocked(decodeTransaction).mockRejectedValueOnce(error);
@@ -40,7 +40,7 @@ describe('viem transaction adapter', () => {
 
 describe('viem typed-data adapter', () => {
   it('copies readonly type fields and forwards domain, message and options unchanged', async () => {
-    const adapter = await import('../viem.js');
+    const adapter = await import('../viem');
     const types = Object.freeze({
       Permit: Object.freeze([Object.freeze({ name: 'value', type: 'uint256' })]),
     });
@@ -68,7 +68,7 @@ describe('viem typed-data adapter', () => {
   });
 
   it('normalizes an omitted domain to the empty domain required by the core', async () => {
-    const adapter = await import('../viem.js');
+    const adapter = await import('../viem');
     await adapter.decodeViemTypedData({ types: { Mail: [] }, primaryType: 'Mail', message: {} });
     expect(decodeTypedData).toHaveBeenCalledWith(
       { types: { Mail: [] }, primaryType: 'Mail', domain: {}, message: {} },
@@ -77,7 +77,7 @@ describe('viem typed-data adapter', () => {
   });
 
   it('propagates typed-data core failures', async () => {
-    const adapter = await import('../viem.js');
+    const adapter = await import('../viem');
     const error = new Error('registry unavailable');
     vi.mocked(decodeTypedData).mockRejectedValueOnce(error);
     await expect(

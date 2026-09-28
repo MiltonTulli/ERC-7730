@@ -1,5 +1,5 @@
-import { DescriptorResolveError } from './error.js';
-import { isPlainObject } from './util.js';
+import { DescriptorResolveError } from './error';
+import { isPlainObject } from './util';
 
 const DEFINITIONS_PREFIX = '$.display.definitions.';
 
