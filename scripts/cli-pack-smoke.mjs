@@ -131,6 +131,30 @@ try {
     fail(`erc7730 --help did not list commands:\n${help}`);
   }
 
+  const expectedVersion = JSON.parse(readFileSync(join(cliDir, 'package.json'), 'utf8')).version;
+  const version = execFileSync(bin, ['--version'], { encoding: 'utf8' }).trim();
+  if (version !== expectedVersion) {
+    fail(`erc7730 --version printed ${version}, expected ${expectedVersion}`);
+  }
+
+  execFileSync(
+    process.execPath,
+    [
+      '--input-type=module',
+      '-e',
+      [
+        "import * as sdk from '@erc7730/sdk';",
+        "import * as lite from '@erc7730/sdk/lite';",
+        "import * as viem from '@erc7730/sdk/viem';",
+        "if (typeof sdk.decodeTransaction !== 'function') throw new Error('packed sdk missing decodeTransaction');",
+        "if (typeof lite.decodeTransaction !== 'function') throw new Error('packed lite missing decodeTransaction');",
+        "if (typeof lite.createOfficialRegistry !== 'function') throw new Error('packed lite missing createOfficialRegistry');",
+        "if (typeof viem.decodeViemTransaction !== 'function') throw new Error('packed viem missing decodeViemTransaction');",
+      ].join('\n'),
+    ],
+    { cwd: app, stdio: 'inherit' }
+  );
+
   execFileSync(bin, ['lint', validDescriptor], { stdio: 'inherit' });
 
   let invalidStatus = 0;

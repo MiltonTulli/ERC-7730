@@ -107,7 +107,7 @@ The first publish **will fail** until Trusted Publishing is saved on npmjs.com. 
 
 ### 4. Branch protection
 
-Protect `main` and require the `CI` workflow (lint + Node 20/22 build/test). Pages and Release are separate.
+Protect `main` and require the `CI` workflow (lint + Node 22/24 build/test). Building this repo needs Node 22.18 or newer because tsdown publishes the SDK and CLI. The published packages still declare `engines.node` of `>=18`. Pages and Release are separate.
 
 ## Emergency / broken bot
 

@@ -10,7 +10,7 @@
     "lint:fix": "biome check --write .",
     "format": "biome format --write .",
     "clean": "turbo clean && rm -rf node_modules/.cache",
-    "typecheck": "tsc -b && pnpm --filter @erc7730/sdk typecheck:consumer",
+    "typecheck": "pnpm --filter @erc7730/sdk --filter @erc7730/cli --filter @erc7730/web typecheck && pnpm exec tsc -p packages/registry/tsconfig.json --noEmit && pnpm --filter @erc7730/sdk typecheck:consumer",
     "prepare": "simple-git-hooks",
     "golden:python": "tsx scripts/golden-python-erc7730.ts",
     "cli:pack-smoke": "node scripts/cli-pack-smoke.mjs",
@@ -32,7 +32,7 @@
   },
   "packageManager": "pnpm@10.28.0",
   "engines": {
-    "node": ">=18"
+    "node": ">=22.18.0"
   },
   "version": "0.0.1",
   "pnpm": {

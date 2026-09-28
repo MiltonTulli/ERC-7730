@@ -22,8 +22,8 @@
   },
   "files": ["dist", "!dist/**/*.map", "!dist/**/*.tsbuildinfo"],
   "scripts": {
-    "build": "node scripts/build.js",
-    "dev": "tsc --watch",
+    "build": "node scripts/build.js && tsdown",
+    "dev": "tsdown --watch",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
@@ -50,6 +50,7 @@
     "@types/node": "^20.11.0",
     "@vitest/coverage-v8": "^1.2.0",
     "publint": "0.3.24",
+    "tsdown": "0.23.0",
     "typescript": "^5.3.3",
     "viem": "^2.21.0",
     "vitest": "^1.2.0"
