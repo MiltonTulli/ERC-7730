@@ -5,15 +5,12 @@
   "description": "Community-driven ERC-7730 descriptor registry",
   "type": "module",
   "main": "./dist/registry.json",
-  "types": "./types/registry.d.ts",
+  "types": "./types/registry.ts",
   "exports": {
     ".": {
-      "types": "./types/registry.d.ts",
-      "import": "./dist/registry.json"
-    },
-    "./types": {
-      "types": "./types/registry.d.ts",
-      "import": "./types/registry.js"
+      "types": "./types/registry.ts",
+      "import": "./dist/registry.json",
+      "default": "./dist/registry.json"
     }
   },
   "scripts": {
