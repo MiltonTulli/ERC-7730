@@ -42,7 +42,7 @@ Naming (fixtures only):
 pnpm build
 ```
 
-This generates `dist/index.json` with an index of all descriptors. That index is a snapshot, not the live CAIP-10 maps (`index.calldata.json` / `index.eip712.json`) wallets should pin.
+This generates `dist/registry.json` with an index of all descriptors. That index is a snapshot, not the live CAIP-10 maps (`index.calldata.json` / `index.eip712.json`) wallets should pin. The package export `.` points at that JSON file. Workspace TypeScript reads the descriptor interfaces from `types/registry.ts`.
 
 ## License
 
