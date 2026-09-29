@@ -95,9 +95,10 @@ async function build() {
     `  ✓ Reduced from ${(originalSize / 1024).toFixed(0)}KB to ${(minifiedSize / 1024).toFixed(0)}KB (${reduction}% smaller)`
   );
 
-  // Generate the embedded registry module (minified JSON, no pretty print)
+  // Generate the embedded registry module (minified JSON, no pretty print).
+  // Concatenate the JSON so a `${` inside a descriptor cannot expand in this template.
   console.log('\nGenerating embedded registry...');
-  const embeddedContent = `/**
+  const embeddedHeader = `/**
  * Embedded ERC-7730 Registry (Minified)
  *
  * Auto-generated from @erc7730/registry - DO NOT EDIT
@@ -112,8 +113,10 @@ async function build() {
  * Note: ABIs are removed to reduce size. Use Sourcify fallback for full ABI.
  */
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const EMBEDDED_REGISTRY: any = ${JSON.stringify(minifiedRegistry)};
+import type { EmbeddedRegistry } from './embeddedTypes';
+
+export const EMBEDDED_REGISTRY: EmbeddedRegistry = `;
+  const embeddedContent = `${embeddedHeader}${JSON.stringify(minifiedRegistry)};
 
 export default EMBEDDED_REGISTRY;
 `;
