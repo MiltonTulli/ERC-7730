@@ -1,5 +1,11 @@
 # @erc7730/sdk
 
+## 0.6.3
+
+### Patch Changes
+
+- 68bcbc0: Type the minified embedded registry so a malformed catalog fails typecheck, and drop `any` from the embed loader.
+
 ## 0.6.2
 
 ### Patch Changes

@@ -1,5 +1,12 @@
 # @erc7730/cli
 
+## 0.3.4
+
+### Patch Changes
+
+- Updated dependencies [68bcbc0]
+  - @erc7730/sdk@0.6.3
+
 ## 0.3.3
 
 ### Patch Changes
