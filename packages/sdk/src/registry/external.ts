@@ -9,18 +9,15 @@ import type {
   ERC7730Descriptor,
   FieldDefinition,
   FieldFormat,
+  FormatParams,
   FunctionFormat,
 } from '../types/erc7730';
 import { EMBEDDED_REGISTRY } from './embedded';
+import type { EmbeddedDescriptor, EmbeddedField, EmbeddedFunctionFormat } from './embeddedTypes';
 
-// Use the embedded registry
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const registry = EMBEDDED_REGISTRY as any;
+const registry = EMBEDDED_REGISTRY;
 
-/**
- * Supported field formats in the SDK
- */
-const SUPPORTED_FORMATS: Set<string> = new Set([
+const FIELD_FORMATS: ReadonlySet<string> = new Set<FieldFormat>([
   'raw',
   'addressName',
   'tokenAmount',
@@ -32,76 +29,89 @@ const SUPPORTED_FORMATS: Set<string> = new Set([
   'unit',
 ]);
 
+function isFieldFormat(format: string): format is FieldFormat {
+  return FIELD_FORMATS.has(format);
+}
+
 /**
- * Convert external field definition to SDK field definition
+ * Format params in the embed are an open object. `FieldDefinition` names the
+ * params the SDK formatters read; keep the object and narrow to that union.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function convertField(field: any): FieldDefinition | null {
+function readParams(params: EmbeddedField['params']): FormatParams | undefined {
+  if (!params) {
+    return undefined;
+  }
+  return params as FormatParams;
+}
+
+function readChainId(chainId: number | string): number | undefined {
+  if (typeof chainId === 'number' && Number.isFinite(chainId)) {
+    return chainId;
+  }
+  if (typeof chainId === 'string' && /^\d+$/.test(chainId)) {
+    return Number(chainId);
+  }
+  return undefined;
+}
+
+function textOrUndefined(value: string | null | undefined): string | undefined {
+  return typeof value === 'string' && value.length > 0 ? value : undefined;
+}
+
+function convertField(field: EmbeddedField): FieldDefinition | null {
   // Skip fields that use $ref without label/format (definition references)
   if (field.$ref && !field.label) {
     return null;
   }
 
-  const format = field.format as string;
-  const normalizedFormat = SUPPORTED_FORMATS.has(format) ? (format as FieldFormat) : undefined;
-
   return {
-    path: field.path || '',
-    label: field.label || field.$id || 'Unknown',
-    format: normalizedFormat,
-    params: field.params,
+    path: typeof field.path === 'string' ? field.path : '',
+    label: textOrUndefined(field.label) ?? textOrUndefined(field.$id) ?? 'Unknown',
+    format: field.format && isFieldFormat(field.format) ? field.format : undefined,
+    params: readParams(field.params),
   };
 }
 
-/**
- * Convert external registry format to SDK descriptor format
- */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function convertToDescriptor(entry: any): ERC7730Descriptor {
+function readIntent(format: EmbeddedFunctionFormat): string | undefined {
+  return textOrUndefined(format.intent) ?? textOrUndefined(format.$id);
+}
+
+function convertToDescriptor(entry: EmbeddedDescriptor): ERC7730Descriptor {
   const formats: Record<string, FunctionFormat> = {};
 
-  if (entry.display?.formats) {
-    for (const [selector, format] of Object.entries(entry.display.formats)) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const extFormat = format as any;
+  for (const [selector, format] of Object.entries(entry.display?.formats ?? {})) {
+    const fields = (format.fields ?? [])
+      .map((field) => convertField(field))
+      .filter((field): field is FieldDefinition => field !== null);
 
-      // Convert fields, filtering out null (unsupported field types)
-      const fields: FieldDefinition[] = (extFormat.fields || [])
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .map((f: any) => convertField(f))
-        .filter((f: FieldDefinition | null): f is FieldDefinition => f !== null);
-
-      formats[selector] = {
-        intent: extFormat.intent || extFormat.$id,
-        fields,
-        required: extFormat.required,
-        excluded: extFormat.excluded,
-      };
-    }
+    formats[selector] = {
+      intent: readIntent(format),
+      fields,
+      required: format.required,
+      excluded: format.excluded ?? undefined,
+    };
   }
 
-  // Build deployments array
-  const deployments =
-    entry.context?.contract?.deployments?.map(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (d: any) => ({
-        chainId: d.chainId,
-        address: d.address,
-      })
-    ) || [];
+  const deployments: { chainId: number; address: string }[] = [];
+  for (const deployment of entry.context?.contract?.deployments ?? []) {
+    const chainId = readChainId(deployment.chainId);
+    if (chainId === undefined) {
+      continue;
+    }
+    deployments.push({
+      chainId,
+      address: deployment.address,
+    });
+  }
 
   return {
     context: {
-      $id: entry.context?.$id,
       contract: deployments.length > 0 ? { deployments } : undefined,
-      // Skip eip712 context for now as the format may vary
     },
     metadata: entry.metadata
       ? {
           owner: entry.metadata.owner,
           info: entry.metadata.info,
-          constants: entry.metadata.constants,
-          enums: entry.metadata.enums,
         }
       : undefined,
     display: {
@@ -114,7 +124,7 @@ function convertToDescriptor(entry: any): ERC7730Descriptor {
  * Get all descriptors from the external registry
  */
 export function getExternalDescriptors(): ERC7730Descriptor[] {
-  return Object.values(registry.descriptors || {}).map(convertToDescriptor);
+  return Object.values(registry.descriptors).map(convertToDescriptor);
 }
 
 /**
@@ -124,17 +134,18 @@ export function findBySelector(
   selector: string
 ): { descriptor: ERC7730Descriptor; format: FunctionFormat }[] {
   const normalizedSelector = selector.toLowerCase();
-  const ids = registry.bySelector?.[normalizedSelector] || [];
+  const ids = registry.bySelector[normalizedSelector] ?? [];
 
   const results: { descriptor: ERC7730Descriptor; format: FunctionFormat }[] = [];
 
   for (const id of ids) {
-    const entry = registry.descriptors?.[id];
-    if (!entry) continue;
+    const entry = registry.descriptors[id];
+    if (!entry) {
+      continue;
+    }
 
     const descriptor = convertToDescriptor(entry);
 
-    // Find the matching format
     for (const [sig, format] of Object.entries(descriptor.display.formats)) {
       if (sig.toLowerCase() === normalizedSelector) {
         results.push({ descriptor, format });
@@ -151,29 +162,24 @@ export function findBySelector(
  */
 export function findByAddress(address: string, chainId: number): ERC7730Descriptor[] {
   const key = `${chainId}:${address.toLowerCase()}`;
-  const ids = registry.byAddress?.[key] || [];
+  const ids = registry.byAddress[key] ?? [];
+  const descriptors: ERC7730Descriptor[] = [];
 
-  return (
-    ids
-      .map((id: string) => registry.descriptors?.[id])
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .filter((entry: any) => !!entry)
-      .map(convertToDescriptor)
-  );
+  for (const id of ids) {
+    const entry = registry.descriptors[id];
+    if (entry) {
+      descriptors.push(convertToDescriptor(entry));
+    }
+  }
+
+  return descriptors;
 }
 
 /**
  * Get registry statistics
  */
 export function getStats() {
-  return (
-    registry.stats || {
-      protocols: 0,
-      descriptors: 0,
-      selectors: 0,
-      addresses: 0,
-    }
-  );
+  return registry.stats;
 }
 
 export { registry as EXTERNAL_REGISTRY };
