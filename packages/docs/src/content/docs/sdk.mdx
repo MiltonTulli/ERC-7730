@@ -23,6 +23,31 @@ npm install viem
 
 ## Quick start
 
+### 1. Smallest call (intent + fields)
+
+```ts
+import { createOfficialRegistry, decodeTransaction } from '@erc7730/sdk';
+
+const registry = createOfficialRegistry();
+
+const result = await decodeTransaction(
+  {
+    to: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+    data: '0xd0e30db0',
+    value: 10n ** 18n,
+    chainId: 1,
+  },
+  { registry }
+);
+
+console.log(result.interpolatedIntent ?? result.intent);
+console.log(result.fields);
+```
+
+### 2. Production (explicit pin + trust)
+
+Same call with a frozen SHA and `officialOnlyPolicy()`. That policy rejects Sourcify / `generateDescriptor` / inferred / basic as high confidence:
+
 ```ts
 import {
   createOfficialRegistry,
@@ -31,9 +56,8 @@ import {
   VENDORED_REGISTRY_COMMIT,
 } from '@erc7730/sdk';
 
-// Defaults to VENDORED_REGISTRY_COMMIT. Production: pass an explicit pin.
-const registry = createOfficialRegistry();
-// const registry = createOfficialRegistry({ pin: VENDORED_REGISTRY_COMMIT });
+const registry = createOfficialRegistry({ pin: VENDORED_REGISTRY_COMMIT });
+
 const result = await decodeTransaction(tx, {
   registry,
   trust: officialOnlyPolicy(),
@@ -41,12 +65,11 @@ const result = await decodeTransaction(tx, {
 
 console.log(result.interpolatedIntent ?? result.intent);
 console.log(result.source, result.confidence, result.trust.accepted);
-console.log('default pin', VENDORED_REGISTRY_COMMIT);
 ```
 
 The tarball does not ship a descriptor catalog. With no network, pass `indexes` and `cache`. ERC-20, ERC-721, and WETH builtins stay as local fallbacks.
 
-Prefer [the wallet guide](/ERC-7730/guide/) for prefetch, `ExternalDataProvider`, `trustedTokens`, batch, and UserOp.
+Prefer [the wallet guide](/ERC-7730/guide/) for prefetch, `extend()`, `ExternalDataProvider` (token / ENS / NFT — the SDK does no RPC), `trustedTokens`, batch, and UserOp.
 
 ## Next
 

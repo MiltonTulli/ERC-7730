@@ -1,6 +1,6 @@
 # Wallet integration guide
 
-How to wire `@erc7730/sdk` into a wallet as a clear-signing drop-in. Structure matches the Sourcify TS guide. Quick starts may omit `pin` (the SDK defaults to `VENDORED_REGISTRY_COMMIT`); production wallets should still pass an explicit SHA and a trust policy.
+How to wire `@erc7730/sdk` into a wallet as a clear-signing drop-in. Structure matches the Sourcify TS guide: smallest call first, then the production path, then the rest.
 
 ## 1. Install
 
@@ -12,9 +12,57 @@ npm install viem
 
 The published package does not include a descriptor catalog. `@erc7730/sdk/lite` is a deprecated narrower entry (it omits the Sourcify client and `generateDescriptor` from that graph). It is not a separate install and it is not how descriptors are loaded. Importing `@erc7730/sdk` does not register an ABI loader.
 
-## 2. Prefetch the official indexes
+## 2. Smallest call (intent + fields)
 
-Descriptors live in [`ethereum/clear-signing-erc7730-registry`](https://github.com/ethereum/clear-signing-erc7730-registry). `createOfficialRegistry()` with no pin uses `VENDORED_REGISTRY_COMMIT` (a commit SHA shipped with the SDK, not `master`). Production wallets should still pass an explicit pin. Fetch the indexes once at app boot and keep the object yourself:
+`createOfficialRegistry()` with no pin uses `VENDORED_REGISTRY_COMMIT` (a commit SHA shipped with the SDK). Paste this, print an intent, then harden:
+
+```ts
+import { createOfficialRegistry, decodeTransaction } from '@erc7730/sdk';
+
+const registry = createOfficialRegistry();
+
+const result = await decodeTransaction(
+  {
+    to: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+    data: '0xd0e30db0',
+    value: 10n ** 18n,
+    chainId: 1,
+  },
+  { registry }
+);
+
+console.log(result.interpolatedIntent ?? result.intent);
+console.log(result.fields);
+```
+
+## 3. Production (explicit pin + trust)
+
+Same call with a frozen SHA and `officialOnlyPolicy()`. That policy rejects Sourcify / `generateDescriptor` / inferred / basic as high confidence. Clear signing is not ABI pretty-printing.
+
+```ts
+import {
+  createOfficialRegistry,
+  decodeTransaction,
+  officialOnlyPolicy,
+  VENDORED_REGISTRY_COMMIT,
+} from '@erc7730/sdk';
+
+const registry = createOfficialRegistry({ pin: VENDORED_REGISTRY_COMMIT });
+
+const result = await decodeTransaction(tx, {
+  registry,
+  trust: officialOnlyPolicy(),
+});
+
+console.log(result.interpolatedIntent ?? result.intent);
+console.log(result.source, result.confidence, result.trust.accepted);
+```
+
+Full source × policy × confidence table: [`trust-table.md`](./trust-table.md) (also [/trust](https://miltontulli.github.io/ERC-7730/trust/) on the docs site). Or require ERC-8176 attestations — see [Attestations](#8-attestations) below.
+
+## 4. Prefetch the official indexes
+
+Descriptors live in [`ethereum/clear-signing-erc7730-registry`](https://github.com/ethereum/clear-signing-erc7730-registry). Fetch the indexes once at app boot and keep the object yourself:
 
 ```ts
 import {
@@ -23,63 +71,26 @@ import {
   VENDORED_REGISTRY_COMMIT,
 } from '@erc7730/sdk';
 
-// Quick start (no pin): createOfficialRegistry() uses VENDORED_REGISTRY_COMMIT.
-const registryQuick = createOfficialRegistry();
-
-// Production: freeze your own SHA (often the vendored constant, or a newer pin you chose).
 const pin = VENDORED_REGISTRY_COMMIT;
 const indexes = await fetchPrebuiltRegistryIndex({ pin });
 const registry = createOfficialRegistry({ pin, indexes });
-
-// Local floating ref only — never the default:
-// createOfficialRegistry({ ref: 'master' })
 ```
 
 Passing `indexes` means those two files are not fetched again. You can also bundle the JSON at build time. With no network, pass `indexes` and a `cache`. ERC-20, ERC-721, and WETH builtins (`ERC20_DESCRIPTOR`, `ERC721_DESCRIPTOR`, `WETH_DESCRIPTOR`) stay local fallbacks. They are not a catalog.
 
-## 3. Production trust policy
+## 5. Local overrides with `extend()`
 
-Do not show unreviewed registry metadata as high confidence in production. Full source × policy × confidence table: [`trust-table.md`](./trust-table.md) (also [/trust](https://miltontulli.github.io/ERC-7730/trust/) on the docs site).
-
-```ts
-import { officialOnlyPolicy, attestedPolicy } from '@erc7730/sdk';
-
-// Pin-only: accept official-registry / attested provenance.
-const trust = officialOnlyPolicy();
-
-// Or require ERC-8176 attestations from auditors you trust
-// (files under registry/<project>/sigs/ in the official registry).
-const trustAttested = attestedPolicy({
-  attesters: ['0x3846c3A30E62075Fa916216b35EF04B8F53931f6'],
-  eas: {
-    // Required. eth_call to the EAS contract on Ethereum mainnet for revokeOffchain.
-    call: async (chainId, { to, data }) => rpcEthCall(chainId, to, data),
-  },
-});
-```
-
-Without `eas.call`, `attestedPolicy` fails closed (`ATTESTATION_OPTIONS_INCOMPLETE` / `NO_TRUSTED_ATTESTATION`). The SDK never issues attestations.
-
-Load attestation JSON with `createOfficialRegistry({ pin, attachAttestations: true })`, or set `ResolvedDescriptor.attestations` yourself in tests.
-
-## 4. Trusted token templates
-
-The registry cannot hold every ERC-20 / ERC-721. List tokens your wallet already trusts; on a miss the SDK renders from bundled templates. Under `officialOnlyPolicy()` this path is never `confidence: "high"`.
+App-local descriptors sit on top of the pinned registry. Under `officialOnlyPolicy()` they are never `confidence: "high"`; use `officialOrLocalPolicy()` when you intentionally accept them:
 
 ```ts
-const trustedTokens = {
-  1: {
-    '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48': 'erc20',
-    '0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d': 'erc721',
-  },
-} as const;
+const registry = createOfficialRegistry({ pin: VENDORED_REGISTRY_COMMIT }).extend([
+  myLocalDescriptor,
+]);
 ```
 
-A registry descriptor for the same address always wins over the template.
+## 6. External data provider
 
-## 5. External data provider
-
-The decode core does not open RPC, ENS, or token lists by itself when you inject a provider:
+The decode core does **no** RPC, ENS, or token-list I/O of its own. Inject an `ExternalDataProvider` when you want resolved token amounts, ENS / local names, or NFT collection labels:
 
 ```ts
 const externalDataProvider = {
@@ -104,9 +115,17 @@ const externalDataProvider = {
 };
 ```
 
+| Hook | Use |
+|---|---|
+| `resolveToken` | ERC-20 decimals / symbol for `tokenAmount` |
+| `resolveEnsName` / `resolveLocalName` | Human names for `addressName` |
+| `resolveNftCollectionName` | Collection label for NFT formats |
+| `resolveBlockTimestamp` / `resolveChainInfo` | Date and chain metadata |
+| `chainClient.call` | eth_call for EAS revocation under `attestedPolicy` |
+
 Omit a method to fall back to raw formatting / local catalogs. Do not treat `KNOWN_TOKENS` or Sourcify ABI as trusted clear-signing metadata.
 
-## 6. Decode calls
+## 7. Decode calls (batch / UserOp)
 
 ```ts
 import {
@@ -153,6 +172,21 @@ const userOpDisplay = await decodeUserOp(
 
 Batch / nested `interpolatedIntent` joins per-call sentences with `" and "`.
 
+### Trusted token templates
+
+The registry cannot hold every ERC-20 / ERC-721. List tokens your wallet already trusts; on a miss the SDK renders from bundled templates. Under `officialOnlyPolicy()` this path is never `confidence: "high"`.
+
+```ts
+const trustedTokens = {
+  1: {
+    '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48': 'erc20',
+    '0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d': 'erc721',
+  },
+} as const;
+```
+
+A registry descriptor for the same address always wins over the template.
+
 ### Policy recipes
 
 | Recipe | Code |
@@ -165,7 +199,25 @@ Batch / nested `interpolatedIntent` joins per-call sentences with `" and "`.
 
 `trust.reasons` are stable codes (`source:official-registry:accepted`, `ATTESTED`, …) — safe for telemetry / i18n. Prefer them over free-form sentences.
 
-## 7. What to show
+## 8. Attestations
+
+```ts
+import { attestedPolicy } from '@erc7730/sdk';
+
+const trustAttested = attestedPolicy({
+  attesters: ['0x3846c3A30E62075Fa916216b35EF04B8F53931f6'],
+  eas: {
+    // Required. eth_call to the EAS contract on Ethereum mainnet for revokeOffchain.
+    call: async (chainId, { to, data }) => rpcEthCall(chainId, to, data),
+  },
+});
+```
+
+Without `eas.call`, `attestedPolicy` fails closed (`ATTESTATION_OPTIONS_INCOMPLETE` / `NO_TRUSTED_ATTESTATION`). The SDK never issues attestations.
+
+Load attestation JSON with `createOfficialRegistry({ pin, attachAttestations: true })`, or set `ResolvedDescriptor.attestations` yourself in tests.
+
+## 9. What to show
 
 - Prefer `interpolatedIntent` when present (spec option 1). Fields may still be shown.
 - Otherwise show `intent` + `fields`.
@@ -173,7 +225,7 @@ Batch / nested `interpolatedIntent` joins per-call sentences with `" and "`.
 - Nested `format: "calldata"` fields expose `field.embedded`. Multicall3 / Safe CALL / UserOp expose `children: DecodedOperation[]` with per-child `source` and `trust`.
 - `locale` only formats numbers and dates. Descriptor intent strings are never translated.
 
-## 8. Sourcify ABI fallback
+## 10. Sourcify ABI fallback
 
 Importing `@erc7730/sdk`, `@erc7730/sdk/lite`, or `@erc7730/sdk/viem` does not contact Sourcify and does not install a default ABI loader. `fetchFromSourcify` stays exported for apps that want the client.
 
