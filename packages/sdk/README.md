@@ -7,7 +7,7 @@ TypeScript **runtime** for [ERC-7730](https://eips.ethereum.org/EIPS/eip-7730) c
 
 **Docs:** [miltontulli.github.io/ERC-7730](https://miltontulli.github.io/ERC-7730/) (API reference is generated from exports).
 
-This package is **not** a descriptor catalog. Pin [`ethereum/clear-signing-erc7730-registry`](https://github.com/ethereum/clear-signing-erc7730-registry) by commit SHA. Authoring CLI: [`@erc7730/cli`](https://www.npmjs.com/package/@erc7730/cli) (separate package, independent version).
+This package is **not** a descriptor catalog, and the published tarball does not include one. Pin [`ethereum/clear-signing-erc7730-registry`](https://github.com/ethereum/clear-signing-erc7730-registry) by commit SHA. With no network, pass `indexes` and `cache` to `createOfficialRegistry`. ERC-20, ERC-721, and WETH builtins stay as local fallbacks. Authoring CLI: [`@erc7730/cli`](https://www.npmjs.com/package/@erc7730/cli) (separate package, independent version).
 
 ## Install
 
@@ -20,7 +20,7 @@ npm install viem
 | Entry | Use |
 | --- | --- |
 | `@erc7730/sdk` | Full runtime. Sourcify is opt-in (`enableSourcifyAbiLoader` or `loadVerifiedAbi`); import does not register a loader. `useSourcifyFallback` defaults to `false` |
-| `@erc7730/sdk/lite` | Decode / trust / resolve without the Sourcify client or `generateDescriptor` |
+| `@erc7730/sdk/lite` | Deprecated narrower entry. Same install. Omits the Sourcify client and `generateDescriptor` from that graph. Not how descriptors are loaded |
 | `@erc7730/sdk/viem` | `decodeViemTransaction` / `decodeViemTypedData` (does not register a Sourcify loader) |
 
 ## Quick start

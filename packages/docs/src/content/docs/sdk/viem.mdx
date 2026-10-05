@@ -25,6 +25,6 @@ const typed = await decodeViemTypedData(typedDataDefinition, {
 });
 ```
 
-Both helpers return `DecodedOperation` and reuse the same trust / matchContext pipeline as `decodeTransaction` / `decodeTypedData`. Importing `@erc7730/sdk/viem` does not register a Sourcify ABI loader. Pass `enableSourcifyAbiLoader()` or `loadVerifiedAbi` from `@erc7730/sdk` when you want that fallback. Prefer `@erc7730/sdk/lite` when the bundle should omit the Sourcify client.
+Both helpers return `DecodedOperation` and reuse the same trust / matchContext pipeline as `decodeTransaction` / `decodeTypedData`. Importing `@erc7730/sdk/viem` does not register a Sourcify ABI loader. Pass `enableSourcifyAbiLoader()` or `loadVerifiedAbi` from `@erc7730/sdk` when you want that fallback. Sourcify stays opt-in on the root entry. `@erc7730/sdk/lite` is not how the catalog is dropped.
 
 API details: [generated docs](/ERC-7730/sdk/api/) for `decodeViemTransaction`, `decodeViemTypedData`, and `ViemTransactionInput`.

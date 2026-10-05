@@ -8,7 +8,6 @@ build/
 *.tsbuildinfo
 
 # Generated files (rebuilt on npm run build)
-packages/sdk/src/registry/embedded.ts
 packages/registry/dist/
 
 # IDE

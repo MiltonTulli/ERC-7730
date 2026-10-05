@@ -10,7 +10,7 @@ npm install @erc7730/sdk
 npm install viem
 ```
 
-Use `@erc7730/sdk/lite` when you want the decode surface without the Sourcify client in the bundle. Importing `@erc7730/sdk` does not register an ABI loader.
+The published package does not include a descriptor catalog. `@erc7730/sdk/lite` is a deprecated narrower entry (it omits the Sourcify client and `generateDescriptor` from that graph). It is not a separate install and it is not how descriptors are loaded. Importing `@erc7730/sdk` does not register an ABI loader.
 
 ## 2. Prefetch the official indexes
 
@@ -28,7 +28,7 @@ const indexes = await fetchPrebuiltRegistryIndex({ pin });
 const registry = createOfficialRegistry({ pin, indexes });
 ```
 
-Passing `indexes` means those two files are not fetched again. You can also bundle the JSON at build time.
+Passing `indexes` means those two files are not fetched again. You can also bundle the JSON at build time. With no network, pass `indexes` and a `cache`. ERC-20, ERC-721, and WETH builtins (`ERC20_DESCRIPTOR`, `ERC721_DESCRIPTOR`, `WETH_DESCRIPTOR`) stay local fallbacks. They are not a catalog.
 
 ## 3. Production trust policy
 
@@ -190,7 +190,7 @@ await decodeTransaction(tx, {
 });
 ```
 
-Result `source` is `"sourcify"` and confidence is never high. That path verifies an ABI; it is not clear-signing metadata. `@erc7730/sdk/lite` does not import the Sourcify client.
+Result `source` is `"sourcify"` and confidence is never high. That path verifies an ABI; it is not clear-signing metadata. `@erc7730/sdk/lite` does not import the Sourcify client. That entry is not the descriptor lookup.
 
 ## See also
 

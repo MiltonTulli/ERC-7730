@@ -71,17 +71,28 @@ if (!/from\s*['"]ajv\/dist\/2020\.js['"]/.test(index)) {
 }
 if (statSync(liteFile).size >= statSync(join(dist, 'index.js')).size) {
   fail(
-    'dist/lite.js is not smaller than dist/index.js; the embedded registry may have been shared'
+    'dist/lite.js is not smaller than dist/index.js; Sourcify and generateDescriptor should stay off the lite graph'
   );
 }
 
-// Lite keeps the official-registry client. Sourcify and the embedded catalog stay out.
+// The published SDK does not ship the historical descriptor catalog.
+const catalogTokens = ['EMBEDDED_REGISTRY', '0x8236a87084f8b84306f72007f36f2618a5634494'];
+for (const entry of [indexFile, liteFile, join(dist, 'viem.js')]) {
+  for (const { file, code } of relativeChunks(entry)) {
+    for (const token of catalogTokens) {
+      if (code.includes(token)) {
+        fail(`${file} includes ${token}, which must stay out of the published SDK`);
+      }
+    }
+  }
+}
+
+// Lite keeps the official-registry client. Sourcify stays on the root entry.
 const banned = [
   'sourcify.dev',
   'fetchFromSourcify',
   'enableSourcifyAbiLoader',
   'sourcifyVerifiedAbiLoader',
-  'EMBEDDED_REGISTRY',
   'node:fs',
   'node:path',
 ];

@@ -38,7 +38,6 @@
       "dist",
       "*.min.js",
       "pnpm-lock.yaml",
-      "packages/sdk/src/registry/embedded.ts",
       "packages/sdk/src/types/generated/**",
       "packages/sdk/src/schema/official/**",
       "packages/sdk/src/__tests__/fixtures/**",

@@ -22,7 +22,7 @@
   },
   "files": ["dist", "!dist/**/*.map", "!dist/**/*.tsbuildinfo"],
   "scripts": {
-    "build": "node scripts/build.js && tsdown",
+    "build": "tsdown",
     "dev": "tsdown --watch",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -30,7 +30,7 @@
     "schema:types": "node scripts/generate-schema-types.mjs",
     "typecheck": "tsc --noEmit",
     "typecheck:consumer": "tsc -p type-tests/tsconfig.json",
-    "clean": "rm -rf dist src/registry/embedded.ts"
+    "clean": "rm -rf dist"
   },
   "dependencies": {
     "abitype": "^1.0.0",
@@ -47,7 +47,6 @@
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "0.18.5",
-    "@erc7730/registry": "workspace:*",
     "@types/node": "^20.11.0",
     "@vitest/coverage-v8": "^1.2.0",
     "json-schema-to-typescript": "15.0.4",

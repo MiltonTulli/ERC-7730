@@ -3,7 +3,7 @@
 > **Not the product catalog.** The canonical source is
 > [`ethereum/clear-signing-erc7730-registry`](https://github.com/ethereum/clear-signing-erc7730-registry).
 > Submit new protocol descriptors there. This package is a historical snapshot
-> used as test fixtures and by the v1 `ClearSigner` embed.
+> used as test fixtures. It is not bundled into `@erc7730/sdk`.
 
 Do not open descriptor PRs against this repository. For app-local overrides, use `createOfficialRegistry({ pin }).extend()` in `@erc7730/sdk`.
 
