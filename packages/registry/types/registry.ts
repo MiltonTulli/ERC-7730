@@ -1,68 +1,28 @@
 /**
- * ERC-7730 Registry Types
+ * Types for the private `@erc7730/registry` JSON index.
+ *
+ * This package is fixture/catalog data for the SDK embed build. It is not a
+ * third ERC-7730 descriptor dialect: descriptor document shapes live in
+ * `@erc7730/sdk` (`InputDescriptor`, generated from the official v2 schema).
+ * Entries here only store enough structure for the minified embed index.
  */
 
-export interface ERC7730Deployment {
-  chainId: number;
+/** Narrow deployment row kept in catalog entries. */
+export interface RegistryDeployment {
+  chainId: number | string;
   address: string;
 }
 
-export interface ERC7730Context {
-  $id?: string;
-  contract?: {
-    deployments?: ERC7730Deployment[];
-    abi?: string;
-  };
-  eip712?: {
-    domain?: Record<string, unknown>;
-    schemas?: Record<string, unknown>;
-  };
-}
-
-export interface ERC7730Metadata {
-  owner?: string;
-  info?: {
-    legalName?: string;
-    url?: string;
-    deploymentDate?: string;
-  };
-  constants?: Record<string, string>;
-  enums?: Record<string, Record<string, string>>;
-}
-
-export interface ERC7730FieldDefinition {
-  path: string;
-  label: string;
-  format: string;
-  params?: Record<string, unknown>;
-}
-
-export interface ERC7730FunctionFormat {
-  $id?: string;
-  intent: string;
-  fields: ERC7730FieldDefinition[];
-  required?: string[];
-}
-
-export interface ERC7730Display {
-  formats: Record<string, ERC7730FunctionFormat>;
-  definitions?: Record<string, unknown>;
-}
-
-export interface ERC7730Descriptor {
-  $schema?: string;
-  context: ERC7730Context;
-  metadata?: ERC7730Metadata;
-  display: ERC7730Display;
-  includes?: string;
-}
-
+/**
+ * One catalog entry under `descriptors`.
+ * `context` / `metadata` / `display` are opaque JSON bags from source files.
+ */
 export interface RegistryDescriptorEntry {
   protocol: string;
   file: string;
-  context: ERC7730Context;
-  metadata?: ERC7730Metadata;
-  display: ERC7730Display;
+  context?: unknown;
+  metadata?: unknown;
+  display?: unknown;
 }
 
 export interface ERC7730Registry {

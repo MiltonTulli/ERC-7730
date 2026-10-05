@@ -5,13 +5,8 @@
  * The registry is embedded at build time from the @erc7730/registry package.
  */
 
-import type {
-  ERC7730Descriptor,
-  FieldDefinition,
-  FieldFormat,
-  FormatParams,
-  FunctionFormat,
-} from '../types/erc7730';
+import type { InputDescriptor } from '../types/descriptor';
+import type { FieldDefinition, FieldFormat, FormatParams, FunctionFormat } from '../types/erc7730';
 import { EMBEDDED_REGISTRY } from './embedded';
 import type { EmbeddedDescriptor, EmbeddedField, EmbeddedFunctionFormat } from './embeddedTypes';
 
@@ -76,7 +71,12 @@ function readIntent(format: EmbeddedFunctionFormat): string | undefined {
   return textOrUndefined(format.intent) ?? textOrUndefined(format.$id);
 }
 
-function convertToDescriptor(entry: EmbeddedDescriptor): ERC7730Descriptor {
+/**
+ * Adapt a minified embed entry into an InputDescriptor-shaped document.
+ * Embed rows may still carry v1 companions (`required` / `excluded`); those are
+ * preserved for the legacy Registry index via {@link legacyFormatsOf}.
+ */
+function convertToDescriptor(entry: EmbeddedDescriptor): InputDescriptor {
   const formats: Record<string, FunctionFormat> = {};
 
   for (const [selector, format] of Object.entries(entry.display?.formats ?? {})) {
@@ -104,26 +104,38 @@ function convertToDescriptor(entry: EmbeddedDescriptor): ERC7730Descriptor {
     });
   }
 
+  // Embed catalog is a degraded slice of registry JSON; cast into the schema input model.
   return {
-    context: {
-      contract: deployments.length > 0 ? { deployments } : undefined,
-    },
+    context:
+      deployments.length > 0
+        ? {
+            contract: { deployments },
+          }
+        : undefined,
     metadata: entry.metadata
       ? {
           owner: entry.metadata.owner,
-          info: entry.metadata.info,
+          info: entry.metadata.info?.url ? { url: entry.metadata.info.url } : undefined,
         }
       : undefined,
     display: {
       formats,
     },
-  };
+  } as InputDescriptor;
+}
+
+function legacyFormatsOf(descriptor: InputDescriptor): Record<string, FunctionFormat> {
+  const formats = descriptor.display?.formats;
+  if (!formats) {
+    return {};
+  }
+  return formats as Record<string, FunctionFormat>;
 }
 
 /**
  * Get all descriptors from the external registry
  */
-export function getExternalDescriptors(): ERC7730Descriptor[] {
+export function getExternalDescriptors(): InputDescriptor[] {
   return Object.values(registry.descriptors).map(convertToDescriptor);
 }
 
@@ -132,11 +144,11 @@ export function getExternalDescriptors(): ERC7730Descriptor[] {
  */
 export function findBySelector(
   selector: string
-): { descriptor: ERC7730Descriptor; format: FunctionFormat }[] {
+): { descriptor: InputDescriptor; format: FunctionFormat }[] {
   const normalizedSelector = selector.toLowerCase();
   const ids = registry.bySelector[normalizedSelector] ?? [];
 
-  const results: { descriptor: ERC7730Descriptor; format: FunctionFormat }[] = [];
+  const results: { descriptor: InputDescriptor; format: FunctionFormat }[] = [];
 
   for (const id of ids) {
     const entry = registry.descriptors[id];
@@ -146,7 +158,7 @@ export function findBySelector(
 
     const descriptor = convertToDescriptor(entry);
 
-    for (const [sig, format] of Object.entries(descriptor.display.formats)) {
+    for (const [sig, format] of Object.entries(legacyFormatsOf(descriptor))) {
       if (sig.toLowerCase() === normalizedSelector) {
         results.push({ descriptor, format });
         break;
@@ -160,10 +172,10 @@ export function findBySelector(
 /**
  * Find descriptors by contract address
  */
-export function findByAddress(address: string, chainId: number): ERC7730Descriptor[] {
+export function findByAddress(address: string, chainId: number): InputDescriptor[] {
   const key = `${chainId}:${address.toLowerCase()}`;
   const ids = registry.byAddress[key] ?? [];
-  const descriptors: ERC7730Descriptor[] = [];
+  const descriptors: InputDescriptor[] = [];
 
   for (const id of ids) {
     const entry = registry.descriptors[id];

@@ -214,7 +214,7 @@ export type {
   TransactionInput,
   TypedDataInput,
   ChainName,
-  // ERC-7730 types
+  // ERC-7730 types (InputDescriptor is the schema input model; aliases below are deprecated)
   ERC7730Descriptor,
   ERC7730Context,
   ERC7730Metadata,

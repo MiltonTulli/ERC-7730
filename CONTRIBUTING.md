@@ -14,3 +14,15 @@ Do not edit `dist/`. `pnpm --filter @erc7730/sdk build` writes the embedded regi
 Building this repository needs Node 22.18 or newer. The published packages still run on Node 18 or newer.
 
 The CLI imports `@erc7730/sdk` through its package exports, which point at `dist/`. Build the SDK before typechecking the CLI. Do not import `packages/sdk/src` from the CLI.
+
+## Descriptor input types
+
+`InputDescriptor` is the sole TypeScript model for ERC-7730 documents the SDK accepts. It is generated from `packages/sdk/src/schema/official/erc7730-v2.schema.json` into `packages/sdk/src/types/generated/erc7730-v2.ts`.
+
+After updating the vendored official schemas, regenerate types:
+
+```bash
+pnpm schema:types
+```
+
+Do not hand-edit the generated file. `ERC7730Descriptor` and `ERC7730V2Descriptor` remain deprecated aliases of `InputDescriptor` for one minor. `@erc7730/registry` only types the JSON catalog index; it does not define a parallel descriptor dialect.

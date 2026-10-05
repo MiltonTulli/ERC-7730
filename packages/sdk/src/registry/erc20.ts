@@ -2,9 +2,9 @@
  * ERC-7730 descriptor for ERC-20 tokens
  */
 
-import type { ERC7730Descriptor } from '../types/erc7730';
+import type { InputDescriptor } from '../types/descriptor';
 
-export const ERC20_DESCRIPTOR: ERC7730Descriptor = {
+export const ERC20_DESCRIPTOR = {
   $schema: 'https://eips.ethereum.org/assets/eip-7730/erc7730-v1.schema.json',
   context: {
     $id: 'ERC20',
@@ -104,4 +104,4 @@ export const ERC20_DESCRIPTOR: ERC7730Descriptor = {
       },
     },
   },
-};
+} as InputDescriptor;

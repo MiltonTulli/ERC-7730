@@ -1,9 +1,13 @@
 /**
  * Public descriptor types for validateDescriptor() and resolveDescriptor().
  *
- * `InputDescriptor` is the loaded JSON document (includes unresolved).
- * Detailed v2 shapes live in `./v2.js` and follow erc7730-v2.schema.json.
+ * `InputDescriptor` is the sole TypeScript input model for documents accepted by
+ * the official ERC-7730 v2 JSON Schema (generated from
+ * `schema/official/erc7730-v2.schema.json`). Documents that still validate as v1
+ * are accepted at runtime by Ajv and typed as `InputDescriptor` after validation.
  */
+
+import type { InputDescriptor as SchemaInputDescriptor } from './generated/erc7730-v2';
 
 export type DescriptorVersion = '1' | '2';
 
@@ -15,14 +19,7 @@ export type Hex = `0x${string}`;
  * Official files may omit `context`, `metadata`, or `display` when those
  * sections come from `includes`.
  */
-export interface InputDescriptor {
-  $schema?: string;
-  $comment?: string;
-  includes?: string;
-  context?: unknown;
-  metadata?: unknown;
-  display?: unknown;
-}
+export type InputDescriptor = SchemaInputDescriptor;
 
 export interface IncludeLoader {
   /**
