@@ -1,5 +1,11 @@
 # @erc7730/sdk
 
+## 0.9.0
+
+### Minor Changes
+
+- df46c87: Make `createOfficialRegistry` pin optional. An omitted pin defaults to `VENDORED_REGISTRY_COMMIT` (a commit SHA), not `master`. Floating branches or tags require an explicit `ref` (for example `{ ref: "master" }`). A malformed `pin` still throws. Production wallets should keep passing an explicit SHA.
+
 ## 0.8.1
 
 ### Patch Changes
