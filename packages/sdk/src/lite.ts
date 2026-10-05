@@ -3,7 +3,8 @@
  *
  * @deprecated Narrower entry kept for existing imports. It is not a separate
  * install and it is not how descriptors are loaded. Look up with
- * `createOfficialRegistry({ pin })`, or pass `indexes` and `cache` offline.
+ * `createOfficialRegistry()` (defaults to the vendored SHA) or `{ pin }`, or
+ * pass `indexes` and `cache` offline.
  * This entry omits the Sourcify client and `generateDescriptor` from its graph.
  *
  * @example

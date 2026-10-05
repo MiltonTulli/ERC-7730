@@ -9,7 +9,7 @@ TypeScript tooling for [ERC-7730](https://eips.ethereum.org/EIPS/eip-7730) clear
 
 **Docs:** [miltontulli.github.io/ERC-7730](https://miltontulli.github.io/ERC-7730/) · **Playground:** […/demo](https://miltontulli.github.io/ERC-7730/demo/)
 
-This repository is a small toolkit. It is **not** the descriptor catalog and **not** the reference TypeScript implementation. The source of truth is [`ethereum/clear-signing-erc7730-registry`](https://github.com/ethereum/clear-signing-erc7730-registry). New protocol metadata belongs there, not in this repo. The published `@erc7730/sdk` tarball does not include a catalog. Lookup is `createOfficialRegistry({ pin })`. With no network, pass `indexes` and `cache`. ERC-20, ERC-721, and WETH builtins stay as local fallbacks.
+This repository is a small toolkit. It is **not** the descriptor catalog and **not** the reference TypeScript implementation. The source of truth is [`ethereum/clear-signing-erc7730-registry`](https://github.com/ethereum/clear-signing-erc7730-registry). New protocol metadata belongs there, not in this repo. The published `@erc7730/sdk` tarball does not include a catalog. Lookup is `createOfficialRegistry()` (defaults to the vendored commit SHA) or `createOfficialRegistry({ pin })`. With no network, pass `indexes` and `cache`. ERC-20, ERC-721, and WETH builtins stay as local fallbacks.
 
 ## Packages
 
@@ -43,11 +43,16 @@ import {
   createOfficialRegistry,
   decodeTransaction,
   officialOnlyPolicy,
+  VENDORED_REGISTRY_COMMIT,
 } from '@erc7730/sdk';
 
-const registry = createOfficialRegistry({
-  pin: '9f37816afde954ff6617fb5baa346133e5af26c5', // example SHA — pick your production pin
-});
+// No pin: fetches ethereum/clear-signing-erc7730-registry at VENDORED_REGISTRY_COMMIT
+// (currently 9f37816afde954ff6617fb5baa346133e5af26c5), not master.
+const registry = createOfficialRegistry();
+
+// Production wallets should still pass an explicit SHA:
+// const registry = createOfficialRegistry({ pin: VENDORED_REGISTRY_COMMIT });
+// Local floating ref only: createOfficialRegistry({ ref: 'master' })
 
 const result = await decodeTransaction(
   {
@@ -60,6 +65,7 @@ const result = await decodeTransaction(
 
 console.log(result.interpolatedIntent ?? result.intent);
 console.log(result.source, result.confidence, result.trust.accepted);
+console.log('default pin', VENDORED_REGISTRY_COMMIT);
 ```
 
 Long-form API (decode, batch, UserOp, validate/resolve, path engine, viem, generated TypeDoc): **[docs site](https://miltontulli.github.io/ERC-7730/)**.

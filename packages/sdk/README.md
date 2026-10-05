@@ -7,7 +7,7 @@ TypeScript **runtime** for [ERC-7730](https://eips.ethereum.org/EIPS/eip-7730) c
 
 **Docs:** [miltontulli.github.io/ERC-7730](https://miltontulli.github.io/ERC-7730/) (API reference is generated from exports).
 
-This package is **not** a descriptor catalog, and the published tarball does not include one. Pin [`ethereum/clear-signing-erc7730-registry`](https://github.com/ethereum/clear-signing-erc7730-registry) by commit SHA. With no network, pass `indexes` and `cache` to `createOfficialRegistry`. ERC-20, ERC-721, and WETH builtins stay as local fallbacks. Authoring CLI: [`@erc7730/cli`](https://www.npmjs.com/package/@erc7730/cli) (separate package, independent version).
+This package is **not** a descriptor catalog, and the published tarball does not include one. `createOfficialRegistry()` defaults to the vendored commit SHA of [`ethereum/clear-signing-erc7730-registry`](https://github.com/ethereum/clear-signing-erc7730-registry). Production wallets should still pass an explicit `pin`. With no network, pass `indexes` and `cache`. ERC-20, ERC-721, and WETH builtins stay as local fallbacks. Authoring CLI: [`@erc7730/cli`](https://www.npmjs.com/package/@erc7730/cli) (separate package, independent version).
 
 ## Install
 
@@ -30,11 +30,15 @@ import {
   createOfficialRegistry,
   decodeTransaction,
   officialOnlyPolicy,
+  VENDORED_REGISTRY_COMMIT,
 } from '@erc7730/sdk';
 
-const registry = createOfficialRegistry({
-  pin: '9f37816afde954ff6617fb5baa346133e5af26c5',
-});
+// Defaults to VENDORED_REGISTRY_COMMIT (a commit SHA), not master.
+const registry = createOfficialRegistry();
+
+// Production: pass an explicit pin.
+// const registry = createOfficialRegistry({ pin: VENDORED_REGISTRY_COMMIT });
+// Local floating ref only: createOfficialRegistry({ ref: 'master' })
 
 const result = await decodeTransaction(tx, {
   registry,
@@ -43,9 +47,10 @@ const result = await decodeTransaction(tx, {
 
 console.log(result.interpolatedIntent ?? result.intent);
 console.log(result.source, result.confidence, result.trust.accepted);
+console.log('default pin', VENDORED_REGISTRY_COMMIT);
 ```
 
-Production: `officialOnlyPolicy()` or `attestedPolicy()`. Sourcify / `generateDescriptor` are never `confidence: "high"` under official-only. Clear signing is not ABI pretty-printing.
+Production: `officialOnlyPolicy()` or `attestedPolicy()`, and an explicit `pin`. Sourcify / `generateDescriptor` are never `confidence: "high"` under official-only. Clear signing is not ABI pretty-printing.
 
 Wallet walkthrough (prefetch, `ExternalDataProvider`, batch, UserOp): [`docs/GUIDE.md`](../../docs/GUIDE.md) or the [site guide](https://miltontulli.github.io/ERC-7730/guide/). Trust table: [site /trust](https://miltontulli.github.io/ERC-7730/trust/). Generated API: [site /sdk/api](https://miltontulli.github.io/ERC-7730/sdk/api/).
 

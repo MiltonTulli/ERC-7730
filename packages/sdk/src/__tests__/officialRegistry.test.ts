@@ -83,17 +83,119 @@ function registry(calls: string[] = []) {
 }
 
 describe('createOfficialRegistry pin', () => {
-  it('throws without a pin', () => {
-    expect(() => createOfficialRegistry({} as { pin: string })).toThrow(OfficialRegistryError);
+  it('defaults an omitted pin to VENDORED_REGISTRY_COMMIT', async () => {
+    const calls: string[] = [];
+    const registry = createOfficialRegistry({
+      fetch: mockFetch(registryFiles(), calls),
+    });
+    const found = await registry.findCalldata({ chainId: 1, address: WETH });
+    expect(found?.merged.metadata).toMatchObject({ owner: 'WETH' });
+    expect(calls.some((url) => url.includes(`/${VENDORED_REGISTRY_COMMIT}/`))).toBe(true);
   });
 
-  it('throws on floating master/main', () => {
+  it('accepts createOfficialRegistry() with no config object', () => {
+    // Construction must not throw; network fetch is deferred until lookup.
+    expect(() => createOfficialRegistry()).not.toThrow();
+  });
+
+  it('throws when pin is a floating master/main', () => {
     expect(() => createOfficialRegistry({ pin: 'master' })).toThrow(/floating ref/);
     expect(() => createOfficialRegistry({ pin: 'main' })).toThrow(/floating ref/);
   });
 
+  it('allows master only through explicit ref', async () => {
+    const calls: string[] = [];
+    const files = registryFiles();
+    const fetchImpl: typeof fetch = async (input) => {
+      const url = String(input);
+      calls.push(url);
+      const marker = '/master/';
+      const idx = url.indexOf(marker);
+      const path = idx === -1 ? url : url.slice(idx + marker.length);
+      if (!(path in files)) {
+        return new Response('not found', { status: 404 });
+      }
+      return new Response(JSON.stringify(files[path]), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      });
+    };
+    const registry = createOfficialRegistry({ ref: 'master', fetch: fetchImpl });
+    const found = await registry.findCalldata({ chainId: 1, address: WETH });
+    expect(found?.merged.metadata).toMatchObject({ owner: 'WETH' });
+    expect(calls.some((url) => url.includes('/master/'))).toBe(true);
+  });
+
+  it('rejects pin and ref together', () => {
+    expect(() => createOfficialRegistry({ pin: PIN, ref: 'master' })).toThrow(
+      /either config\.pin or config\.ref/
+    );
+  });
+
   it('throws on a short or non-hex pin', () => {
     expect(() => createOfficialRegistry({ pin: '9f37816' })).toThrow(/40-character/);
+  });
+
+  it('rejects a non-string pin or ref', () => {
+    expect(() => createOfficialRegistry({ pin: 123 as unknown as string })).toThrow(
+      /config\.pin to be a string/
+    );
+    expect(() => createOfficialRegistry({ ref: 123 as unknown as string })).toThrow(
+      /config\.ref to be a string/
+    );
+  });
+
+  it('does not reuse durable cache across instances for a floating ref', async () => {
+    const durable = createMemoryDescriptorCache();
+    const files = registryFiles();
+    let indexFetches = 0;
+    const fetchImpl: typeof fetch = async (input) => {
+      const url = String(input);
+      const marker = '/master/';
+      const idx = url.indexOf(marker);
+      const path = idx === -1 ? url : url.slice(idx + marker.length);
+      if (path === 'index.calldata.json') {
+        indexFetches += 1;
+      }
+      if (!(path in files)) {
+        return new Response('not found', { status: 404 });
+      }
+      return new Response(JSON.stringify(files[path]), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      });
+    };
+
+    const first = createOfficialRegistry({ ref: 'master', fetch: fetchImpl, cache: durable });
+    await first.findCalldata({ chainId: 1, address: WETH });
+    expect(indexFetches).toBe(1);
+
+    const second = createOfficialRegistry({ ref: 'master', fetch: fetchImpl, cache: durable });
+    await second.findCalldata({ chainId: 1, address: WETH });
+    expect(indexFetches).toBe(2);
+  });
+
+  it('percent-encodes # in floating ref raw URLs', async () => {
+    const calls: string[] = [];
+    const files = registryFiles();
+    const fetchImpl: typeof fetch = async (input) => {
+      const url = String(input);
+      calls.push(url);
+      const marker = '/release%23candidate/';
+      const idx = url.indexOf(marker);
+      const path = idx === -1 ? url : url.slice(idx + marker.length);
+      if (!(path in files)) {
+        return new Response('not found', { status: 404 });
+      }
+      return new Response(JSON.stringify(files[path]), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      });
+    };
+    const registry = createOfficialRegistry({ ref: 'release#candidate', fetch: fetchImpl });
+    await registry.findCalldata({ chainId: 1, address: WETH });
+    expect(calls.some((url) => url.includes('/release%23candidate/'))).toBe(true);
+    expect(calls.every((url) => !url.includes('/release#candidate/'))).toBe(true);
   });
 
   it('accepts the vendored schema commit as a pin', () => {

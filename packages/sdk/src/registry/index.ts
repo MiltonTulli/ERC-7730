@@ -2,7 +2,7 @@
  * Local ERC-7730 registry.
  *
  * Built-in ERC-20, ERC-721, and WETH descriptors, plus caller overrides.
- * Protocol lookup is `createOfficialRegistry({ pin })`, not a bundled catalog.
+ * Protocol lookup is `createOfficialRegistry()`, not a bundled catalog.
  */
 
 import { computeSelector, registerSignature } from '../core/signatures';
@@ -167,7 +167,7 @@ export class Registry {
   constructor(options: { useExternalRegistry?: never } = {}) {
     if ('useExternalRegistry' in options) {
       throw new Error(
-        'useExternalRegistry was removed. Look up descriptors with createOfficialRegistry({ pin }), or pass indexes and cache for offline use.'
+        'useExternalRegistry was removed. Look up descriptors with createOfficialRegistry(), or pass indexes and cache for offline use.'
       );
     }
   }

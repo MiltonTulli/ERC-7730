@@ -15,7 +15,7 @@ import {
   resolveRegistryPath,
   toCaip10,
 } from './paths';
-import { assertRegistryPin } from './pin';
+import { isCommitSha, resolveRegistryTreeRef } from './pin';
 import type {
   CalldataIndex,
   DescriptorCache,
@@ -74,18 +74,16 @@ function pickEip712Path(
   return null;
 }
 
-export function createOfficialRegistry(config: OfficialRegistryConfig): OfficialRegistry {
-  if (!config || typeof config.pin !== 'string') {
-    throw new OfficialRegistryError(
-      'createOfficialRegistry requires config.pin to be a 40-character git commit SHA'
-    );
-  }
-
-  const pin = assertRegistryPin(config.pin);
-  const baseUrl = (config.baseUrl ?? DEFAULT_OFFICIAL_REGISTRY_BASE_URL).replace(/\/+$/, '');
+export function createOfficialRegistry(config: OfficialRegistryConfig = {}): OfficialRegistry {
+  const options = config ?? {};
+  const pin = resolveRegistryTreeRef(options);
+  // Commit SHAs are immutable; branch/tag refs can move. Do not treat floating
+  // trees as durable cache keys across fetches or registry instances.
+  const cacheable = isCommitSha(pin);
+  const baseUrl = (options.baseUrl ?? DEFAULT_OFFICIAL_REGISTRY_BASE_URL).replace(/\/+$/, '');
   const memory = createMemoryDescriptorCache();
-  const durable: DescriptorCache | undefined = config.cache;
-  const fetchImpl = config.fetch ?? globalThis.fetch;
+  const durable: DescriptorCache | undefined = options.cache;
+  const fetchImpl = options.fetch ?? globalThis.fetch;
   if (typeof fetchImpl !== 'function') {
     throw new OfficialRegistryError(
       'createOfficialRegistry needs fetch (pass config.fetch in this runtime)'
@@ -98,6 +96,9 @@ export function createOfficialRegistry(config: OfficialRegistryConfig): Official
   const resolvedOverrides = new Map<InputDescriptor, Promise<ResolvedDescriptor>>();
 
   async function readCache(key: string): Promise<unknown | undefined> {
+    if (!cacheable) {
+      return undefined;
+    }
     const hot = await memory.get(key);
     if (hot !== undefined) {
       return hot;
@@ -113,6 +114,9 @@ export function createOfficialRegistry(config: OfficialRegistryConfig): Official
   }
 
   async function writeCache(key: string, value: unknown): Promise<void> {
+    if (!cacheable) {
+      return;
+    }
     await memory.set(key, value);
     if (durable) {
       await durable.set(key, value);
@@ -121,11 +125,11 @@ export function createOfficialRegistry(config: OfficialRegistryConfig): Official
 
   async function loadJson(path: string): Promise<unknown> {
     assertSafeRegistryPath(path);
-    if (path === CALLDATA_INDEX && config.indexes?.calldata) {
-      return config.indexes.calldata;
+    if (path === CALLDATA_INDEX && options.indexes?.calldata) {
+      return options.indexes.calldata;
     }
-    if (path === EIP712_INDEX && config.indexes?.eip712) {
-      return config.indexes.eip712;
+    if (path === EIP712_INDEX && options.indexes?.eip712) {
+      return options.indexes.eip712;
     }
 
     const key = cacheKey(pin, path);
@@ -206,7 +210,7 @@ export function createOfficialRegistry(config: OfficialRegistryConfig): Official
           'attachAttestations lists sigs through the GitHub contents API of the official repo. Pass descriptor.attestations when baseUrl is a custom gateway.'
         );
       }
-      const listUrl = `${GITHUB_API}/repos/${OFFICIAL_REGISTRY_REPO}/contents/${sigsDir}?ref=${pin}`;
+      const listUrl = `${GITHUB_API}/repos/${OFFICIAL_REGISTRY_REPO}/contents/${sigsDir}?ref=${encodeURIComponent(pin)}`;
       let response: Response;
       try {
         response = await fetchImpl(listUrl, {
@@ -264,7 +268,7 @@ export function createOfficialRegistry(config: OfficialRegistryConfig): Official
 
   async function resolveOfficial(path: string): Promise<ResolvedDescriptor> {
     const resolved = await resolvePath(path);
-    const attestations = config.attachAttestations ? await loadAttestations(path) : undefined;
+    const attestations = options.attachAttestations ? await loadAttestations(path) : undefined;
     return {
       ...resolved,
       source: 'official-registry' as const,

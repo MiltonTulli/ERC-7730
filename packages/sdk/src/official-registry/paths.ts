@@ -24,7 +24,9 @@ export function toCaip10(chainId: number, address: string): Caip10 {
 
 export function registryFileUrl(baseUrl: string, pin: string, path: string): string {
   const prefix = baseUrl.replace(/\/+$/, '');
-  return `${prefix}/${pin}/${path}`;
+  // `#` in a branch/tag must not become a URL fragment (e.g. release#candidate).
+  const tree = pin.replace(/#/g, '%23');
+  return `${prefix}/${tree}/${path}`;
 }
 
 /**
