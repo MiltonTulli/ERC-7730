@@ -1,6 +1,6 @@
 {
   "name": "@erc7730/cli",
-  "version": "0.3.4",
+  "version": "0.3.5",
   "description": "CLI to generate, lint, preview, and diff ERC-7730 descriptors",
   "type": "module",
   "bin": {
