@@ -1,5 +1,13 @@
 # @erc7730/cli
 
+## 0.3.5
+
+### Patch Changes
+
+- d7ab7c5: Unify descriptor input types on the official v2 schema (`InputDescriptor`), with codegen and deprecated aliases for `ERC7730Descriptor` / `ERC7730V2Descriptor`.
+- Updated dependencies [d7ab7c5]
+  - @erc7730/sdk@0.7.0
+
 ## 0.3.4
 
 ### Patch Changes
