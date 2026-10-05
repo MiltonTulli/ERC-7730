@@ -1,8 +1,10 @@
 /**
  * @erc7730/sdk/lite
  *
- * Lightweight version without embedded registry.
- * Useful for smaller bundle sizes when you provide your own descriptors.
+ * @deprecated Narrower entry kept for existing imports. It is not a separate
+ * install and it is not how descriptors are loaded. Look up with
+ * `createOfficialRegistry({ pin })`, or pass `indexes` and `cache` offline.
+ * This entry omits the Sourcify client and `generateDescriptor` from its graph.
  *
  * @example
  * ```typescript
@@ -16,7 +18,7 @@
 
 export { ClearSigner as ClearSignerLite, createClearSigner } from './core/ClearSigner';
 
-// Core utilities only (no embedded registry)
+// Decode helpers. Sourcify and generateDescriptor stay on the root entry.
 export { decodeCalldata, extractSelector } from './core/decoder';
 export { getSignatureBySelector, COMMON_SIGNATURES } from './core/signatures';
 
@@ -67,7 +69,7 @@ export {
 
 export { resolvePath, PathResolveError } from './path';
 
-// Pinned official-registry client. Lite still omits the embedded catalog and Sourcify.
+// Pinned official-registry client. This entry still omits the Sourcify client.
 export {
   createOfficialRegistry,
   createMemoryDescriptorCache,

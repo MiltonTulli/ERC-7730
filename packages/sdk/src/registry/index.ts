@@ -1,7 +1,8 @@
 /**
- * ERC-7730 Registry
+ * Local ERC-7730 registry.
  *
- * Manages both built-in descriptors and the external community registry.
+ * Built-in ERC-20, ERC-721, and WETH descriptors, plus caller overrides.
+ * Protocol lookup is `createOfficialRegistry({ pin })`, not a bundled catalog.
  */
 
 import { computeSelector, registerSignature } from '../core/signatures';
@@ -10,12 +11,6 @@ import type { InputDescriptor } from '../types/descriptor';
 import type { FunctionFormat } from '../types/erc7730';
 import { ERC20_DESCRIPTOR } from './erc20';
 import { ERC721_DESCRIPTOR } from './erc721';
-import {
-  findByAddress as findExternalByAddress,
-  findBySelector as findExternalBySelector,
-  getExternalDescriptors,
-  getStats,
-} from './external';
 import { WETH_DESCRIPTOR } from './weth';
 
 function descriptorMatchesAddress(
@@ -168,10 +163,13 @@ export interface RegistryMatch {
 export class Registry {
   private customDescriptors: InputDescriptor[] = [];
   private customIndex: SignatureIndex = new Map();
-  private useExternalRegistry: boolean;
 
-  constructor(options: { useExternalRegistry?: boolean } = {}) {
-    this.useExternalRegistry = options.useExternalRegistry ?? true;
+  constructor(options: { useExternalRegistry?: never } = {}) {
+    if ('useExternalRegistry' in options) {
+      throw new Error(
+        'useExternalRegistry was removed. Look up descriptors with createOfficialRegistry({ pin }), or pass indexes and cache for offline use.'
+      );
+    }
   }
 
   /**
@@ -180,24 +178,11 @@ export class Registry {
   find(signature: string): RegistryMatch | null {
     const normalized = normalizeSignature(signature);
 
-    // 1. Check custom first (allows user overrides)
     const custom = this.customIndex.get(normalized);
     if (custom) {
       return custom;
     }
 
-    // 2. Check external registry (community descriptors)
-    if (this.useExternalRegistry) {
-      // For selectors, search directly
-      if (normalized.startsWith('0x')) {
-        const externalMatches = findExternalBySelector(normalized);
-        if (externalMatches.length > 0) {
-          return externalMatches[0];
-        }
-      }
-    }
-
-    // 3. Check built-in (ERC20, ERC721, etc.)
     if (!signatureIndex) {
       signatureIndex = buildSignatureIndex();
     }
@@ -211,22 +196,12 @@ export class Registry {
   findByAddress(address: string, chainId: number): InputDescriptor | null {
     const normalizedAddress = address.toLowerCase();
 
-    // 1. Check custom first
     for (const descriptor of this.customDescriptors) {
       if (descriptorMatchesAddress(descriptor, chainId, normalizedAddress)) {
         return descriptor;
       }
     }
 
-    // 2. Check external registry
-    if (this.useExternalRegistry) {
-      const externalDescriptors = findExternalByAddress(address, chainId);
-      if (externalDescriptors.length > 0) {
-        return externalDescriptors[0];
-      }
-    }
-
-    // 3. Check built-in
     for (const descriptor of BUILTIN_DESCRIPTORS) {
       if (descriptorMatchesAddress(descriptor, chainId, normalizedAddress)) {
         return descriptor;
@@ -295,22 +270,16 @@ export class Registry {
    * Get all registered descriptors
    */
   getAll(): InputDescriptor[] {
-    const external = this.useExternalRegistry ? getExternalDescriptors() : [];
-    return [...this.customDescriptors, ...external, ...BUILTIN_DESCRIPTORS];
+    return [...this.customDescriptors, ...BUILTIN_DESCRIPTORS];
   }
 
   /**
    * Get registry statistics
    */
   getStats() {
-    const externalStats = this.useExternalRegistry
-      ? getStats()
-      : { protocols: 0, descriptors: 0, selectors: 0, addresses: 0 };
-
     return {
       custom: this.customDescriptors.length,
       builtin: BUILTIN_DESCRIPTORS.length,
-      external: externalStats,
     };
   }
 }

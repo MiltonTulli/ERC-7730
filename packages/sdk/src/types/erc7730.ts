@@ -1,10 +1,10 @@
 /**
- * Legacy ClearSigner result types and embed-adapter display shapes.
+ * Legacy ClearSigner result types and `Registry` signature-index shapes.
  *
  * The sole schema input model is {@link InputDescriptor} (see `descriptor.ts` /
  * generated v2 types). `ERC7730Descriptor` remains a deprecated alias for one
- * minor. `FunctionFormat` / `FieldDefinition` describe the normalized embed
- * catalog used by the v1 `Registry` class — not the official JSON Schema.
+ * minor. `FunctionFormat` / `FieldDefinition` describe rows in the legacy
+ * `Registry` index — not the official JSON Schema.
  */
 
 import type { InputDescriptor } from './descriptor';
@@ -38,8 +38,8 @@ export interface ContractDeployment {
 }
 
 /**
- * Formats recognized when adapting the minified embed catalog into the legacy
- * `Registry` index. Not the full official v2 format enum.
+ * Formats stored on the legacy `Registry` signature index.
+ * Not the full official v2 format enum.
  *
  * @deprecated Prefer {@link import('./v2').ERC7730V2FieldFormat}.
  */
@@ -54,7 +54,7 @@ export type FieldFormat =
   | 'duration'
   | 'unit';
 
-/** @deprecated Embed-adapter params; prefer schema `FieldParams`. */
+/** @deprecated Legacy `Registry` params; prefer schema `FieldParams`. */
 export interface TokenAmountParams {
   tokenPath?: string;
   nativeCurrencyAddress?: string[];
@@ -62,30 +62,30 @@ export interface TokenAmountParams {
   message?: string;
 }
 
-/** @deprecated Embed-adapter params; prefer schema `FieldParams`. */
+/** @deprecated Legacy `Registry` params; prefer schema `FieldParams`. */
 export interface AddressNameParams {
   types?: ('eoa' | 'contract' | 'token' | 'nft')[];
   sources?: ('ens' | 'lens' | 'local')[];
 }
 
-/** @deprecated Embed-adapter params; prefer schema `FieldParams`. */
+/** @deprecated Legacy `Registry` params; prefer schema `FieldParams`. */
 export interface EnumParams {
   $ref: string;
 }
 
-/** @deprecated Embed-adapter params; prefer schema `FieldParams`. */
+/** @deprecated Legacy `Registry` params; prefer schema `FieldParams`. */
 export interface DateParams {
   encoding: 'timestamp' | 'blockheight';
 }
 
-/** @deprecated Embed-adapter params; prefer schema `FieldParams`. */
+/** @deprecated Legacy `Registry` params; prefer schema `FieldParams`. */
 export interface UnitParams {
   base: string;
   decimals?: number;
   prefix?: boolean;
 }
 
-/** @deprecated Embed-adapter params; prefer schema `FieldParams`. */
+/** @deprecated Legacy `Registry` params; prefer schema `FieldParams`. */
 export type FormatParams =
   | TokenAmountParams
   | AddressNameParams
@@ -94,7 +94,7 @@ export type FormatParams =
   | UnitParams;
 
 /**
- * Normalized field row used by the embed → `Registry` adapter.
+ * Field row on the legacy `Registry` signature index.
  * Retains v1 `required`/`excluded` companions on {@link FunctionFormat}.
  *
  * @deprecated Not the official schema field shape; see `DisplayField` in `./v2`.
@@ -107,7 +107,7 @@ export interface FieldDefinition {
 }
 
 /**
- * Normalized function format used by the embed → `Registry` adapter.
+ * Function format on the legacy `Registry` signature index.
  * `required` / `excluded` are v1 display companions, not v2 schema fields.
  *
  * @deprecated Not the official schema format shape; see `DisplayFormat` in `./v2`.

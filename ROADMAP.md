@@ -47,6 +47,7 @@ Publicado en este checkout: ver `packages/sdk/package.json` y `packages/cli/pack
 | `decodeUserOp` | Hecho (#54) |
 | Compat `format()` + matriz interop | Hecho (#54) |
 | Docs site (Pages = docs + `/demo`) | [#43](https://github.com/MiltonTulli/ERC-7730/issues/43) |
+| Catálogo embebido en el tarball | Retirado ([#77](https://github.com/MiltonTulli/ERC-7730/issues/77)). El lookup publicado es el pin |
 
 ---
 
