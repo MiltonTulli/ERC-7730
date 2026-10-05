@@ -22,14 +22,69 @@ hero:
 
 import { Card, CardGrid } from '@astrojs/starlight/components';
 
-This repository is a **toolkit**. It is **not** a descriptor catalog and **not** the reference TypeScript implementation. The catalog is [`ethereum/clear-signing-erc7730-registry`](https://github.com/ethereum/clear-signing-erc7730-registry). Pin it by commit SHA.
+This repository is a **toolkit**. It is **not** a descriptor catalog and **not** the reference TypeScript implementation. The catalog is [`ethereum/clear-signing-erc7730-registry`](https://github.com/ethereum/clear-signing-erc7730-registry). The published `@erc7730/sdk` tarball does not include one. Lookup is `createOfficialRegistry()` (defaults to the vendored commit SHA) or `createOfficialRegistry({ pin })`.
+
+## Quick start
+
+### 1. Smallest call (intent + fields)
+
+```ts
+import { createOfficialRegistry, decodeTransaction } from '@erc7730/sdk';
+
+const registry = createOfficialRegistry();
+
+const result = await decodeTransaction(
+  {
+    to: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+    data: '0xd0e30db0',
+    value: 10n ** 18n,
+    chainId: 1,
+  },
+  { registry }
+);
+
+console.log(result.interpolatedIntent ?? result.intent);
+console.log(result.fields);
+```
+
+### 2. Production (explicit pin + trust)
+
+Same call with a frozen SHA and `officialOnlyPolicy()`. That policy rejects Sourcify / `generateDescriptor` / inferred / basic as high confidence:
+
+```ts
+import {
+  createOfficialRegistry,
+  decodeTransaction,
+  officialOnlyPolicy,
+  VENDORED_REGISTRY_COMMIT,
+} from '@erc7730/sdk';
+
+const registry = createOfficialRegistry({ pin: VENDORED_REGISTRY_COMMIT });
+
+const tx = {
+  to: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+  data: '0xd0e30db0',
+  value: 10n ** 18n,
+  chainId: 1,
+} as const;
+
+const result = await decodeTransaction(tx, {
+  registry,
+  trust: officialOnlyPolicy(),
+});
+
+console.log(result.interpolatedIntent ?? result.intent);
+console.log(result.source, result.confidence, result.trust.accepted);
+```
+
+Prefetch, `extend()`, `ExternalDataProvider`, batch, UserOp, and attestations: [wallet guide](/ERC-7730/guide/). Trust table: [/trust](/ERC-7730/trust/).
 
 ## Three ways in
 
 <div class="audience-grid">
   <div class="audience-card">
     <h3>Wallet / dApp</h3>
-    <p>Pin a SHA, inject <code>TrustPolicy</code>, decode transactions, typed data, EIP-5792 batches, and Simple Account UserOps. Read <code>source</code>, <code>confidence</code>, and <code>trust.accepted</code>.</p>
+    <p>Start with the smallest decode, then pin a SHA and inject <code>TrustPolicy</code>. Decode transactions, typed data, EIP-5792 batches, and Simple Account UserOps. Read <code>source</code>, <code>confidence</code>, and <code>trust.accepted</code>.</p>
     <p><a href="/ERC-7730/guide/">Guide</a> · <a href="/ERC-7730/trust/">Trust</a> · <a href="/ERC-7730/sdk/">SDK</a></p>
   </div>
   <div class="audience-card">
@@ -60,7 +115,7 @@ Packages are versioned independently (`sdk-v*` / `cli-v*` tags). Generated and S
     Production wallets use `officialOnlyPolicy()` or `attestedPolicy()`. The [playground](/ERC-7730/demo/) uses `officialOrLocalPolicy()` on purpose.
   </Card>
   <Card title="Official registry" icon="external">
-    Commit SHA pins only. `extend()` is local. New protocol metadata goes to the [official registry](https://github.com/ethereum/clear-signing-erc7730-registry).
+    Commit SHA pins. `createOfficialRegistry()` defaults to the vendored SHA; production still passes an explicit `pin`. `extend()` is local. New protocol metadata goes to the [official registry](https://github.com/ethereum/clear-signing-erc7730-registry).
   </Card>
   <Card title="Generated API" icon="seti:json">
     [`/sdk/api`](/ERC-7730/sdk/api/) is TypeDoc from exported `@erc7730/sdk` and `@erc7730/sdk/viem` symbols — no hand-written symbol list.

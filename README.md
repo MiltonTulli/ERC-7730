@@ -30,13 +30,34 @@ npm install @erc7730/sdk
 npm install -D @erc7730/cli
 ```
 
-## Trust (short)
-
-Production wallets should pass `officialOnlyPolicy()` or `attestedPolicy()`. Sourcify / `generateDescriptor` / inferred / basic are **never** `confidence: "high"` under `officialOnlyPolicy`. Clear signing is not ABI pretty-printing.
-
-Full table, policies, and wallet wiring: [docs site — Trust](https://miltontulli.github.io/ERC-7730/trust/) and [`docs/GUIDE.md`](./docs/GUIDE.md) (also on the site as [/guide](https://miltontulli.github.io/ERC-7730/guide/)).
-
 ## Quick start
+
+### 1. Smallest call (intent + fields)
+
+`createOfficialRegistry()` uses the vendored commit SHA. No policy lecture yet — paste this and print an intent:
+
+```typescript
+import { createOfficialRegistry, decodeTransaction } from '@erc7730/sdk';
+
+const registry = createOfficialRegistry();
+
+const result = await decodeTransaction(
+  {
+    to: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+    data: '0xd0e30db0',
+    value: 10n ** 18n,
+    chainId: 1,
+  },
+  { registry }
+);
+
+console.log(result.interpolatedIntent ?? result.intent);
+console.log(result.fields);
+```
+
+### 2. Production (explicit pin + trust)
+
+Same call with a frozen SHA and `officialOnlyPolicy()`. That policy rejects Sourcify / `generateDescriptor` / inferred / basic as high confidence:
 
 ```typescript
 import {
@@ -46,29 +67,25 @@ import {
   VENDORED_REGISTRY_COMMIT,
 } from '@erc7730/sdk';
 
-// No pin: fetches ethereum/clear-signing-erc7730-registry at VENDORED_REGISTRY_COMMIT
-// (currently 9f37816afde954ff6617fb5baa346133e5af26c5), not master.
-const registry = createOfficialRegistry();
+const registry = createOfficialRegistry({ pin: VENDORED_REGISTRY_COMMIT });
 
-// Production wallets should still pass an explicit SHA:
-// const registry = createOfficialRegistry({ pin: VENDORED_REGISTRY_COMMIT });
-// Local floating ref only: createOfficialRegistry({ ref: 'master' })
+const tx = {
+  to: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+  data: '0xd0e30db0',
+  value: 10n ** 18n,
+  chainId: 1,
+} as const;
 
-const result = await decodeTransaction(
-  {
-    to: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-    data: '0xa9059cbb000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa960450000000000000000000000000000000000000000000000000000000005f5e100',
-    chainId: 1,
-  },
-  { registry, trust: officialOnlyPolicy() }
-);
+const result = await decodeTransaction(tx, {
+  registry,
+  trust: officialOnlyPolicy(),
+});
 
 console.log(result.interpolatedIntent ?? result.intent);
 console.log(result.source, result.confidence, result.trust.accepted);
-console.log('default pin', VENDORED_REGISTRY_COMMIT);
 ```
 
-Long-form API (decode, batch, UserOp, validate/resolve, path engine, viem, generated TypeDoc): **[docs site](https://miltontulli.github.io/ERC-7730/)**.
+Clear signing is not ABI pretty-printing. Prefetch, `extend()`, `ExternalDataProvider` (token / ENS / NFT — the SDK does no RPC), batch, UserOp, and attestations: [`docs/GUIDE.md`](./docs/GUIDE.md) or the [site guide](https://miltontulli.github.io/ERC-7730/guide/). Trust table: [site /trust](https://miltontulli.github.io/ERC-7730/trust/).
 
 ## CLI
 

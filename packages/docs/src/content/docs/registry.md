@@ -14,18 +14,16 @@ import {
   VENDORED_REGISTRY_COMMIT,
 } from '@erc7730/sdk';
 
-// Quick start: omitted pin defaults to VENDORED_REGISTRY_COMMIT (not master).
+// Quick start: omitted pin defaults to VENDORED_REGISTRY_COMMIT.
 const registryQuick = createOfficialRegistry();
 
 // Production: pass an explicit 40-character commit SHA.
 const pin = VENDORED_REGISTRY_COMMIT;
 const indexes = await fetchPrebuiltRegistryIndex({ pin });
 const registry = createOfficialRegistry({ pin, indexes });
-
-// Local floating ref only: createOfficialRegistry({ ref: 'master' })
 ```
 
-`VENDORED_REGISTRY_COMMIT` is the SHA this repository vendors for schemas and fixtures, and the default when `pin` is omitted. Production wallets pick and freeze their own pin. Passing `pin: "master"` still throws; use `ref` for a branch or tag.
+`VENDORED_REGISTRY_COMMIT` is the SHA this repository vendors for schemas and fixtures, and the default when `pin` is omitted. Production wallets pick and freeze their own pin. Passing `pin: "master"` or `pin: "main"` still throws.
 
 Passing `indexes` means `index.calldata.json` and `index.eip712.json` are not fetched again. You can also bundle those JSON files at build time.
 
@@ -55,7 +53,7 @@ Optional `attachAttestations: true` loads ERC-8176 attestation JSON from the pin
 ## What is not fetched
 
 - `addressMatcher` URLs (v1-era) — fail closed
-- Arbitrary GitHub `main` / `master` as a `pin` (use explicit `ref` for local floating trees only)
+- Arbitrary GitHub `main` / `master` as a `pin`
 - Etherscan / Sourcify as trusted clear-signing metadata
 
 ## See also

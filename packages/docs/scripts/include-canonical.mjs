@@ -15,7 +15,7 @@ const pages = [
     dest: 'guide.md',
     title: 'Wallet integration guide',
     description:
-      'Wire @erc7730/sdk into a wallet: pin the official registry, inject a TrustPolicy, decode calls and typed data.',
+      'Wire @erc7730/sdk into a wallet: smallest decode first, then explicit pin + TrustPolicy, prefetch, ExternalDataProvider, batch, and UserOp.',
   },
   {
     source: 'docs/interop.md',
@@ -126,7 +126,7 @@ The [interactive demo](/ERC-7730/demo/) injects \`officialOrLocalPolicy()\` so l
 
 ## See also
 
-- [Wallet guide](/ERC-7730/guide/) — copy-paste pin + policy + decode
+- [Wallet guide](/ERC-7730/guide/) — format first, then pin + policy
 - [Registry](/ERC-7730/registry/) — commit SHA pins and indexes
 - [What we are not](/ERC-7730/not-this/)
 `;
