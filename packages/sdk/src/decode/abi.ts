@@ -1,5 +1,3 @@
-import type { AbiParameter } from 'abitype';
-import { parseAbiParameter, parseAbiParameters } from 'abitype';
 import { decodeParameters } from '../core/decoder';
 import { computeSelector } from '../core/signatures';
 
@@ -98,21 +96,6 @@ function parseArraySuffix(src: string): { type: string; rest: string } {
   return { type: match[1], rest: match[2].trim() };
 }
 
-function abiParamToParsed(param: AbiParameter): ParsedParam {
-  const name = param.name || undefined;
-  if (param.type.startsWith('tuple') && 'components' in param && param.components) {
-    const components = param.components.map(abiParamToParsed);
-    const innerTypes = components.map((item) => item.type).join(',');
-    const suffix = param.type.slice('tuple'.length);
-    return {
-      type: `(${innerTypes})${suffix}`,
-      name,
-      components,
-    };
-  }
-  return { type: param.type, name };
-}
-
 function canonicalizeType(type: string): string {
   const arrayMatch = type.match(/^(.*?)((?:\[\d*\])+)$/);
   const base = arrayMatch ? arrayMatch[1] : type;
@@ -125,30 +108,18 @@ export function parseParams(src: string): ParsedParam[] {
   if (!trimmed) {
     return [];
   }
-  try {
-    return [...parseAbiParameters(trimmed)].map(abiParamToParsed);
-  } catch {
-    return splitTopLevel(trimmed).map(parseParam);
-  }
+  return splitTopLevel(trimmed).map(parseParam);
 }
 
-function parseParam(raw: string): ParsedParam {
-  const src = raw.trim();
-  try {
-    return abiParamToParsed(parseAbiParameter(src));
-  } catch {
-    return parseParamFallback(src);
-  }
-}
-
-function parseParamFallback(src: string): ParsedParam {
-  if (src.startsWith('(')) {
-    const close = findMatchingParen(src, 0);
+function parseParam(src: string): ParsedParam {
+  const trimmed = src.trim();
+  if (trimmed.startsWith('(')) {
+    const close = findMatchingParen(trimmed, 0);
     if (close === -1) {
-      return { type: src };
+      return { type: trimmed };
     }
-    const inner = src.slice(1, close);
-    const after = src.slice(close + 1).trim();
+    const inner = trimmed.slice(1, close);
+    const after = trimmed.slice(close + 1).trim();
     const { type: suffix, rest } = parseArraySuffix(after);
     const tokens = rest.split(/\s+/).filter((token) => token && !DATA_LOCATIONS.has(token));
     const components = parseParams(inner);
@@ -160,8 +131,8 @@ function parseParamFallback(src: string): ParsedParam {
     };
   }
 
-  const tokens = src.split(/\s+/).filter((token) => token && !DATA_LOCATIONS.has(token));
-  const type = canonicalizeType(tokens[0] ?? src);
+  const tokens = trimmed.split(/\s+/).filter((token) => token && !DATA_LOCATIONS.has(token));
+  const type = canonicalizeType(tokens[0] ?? trimmed);
   const name = tokens.slice(1).join(' ') || undefined;
   return { type, name: name || undefined };
 }
