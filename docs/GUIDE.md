@@ -49,6 +49,13 @@ import {
 
 const registry = createOfficialRegistry({ pin: VENDORED_REGISTRY_COMMIT });
 
+const tx = {
+  to: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+  data: '0xd0e30db0',
+  value: 10n ** 18n,
+  chainId: 1,
+} as const;
+
 const result = await decodeTransaction(tx, {
   registry,
   trust: officialOnlyPolicy(),
@@ -80,12 +87,26 @@ Passing `indexes` means those two files are not fetched again. You can also bund
 
 ## 5. Local overrides with `extend()`
 
-App-local descriptors sit on top of the pinned registry. Under `officialOnlyPolicy()` they are never `confidence: "high"`; use `officialOrLocalPolicy()` when you intentionally accept them:
+App-local descriptors sit on top of the pinned registry. `extend()` mutates the registry and returns `void` — do not chain it onto the constructor result.
 
 ```ts
-const registry = createOfficialRegistry({ pin: VENDORED_REGISTRY_COMMIT }).extend([
-  myLocalDescriptor,
-]);
+import {
+  createOfficialRegistry,
+  officialOrLocalPolicy,
+  VENDORED_REGISTRY_COMMIT,
+  type InputDescriptor,
+} from '@erc7730/sdk';
+
+const registry = createOfficialRegistry({ pin: VENDORED_REGISTRY_COMMIT });
+
+const localDescriptors: InputDescriptor[] = [
+  // Your validated app-local descriptors.
+];
+registry.extend(localDescriptors);
+
+// Under officialOnlyPolicy(), local overrides are never confidence high.
+// When you intentionally accept them:
+const trust = officialOrLocalPolicy();
 ```
 
 ## 6. External data provider

@@ -69,6 +69,13 @@ import {
 
 const registry = createOfficialRegistry({ pin: VENDORED_REGISTRY_COMMIT });
 
+const tx = {
+  to: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+  data: '0xd0e30db0',
+  value: 10n ** 18n,
+  chainId: 1,
+} as const;
+
 const result = await decodeTransaction(tx, {
   registry,
   trust: officialOnlyPolicy(),
@@ -79,6 +86,7 @@ console.log(result.source, result.confidence, result.trust.accepted);
 ```
 
 Clear signing is not ABI pretty-printing. Prefetch, `extend()`, `ExternalDataProvider` (token / ENS / NFT — the SDK does no RPC), batch, UserOp, and attestations: [`docs/GUIDE.md`](./docs/GUIDE.md) or the [site guide](https://miltontulli.github.io/ERC-7730/guide/). Trust table: [site /trust](https://miltontulli.github.io/ERC-7730/trust/).
+
 ## CLI
 
 ```bash
