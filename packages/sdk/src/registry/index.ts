@@ -6,7 +6,8 @@
 
 import { computeSelector, registerSignature } from '../core/signatures';
 import { type ValidationResult, validateDescriptor } from '../schema';
-import type { ERC7730Descriptor, FunctionFormat } from '../types/erc7730';
+import type { InputDescriptor } from '../types/descriptor';
+import type { FunctionFormat } from '../types/erc7730';
 import { ERC20_DESCRIPTOR } from './erc20';
 import { ERC721_DESCRIPTOR } from './erc721';
 import {
@@ -17,17 +18,38 @@ import {
 } from './external';
 import { WETH_DESCRIPTOR } from './weth';
 
+function descriptorMatchesAddress(
+  descriptor: InputDescriptor,
+  chainId: number,
+  normalizedAddress: string
+): boolean {
+  const context = descriptor.context;
+  if (!context || !('contract' in context) || !context.contract) {
+    return false;
+  }
+  for (const deployment of context.contract.deployments ?? []) {
+    if (
+      deployment.chainId === chainId &&
+      typeof deployment.address === 'string' &&
+      deployment.address.toLowerCase() === normalizedAddress
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
 // Built-in descriptors for common standards
 // These are always available and serve as fallbacks
 // Order matters! For signature collisions, first match wins.
-export const BUILTIN_DESCRIPTORS: ERC7730Descriptor[] = [
+export const BUILTIN_DESCRIPTORS: InputDescriptor[] = [
   WETH_DESCRIPTOR, // Specific contract, should be checked first
   ERC20_DESCRIPTOR, // Most common standard
   ERC721_DESCRIPTOR, // NFT standard (has signature collisions with ERC20)
 ];
 
 // Index by function signature for fast lookup
-type SignatureIndex = Map<string, { descriptor: ERC7730Descriptor; format: FunctionFormat }>;
+type SignatureIndex = Map<string, { descriptor: InputDescriptor; format: FunctionFormat }>;
 
 let signatureIndex: SignatureIndex | null = null;
 
@@ -35,11 +57,18 @@ function buildSignatureIndex(): SignatureIndex {
   const index: SignatureIndex = new Map();
 
   for (const descriptor of BUILTIN_DESCRIPTORS) {
-    for (const [signature, format] of Object.entries(descriptor.display.formats)) {
+    const formats = descriptor.display?.formats;
+    if (!formats) {
+      continue;
+    }
+    for (const [signature, format] of Object.entries(formats)) {
       const normalized = normalizeSignature(signature);
       // First match wins - don't overwrite if already exists
       if (!index.has(normalized)) {
-        index.set(normalized, { descriptor, format });
+        index.set(normalized, {
+          descriptor,
+          format: format as FunctionFormat,
+        });
       }
     }
   }
@@ -129,7 +158,7 @@ function findMatchingParen(str: string): number {
 }
 
 export interface RegistryMatch {
-  descriptor: ERC7730Descriptor;
+  descriptor: InputDescriptor;
   format: FunctionFormat;
 }
 
@@ -137,7 +166,7 @@ export interface RegistryMatch {
  * Registry class for managing ERC-7730 descriptors
  */
 export class Registry {
-  private customDescriptors: ERC7730Descriptor[] = [];
+  private customDescriptors: InputDescriptor[] = [];
   private customIndex: SignatureIndex = new Map();
   private useExternalRegistry: boolean;
 
@@ -179,19 +208,13 @@ export class Registry {
   /**
    * Find descriptor by contract address and chain
    */
-  findByAddress(address: string, chainId: number): ERC7730Descriptor | null {
+  findByAddress(address: string, chainId: number): InputDescriptor | null {
     const normalizedAddress = address.toLowerCase();
 
     // 1. Check custom first
     for (const descriptor of this.customDescriptors) {
-      const deployments = descriptor.context.contract?.deployments || [];
-      for (const deployment of deployments) {
-        if (
-          deployment.chainId === chainId &&
-          deployment.address.toLowerCase() === normalizedAddress
-        ) {
-          return descriptor;
-        }
+      if (descriptorMatchesAddress(descriptor, chainId, normalizedAddress)) {
+        return descriptor;
       }
     }
 
@@ -205,14 +228,8 @@ export class Registry {
 
     // 3. Check built-in
     for (const descriptor of BUILTIN_DESCRIPTORS) {
-      const deployments = descriptor.context.contract?.deployments || [];
-      for (const deployment of deployments) {
-        if (
-          deployment.chainId === chainId &&
-          deployment.address.toLowerCase() === normalizedAddress
-        ) {
-          return descriptor;
-        }
+      if (descriptorMatchesAddress(descriptor, chainId, normalizedAddress)) {
+        return descriptor;
       }
     }
 
@@ -225,7 +242,7 @@ export class Registry {
    *
    * @returns Array of validation results for each descriptor
    */
-  extend(descriptors: ERC7730Descriptor | ERC7730Descriptor[]): ValidationResult[] {
+  extend(descriptors: InputDescriptor | InputDescriptor[]): ValidationResult[] {
     const toAdd = Array.isArray(descriptors) ? descriptors : [descriptors];
     const results: ValidationResult[] = [];
 
@@ -255,7 +272,8 @@ export class Registry {
       }
 
       // Index by signature and register with decoder
-      for (const [signature, format] of Object.entries(formats)) {
+      for (const [signature, rawFormat] of Object.entries(formats)) {
+        const format = rawFormat as FunctionFormat;
         const normalized = normalizeSignature(signature);
         this.customIndex.set(normalized, { descriptor, format });
 
@@ -276,7 +294,7 @@ export class Registry {
   /**
    * Get all registered descriptors
    */
-  getAll(): ERC7730Descriptor[] {
+  getAll(): InputDescriptor[] {
     const external = this.useExternalRegistry ? getExternalDescriptors() : [];
     return [...this.customDescriptors, ...external, ...BUILTIN_DESCRIPTORS];
   }

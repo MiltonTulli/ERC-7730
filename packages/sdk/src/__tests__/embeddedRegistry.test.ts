@@ -14,10 +14,16 @@ describe('embedded registry', () => {
     const descriptors = getExternalDescriptors();
     expect(descriptors.length).toBe(getStats().descriptors);
     for (const descriptor of descriptors) {
-      expect(descriptor.display.formats).toBeTypeOf('object');
-      for (const deployment of descriptor.context.contract?.deployments ?? []) {
+      expect(descriptor.display?.formats).toBeTypeOf('object');
+      const context = descriptor.context;
+      if (!context || !('contract' in context)) {
+        continue;
+      }
+      for (const deployment of context.contract.deployments ?? []) {
         expect(typeof deployment.chainId).toBe('number');
-        expect(deployment.address.startsWith('0x')).toBe(true);
+        expect(typeof deployment.address === 'string' && deployment.address.startsWith('0x')).toBe(
+          true
+        );
       }
     }
   });
@@ -26,13 +32,18 @@ describe('embedded registry', () => {
     const matches = findByAddress('0x8236a87084f8b84306f72007f36f2618a5634494', 1);
     expect(matches.length).toBeGreaterThan(0);
     expect(
-      matches.some((descriptor) =>
-        descriptor.context.contract?.deployments.some(
+      matches.some((descriptor) => {
+        const context = descriptor.context;
+        if (!context || !('contract' in context)) {
+          return false;
+        }
+        return (context.contract.deployments ?? []).some(
           (deployment) =>
             deployment.chainId === 1 &&
+            typeof deployment.address === 'string' &&
             deployment.address.toLowerCase() === '0x8236a87084f8b84306f72007f36f2618a5634494'
-        )
-      )
+        );
+      })
     ).toBe(true);
   });
 });

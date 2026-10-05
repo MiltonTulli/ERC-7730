@@ -1,4 +1,4 @@
-import type { ERC7730Descriptor, InputDescriptor } from '@erc7730/sdk';
+import type { InputDescriptor } from '@erc7730/sdk';
 import { GENERATED_COMMENT, V2_SCHEMA_URI } from './types';
 
 const ADDRESS_NAME_TYPES = new Set(['wallet', 'eoa', 'contract', 'token', 'collection']);
@@ -75,7 +75,7 @@ function rewriteDisplay(display: unknown): unknown {
  * `$comment` canonical and maps leftover v1 `addressName` type `nft` →
  * `collection`.
  */
-export function toV2Draft(descriptor: InputDescriptor | ERC7730Descriptor): InputDescriptor {
+export function toV2Draft(descriptor: InputDescriptor): InputDescriptor {
   const rec = descriptor as Record<string, unknown>;
   const out: Record<string, unknown> = {
     $schema: V2_SCHEMA_URI,

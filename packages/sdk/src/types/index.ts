@@ -94,7 +94,7 @@ export interface RegistryConfig {
   embedded?: boolean;
 
   /** Additional custom descriptors */
-  custom?: import('./erc7730').ERC7730Descriptor[];
+  custom?: import('./descriptor').InputDescriptor[];
 }
 
 /**
