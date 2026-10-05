@@ -13,8 +13,6 @@
  * not hardcoded.
  */
 
-import type { AbiEvent, AbiParameter } from 'abitype';
-import { parseAbiItem, parseAbiParameters } from 'abitype';
 import { decodeEventLog, encodeAbiParameters, keccak256, toBytes } from 'viem';
 import { isPlainObject } from '../resolve/util';
 import type { LogBlockTag, Provider, TransactionInput, TypedDataInput } from '../types';
@@ -23,6 +21,26 @@ import { ZERO_ADDRESS, asAddress, asRecord } from './common';
 import type { Address } from './types';
 
 const ADDRESS_RE = /^0x[0-9a-fA-F]{40}$/;
+
+const TYPE_ALIASES: Record<string, string> = {
+  uint: 'uint256',
+  int: 'int256',
+  ufixed: 'ufixed128x18',
+  fixed: 'fixed128x18',
+};
+
+type DeployEventInput = {
+  type: string;
+  name?: string;
+  indexed?: boolean;
+  components?: DeployEventInput[];
+};
+
+type DeployEvent = {
+  type: 'event';
+  name: string;
+  inputs: DeployEventInput[];
+};
 
 /** EIP-1967 implementation slot: `bytes32(uint256(keccak256('eip1967.proxy.implementation')) - 1)`. */
 export const EIP1967_IMPLEMENTATION_SLOT =
@@ -243,32 +261,97 @@ function splitTopLevel(src: string): string[] {
   return parts;
 }
 
-function looksLikeTypeToken(token: string): boolean {
-  return /^(address|bool|string|bytes([1-9][0-9]?)?|u?int\d*|u?fixed\d+x\d+|tuple\b)/i.test(token);
+function findMatchingParen(src: string, openIndex: number): number {
+  let depth = 0;
+  for (let i = openIndex; i < src.length; i++) {
+    if (src[i] === '(') {
+      depth++;
+    } else if (src[i] === ')') {
+      depth--;
+      if (depth === 0) {
+        return i;
+      }
+    }
+  }
+  return -1;
 }
 
-function injectParamNames(params: string): string {
-  return splitTopLevel(params)
-    .map((raw, index) => {
-      const tokens = raw.trim().split(/\s+/).filter(Boolean);
-      if (tokens.length === 0) {
-        return raw;
-      }
-      const last = tokens[tokens.length - 1];
-      if (
-        last === 'indexed' ||
-        looksLikeTypeToken(last) ||
-        last.startsWith('(') ||
-        /\[\d*\]$/.test(last)
-      ) {
-        return `${raw.trim()} arg${index}`;
-      }
-      return raw.trim();
-    })
-    .join(',');
+function parseArraySuffix(src: string): { type: string; rest: string } {
+  const match = src.match(/^((?:\[[\d]*\])+)\s*(.*)$/);
+  if (!match) {
+    return { type: '', rest: src.trim() };
+  }
+  return { type: match[1], rest: match[2].trim() };
 }
 
-function parseDeployEvent(signature: string): AbiEvent | undefined {
+function canonicalizeType(type: string): string {
+  const arrayMatch = type.match(/^(.*?)((?:\[\d*\])+)$/);
+  const base = arrayMatch ? arrayMatch[1] : type;
+  const suffix = arrayMatch ? arrayMatch[2] : '';
+  return `${TYPE_ALIASES[base] ?? base}${suffix}`;
+}
+
+function parseEventInputs(src: string): DeployEventInput[] {
+  const trimmed = src.trim();
+  if (!trimmed) {
+    return [];
+  }
+  return splitTopLevel(trimmed).map((raw, index) => parseEventInput(raw, index));
+}
+
+function parseEventInput(raw: string, index: number): DeployEventInput {
+  const src = raw.trim();
+  if (src.startsWith('(')) {
+    const close = findMatchingParen(src, 0);
+    if (close === -1) {
+      return { type: src, name: `arg${index}` };
+    }
+    const inner = src.slice(1, close);
+    const after = src.slice(close + 1).trim();
+    const { type: suffix, rest } = parseArraySuffix(after);
+    const tokens = rest.split(/\s+/).filter(Boolean);
+    let indexed = false;
+    const nameTokens: string[] = [];
+    for (const token of tokens) {
+      if (token === 'indexed') {
+        indexed = true;
+        continue;
+      }
+      nameTokens.push(token);
+    }
+    const components = parseEventInputs(inner);
+    const innerTypes = components.map((item) => item.type).join(',');
+    return {
+      type: `(${innerTypes})${suffix}`,
+      name: nameTokens.join(' ') || `arg${index}`,
+      indexed: indexed || undefined,
+      components,
+    };
+  }
+
+  const tokens = src.split(/\s+/).filter(Boolean);
+  let indexed = false;
+  const typeTokens: string[] = [];
+  const nameTokens: string[] = [];
+  for (const token of tokens) {
+    if (token === 'indexed') {
+      indexed = true;
+      continue;
+    }
+    if (typeTokens.length === 0) {
+      typeTokens.push(token);
+    } else {
+      nameTokens.push(token);
+    }
+  }
+  return {
+    type: canonicalizeType(typeTokens[0] ?? src),
+    name: nameTokens.join(' ') || `arg${index}`,
+    indexed: indexed || undefined,
+  };
+}
+
+function parseDeployEvent(signature: string): DeployEvent | undefined {
   const trimmed = signature.trim();
   if (!trimmed) {
     return undefined;
@@ -280,34 +363,22 @@ function parseDeployEvent(signature: string): AbiEvent | undefined {
     return undefined;
   }
   const name = body.slice(0, open).trim();
-  const params = injectParamNames(body.slice(open + 1, close));
-  const source = `event ${name}(${params})`;
-  try {
-    const item = parseAbiItem(source);
-    if (item.type !== 'event') {
-      return undefined;
-    }
-    return item;
-  } catch {
-    try {
-      const inputs = [...parseAbiParameters(params)] as AbiParameter[];
-      return {
-        type: 'event',
-        name,
-        inputs,
-      };
-    } catch {
-      return undefined;
-    }
+  if (!name) {
+    return undefined;
   }
+  return {
+    type: 'event',
+    name,
+    inputs: parseEventInputs(body.slice(open + 1, close)),
+  };
 }
 
-function eventCanonical(event: AbiEvent): string {
-  const types = (event.inputs ?? []).map((input) => input.type).join(',');
+function eventCanonical(event: DeployEvent): string {
+  const types = event.inputs.map((input) => input.type).join(',');
   return `${event.name}(${types})`;
 }
 
-function eventTopic0(event: AbiEvent): Hex {
+function eventTopic0(event: DeployEvent): Hex {
   return keccak256(toBytes(eventCanonical(event)));
 }
 
