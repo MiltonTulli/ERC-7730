@@ -136,6 +136,68 @@ describe('createOfficialRegistry pin', () => {
     expect(() => createOfficialRegistry({ pin: '9f37816' })).toThrow(/40-character/);
   });
 
+  it('rejects a non-string pin or ref', () => {
+    expect(() => createOfficialRegistry({ pin: 123 as unknown as string })).toThrow(
+      /config\.pin to be a string/
+    );
+    expect(() => createOfficialRegistry({ ref: 123 as unknown as string })).toThrow(
+      /config\.ref to be a string/
+    );
+  });
+
+  it('does not reuse durable cache across instances for a floating ref', async () => {
+    const durable = createMemoryDescriptorCache();
+    const files = registryFiles();
+    let indexFetches = 0;
+    const fetchImpl: typeof fetch = async (input) => {
+      const url = String(input);
+      const marker = '/master/';
+      const idx = url.indexOf(marker);
+      const path = idx === -1 ? url : url.slice(idx + marker.length);
+      if (path === 'index.calldata.json') {
+        indexFetches += 1;
+      }
+      if (!(path in files)) {
+        return new Response('not found', { status: 404 });
+      }
+      return new Response(JSON.stringify(files[path]), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      });
+    };
+
+    const first = createOfficialRegistry({ ref: 'master', fetch: fetchImpl, cache: durable });
+    await first.findCalldata({ chainId: 1, address: WETH });
+    expect(indexFetches).toBe(1);
+
+    const second = createOfficialRegistry({ ref: 'master', fetch: fetchImpl, cache: durable });
+    await second.findCalldata({ chainId: 1, address: WETH });
+    expect(indexFetches).toBe(2);
+  });
+
+  it('percent-encodes # in floating ref raw URLs', async () => {
+    const calls: string[] = [];
+    const files = registryFiles();
+    const fetchImpl: typeof fetch = async (input) => {
+      const url = String(input);
+      calls.push(url);
+      const marker = '/release%23candidate/';
+      const idx = url.indexOf(marker);
+      const path = idx === -1 ? url : url.slice(idx + marker.length);
+      if (!(path in files)) {
+        return new Response('not found', { status: 404 });
+      }
+      return new Response(JSON.stringify(files[path]), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      });
+    };
+    const registry = createOfficialRegistry({ ref: 'release#candidate', fetch: fetchImpl });
+    await registry.findCalldata({ chainId: 1, address: WETH });
+    expect(calls.some((url) => url.includes('/release%23candidate/'))).toBe(true);
+    expect(calls.every((url) => !url.includes('/release#candidate/'))).toBe(true);
+  });
+
   it('accepts the vendored schema commit as a pin', () => {
     expect(isCommitSha(VENDORED_REGISTRY_COMMIT)).toBe(true);
     expect(VENDORED_REGISTRY_COMMIT).toBe(PIN);

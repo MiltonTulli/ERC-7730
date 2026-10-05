@@ -34,9 +34,16 @@ export function assertRegistryPin(pin: string): string {
  * - `ref` → explicit branch or tag (floating; local-dev escape hatch)
  */
 export function resolveRegistryTreeRef(config: {
-  pin?: string;
-  ref?: string;
+  pin?: unknown;
+  ref?: unknown;
 }): string {
+  if (config.pin !== undefined && typeof config.pin !== 'string') {
+    throw new OfficialRegistryError('createOfficialRegistry requires config.pin to be a string');
+  }
+  if (config.ref !== undefined && typeof config.ref !== 'string') {
+    throw new OfficialRegistryError('createOfficialRegistry requires config.ref to be a string');
+  }
+
   const hasPin = typeof config.pin === 'string';
   const hasRef = typeof config.ref === 'string';
 

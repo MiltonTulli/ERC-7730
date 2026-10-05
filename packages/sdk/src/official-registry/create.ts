@@ -15,7 +15,7 @@ import {
   resolveRegistryPath,
   toCaip10,
 } from './paths';
-import { resolveRegistryTreeRef } from './pin';
+import { isCommitSha, resolveRegistryTreeRef } from './pin';
 import type {
   CalldataIndex,
   DescriptorCache,
@@ -77,6 +77,9 @@ function pickEip712Path(
 export function createOfficialRegistry(config: OfficialRegistryConfig = {}): OfficialRegistry {
   const options = config ?? {};
   const pin = resolveRegistryTreeRef(options);
+  // Commit SHAs are immutable; branch/tag refs can move. Do not treat floating
+  // trees as durable cache keys across fetches or registry instances.
+  const cacheable = isCommitSha(pin);
   const baseUrl = (options.baseUrl ?? DEFAULT_OFFICIAL_REGISTRY_BASE_URL).replace(/\/+$/, '');
   const memory = createMemoryDescriptorCache();
   const durable: DescriptorCache | undefined = options.cache;
@@ -93,6 +96,9 @@ export function createOfficialRegistry(config: OfficialRegistryConfig = {}): Off
   const resolvedOverrides = new Map<InputDescriptor, Promise<ResolvedDescriptor>>();
 
   async function readCache(key: string): Promise<unknown | undefined> {
+    if (!cacheable) {
+      return undefined;
+    }
     const hot = await memory.get(key);
     if (hot !== undefined) {
       return hot;
@@ -108,6 +114,9 @@ export function createOfficialRegistry(config: OfficialRegistryConfig = {}): Off
   }
 
   async function writeCache(key: string, value: unknown): Promise<void> {
+    if (!cacheable) {
+      return;
+    }
     await memory.set(key, value);
     if (durable) {
       await durable.set(key, value);
@@ -201,7 +210,7 @@ export function createOfficialRegistry(config: OfficialRegistryConfig = {}): Off
           'attachAttestations lists sigs through the GitHub contents API of the official repo. Pass descriptor.attestations when baseUrl is a custom gateway.'
         );
       }
-      const listUrl = `${GITHUB_API}/repos/${OFFICIAL_REGISTRY_REPO}/contents/${sigsDir}?ref=${pin}`;
+      const listUrl = `${GITHUB_API}/repos/${OFFICIAL_REGISTRY_REPO}/contents/${sigsDir}?ref=${encodeURIComponent(pin)}`;
       let response: Response;
       try {
         response = await fetchImpl(listUrl, {
