@@ -1,5 +1,11 @@
 # @erc7730/sdk
 
+## 0.8.1
+
+### Patch Changes
+
+- 95683f2: Parse ABI signatures with the SDK's own parser. `@erc7730/sdk` no longer depends on `abitype`.
+
 ## 0.8.0
 
 ### Minor Changes
