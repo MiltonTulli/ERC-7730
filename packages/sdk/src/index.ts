@@ -8,7 +8,7 @@
  * ```typescript
  * import { createOfficialRegistry, decodeTransaction, officialOnlyPolicy } from '@erc7730/sdk';
  *
- * const registry = createOfficialRegistry({ pin: '9f37816afde954ff6617fb5baa346133e5af26c5' });
+ * const registry = createOfficialRegistry(); // defaults to VENDORED_REGISTRY_COMMIT
  * const result = await decodeTransaction(tx, { registry, trust: officialOnlyPolicy() });
  *
  * console.log(result.intent);

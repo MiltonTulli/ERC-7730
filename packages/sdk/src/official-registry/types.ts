@@ -48,9 +48,19 @@ export interface OfficialRegistryIndexes {
 }
 
 export interface OfficialRegistryConfig {
-  /** Full 40-character git commit SHA. Required. Never `master` / `main`. */
-  pin: string;
-  /** Prefix before `/{pin}/{path}`. Defaults to GitHub raw for the official repo. */
+  /**
+   * Full 40-character git commit SHA. When omitted (and `ref` is unset),
+   * defaults to `VENDORED_REGISTRY_COMMIT`. Never pass `master` / `main`
+   * here — use `ref` for a floating branch or tag.
+   */
+  pin?: string;
+  /**
+   * Explicit branch or tag (for example `"master"`). Opt-in floating ref for
+   * local development. Mutually exclusive with `pin`. Production wallets
+   * should pass an explicit `pin` SHA instead.
+   */
+  ref?: string;
+  /** Prefix before `/{pin|ref}/{path}`. Defaults to GitHub raw for the official repo. */
   baseUrl?: string;
   /** Optional durable cache (fs / IndexedDB). Memory cache is always on. */
   cache?: DescriptorCache;

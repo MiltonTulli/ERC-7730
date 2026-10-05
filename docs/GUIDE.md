@@ -1,6 +1,6 @@
 # Wallet integration guide
 
-How to wire `@erc7730/sdk` into a wallet as a clear-signing drop-in. Structure matches the Sourcify TS guide; the defaults here keep **pin + policy** explicit.
+How to wire `@erc7730/sdk` into a wallet as a clear-signing drop-in. Structure matches the Sourcify TS guide. Quick starts may omit `pin` (the SDK defaults to `VENDORED_REGISTRY_COMMIT`); production wallets should still pass an explicit SHA and a trust policy.
 
 ## 1. Install
 
@@ -14,18 +14,25 @@ The published package does not include a descriptor catalog. `@erc7730/sdk/lite`
 
 ## 2. Prefetch the official indexes
 
-Descriptors live in [`ethereum/clear-signing-erc7730-registry`](https://github.com/ethereum/clear-signing-erc7730-registry). Pin a **commit SHA**. Fetch the indexes once at app boot and keep the object yourself:
+Descriptors live in [`ethereum/clear-signing-erc7730-registry`](https://github.com/ethereum/clear-signing-erc7730-registry). `createOfficialRegistry()` with no pin uses `VENDORED_REGISTRY_COMMIT` (a commit SHA shipped with the SDK, not `master`). Production wallets should still pass an explicit pin. Fetch the indexes once at app boot and keep the object yourself:
 
 ```ts
 import {
   createOfficialRegistry,
   fetchPrebuiltRegistryIndex,
+  VENDORED_REGISTRY_COMMIT,
 } from '@erc7730/sdk';
 
-const pin = '9f37816afde954ff6617fb5baa346133e5af26c5';
-const indexes = await fetchPrebuiltRegistryIndex({ pin });
+// Quick start (no pin): createOfficialRegistry() uses VENDORED_REGISTRY_COMMIT.
+const registryQuick = createOfficialRegistry();
 
+// Production: freeze your own SHA (often the vendored constant, or a newer pin you chose).
+const pin = VENDORED_REGISTRY_COMMIT;
+const indexes = await fetchPrebuiltRegistryIndex({ pin });
 const registry = createOfficialRegistry({ pin, indexes });
+
+// Local floating ref only — never the default:
+// createOfficialRegistry({ ref: 'master' })
 ```
 
 Passing `indexes` means those two files are not fetched again. You can also bundle the JSON at build time. With no network, pass `indexes` and a `cache`. ERC-20, ERC-721, and WETH builtins (`ERC20_DESCRIPTOR`, `ERC721_DESCRIPTOR`, `WETH_DESCRIPTOR`) stay local fallbacks. They are not a catalog.
