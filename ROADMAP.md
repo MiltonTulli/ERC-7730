@@ -1,162 +1,51 @@
-# Roadmap — @erc7730/sdk
+# Roadmap
 
-Objetivo: que el SDK sea el **runtime TypeScript trust-aware** de ERC-7730 para wallets y dApps, y el **CLI de autores** del ecosistema JS — alineado al schema v2 y al registry oficial [`ethereum/clear-signing-erc7730-registry`](https://github.com/ethereum/clear-signing-erc7730-registry).
+Tracker: [#2](https://github.com/MiltonTulli/ERC-7730/issues/2). That issue is the checklist. This file is the version chain.
 
-No somos una fuente alternativa de descriptores. Consumimos la oficial, validamos, resolvemos, renderizamos y aplicamos una política de confianza que decide la wallet.
+North star: one production wallet on `officialOnlyPolicy()`.
 
-Tracker: [#2](https://github.com/MiltonTulli/ERC-7730/issues/2). Preferir **pocos PRs grandes**.
+Public one-liner: the safest way to show a transaction to a human in TypeScript.
 
----
+## How versions chain
 
-## Principios
+Do not open the next minor until the previous exit criteria are green. Patches anytime. At most one minor per week. 0.10 is the only breaking minor in this cycle.
 
-1. **Spec first.** v2 es el target. v1 se acepta en lectura y se normaliza a un modelo interno resuelto.
-2. **Una sola fuente de verdad.** El registry canónico es `ethereum/clear-signing-erc7730-registry`. Este repo no compite con él.
-3. **Trust es pluggable.** El SDK no decide a quién creer. Expone hash + attestations + source; la app inyecta `TrustPolicy`.
-4. **Sourcify / ABI generated = untrusted fallback.** Nunca `confidence: "high"`.
-5. **Core sin red.** Decode + schema + formatters funcionan offline. RPC / Sourcify / ENS son adapters.
-6. **API estable y chica.** Pocas funciones públicas. El resto es interno.
-7. **No somos la reference implementation.** Esa silla la tiene Sourcify TS + el working group. Nosotros: pin SHA + policies + CLI JS + interop con `python-erc7730`.
+| Version | Milestone | Closes | Issues |
+|---|---|---|---|
+| 0.9.1 patch | M0 Honesty | Declared contract matches what ships. No API change. | [#89](https://github.com/MiltonTulli/ERC-7730/issues/89) [#90](https://github.com/MiltonTulli/ERC-7730/issues/90) [#91](https://github.com/MiltonTulli/ERC-7730/issues/91) [#92](https://github.com/MiltonTulli/ERC-7730/issues/92) [#93](https://github.com/MiltonTulli/ERC-7730/issues/93) |
+| 0.10 minor | M1 Honest contract | Real result types, `officialOnlyPolicy()` default, builtins never `high`, no process-global state, `/lite` and `/viem` removed. | [#94](https://github.com/MiltonTulli/ERC-7730/issues/94)–[#105](https://github.com/MiltonTulli/ERC-7730/issues/105) |
+| 0.11 minor | M2 Product | `clearSign`, diagnostics, `toScreens`, one wallet fork. | [#106](https://github.com/MiltonTulli/ERC-7730/issues/106)–[#111](https://github.com/MiltonTulli/ERC-7730/issues/111) |
+| 0.12 minor | M3 Small API | ~25 root exports, perf, `erc7730 test`. Start only after 0.11 is in a wallet fork. | [#112](https://github.com/MiltonTulli/ERC-7730/issues/112)–[#122](https://github.com/MiltonTulli/ERC-7730/issues/122) |
+| 1.0 major | M4 Stable | No `@deprecated`. Written viem and CJS decisions. A real wallet in production. | [#123](https://github.com/MiltonTulli/ERC-7730/issues/123)–[#127](https://github.com/MiltonTulli/ERC-7730/issues/127) |
+| post 1.0 | M5 Adoption | Listing, coverage dashboard, benches, adapters. | [#128](https://github.com/MiltonTulli/ERC-7730/issues/128)–[#131](https://github.com/MiltonTulli/ERC-7730/issues/131) |
 
----
+## Decisions
 
-## Estado (septiembre 2026)
+- `viem` becomes a real dependency in 0.9.1 ([#89](https://github.com/MiltonTulli/ERC-7730/issues/89)). Extracting it from the core waits until a wallet asks ([#124](https://github.com/MiltonTulli/ERC-7730/issues/124)).
+- `@erc7730/sdk/lite` and `@erc7730/sdk/viem` are removed in 0.10 ([#105](https://github.com/MiltonTulli/ERC-7730/issues/105)). `lite` is deprecated and is not a smaller graph. `decodeViemTransaction` is an alias. `decodeViemTypedData` moves to the root.
+- CJS / React Native stays parked ([#70](https://github.com/MiltonTulli/ERC-7730/issues/70), decision in [#125](https://github.com/MiltonTulli/ERC-7730/issues/125)).
+- Listing next to Sourcify TS / Rust waits for the wallet case study and `erc7730 test` ([#69](https://github.com/MiltonTulli/ERC-7730/issues/69), [#128](https://github.com/MiltonTulli/ERC-7730/issues/128)).
 
-Publicado en este checkout: ver `packages/sdk/package.json` y `packages/cli/package.json` (líneas independientes en npm: `@erc7730/sdk`, `@erc7730/cli`). Docs del toolkit: [miltontulli.github.io/ERC-7730](https://miltontulli.github.io/ERC-7730/) ([#43](https://github.com/MiltonTulli/ERC-7730/issues/43)).
+## Exit criteria
 
-| Capacidad | Estado |
-|---|---|
-| Schema v1 + v2 | Hecho |
-| `validateDescriptor` / `resolveDescriptor` / `$ref` + includes | Hecho |
-| Registry oficial pineado por commit SHA | Hecho |
-| Paths `#` `$` `@` | Hecho |
-| `decodeTransaction` / `decodeTypedData` | Hecho |
-| Proxy / factory / addressMatcher | Hecho |
-| `TrustPolicy` (`officialOnly` / `officialOrLocal` / `attested` / compose) | Hecho |
-| Security warnings | Hecho |
-| Golden vs `python-erc7730` | Hecho |
-| `@erc7730/cli` generate / lint / preview / diff / scaffold | Hecho |
-| Heurística ABI → descriptor | Hecho |
-| Adapters `@erc7730/sdk/viem` + export `lite` | Hecho |
-| `interpolatedIntent` | Hecho (#53) |
-| EIP-5792 batch | Hecho (#53) |
-| `ExternalDataProvider` | Hecho (#53) |
-| `trustedTokens` templates ERC-20/721 | Hecho (#53) |
-| ERC-8176 `attestedPolicy` | Hecho (#53) |
-| Multicall3 / Safe inner calls | Hecho (#54) |
-| `decodeUserOp` | Hecho (#54) |
-| Compat `format()` + matriz interop | Hecho (#54) |
-| Docs site (Pages = docs + `/demo`) | [#43](https://github.com/MiltonTulli/ERC-7730/issues/43) |
-| Catálogo embebido en el tarball | Retirado ([#77](https://github.com/MiltonTulli/ERC-7730/issues/77)). El lookup publicado es el pin |
+- **0.9.1:** clean install imports the package; a known `transfer` does not print `Param 1`; README claims nothing false; disclosure channel exists.
+- **0.10:** exported `DecodedField` is the runtime type; a call with no options does not return `policy: 'unspecified'`; `/lite` and `/viem` are gone.
+- **0.11:** README quick start is `clearSign`; five failure reasons assert a diagnostic code; a wallet case study covers its 20 most common transactions.
+- **1.0:** zero `@deprecated` in `dist/index.d.ts`; an external wallet in production on `officialOnlyPolicy()`.
 
----
+## Shipped
 
-## Releases
+- 0.2 spec and pinned registry
+- 0.3 signing runtime
+- 0.4 CLI and `@erc7730/sdk/viem` (entry removed in 0.10)
+- 0.5 wallet drop-in ([#53](https://github.com/MiltonTulli/ERC-7730/issues/53))
+- 0.6 coverage, policies, authoring ([#54](https://github.com/MiltonTulli/ERC-7730/issues/54))
+- 0.7–0.9 published 2026-10-05, each breaking. Current: 0.9.0
 
-### v0.2.0 — Spec & registry — shipped
+## First PRs
 
-Parser v2, registry oficial + pin, normalize v1, tests contra schema oficial.
+[#89](https://github.com/MiltonTulli/ERC-7730/issues/89), [#90](https://github.com/MiltonTulli/ERC-7730/issues/90), [#91](https://github.com/MiltonTulli/ERC-7730/issues/91)+[#92](https://github.com/MiltonTulli/ERC-7730/issues/92), [#93](https://github.com/MiltonTulli/ERC-7730/issues/93), then [#95](https://github.com/MiltonTulli/ERC-7730/issues/95).
 
-### v0.3.0 — Runtime de firma — shipped
+## Keep
 
-Display fiel al spec, `decodeTransaction` + `decodeTypedData`, context matchers, `TrustPolicy` + `descriptorHash`, warnings, API funcional (`ClearSigner.decode` deprecated).
-
-### v0.4.0 — Autores & adapters — shipped
-
-CLI `generate` / `lint` / `preview` / `diff`, heurística de formats, `@erc7730/sdk/viem`.
-
-### v0.5.0 — Wallet drop-in parity — shipped ([#53](https://github.com/MiltonTulli/ERC-7730/issues/53))
-
-Una wallet que hoy usa `@ethereum-sourcify/clear-signing` puede cambiar el import sin perder pantallas ni attestations.
-
-- `interpolatedIntent` (fallback a intent + fields)
-- `decodeBatch` / EIP-5792 (`" and "` entre intents)
-- `ExternalDataProvider`; core / `lite` sin red
-- `trustedTokens` → templates ERC-20/721, nunca high bajo `officialOnlyPolicy`
-- `attestedPolicy` ERC-8176 (verificar, no emitir; revocación inyectada)
-- Prefetch de índices oficiales (el caller guarda el objeto)
-- `GUIDE.md` wallet: pin, policy, provider, qué no es el fallback Sourcify
-
-Fuera de 0.5: Multicall3, UserOp, i18n, playground, dashboard.
-
-### v0.6.0 — Coverage + policies + authoring — shipped ([#54](https://github.com/MiltonTulli/ERC-7730/issues/54))
-
-Donde la propuesta es estrictamente mejor que un formatter de referencia.
-
-- Multicall3 (`children[]`); Safe `execTransaction` si entra barato
-- `decodeUserOp` (Simple Account `execute` / `executeBatch`)
-- EIP-712 bound sólo por `domain` / `domainSeparator`
-- Policy pack + reason codes estables + risk extra (allowlist de spender)
-- CLI: lint alineado a `python-erc7730`, preview con trust, scaffold de PR al registry oficial, Action “ABI vs descriptor stale”
-- Compat `format` / `formatTypedData` → `decode*` + policy
-- Matriz pública de fixtures vs python-erc7730 y Sourcify TS
-- `locale` sólo para dates/amounts
-
-Fuera de 0.6: registry propio, dashboard de cobertura, claim de reference implementation.
-
-### Later
-
-- [#43](https://github.com/MiltonTulli/ERC-7730/issues/43) docs site (Pages hoy es sólo la demo)
-
----
-
-## API sketch (target 0.5+)
-
-Lo de 0.2–0.4 ya está en `packages/sdk/src/index.ts`. Abajo sólo lo nuevo.
-
-```ts
-export interface DecodedOperation {
-  confidence: Confidence;
-  source: DecodeSource; // incluye "attested" | "trusted-token"
-  intent: string;
-  interpolatedIntent?: string;
-  fields: DecodedField[];
-  children?: DecodedOperation[];
-  warnings: SecurityWarning[];
-  trust: TrustReport;
-  // ...metadata / raw existentes
-}
-
-export interface ExternalDataProvider {
-  resolveToken?(chainId: number, address: Address): Promise<TokenInfo | null>;
-  resolveEnsName?(address: Address): Promise<string | null>;
-  resolveNftCollectionName?(chainId: number, address: Address): Promise<string | null>;
-  resolveBlockTimestamp?(chainId: number, blockHeight: bigint): Promise<number | null>;
-  resolveChainInfo?(chainId: number): Promise<{ name: string; symbol: string } | null>;
-  chainClient?: { call(chainId: number, req: { to: Address; data: Hex }): Promise<Hex> };
-}
-
-export function attestedPolicy(config: {
-  attesters: Address[];
-  eas?: { call: ExternalDataProvider["chainClient"] };
-}): TrustPolicy;
-
-export function decodeBatch(
-  batch: { chainId: number; from?: Address; calls: TransactionInput[] },
-  options?: DecodeOptions
-): Promise<{ interpolatedIntent?: string; calls: DecodedOperation[] }>;
-
-export function decodeUserOp(
-  op: { chainId: number; sender: Address; callData: Hex; nonce?: bigint },
-  options?: DecodeOptions
-): Promise<DecodedOperation>;
-```
-
-Confidence (sin cambios):
-
-| source | trust.accepted | confidence |
-|---|---|---|
-| official-registry / attested | true | high |
-| local-override | true | medium o high (config) |
-| trusted-token template | sólo si la policy lo acepta | nunca high en official-only |
-| sourcify / generated / inferred / basic | false | low |
-
----
-
-## Issues activos
-
-| Issue | Release | PR |
-|---|---|---|
-| [#43](https://github.com/MiltonTulli/ERC-7730/issues/43) docs site | later | docs + `/demo` en Pages |
-
-Shipped: #53 → 0.5; #54 → 0.6. Cerrados como absorbed: #18 → #53; #19 y #20 → #54.
+OIDC + provenance + cosign release, golden tests against `python-erc7730`, tarball smoke, TypeDoc, changesets, `noExplicitAny`.
