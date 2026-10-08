@@ -1,6 +1,7 @@
 import { isPlainObject } from '../resolve/util';
+import { officialOnlyPolicy } from '../trust/policy';
 import { sourceAcceptedReason, sourceRejectedReason } from '../trust/reasons';
-import type { Hex, ResolvedDescriptor } from '../types/descriptor';
+import type { ResolvedDescriptor } from '../types/descriptor';
 import type {
   Address,
   Confidence,
@@ -171,19 +172,6 @@ export function interpolationFailedWarning(): SecurityWarning {
   };
 }
 
-export function stubTrust(source: DecodeSource, hash?: Hex): TrustReport {
-  const accepted =
-    source === 'official-registry' || source === 'attested' || source === 'local-override';
-  return {
-    accepted,
-    policy: 'unspecified',
-    descriptorHash: hash,
-    reasons: accepted
-      ? [sourceAcceptedReason(source)]
-      : [sourceRejectedReason(source), 'untrusted_descriptor'],
-  };
-}
-
 export function sourceFromResolved(
   resolved: ResolvedDescriptor,
   fallback: DecodeSource = 'local-override'
@@ -195,7 +183,7 @@ export function finalizeTrust(
   report: TrustReport,
   source: DecodeSource,
   descriptor: ResolvedDescriptor | undefined,
-  policyId?: string
+  policyId: string
 ): TrustReport {
   const accepted = Boolean(report.accepted);
   const reasons =
@@ -206,7 +194,7 @@ export function finalizeTrust(
         : [sourceRejectedReason(source)];
   return {
     accepted,
-    policy: report.policy || policyId || 'unspecified',
+    policy: report.policy || policyId,
     descriptorHash: report.descriptorHash ?? descriptor?.hash,
     attesters: report.attesters,
     reasons,
@@ -242,16 +230,14 @@ export async function resolveTrust(
   chainId: number,
   address?: Address
 ): Promise<TrustReport> {
-  if (options?.trust) {
-    const report = await options.trust.evaluate({
-      descriptor,
-      chainId,
-      address,
-      source,
-    });
-    return finalizeTrust(report, source, descriptor, options.trust.id);
-  }
-  return stubTrust(source, descriptor?.hash);
+  const policy = options?.trust ?? officialOnlyPolicy();
+  const report = await policy.evaluate({
+    descriptor,
+    chainId,
+    address,
+    source,
+  });
+  return finalizeTrust(report, source, descriptor, policy.id);
 }
 
 export function readMetadata(merged: unknown): {

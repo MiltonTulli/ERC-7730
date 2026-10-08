@@ -304,6 +304,21 @@ describe('decodeTransaction + TrustPolicy', () => {
     expect(orLocal.trust.descriptorHash).toMatch(HASH);
   });
 
+  it('rejects a local override when trust is omitted', async () => {
+    const registry = officialRegistry();
+    registry.extend([usdcDescriptor]);
+
+    const result = await decodeTransaction(
+      { to: USDC, data: TRANSFER_100_USDC, chainId: 1 },
+      { registry, provider: null, useSourcifyFallback: false }
+    );
+
+    expect(result.source).toBe('local-override');
+    expect(result.trust.accepted).toBe(false);
+    expect(result.trust.policy).toBe('official-only');
+    expect(result.trust.reasons).toContain('source:local-override:rejected');
+  });
+
   it('fills descriptorHash when a custom policy omits it', async () => {
     const resolved = await resolveDescriptor(usdcDescriptor, createMemoryIncludeLoader({}));
     const sloppy: TrustPolicy = {

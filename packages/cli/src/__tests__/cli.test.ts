@@ -388,7 +388,7 @@ describe('erc7730 preview', () => {
 
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toContain(`Pin: ${PIN} (vendored default)`);
-    expect(result.stdout).toMatch(/Trust: accepted \(unspecified\)/);
+    expect(result.stdout).toMatch(/Trust: accepted \(official-only\)/);
   });
 
   it('prints the env pin when ERC7730_REGISTRY_PIN is set', async () => {

@@ -191,7 +191,7 @@ const userOpDisplay = await decodeUserOp(
 | `decodeTypedData` | `eth_signTypedData` |
 | `decodeBatch` | EIP-5792 `wallet_sendCalls` |
 | `decodeUserOp` | ERC-4337 Simple Account `execute` / `executeBatch` |
-| `format` / `formatTypedData` | Compat aliases of `decode*` (+ default `officialOrLocalPolicy` when a registry is set) |
+| `format` / `formatTypedData` | Deprecated aliases of `decode*`. Omitted `trust` is `officialOnlyPolicy()` |
 
 Batch / nested `interpolatedIntent` joins per-call sentences with `" and "`.
 

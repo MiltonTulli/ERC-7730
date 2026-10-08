@@ -1,5 +1,5 @@
 import type { Hex } from '../types/descriptor';
-import { asAddress, stubTrust } from './common';
+import { asAddress, resolveTrust } from './common';
 import {
   SIMPLE_ACCOUNT_EXECUTE,
   SIMPLE_ACCOUNT_EXECUTE_BATCH,
@@ -51,7 +51,7 @@ export async function decodeUserOp(
             'UserOp callData is not a Simple Account execute / executeBatch (other 4337 accounts are out of scope)',
         },
       ],
-      trust: stubTrust('basic'),
+      trust: await resolveTrust(options, 'basic', undefined, op.chainId, sender),
       metadata: {
         chainId: op.chainId,
         contractAddress: sender,

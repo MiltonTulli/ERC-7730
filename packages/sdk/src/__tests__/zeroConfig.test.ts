@@ -26,7 +26,7 @@ function call(name: string, inputs: Array<{ name: string; type: string }>, args:
 function expectInferred(result: DecodedOperation) {
   expect(result.source).toBe('inferred');
   expect(result.confidence).toBe('low');
-  expect(result.trust).toMatchObject({ accepted: false, policy: 'unspecified' });
+  expect(result.trust).toMatchObject({ accepted: false, policy: 'official-only' });
   expect(result.fields.map((field) => field.label)).not.toContain('Param 1');
 }
 

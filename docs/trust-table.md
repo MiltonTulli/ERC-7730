@@ -8,4 +8,4 @@
 | Sourcify / `generateDescriptor` | ABI-generated fallback | **`false`** | **`false`** | **never `"high"`** |
 | Inferred / basic selector decode | Guess from 4-byte + types | **`false`** | **`false`** | **`"low"`** |
 
-Clear signing is not ABI pretty-printing. Inject `officialOnlyPolicy()`, `attestedPolicy()`, `officialOrLocalPolicy()`, or `composePolicies()` so the wallet decides who to believe. When `trust` is omitted, decode uses a stub (`policy: "unspecified"`) with the same accept/reject rows as `officialOrLocalPolicy`. Production should pass `officialOnlyPolicy()` or `attestedPolicy()`.
+Clear signing is not ABI pretty-printing. Inject `officialOnlyPolicy()`, `attestedPolicy()`, `officialOrLocalPolicy()`, or `composePolicies()` so the wallet decides who to believe. When `trust` is omitted, `decode*` and `format*` use `officialOnlyPolicy()`. Pass `officialOrLocalPolicy()` to accept an app `extend()` override. The playground still defaults to `officialOrLocalPolicy()` so local drafts are easy to try.

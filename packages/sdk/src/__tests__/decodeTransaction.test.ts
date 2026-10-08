@@ -9,6 +9,7 @@ import { decodeTransaction } from '../decode/decodeTransaction';
 import type { DecodeRegistry } from '../decode/types';
 import { createOfficialRegistry } from '../official-registry';
 import { createMemoryIncludeLoader, resolveDescriptor } from '../resolve';
+import { officialOrLocalPolicy } from '../trust/policy';
 import type { Address, Provider } from '../types';
 import type { InputDescriptor, ResolvedDescriptor } from '../types/descriptor';
 
@@ -136,7 +137,7 @@ describe('decodeTransaction', () => {
 
     expect(result.source).toBe('official-registry');
     expect(result.confidence).toBe('high');
-    expect(result.trust).toMatchObject({ policy: 'unspecified', accepted: true });
+    expect(result.trust).toMatchObject({ policy: 'official-only', accepted: true });
     expect(result.intent).toBe('Send 100 USDC to 0xd8da...6045');
     expect(result.functionName).toBe('transfer');
 
@@ -179,7 +180,7 @@ describe('decodeTransaction', () => {
     expect(result.source).toBe('basic');
     expect(result.confidence).toBe('low');
     expect(result.trust.accepted).toBe(false);
-    expect(result.trust.policy).toBe('unspecified');
+    expect(result.trust.policy).toBe('official-only');
   });
 
   it('returns source basic for calldata shorter than a selector', async () => {
@@ -307,7 +308,12 @@ describe('decodeTransaction context matchers', () => {
 
     const result = await decodeTransaction(
       { to: SAFE_PROXY, data: APPROVE_HASH, chainId: 1 },
-      { registry: registryFrom(resolved), provider, useSourcifyFallback: false }
+      {
+        registry: registryFrom(resolved),
+        provider,
+        useSourcifyFallback: false,
+        trust: officialOrLocalPolicy(),
+      }
     );
 
     expect(result.source).toBe('local-override');

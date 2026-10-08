@@ -301,7 +301,7 @@ describe('format compat + spender allowlist', () => {
     const result = await format({ chainId: 1, to: USDC, data }, { registry: registryFrom([usdc]) });
     expect(result.intent).toMatch(/Send/);
     expect(result.interpolatedIntent).toBeDefined();
-    expect(result.trust.policy).toBe('official-or-local');
+    expect(result.trust.policy).toBe('official-only');
   });
 
   it('spenderAllowlist suppresses untrusted_spender for setApprovalForAll', async () => {

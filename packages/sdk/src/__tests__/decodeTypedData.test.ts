@@ -202,7 +202,7 @@ describe('decodeTypedData', () => {
 
     expect(result.source).toBe('official-registry');
     expect(result.confidence).toBe('high');
-    expect(result.trust).toMatchObject({ policy: 'unspecified', accepted: true });
+    expect(result.trust).toMatchObject({ policy: 'official-only', accepted: true });
     expect(result.intent).toBe('Authorize spending of tokens');
     expect(result.functionName).toBe('Permit');
     expect(result.raw.message).toMatchObject({

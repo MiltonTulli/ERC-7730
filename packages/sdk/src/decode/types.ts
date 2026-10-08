@@ -202,10 +202,10 @@ export interface DecodeOptions {
    */
   trustedTokens?: TrustedTokens;
   /**
-   * Wallet-supplied policy. When omitted, decode uses a stub
-   * (`policy: "unspecified"`) that accepts official-registry / attested /
-   * local-override and rejects Sourcify / generated / inferred / basic.
-   * Production should pass `officialOnlyPolicy()`.
+   * Wallet-supplied policy. When omitted, decode uses `officialOnlyPolicy()`:
+   * official-registry and attested are accepted; local overrides, Sourcify,
+   * generated, inferred, and basic are rejected. Pass `officialOrLocalPolicy()`
+   * to accept app `extend()` overrides.
    */
   trust?: TrustPolicy;
   /**
