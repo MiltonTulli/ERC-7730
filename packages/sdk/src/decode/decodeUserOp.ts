@@ -1,5 +1,5 @@
 import type { Hex } from '../types/descriptor';
-import { asAddress, stubTrust } from './common';
+import { asAddress, resolveTrust } from './common';
 import {
   SIMPLE_ACCOUNT_EXECUTE,
   SIMPLE_ACCOUNT_EXECUTE_BATCH,
@@ -11,6 +11,7 @@ import {
   minConfidence,
 } from './innerCalls';
 import type { Address, DecodeOptions, DecodedOperation } from './types';
+import { validateTransactionInput } from './validate';
 
 export interface UserOpInput {
   chainId: number;
@@ -32,6 +33,11 @@ export async function decodeUserOp(
   op: UserOpInput,
   options?: DecodeOptions
 ): Promise<DecodedOperation> {
+  validateTransactionInput({
+    to: op.sender,
+    data: op.callData,
+    chainId: op.chainId,
+  });
   const sender = asAddress(op.sender);
   const calls = extractUserOpCalls(op.callData);
   const selector = op.callData.slice(0, 10).toLowerCase() as Hex;
@@ -51,7 +57,7 @@ export async function decodeUserOp(
             'UserOp callData is not a Simple Account execute / executeBatch (other 4337 accounts are out of scope)',
         },
       ],
-      trust: stubTrust('basic'),
+      trust: await resolveTrust(options, 'basic', undefined, op.chainId, sender),
       metadata: {
         chainId: op.chainId,
         contractAddress: sender,

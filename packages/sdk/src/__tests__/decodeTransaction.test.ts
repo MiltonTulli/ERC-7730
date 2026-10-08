@@ -9,6 +9,7 @@ import { decodeTransaction } from '../decode/decodeTransaction';
 import type { DecodeRegistry } from '../decode/types';
 import { createOfficialRegistry } from '../official-registry';
 import { createMemoryIncludeLoader, resolveDescriptor } from '../resolve';
+import { officialOrLocalPolicy } from '../trust/policy';
 import type { Address, Provider } from '../types';
 import type { InputDescriptor, ResolvedDescriptor } from '../types/descriptor';
 
@@ -136,7 +137,7 @@ describe('decodeTransaction', () => {
 
     expect(result.source).toBe('official-registry');
     expect(result.confidence).toBe('high');
-    expect(result.trust).toMatchObject({ policy: 'unspecified', accepted: true });
+    expect(result.trust).toMatchObject({ policy: 'official-only', accepted: true });
     expect(result.intent).toBe('Send 100 USDC to 0xd8da...6045');
     expect(result.functionName).toBe('transfer');
 
@@ -170,7 +171,7 @@ describe('decodeTransaction', () => {
     const result = await decodeTransaction(
       {
         to: '0x1234567890123456789012345678901234567890',
-        data: '0x12345678abcdef',
+        data: '0x12345678',
         chainId: 1,
       },
       { provider: null, useSourcifyFallback: false }
@@ -179,22 +180,20 @@ describe('decodeTransaction', () => {
     expect(result.source).toBe('basic');
     expect(result.confidence).toBe('low');
     expect(result.trust.accepted).toBe(false);
-    expect(result.trust.policy).toBe('unspecified');
+    expect(result.trust.policy).toBe('official-only');
   });
 
-  it('returns source basic for calldata shorter than a selector', async () => {
-    const result = await decodeTransaction(
-      {
-        to: '0x1234567890123456789012345678901234567890',
-        data: '0x1234',
-        chainId: 1,
-      },
-      { provider: null, useSourcifyFallback: false }
-    );
-
-    expect(result.source).toBe('basic');
-    expect(result.confidence).toBe('low');
-    expect(result.selector).toBeUndefined();
+  it('rejects calldata shorter than a selector', async () => {
+    await expect(
+      decodeTransaction(
+        {
+          to: '0x1234567890123456789012345678901234567890',
+          data: '0x1234',
+          chainId: 1,
+        },
+        { provider: null, useSourcifyFallback: false }
+      )
+    ).rejects.toMatchObject({ name: 'InvalidInputError', code: 'INVALID_CALLDATA' });
   });
 
   it('sets source official-registry for a WETH deposit from the registry client', async () => {
@@ -307,7 +306,12 @@ describe('decodeTransaction context matchers', () => {
 
     const result = await decodeTransaction(
       { to: SAFE_PROXY, data: APPROVE_HASH, chainId: 1 },
-      { registry: registryFrom(resolved), provider, useSourcifyFallback: false }
+      {
+        registry: registryFrom(resolved),
+        provider,
+        useSourcifyFallback: false,
+        trust: officialOrLocalPolicy(),
+      }
     );
 
     expect(result.source).toBe('local-override');
@@ -322,7 +326,7 @@ describe('decodeTransaction context matchers', () => {
       { registry: registryFrom(resolved), provider: null, useSourcifyFallback: false }
     );
 
-    expect(result.source).toBe('inferred');
+    expect(result.source).toBe('builtin');
     expect(result.confidence).toBe('low');
     expect(result.intent).toBe('Send tokens');
     expect(result.metadata.contractName).toBeUndefined();

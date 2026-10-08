@@ -1,6 +1,8 @@
+import { InvalidInputError } from '../errors';
 import { isPlainObject } from '../resolve/util';
+import { officialOnlyPolicy } from '../trust/policy';
 import { sourceAcceptedReason, sourceRejectedReason } from '../trust/reasons';
-import type { Hex, ResolvedDescriptor } from '../types/descriptor';
+import type { ResolvedDescriptor } from '../types/descriptor';
 import type {
   Address,
   Confidence,
@@ -13,10 +15,14 @@ import type {
 } from './types';
 
 const CONFIDENCE_RANK: Record<Confidence, number> = { low: 0, medium: 1, high: 2 };
+const ADDRESS_RE = /^0x[0-9a-fA-F]{40}$/;
 
 export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000' as Address;
 
 export function asAddress(value: string): Address {
+  if (!ADDRESS_RE.test(value)) {
+    throw new InvalidInputError('INVALID_ADDRESS', `Invalid address: ${value}`);
+  }
   return value as Address;
 }
 
@@ -90,6 +96,9 @@ export function intentFromFormat(
 export function confidenceFor(source: DecodeSource, accepted: boolean): Confidence {
   if (source === 'trusted-token') {
     return 'low';
+  }
+  if (source === 'builtin') {
+    return accepted ? 'medium' : 'low';
   }
   if (source === 'official-registry' || source === 'attested') {
     return accepted ? 'high' : 'low';
@@ -171,19 +180,6 @@ export function interpolationFailedWarning(): SecurityWarning {
   };
 }
 
-export function stubTrust(source: DecodeSource, hash?: Hex): TrustReport {
-  const accepted =
-    source === 'official-registry' || source === 'attested' || source === 'local-override';
-  return {
-    accepted,
-    policy: 'unspecified',
-    descriptorHash: hash,
-    reasons: accepted
-      ? [sourceAcceptedReason(source)]
-      : [sourceRejectedReason(source), 'untrusted_descriptor'],
-  };
-}
-
 export function sourceFromResolved(
   resolved: ResolvedDescriptor,
   fallback: DecodeSource = 'local-override'
@@ -195,7 +191,7 @@ export function finalizeTrust(
   report: TrustReport,
   source: DecodeSource,
   descriptor: ResolvedDescriptor | undefined,
-  policyId?: string
+  policyId: string
 ): TrustReport {
   const accepted = Boolean(report.accepted);
   const reasons =
@@ -206,7 +202,7 @@ export function finalizeTrust(
         : [sourceRejectedReason(source)];
   return {
     accepted,
-    policy: report.policy || policyId || 'unspecified',
+    policy: report.policy || policyId,
     descriptorHash: report.descriptorHash ?? descriptor?.hash,
     attesters: report.attesters,
     reasons,
@@ -239,19 +235,18 @@ export async function resolveTrust(
   options: DecodeOptions | undefined,
   source: DecodeSource,
   descriptor: ResolvedDescriptor | undefined,
-  chainId: number,
+  chainId: number | undefined,
   address?: Address
 ): Promise<TrustReport> {
-  if (options?.trust) {
-    const report = await options.trust.evaluate({
-      descriptor,
-      chainId,
-      address,
-      source,
-    });
-    return finalizeTrust(report, source, descriptor, options.trust.id);
-  }
-  return stubTrust(source, descriptor?.hash);
+  const policy = options?.trust ?? officialOnlyPolicy();
+  const report = await policy.evaluate({
+    descriptor,
+    chainId,
+    address,
+    source,
+    now: nowSeconds(options),
+  });
+  return finalizeTrust(report, source, descriptor, policy.id);
 }
 
 export function readMetadata(merged: unknown): {

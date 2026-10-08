@@ -3,7 +3,6 @@ export { decodeTypedData } from './decodeTypedData';
 export { decodeBatch } from './decodeBatch';
 export { decodeUserOp } from './decodeUserOp';
 export { format, formatTypedData } from './compat';
-export { resolvePath, PathResolveError } from './path';
 export { matchFormat } from './match';
 export { matchContext, resolveImplementation, EIP1967_IMPLEMENTATION_SLOT } from './context';
 export { canonicalizeDeclaration, parseDeclaration } from './abi';
@@ -37,6 +36,5 @@ export type { UserOpInput } from './decodeUserOp';
 
 export type { ContextMatch, ContextMatchVia, MatchContextOptions } from './context';
 
-export type { PathContext, PathEnvelope } from './path';
 export type { MatchedFormat } from './match';
 export type { ParsedDeclaration, ParsedParam } from './abi';

@@ -2,6 +2,7 @@ import { encodeFunctionData } from 'viem';
 import { describe, expect, it } from 'vitest';
 import { decodeTransaction } from '../decode/decodeTransaction';
 import type { DecodedOperation } from '../decode/types';
+import { officialOrLocalPolicy } from '../trust';
 
 const USDT = '0xdAC17F958D2ee523a2206206994597C13D831ec7';
 const RECIPIENT = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045';
@@ -23,10 +24,10 @@ function call(name: string, inputs: Array<{ name: string; type: string }>, args:
   });
 }
 
-function expectInferred(result: DecodedOperation) {
-  expect(result.source).toBe('inferred');
+function expectBuiltin(result: DecodedOperation) {
+  expect(result.source).toBe('builtin');
   expect(result.confidence).toBe('low');
-  expect(result.trust).toMatchObject({ accepted: false, policy: 'unspecified' });
+  expect(result.trust).toMatchObject({ accepted: false, policy: 'official-only' });
   expect(result.fields.map((field) => field.label)).not.toContain('Param 1');
 }
 
@@ -45,12 +46,33 @@ describe('zero-config decodeTransaction', () => {
       ),
     });
 
-    expectInferred(result);
+    expectBuiltin(result);
     expect(result.intent).toBe('Send tokens');
     expect(result.fields.map((field) => ({ label: field.label, path: field.path }))).toEqual([
-      { label: 'To', path: 'to' },
+      { label: 'Recipient', path: 'to' },
       { label: 'Amount', path: 'amount' },
     ]);
+  });
+
+  it('accepts the builtin at medium confidence under officialOrLocalPolicy', async () => {
+    const result = await decodeTransaction(
+      {
+        to: USDT,
+        chainId: 1,
+        data: call(
+          'transfer',
+          [
+            { name: 'to', type: 'address' },
+            { name: 'amount', type: 'uint256' },
+          ],
+          [RECIPIENT, 100_000_000n]
+        ),
+      },
+      { trust: officialOrLocalPolicy() }
+    );
+    expect(result.source).toBe('builtin');
+    expect(result.confidence).toBe('medium');
+    expect(result.trust.accepted).toBe(true);
   });
 
   it('labels approve arguments', async () => {
@@ -67,7 +89,7 @@ describe('zero-config decodeTransaction', () => {
       ),
     });
 
-    expectInferred(result);
+    expectBuiltin(result);
     expect(result.intent).toBe('Approve spending');
     expect(result.fields.map((field) => field.label)).toEqual(['Spender', 'Amount']);
     expect(result.fields.map((field) => field.path)).toEqual(['spender', 'amount']);
@@ -88,8 +110,8 @@ describe('zero-config decodeTransaction', () => {
       ),
     });
 
-    expectInferred(result);
-    expect(result.fields.map((field) => field.label)).toEqual(['from', 'To', 'Amount']);
+    expectBuiltin(result);
+    expect(result.fields.map((field) => field.label)).toEqual(['From', 'To', 'Amount']);
     expect(result.fields.map((field) => field.path)).toEqual(['from', 'to', 'amount']);
   });
 
@@ -101,8 +123,19 @@ describe('zero-config decodeTransaction', () => {
       value: 10n ** 18n,
     });
 
-    expectInferred(result);
-    expect(result.intent).toBe('Deposit');
+    expectBuiltin(result);
+    expect(result.intent).toBe('Wrap ETH');
     expect(result.fields).toEqual([]);
+  });
+
+  it('does not use the WETH builtin for deposit on another contract', async () => {
+    const result = await decodeTransaction({
+      to: USDT,
+      chainId: 1,
+      data: '0xd0e30db0',
+      value: 10n ** 18n,
+    });
+    expect(result.source).not.toBe('builtin');
+    expect(result.intent).toBe('Deposit');
   });
 });

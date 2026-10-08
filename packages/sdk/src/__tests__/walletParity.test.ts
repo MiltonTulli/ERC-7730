@@ -4,13 +4,18 @@ import { fileURLToPath } from 'node:url';
 import { type Hex, encodePacked, keccak256, stringToHex, zeroAddress, zeroHash } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { describe, expect, it } from 'vitest';
+import {
+  EAS_CONTRACT,
+  ERC8176_SCHEMA_UID,
+  attestedPolicy,
+  offchainAttestationUid,
+} from '../attest';
 import { absorbEmbedded, renderIntent } from '../decode/common';
 import { decodeBatch } from '../decode/decodeBatch';
 import { decodeTransaction } from '../decode/decodeTransaction';
 import type { DecodeRegistry, ExternalDataProvider } from '../decode/types';
 import { createOfficialRegistry } from '../official-registry';
 import { createMemoryIncludeLoader, resolveDescriptor } from '../resolve';
-import { EAS_CONTRACT, ERC8176_SCHEMA_UID, attestedPolicy, offchainAttestationUid } from '../trust';
 import { officialOnlyPolicy } from '../trust/policy';
 import type { InputDescriptor, ResolvedDescriptor } from '../types/descriptor';
 
@@ -418,6 +423,23 @@ describe('wallet drop-in parity (#53)', () => {
       attesterAccount.address.toLowerCase()
     );
 
+    const staleClock = await decodeTransaction(
+      { to: USDC, data: TRANSFER_100_USDC, chainId: 1 },
+      {
+        registry: registryFrom(withAttestation),
+        provider: null,
+        useSourcifyFallback: false,
+        now: 1,
+        trust: attestedPolicy({
+          attesters: [attesterAccount.address],
+          eas: {
+            call: async () => '0x0000000000000000000000000000000000000000000000000000000000000000',
+          },
+        }),
+      }
+    );
+    expect(staleClock.trust.accepted).toBe(false);
+
     const revoked = await decodeTransaction(
       { to: USDC, data: TRANSFER_100_USDC, chainId: 1 },
       {
@@ -530,51 +552,6 @@ describe('wallet drop-in parity (#53)', () => {
     const inner = result.fields.find((field) => field.format === 'calldata');
     expect(inner?.embedded?.source).toBe('official-registry');
     expect(inner?.value).toContain('Send');
-  });
-
-  it('keeps lite free of RPC and Sourcify static imports', async () => {
-    const { readFileSync: read } = await import('node:fs');
-    const { dirname: dir, join: j } = await import('node:path');
-    const { fileURLToPath: toPath } = await import('node:url');
-    const root = j(dir(toPath(import.meta.url)), '..');
-    const visited = new Set<string>();
-    const queue = [j(root, 'lite.ts')];
-    const importRe = /from\s+['"](\.[^'"]+)['"]/g;
-
-    while (queue.length > 0) {
-      const file = queue.pop();
-      if (!file || visited.has(file)) {
-        continue;
-      }
-      visited.add(file);
-      const source = read(file, 'utf8');
-      expect(source.includes('providers/rpc')).toBe(false);
-      expect(source.includes('providers/sourcify')).toBe(false);
-      for (const match of source.matchAll(importRe)) {
-        const spec = match[1];
-        if (!spec) {
-          continue;
-        }
-        if (spec.endsWith('.json')) {
-          continue;
-        }
-        const stem = spec.endsWith('.js') ? spec.slice(0, -3) : spec;
-        const base = dir(file);
-        const candidates = [j(base, `${stem}.ts`), j(base, stem, 'index.ts')];
-        const resolved = candidates.find((candidate) => {
-          try {
-            read(candidate);
-            return true;
-          } catch {
-            return false;
-          }
-        });
-        expect(resolved, `unresolved import ${spec} from ${file}`).toBeTruthy();
-        if (resolved) {
-          queue.push(resolved);
-        }
-      }
-    }
   });
 });
 

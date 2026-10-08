@@ -1,4 +1,3 @@
-export * from './erc7730';
 export * from './descriptor';
 export * from './v2';
 
@@ -7,15 +6,15 @@ export * from './v2';
  */
 export interface TransactionInput {
   /** Contract address */
-  to: string;
-  /** Calldata (hex string) */
-  data: string;
-  /** Value in wei (optional) */
+  to: `0x${string}`;
+  /** Calldata (even-length hex, at least `0x`) */
+  data: `0x${string}`;
+  /** Value in wei (optional). A non-negative integer. */
   value?: string | bigint;
-  /** Chain ID */
+  /** Chain ID. A positive integer. */
   chainId: number;
   /** Sender address (optional, used for context) */
-  from?: string;
+  from?: `0x${string}`;
 }
 
 /**
@@ -35,11 +34,11 @@ export interface TypedDataInput {
   message: Record<string, unknown>;
 }
 
-/** Block tags accepted by `eth_getLogs` / viem `PublicClient.getLogs`. */
+/** Block tags accepted by `eth_getLogs`. */
 export type LogBlockTag = 'latest' | 'earliest' | 'pending' | 'safe' | 'finalized';
 
 /**
- * Provider interface - compatible with viem's PublicClient
+ * Provider interface. A wallet client with these methods can be passed through.
  */
 export interface Provider {
   /** Read contract function */
@@ -67,7 +66,7 @@ export interface Provider {
 
   /**
    * Logs for `context.contract.factory.deployEvent`.
-   * Parameter shape is a subset of viem `PublicClient.getLogs`.
+   * Parameter shape is the subset of `eth_getLogs` this matcher reads.
    */
   getLogs?: (args: {
     address?: `0x${string}` | `0x${string}`[];

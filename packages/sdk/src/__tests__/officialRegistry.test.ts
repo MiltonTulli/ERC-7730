@@ -175,27 +175,14 @@ describe('createOfficialRegistry pin', () => {
     expect(indexFetches).toBe(2);
   });
 
-  it('percent-encodes # in floating ref raw URLs', async () => {
-    const calls: string[] = [];
-    const files = registryFiles();
-    const fetchImpl: typeof fetch = async (input) => {
-      const url = String(input);
-      calls.push(url);
-      const marker = '/release%23candidate/';
-      const idx = url.indexOf(marker);
-      const path = idx === -1 ? url : url.slice(idx + marker.length);
-      if (!(path in files)) {
-        return new Response('not found', { status: 404 });
-      }
-      return new Response(JSON.stringify(files[path]), {
-        status: 200,
-        headers: { 'content-type': 'application/json' },
-      });
-    };
-    const registry = createOfficialRegistry({ ref: 'release#candidate', fetch: fetchImpl });
-    await registry.findCalldata({ chainId: 1, address: WETH });
-    expect(calls.some((url) => url.includes('/release%23candidate/'))).toBe(true);
-    expect(calls.every((url) => !url.includes('/release#candidate/'))).toBe(true);
+  it('rejects a ref that leaves the registry tree', () => {
+    expect(() => createOfficialRegistry({ ref: '../otro/repo/main' })).toThrow(
+      OfficialRegistryError
+    );
+    expect(() => createOfficialRegistry({ ref: 'release#candidate' })).toThrow(
+      OfficialRegistryError
+    );
+    expect(() => createOfficialRegistry({ ref: 'a//b' })).toThrow(OfficialRegistryError);
   });
 
   it('accepts the vendored schema commit as a pin', () => {

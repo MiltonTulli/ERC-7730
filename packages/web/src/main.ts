@@ -3,21 +3,18 @@ import {
   type DecodedOperation,
   type GeneratedDescriptor,
   type InputDescriptor,
-  SUPPORTED_CHAINS,
+  InvalidInputError,
   VENDORED_REGISTRY_COMMIT,
   createClearSigner,
   createOfficialRegistry,
-  enableSourcifyAbiLoader,
   fetchFromSourcify,
   generateDescriptor,
-  getChain,
-  getDefaultRpc,
+  officialOnlyPolicy,
   officialOrLocalPolicy,
+  sourcifyVerifiedAbiLoader,
 } from '@erc7730/sdk';
 import { http, createPublicClient } from 'viem';
-
-// The SDK does not register Sourcify on import. The playground opts in.
-enableSourcifyAbiLoader();
+import { PLAYGROUND_CHAINS, playgroundChain, playgroundChainExport, playgroundRpc } from './chains';
 
 // GitHub repository configuration
 const GITHUB_REPO = 'ethereum/clear-signing-erc7730-registry';
@@ -39,8 +36,21 @@ for (const id of ['docs-home-link', 'docs-footer-link']) {
   }
 }
 
+type PlaygroundMode = 'production' | 'exploration';
+
+function currentMode(): PlaygroundMode {
+  const selected = document.querySelector<HTMLInputElement>('input[name="decode-mode"]:checked');
+  return selected?.value === 'exploration' ? 'exploration' : 'production';
+}
+
 // Example transactions
 const EXAMPLES = {
+  weth: {
+    calldata: '0xd0e30db0',
+    contract: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+    chain: '1',
+    value: '1000000000000000000',
+  },
   transfer: {
     calldata:
       '0xa9059cbb000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa960450000000000000000000000000000000000000000000000000000000005f5e100',
@@ -68,8 +78,14 @@ const EXAMPLES = {
 };
 
 // Current state
-let currentInput: { calldata: string; contract: string; chainId: number; rpcUrl: string } | null =
-  null;
+let currentInput: {
+  calldata: string;
+  contract: string;
+  chainId: number;
+  rpcUrl: string;
+  value?: string;
+  mode: PlaygroundMode;
+} | null = null;
 let customDescriptor: GeneratedDescriptor | null = null;
 let lastGeneratedDescriptor: GeneratedDescriptor | null = null;
 
@@ -79,6 +95,7 @@ let lastGeneratedDescriptor: GeneratedDescriptor | null = null;
 const calldataInput = document.getElementById('calldata') as HTMLTextAreaElement;
 const chainSelect = document.getElementById('chain') as HTMLSelectElement;
 const contractInput = document.getElementById('contract') as HTMLInputElement;
+const valueInput = document.getElementById('tx-value') as HTMLInputElement;
 const rpcInput = document.getElementById('rpc') as HTMLInputElement;
 const customAbiInput = document.getElementById('custom-abi') as HTMLTextAreaElement;
 const applyAbiBtn = document.getElementById('apply-abi-btn') as HTMLButtonElement;
@@ -126,9 +143,9 @@ document.querySelectorAll('.main-tab').forEach((tab) => {
 // ============================================================================
 function populateChainSelect(selectElement: HTMLSelectElement) {
   selectElement.innerHTML = '';
-  for (const [chainId, chain] of Object.entries(SUPPORTED_CHAINS)) {
+  for (const chain of PLAYGROUND_CHAINS) {
     const option = document.createElement('option');
-    option.value = chainId;
+    option.value = String(chain.id);
     option.textContent = chain.name;
     selectElement.appendChild(option);
   }
@@ -137,7 +154,7 @@ function populateChainSelect(selectElement: HTMLSelectElement) {
 
 function updateRpcPlaceholder() {
   const chainId = Number.parseInt(chainSelect.value);
-  const defaultRpc = getDefaultRpc(chainId);
+  const defaultRpc = playgroundRpc(chainId);
   rpcInput.placeholder = defaultRpc || 'No default RPC available';
 }
 
@@ -169,7 +186,7 @@ applyAbiBtn.addEventListener('click', () => {
   const chainId = Number.parseInt(chainSelect.value);
 
   if (!abiText) {
-    alert('Please enter an ABI');
+    showError('Please enter an ABI');
     return;
   }
 
@@ -183,7 +200,7 @@ applyAbiBtn.addEventListener('click', () => {
     });
     setCustomDescriptor(descriptor);
   } catch (error) {
-    alert(`Failed to generate descriptor: ${(error as Error).message}`);
+    showError(`Failed to generate descriptor: ${(error as Error).message}`);
   }
 });
 
@@ -198,6 +215,7 @@ document.querySelectorAll('.example-btn').forEach((btn) => {
       calldataInput.value = data.calldata;
       contractInput.value = data.contract;
       chainSelect.value = data.chain;
+      valueInput.value = 'value' in data ? data.value : '';
       updateRpcPlaceholder();
     }
   });
@@ -213,13 +231,22 @@ decodeBtn.addEventListener('click', async () => {
   const customRpcUrl = rpcInput.value.trim();
 
   if (!calldata) {
-    showError('Please enter calldata or transaction hash');
+    showError('Please enter calldata');
     return;
   }
 
-  const chain = getChain(chainId);
-  const rpcUrl = customRpcUrl || getDefaultRpc(chainId) || '';
-  currentInput = { calldata, contract, chainId, rpcUrl };
+  const chain = playgroundChain(chainId);
+  const rpcUrl = customRpcUrl || playgroundRpc(chainId) || '';
+  const valueText = valueInput.value.trim();
+  const mode = currentMode();
+  currentInput = {
+    calldata,
+    contract,
+    chainId,
+    rpcUrl,
+    value: valueText || undefined,
+    mode,
+  };
 
   decodeBtn.disabled = true;
   decodeBtn.textContent = 'Decoding...';
@@ -237,8 +264,16 @@ decodeBtn.addEventListener('click', async () => {
     const signer = createClearSigner({
       registry,
       provider,
-      trust: officialOrLocalPolicy(),
-      useSourcifyFallback: true,
+      ...(mode === 'exploration'
+        ? {
+            trust: officialOrLocalPolicy(),
+            useSourcifyFallback: true,
+            loadVerifiedAbi: sourcifyVerifiedAbiLoader,
+          }
+        : {
+            trust: officialOnlyPolicy(),
+            useSourcifyFallback: false,
+          }),
     });
 
     if (customDescriptor) {
@@ -246,14 +281,19 @@ decodeBtn.addEventListener('click', async () => {
     }
 
     const result = await signer.decodeTransaction({
-      to: contract,
-      data: calldata,
+      to: contract as `0x${string}`,
+      data: calldata as `0x${string}`,
       chainId,
+      ...(valueText ? { value: valueText } : {}),
     });
 
     renderResult(result);
   } catch (error) {
-    showError(`Failed to decode: ${(error as Error).message}`);
+    if (error instanceof InvalidInputError) {
+      showError(`${error.code}: ${error.message}`);
+    } else {
+      showError(`Failed to decode: ${(error as Error).message}`);
+    }
   } finally {
     decodeBtn.disabled = false;
     decodeBtn.textContent = 'Decode Transaction';
@@ -522,18 +562,28 @@ signer.extend([customDescriptor]);
 // No RPC was selected in the demo. Replace this URL with your provider.
 `;
 
+  const chainExport = playgroundChainExport(currentInput.chainId);
+  const exploration = currentInput.mode === 'exploration';
+  const trustImport = exploration
+    ? `officialOrLocalPolicy,
+  sourcifyVerifiedAbiLoader,`
+    : 'officialOnlyPolicy,';
+  const trustOptions = exploration
+    ? `trust: officialOrLocalPolicy(),
+  useSourcifyFallback: true,
+  loadVerifiedAbi: sourcifyVerifiedAbiLoader,`
+    : `trust: officialOnlyPolicy(),
+  useSourcifyFallback: false,`;
+  const valueLine = currentInput.value ? `\n  value: '${currentInput.value}',` : '';
   return `import { createPublicClient, http } from 'viem';
+import { ${chainExport} } from 'viem/chains';
 import {
   createClearSigner,
   createOfficialRegistry,
-  enableSourcifyAbiLoader,
-  getChain,
-  officialOrLocalPolicy,
+  ${trustImport}
 } from '@erc7730/sdk';
-
-enableSourcifyAbiLoader();
 ${rpcNote}
-const chain = getChain(${currentInput.chainId});
+const chain = ${chainExport};
 const rpcUrl = '${rpcUrl}';
 const provider = chain
   ? createPublicClient({ chain, transport: http(rpcUrl) })
@@ -546,14 +596,13 @@ const registry = createOfficialRegistry({
 const signer = createClearSigner({
   registry,
   provider,
-  trust: officialOrLocalPolicy(),
-  useSourcifyFallback: true,
+  ${trustOptions}
 });
 ${customDescriptorCode}
 const result = await signer.decodeTransaction({
   to: '${currentInput.contract}',
   data: '${currentInput.calldata}',
-  chainId: ${currentInput.chainId},
+  chainId: ${currentInput.chainId},${valueLine}
 });
 
 console.log(result.intent);       // "${result.intent}"

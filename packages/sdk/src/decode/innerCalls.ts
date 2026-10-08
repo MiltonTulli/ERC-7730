@@ -59,11 +59,12 @@ function readTupleField(row: unknown, index: number, names: string[]): unknown {
   }
   if (row && typeof row === 'object') {
     const rec = row as Record<string, unknown>;
-    if (index in rec) {
-      return rec[String(index)];
+    const indexKey = String(index);
+    if (Object.hasOwn(rec, indexKey)) {
+      return rec[indexKey];
     }
     for (const name of names) {
-      if (name in rec) {
+      if (Object.hasOwn(rec, name)) {
         return rec[name];
       }
     }

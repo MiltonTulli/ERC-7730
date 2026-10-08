@@ -1,8 +1,8 @@
-# Interop matrix (v0.6)
+# Interop matrix
 
 How `@erc7730/sdk` compares to Ledger [`python-erc7730`](https://github.com/LedgerHQ/python-erc7730) (what official registry CI runs) and Sourcify [`@ethereum-sourcify/clear-signing`](https://github.com/sourcifyeth/clear-signing).
 
-**Positioning:** this package complements Sourcify — pinned official registry, pluggable trust policy, nested execution, and a JS authoring CLI next to `python-erc7730`. It is not a second registry and does not claim to be the reference TypeScript implementation.
+**Positioning:** this package complements Sourcify — pinned official registry, pluggable trust policy, nested execution, and a JS authoring CLI next to `python-erc7730`. Boundaries: [not this](https://miltontulli.github.io/ERC-7730/not-this/).
 
 Resolve / lint slice vs python-erc7730: see [`divergences.md`](./divergences.md) and `pnpm golden:python`.
 

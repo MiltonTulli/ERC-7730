@@ -29,9 +29,9 @@ Signatures and types: see the [generated API](/ERC-7730/sdk/api/).
 
 ## `format` aliases
 
-`format` / `formatTypedData` call the same decode pipeline. When a registry is set and no `trust` policy is passed, they default to `officialOrLocalPolicy()`. `DecodedOperation` remains the source of truth — not Sourcify’s `DisplayModel`.
+`format` / `formatTypedData` are deprecated aliases of `decode*` / `decodeTypedData`. When `trust` is omitted, both use `officialOnlyPolicy()`. `DecodedOperation` remains the source of truth — not Sourcify’s `DisplayModel`.
 
-For production wallets, pass `trust: officialOnlyPolicy()` (or `attestedPolicy`) explicitly on `decode*` rather than relying on the compat default.
+Pass `trust: officialOrLocalPolicy()` to accept an app `extend()` override. Import `attestedPolicy` from `@erc7730/sdk/attest` when the wallet verifies ERC-8176 attestations.
 
 ## Context matching
 

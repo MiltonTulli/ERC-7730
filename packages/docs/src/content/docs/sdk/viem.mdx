@@ -1,23 +1,23 @@
 ---
-title: viem adapters
-description: decodeViemTransaction and decodeViemTypedData from @erc7730/sdk/viem.
+title: Calling from viem
+description: decodeViemTypedData on the root. viem is not an SDK dependency.
 ---
 
 import sdkPkg from '../../../../../sdk/package.json';
 
-<p class="version-line">@erc7730/sdk@{sdkPkg.version} — entry <code>@erc7730/sdk/viem</code></p>
+<p class="version-line">@erc7730/sdk@{sdkPkg.version}</p>
 
-`viem` is included with `@erc7730/sdk`. These adapters and a viem `PublicClient` provider use that copy.
+`viem` is not a dependency of `@erc7730/sdk`. Keccak is `@noble/hashes` and the ABI codec is `ox`.
+
+`decodeViemTypedData` lives on the root. It accepts a viem typed-data definition and does not import `viem` at runtime. Pass a transaction object to `decodeTransaction`. A viem `PublicClient` is still a valid `provider` when the app already depends on viem.
 
 ```ts
-import { decodeViemTransaction, decodeViemTypedData } from '@erc7730/sdk/viem';
-import { officialOnlyPolicy } from '@erc7730/sdk';
+import { decodeTransaction, decodeViemTypedData, officialOnlyPolicy } from '@erc7730/sdk';
 
-const result = await decodeViemTransaction(txRequest, {
-  registry,
-  trust: officialOnlyPolicy(),
-  provider: publicClient,
-});
+const result = await decodeTransaction(
+  { to, data, value, chainId },
+  { registry, trust: officialOnlyPolicy(), provider: publicClient },
+);
 
 const typed = await decodeViemTypedData(typedDataDefinition, {
   registry,
@@ -25,6 +25,8 @@ const typed = await decodeViemTypedData(typedDataDefinition, {
 });
 ```
 
-Both helpers return `DecodedOperation` and reuse the same trust / matchContext pipeline as `decodeTransaction` / `decodeTypedData`. Importing `@erc7730/sdk/viem` does not register a Sourcify ABI loader. Pass `enableSourcifyAbiLoader()` or `loadVerifiedAbi` from `@erc7730/sdk` when you want that fallback. Sourcify stays opt-in on the root entry. `@erc7730/sdk/lite` is not how the catalog is dropped.
+`attestedPolicy` is imported from `@erc7730/sdk/attest`. Install `viem` only if you import that entry.
 
-API details: [generated docs](/ERC-7730/sdk/api/) for `decodeViemTransaction`, `decodeViemTypedData`, and `ViemTransactionInput`.
+Sourcify stays opt-in on the call: `loadVerifiedAbi: sourcifyVerifiedAbiLoader` and `useSourcifyFallback: true`.
+
+API details: [generated docs](/ERC-7730/sdk/api/) for `decodeTransaction` and `decodeViemTypedData`.

@@ -10,15 +10,12 @@ The only remaining human step is **approve the GitHub Environment `npm`** on the
 
 ## Semver while on 0.x
 
-| Bump | When |
-| --- | --- |
-| `0.2.x` | Official registry client, ERC-7730 v2 types/schema (see [ROADMAP.md](./ROADMAP.md)) |
-| `0.3.x` | Breaking decode API (`decodeTransaction` / `decodeTypedData`, `ClearSigner` deprecation) |
-| `0.4.x` | CLI + adapters |
-| `0.5.x` | Multicall / UserOp / attestations |
-| **patch** (`0.x.Y`) | Bugfix, docs in the published tarball, no public API break |
+Published history is the package changelogs:
 
-Do not jump to `1.0.0` from this runbook.
+- [`packages/sdk/CHANGELOG.md`](./packages/sdk/CHANGELOG.md)
+- [`packages/cli/CHANGELOG.md`](./packages/cli/CHANGELOG.md)
+
+On 0.x, `minor` is the usual feature bump, including breaking API changes. A **patch** (`0.x.Y`) is a bugfix or docs in the published tarball, with no public API break. Do not jump to `1.0.0` from this runbook. Version direction: [ROADMAP.md](./ROADMAP.md) and tracker [#2](https://github.com/MiltonTulli/ERC-7730/issues/2).
 
 Do not use the npm `latest` tag for experiments. A future `--tag canary` pipeline is out of scope here.
 
@@ -107,7 +104,7 @@ The first publish **will fail** until Trusted Publishing is saved on npmjs.com. 
 
 ### 4. Branch protection
 
-Protect `main` and require the `CI` workflow (lint + Node 22/24 build/test). Building this repo needs Node 22.18 or newer because tsdown publishes the SDK and CLI. The published packages still declare `engines.node` of `>=18`. Pages and Release are separate.
+Protect `main` and require the `CI` workflow (lint + Node 22/24 build/test). Building this repo needs Node 22.18 or newer because tsdown publishes the SDK and CLI. The published packages declare `engines.node` of `>=20`. Pages and Release are separate.
 
 ## Emergency / broken bot
 

@@ -2,8 +2,7 @@
  * Core calldata decoder
  */
 
-import type { Hex } from 'viem';
-import { decodeAbiParameters, parseAbiParameters } from 'viem/utils';
+import { AbiParameters } from 'ox';
 import type { TransactionInput } from '../types';
 import { getSignatureBySelector, parseSignature } from './signatures';
 
@@ -25,8 +24,8 @@ export function extractSelector(data: string): string {
   return data.slice(0, 10).toLowerCase();
 }
 
-function toHex(data: string): Hex {
-  return (data.startsWith('0x') ? data : `0x${data}`) as Hex;
+function toHex(data: string): `0x${string}` {
+  return (data.startsWith('0x') ? data : `0x${data}`) as `0x${string}`;
 }
 
 function isAddressString(value: string): boolean {
@@ -35,7 +34,7 @@ function isAddressString(value: string): boolean {
 
 /**
  * Keep the historical decodeParameters contract: lowercase addresses and
- * bigint integers (viem uses checksums and JS numbers for small ints).
+ * bigint integers (some codecs checksum addresses and use JS numbers for small ints).
  */
 function normalizeDecoded(value: unknown): unknown {
   if (typeof value === 'string') {
@@ -64,15 +63,18 @@ export function decodeParameters(types: string[], data: string): unknown[] {
   if (types.length === 0) {
     return [];
   }
-  const params = parseAbiParameters(types.join(','));
-  const decoded = decodeAbiParameters(params, toHex(data));
+  const params = AbiParameters.from(types.join(','));
+  const decoded = AbiParameters.decode(params, toHex(data), { checksumAddress: false });
   return decoded.map(normalizeDecoded);
 }
 
 /**
  * Decode raw transaction calldata
  */
-export function decodeCalldata(tx: TransactionInput): RawDecodedTransaction {
+export function decodeCalldata(
+  tx: TransactionInput,
+  signatures?: Record<string, string>
+): RawDecodedTransaction {
   const { data } = tx;
 
   if (!data || data === '0x') {
@@ -86,7 +88,7 @@ export function decodeCalldata(tx: TransactionInput): RawDecodedTransaction {
   }
 
   const selector = extractSelector(data);
-  const sig = getSignatureBySelector(selector);
+  const sig = getSignatureBySelector(selector, signatures);
 
   if (!sig) {
     // Unknown function - return raw

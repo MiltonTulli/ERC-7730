@@ -1,3 +1,4 @@
+import { InvalidInputError } from '../errors';
 import type { TransactionInput } from '../types';
 import { decodeTransaction } from './decodeTransaction';
 import type { Address, DecodeOptions, DecodedOperation, SecurityWarning } from './types';
@@ -22,6 +23,12 @@ export async function decodeBatch(
   batch: BatchInput,
   options?: DecodeOptions
 ): Promise<BatchDecodeResult> {
+  if (!Number.isInteger(batch.chainId) || batch.chainId <= 0) {
+    throw new InvalidInputError('INVALID_CHAIN_ID', `Invalid chainId: ${String(batch.chainId)}`);
+  }
+  if (!Array.isArray(batch.calls)) {
+    throw new InvalidInputError('INVALID_CALLDATA', 'Batch calls must be an array');
+  }
   const calls: DecodedOperation[] = [];
   for (const call of batch.calls) {
     calls.push(

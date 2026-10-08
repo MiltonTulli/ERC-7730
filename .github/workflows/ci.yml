@@ -1,5 +1,8 @@
 name: CI
 
+permissions:
+  contents: read
+
 on:
   push:
     branches: [main]
@@ -57,6 +60,16 @@ jobs:
 
       - name: Run tests
         run: pnpm test
+
+      - name: SDK coverage
+        run: pnpm --filter @erc7730/sdk test:coverage
+
+      - name: Upload SDK coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdk-coverage-node-${{ matrix.node }}
+          path: packages/sdk/coverage/lcov.info
+          if-no-files-found: error
 
       - name: Check SDK bundle graph
         run: node scripts/check-sdk-bundles.mjs
@@ -164,6 +177,34 @@ jobs:
       - name: Build docs site
         run: pnpm --filter @erc7730/docs build:site
 
+  playground:
+    name: Playground
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build SDK
+        run: pnpm --filter @erc7730/sdk build
+
+      - name: Install Playwright browser
+        run: pnpm --filter @erc7730/web exec playwright install --with-deps chromium
+
+      - name: Playground end to end
+        run: pnpm --filter @erc7730/web test:e2e
+
   changeset:
     name: Changeset (when SDK or CLI source changes)
     if: github.event_name == 'pull_request'
@@ -180,7 +221,7 @@ jobs:
           CHANGED=$(git diff --name-only origin/main...HEAD)
           echo "Changed files:"
           echo "$CHANGED"
-          PUBLISHED_TOUCHED=$(echo "$CHANGED" | grep -E '^(packages/sdk/src/|packages/sdk/package.json$|packages/cli/src/|packages/cli/package.json$)' | grep -vE '/__tests__/' || true)
+          PUBLISHED_TOUCHED=$(echo "$CHANGED" | grep -E '^(packages/sdk/src/|packages/sdk/package.json$|packages/cli/src/|packages/cli/package.json$|packages/[^/]+/tsdown\.config\.ts$|packages/sdk/scripts/)' | grep -vE '/__tests__/' || true)
           CHANGESETS=$(echo "$CHANGED" | grep -E '^\.changeset/.+\.md$' | grep -v 'README.md' || true)
           if [ -n "$PUBLISHED_TOUCHED" ] && [ -z "$CHANGESETS" ]; then
             echo "::error::SDK or CLI source/package.json changed without a .changeset/*.md file. Run: pnpm changeset"

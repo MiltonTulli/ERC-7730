@@ -34,7 +34,6 @@ export type {
 import type { InputDescriptor } from './descriptor';
 import type {
   AStructuredDataFormatSpecification,
-  DisplayField,
   DisplayFieldItemList,
   DisplayIntent,
   Enumeration,
@@ -54,6 +53,3 @@ export type Intent = DisplayIntent;
 
 /** Enum map under `metadata.enums`. */
 export type EnumDefinition = Enumeration;
-
-/** @deprecated Prefer {@link DisplayField}. */
-export type FieldFormatter = DisplayField;

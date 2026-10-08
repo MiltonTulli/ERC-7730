@@ -1,6 +1,6 @@
 import type { IncludeLoader, InputDescriptor } from '../types/descriptor';
 import { DescriptorResolveError } from './error';
-import { cloneJson, isPlainObject } from './util';
+import { FORBIDDEN_KEYS, cloneJson, isPlainObject } from './util';
 
 const MAX_INCLUDE_DEPTH = 32;
 
@@ -20,12 +20,29 @@ export function mergeDescriptorDocs(
   return mergeObjects(base, overlay);
 }
 
+function copySanitized(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    return value.map((item) => copySanitized(item));
+  }
+  if (!isPlainObject(value)) {
+    return cloneJson(value);
+  }
+  const out: Record<string, unknown> = {};
+  for (const key of Object.keys(value)) {
+    if (FORBIDDEN_KEYS.has(key)) {
+      continue;
+    }
+    out[key] = copySanitized(value[key]);
+  }
+  return out;
+}
+
 function mergeValues(base: unknown, overlay: unknown, key: string): unknown {
   if (overlay === undefined) {
-    return cloneJson(base);
+    return copySanitized(base);
   }
   if (base === undefined) {
-    return cloneJson(overlay);
+    return copySanitized(overlay);
   }
   if (isPlainObject(base) && isPlainObject(overlay)) {
     return mergeObjects(base, overlay);
@@ -33,7 +50,7 @@ function mergeValues(base: unknown, overlay: unknown, key: string): unknown {
   if (Array.isArray(base) && Array.isArray(overlay) && key === 'fields') {
     return mergeFields(base, overlay);
   }
-  return cloneJson(overlay);
+  return copySanitized(overlay);
 }
 
 function mergeObjects(
@@ -43,10 +60,13 @@ function mergeObjects(
   const result: Record<string, unknown> = {};
   const keys = new Set([...Object.keys(base), ...Object.keys(overlay)]);
   for (const key of keys) {
-    if (!(key in overlay)) {
-      result[key] = cloneJson(base[key]);
-    } else if (!(key in base)) {
-      result[key] = cloneJson(overlay[key]);
+    if (FORBIDDEN_KEYS.has(key)) {
+      continue;
+    }
+    if (!Object.hasOwn(overlay, key)) {
+      result[key] = copySanitized(base[key]);
+    } else if (!Object.hasOwn(base, key)) {
+      result[key] = copySanitized(overlay[key]);
     } else {
       result[key] = mergeValues(base[key], overlay[key], key);
     }
@@ -55,7 +75,7 @@ function mergeObjects(
 }
 
 function mergeFields(base: unknown[], overlay: unknown[]): unknown[] {
-  const result: unknown[] = base.map((item) => cloneJson(item));
+  const result: unknown[] = base.map((item) => copySanitized(item));
   const indexByPath = new Map<string, number>();
   for (let i = 0; i < result.length; i++) {
     const item = result[i];
@@ -71,9 +91,9 @@ function mergeFields(base: unknown[], overlay: unknown[]): unknown[] {
         continue;
       }
       const existing = result[index];
-      result[index] = isPlainObject(existing) ? mergeObjects(existing, item) : cloneJson(item);
+      result[index] = isPlainObject(existing) ? mergeObjects(existing, item) : copySanitized(item);
     } else {
-      result.push(cloneJson(item));
+      result.push(copySanitized(item));
     }
   }
   return result;

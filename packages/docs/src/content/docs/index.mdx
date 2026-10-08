@@ -1,9 +1,9 @@
 ---
 title: ERC-7730 toolkit
-description: TypeScript runtime and authoring CLI for ERC-7730 clear signing — not a second registry.
+description: The safest way to show a transaction to a human in TypeScript.
 template: splash
 hero:
-  tagline: Decode with a pinned official registry and a TrustPolicy. Author descriptors next to a JS stack. Submit curated metadata to ethereum/clear-signing-erc7730-registry — not here.
+  tagline: The safest way to show a transaction to a human in TypeScript.
   actions:
     - text: Wallet guide
       link: /ERC-7730/guide/
@@ -22,18 +22,28 @@ hero:
 
 import { Card, CardGrid } from '@astrojs/starlight/components';
 
-This repository is a **toolkit**. It is **not** a descriptor catalog and **not** the reference TypeScript implementation. The catalog is [`ethereum/clear-signing-erc7730-registry`](https://github.com/ethereum/clear-signing-erc7730-registry). The published `@erc7730/sdk` tarball does not include one. Lookup is `createOfficialRegistry()` (defaults to the vendored commit SHA) or `createOfficialRegistry({ pin })`.
+## Install
 
-Security reports: [SECURITY.md](https://github.com/MiltonTulli/ERC-7730/blob/main/SECURITY.md).
+```bash
+npm install @erc7730/sdk
+```
+
+`viem` is not a dependency of `@erc7730/sdk`. Import `attestedPolicy` from `@erc7730/sdk/attest` and install `viem` only for that entry.
 
 ## Quick start
 
-### 1. Smallest call (intent + fields)
+WETH `deposit()` on mainnet, pinned to the commit SHA shipped with the SDK. `officialOnlyPolicy()` is also the default when `trust` is omitted.
 
+{/* quickstart:start */}
 ```ts
-import { createOfficialRegistry, decodeTransaction } from '@erc7730/sdk';
+import {
+  VENDORED_REGISTRY_COMMIT,
+  createOfficialRegistry,
+  decodeTransaction,
+  officialOnlyPolicy,
+} from '@erc7730/sdk';
 
-const registry = createOfficialRegistry();
+const registry = createOfficialRegistry({ pin: VENDORED_REGISTRY_COMMIT });
 
 const result = await decodeTransaction(
   {
@@ -42,53 +52,31 @@ const result = await decodeTransaction(
     value: 10n ** 18n,
     chainId: 1,
   },
-  { registry }
+  { registry, trust: officialOnlyPolicy() }
 );
 
 console.log(result.interpolatedIntent ?? result.intent);
 console.log(result.fields);
-```
-
-Illustrative summary: Wrap · 1 ETH · official-registry · high · accepted: true
-
-### 2. Production (explicit pin + trust)
-
-Same call with a frozen SHA and `officialOnlyPolicy()`. That policy rejects Sourcify / `generateDescriptor` / inferred / basic as high confidence:
-
-```ts
-import {
-  createOfficialRegistry,
-  decodeTransaction,
-  officialOnlyPolicy,
-  VENDORED_REGISTRY_COMMIT,
-} from '@erc7730/sdk';
-
-const registry = createOfficialRegistry({ pin: VENDORED_REGISTRY_COMMIT });
-
-const tx = {
-  to: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-  data: '0xd0e30db0',
-  value: 10n ** 18n,
-  chainId: 1,
-} as const;
-
-const result = await decodeTransaction(tx, {
-  registry,
-  trust: officialOnlyPolicy(),
-});
-
-console.log(result.interpolatedIntent ?? result.intent);
 console.log(result.source, result.confidence, result.trust.accepted);
 ```
+{/* quickstart:end */}
 
-Prefetch, `extend()`, `ExternalDataProvider`, batch, UserOp, and attestations: [wallet guide](/ERC-7730/guide/). Trust table: [/trust](/ERC-7730/trust/).
+Expected output: `Wrap`, an Amount field of `1 ETH`, then `official-registry high true`.
+
+## Production
+
+Name the registry `pin` at the call site. With no network, pass `indexes` and `cache`. `officialOnlyPolicy()` accepts `official-registry` and `attested` only. ERC-20, ERC-721, and WETH builtins stay at `confidence: "low"` under that policy.
+
+What this toolkit is not: [not this](/ERC-7730/not-this/).
+
+Security reports: [SECURITY.md](https://github.com/MiltonTulli/ERC-7730/blob/main/SECURITY.md).
 
 ## Three ways in
 
 <div class="audience-grid">
   <div class="audience-card">
     <h3>Wallet / dApp</h3>
-    <p>Start with the smallest decode, then pin a SHA and inject <code>TrustPolicy</code>. Decode transactions, typed data, EIP-5792 batches, and Simple Account UserOps. Read <code>source</code>, <code>confidence</code>, and <code>trust.accepted</code>.</p>
+    <p>Pin a SHA and read <code>source</code>, <code>confidence</code>, and <code>trust.accepted</code>. Decode transactions, typed data, EIP-5792 batches, and Simple Account UserOps.</p>
     <p><a href="/ERC-7730/guide/">Guide</a> · <a href="/ERC-7730/trust/">Trust</a> · <a href="/ERC-7730/sdk/">SDK</a></p>
   </div>
   <div class="audience-card">
@@ -98,7 +86,7 @@ Prefetch, `extend()`, `ExternalDataProvider`, batch, UserOp, and attestations: [
   </div>
   <div class="audience-card">
     <h3>Toolkit contributor</h3>
-    <p>Compare resolve/lint to Ledger <code>python-erc7730</code> and Sourcify TS. Documented divergences. Explicit “what we are not”.</p>
+    <p>Compare resolve/lint to Ledger <code>python-erc7730</code> and Sourcify TS. Documented divergences.</p>
     <p><a href="/ERC-7730/interop/">Interop</a> · <a href="/ERC-7730/divergences/">Divergences</a> · <a href="/ERC-7730/not-this/">Not this</a></p>
   </div>
 </div>
@@ -116,13 +104,13 @@ Packages are versioned independently (`sdk-v*` / `cli-v*` tags). Generated and S
 
 <CardGrid>
   <Card title="Trust model" icon="approve-check">
-    Production wallets use `officialOnlyPolicy()` or `attestedPolicy()`. The [playground](/ERC-7730/demo/) uses `officialOrLocalPolicy()` on purpose.
+    Production wallets use `officialOnlyPolicy()` or `attestedPolicy()`. The [playground](/ERC-7730/demo/) opens in that policy. Exploration opts into local overrides and Sourcify.
   </Card>
   <Card title="Official registry" icon="external">
     Commit SHA pins. `createOfficialRegistry()` defaults to the vendored SHA; production still passes an explicit `pin`. `extend()` is local. New protocol metadata goes to the [official registry](https://github.com/ethereum/clear-signing-erc7730-registry).
   </Card>
   <Card title="Generated API" icon="seti:json">
-    [`/sdk/api`](/ERC-7730/sdk/api/) is TypeDoc from exported `@erc7730/sdk` and `@erc7730/sdk/viem` symbols — no hand-written symbol list.
+    [`/sdk/api`](/ERC-7730/sdk/api/) is TypeDoc from the `@erc7730/sdk` and `@erc7730/sdk/attest` exports.
   </Card>
   <Card title="Search" icon="magnifier">
     Full-text search (Pagefind) works on this static site. No third-party search account.

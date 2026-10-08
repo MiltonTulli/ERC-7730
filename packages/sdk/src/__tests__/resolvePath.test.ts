@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { PathResolveError, resolvePath } from '../path';
+import { PathResolveError, resolvePath, tryResolvePath } from '../path';
 import { parsePath } from '../path/parse';
 import type { PathContext, PathEnvelope } from '../path/types';
 import { createMemoryIncludeLoader, resolveDescriptor } from '../resolve';
@@ -303,6 +303,22 @@ describe('resolvePath', () => {
     it('throws invalid for unknown roots and container fields', () => {
       expect(() => resolvePath('@.gas', ctx({}))).toThrow(/Unknown container field/);
       expect(() => resolvePath('', ctx({}))).toThrow(/non-empty string/);
+      expect(() => resolvePath('#.foo[', ctx({ args: {} }))).toThrow(PathResolveError);
+    });
+
+    it('tryResolvePath maps not_found to undefined and rethrows invalid', () => {
+      expect(tryResolvePath('#.missing.child', ctx({ args: { other: 1 } }))).toBeUndefined();
+      expect(
+        tryResolvePath('@.from', ctx({ envelope: { to: STETH, value: 1n, chainId: 1 } }))
+      ).toBeUndefined();
+      expect(() => tryResolvePath('#.foo[', ctx({ args: {} }))).toThrow(PathResolveError);
+      expect(() => tryResolvePath('#.amount', ctx({}))).toThrow(PathResolveError);
+    });
+
+    it('slices a short hex value with compact brackets', () => {
+      const args = { data: '0x001122334455' };
+      expect(resolvePath('#.data[1:3]', ctx({ args }))).toBe('0x1122');
+      expect(resolvePath('#.data[4:]', ctx({ args }))).toBe('0x4455');
     });
   });
 });

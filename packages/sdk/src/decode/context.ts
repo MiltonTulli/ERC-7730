@@ -13,7 +13,8 @@
  * not hardcoded.
  */
 
-import { decodeEventLog, encodeAbiParameters, keccak256, toBytes } from 'viem/utils';
+import { AbiEvent, AbiParameters } from 'ox';
+import { keccak256 } from '../keccak';
 import { isPlainObject } from '../resolve/util';
 import type { LogBlockTag, Provider, TransactionInput, TypedDataInput } from '../types';
 import type { Hex, InputDescriptor, ResolvedDescriptor } from '../types/descriptor';
@@ -379,7 +380,7 @@ function eventCanonical(event: DeployEvent): string {
 }
 
 function eventTopic0(event: DeployEvent): Hex {
-  return keccak256(toBytes(eventCanonical(event)));
+  return keccak256(eventCanonical(event));
 }
 
 async function matchFactory(
@@ -437,13 +438,12 @@ async function matchFactory(
       continue;
     }
     try {
-      const decoded = decodeEventLog({
-        abi: [event],
+      const decoded = AbiEvent.decode(event, {
         data: (log.data ?? '0x') as Hex,
         topics: topics as [Hex, ...Hex[]],
       });
       const found = new Set<string>();
-      collectAddresses(decoded.args, found);
+      collectAddresses(decoded, found);
       if (found.has(want)) {
         return true;
       }
@@ -505,7 +505,7 @@ function hashEip712Domain(data: TypedDataInput): Hex | undefined {
   }
 
   const typeString = `EIP712Domain(${fields.map((field) => `${field.type} ${field.name}`).join(',')})`;
-  const typeHash = keccak256(toBytes(typeString));
+  const typeHash = keccak256(typeString);
   const values: unknown[] = [typeHash];
   const params: Array<{ type: string }> = [{ type: 'bytes32' }];
 
@@ -516,7 +516,7 @@ function hashEip712Domain(data: TypedDataInput): Hex | undefined {
     }
     if (field.type === 'string') {
       params.push({ type: 'bytes32' });
-      values.push(keccak256(toBytes(String(raw))));
+      values.push(keccak256(String(raw)));
     } else if (field.type === 'uint256' || field.type === 'uint') {
       params.push({ type: 'uint256' });
       values.push(BigInt(raw as string | number | bigint));
@@ -533,7 +533,7 @@ function hashEip712Domain(data: TypedDataInput): Hex | undefined {
   }
 
   try {
-    return keccak256(encodeAbiParameters(params, values));
+    return keccak256(AbiParameters.encode(params, values as never));
   } catch {
     return undefined;
   }

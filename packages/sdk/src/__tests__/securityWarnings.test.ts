@@ -521,8 +521,10 @@ describe('decode security warnings', () => {
       );
     };
 
+    // balanceOf is well-known and not an ERC-20/721/WETH display format, so the builtin does not swallow it.
+    const data = `0x70a08231${RANDOM.slice(2).padStart(64, '0')}` as const;
     const result = await decodeTransaction(
-      { to: RANDOM, data: APPROVE_MAX, chainId: 1 },
+      { to: RANDOM, data, chainId: 1 },
       {
         provider: null,
         useSourcifyFallback: true,
@@ -537,7 +539,7 @@ describe('decode security warnings', () => {
 
   it('adds missing_metadata when decode runs with no descriptor', async () => {
     const result = await decodeTransaction(
-      { to: RANDOM, data: '0x12345678abcdef', chainId: 1 },
+      { to: RANDOM, data: '0x12345678', chainId: 1 },
       { provider: null, useSourcifyFallback: false }
     );
     expect(result.source).toBe('basic');

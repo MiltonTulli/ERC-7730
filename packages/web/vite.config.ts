@@ -10,7 +10,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@erc7730/sdk': resolve(__dirname, '../sdk/src'),
+      '@erc7730/sdk': resolve(__dirname, '../sdk/dist/index.js'),
     },
   },
 });

@@ -29,7 +29,7 @@ import { DescriptorResolveError } from './error';
 import { descriptorHash } from './hash';
 import { mergeIncludes } from './merge';
 import { inlineFieldRefs } from './refs';
-import { cloneJson, isPlainObject } from './util';
+import { FORBIDDEN_KEYS, cloneJson, isPlainObject } from './util';
 
 const ADDRESS_RE = /^0x[0-9a-fA-F]{40}$/;
 
@@ -44,6 +44,9 @@ function lowercaseBindingAddresses(value: unknown): unknown {
   }
   const out: Record<string, unknown> = {};
   for (const [key, child] of Object.entries(value)) {
+    if (FORBIDDEN_KEYS.has(key)) {
+      continue;
+    }
     if (ADDRESS_KEYS.has(key) && typeof child === 'string' && ADDRESS_RE.test(child)) {
       out[key] = child.toLowerCase();
     } else {
@@ -144,7 +147,7 @@ export async function resolveDescriptor(
 export function createMemoryIncludeLoader(files: Record<string, unknown>): IncludeLoader {
   return {
     async load(ref) {
-      if (!(ref in files)) {
+      if (!Object.hasOwn(files, ref)) {
         throw new DescriptorResolveError(`Include not found: ${ref}`, '/includes');
       }
       return files[ref];

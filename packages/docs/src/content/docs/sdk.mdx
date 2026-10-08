@@ -11,24 +11,29 @@ import sdkPkg from '../../../../sdk/package.json';
 npm install @erc7730/sdk
 ```
 
-`viem` is included with `@erc7730/sdk`. Adapters and a viem `PublicClient` use that copy.
+`viem` is not a dependency of this package. Keccak is `@noble/hashes` and the ABI codec is `ox`. `decodeViemTypedData` stays on the root and does not require `viem` at runtime.
 
 ## Entry points
 
 | Import | What you get |
 | --- | --- |
-| `@erc7730/sdk` | Full runtime. Sourcify is opt-in (`enableSourcifyAbiLoader` or `loadVerifiedAbi`); import does not register a loader. `useSourcifyFallback` defaults to `false` |
-| `@erc7730/sdk/lite` | Deprecated narrower entry of the same install. Omits the Sourcify client and `generateDescriptor` from that graph. Descriptor lookup is still `createOfficialRegistry()` / `{ pin }` |
-| `@erc7730/sdk/viem` | `decodeViemTransaction` / `decodeViemTypedData` adapters (does not register a Sourcify loader) |
+| `@erc7730/sdk` | Runtime. Sourcify is opt-in (`loadVerifiedAbi: sourcifyVerifiedAbiLoader` and `useSourcifyFallback: true`). Import does not fetch. `useSourcifyFallback` defaults to `false`. `decodeViemTypedData` lives here |
+| `@erc7730/sdk/attest` | `attestedPolicy`. This entry can depend on `viem` |
 
 ## Quick start
 
-### 1. Smallest call (intent + fields)
+WETH `deposit()` on mainnet. `officialOnlyPolicy()` is also the default when `trust` is omitted.
 
+{/* quickstart:start */}
 ```ts
-import { createOfficialRegistry, decodeTransaction } from '@erc7730/sdk';
+import {
+  VENDORED_REGISTRY_COMMIT,
+  createOfficialRegistry,
+  decodeTransaction,
+  officialOnlyPolicy,
+} from '@erc7730/sdk';
 
-const registry = createOfficialRegistry();
+const registry = createOfficialRegistry({ pin: VENDORED_REGISTRY_COMMIT });
 
 const result = await decodeTransaction(
   {
@@ -37,45 +42,20 @@ const result = await decodeTransaction(
     value: 10n ** 18n,
     chainId: 1,
   },
-  { registry }
+  { registry, trust: officialOnlyPolicy() }
 );
 
 console.log(result.interpolatedIntent ?? result.intent);
 console.log(result.fields);
-```
-
-Illustrative summary: Wrap · 1 ETH · official-registry · high · accepted: true
-
-### 2. Production (explicit pin + trust)
-
-Same call with a frozen SHA and `officialOnlyPolicy()`. That policy rejects Sourcify / `generateDescriptor` / inferred / basic as high confidence:
-
-```ts
-import {
-  createOfficialRegistry,
-  decodeTransaction,
-  officialOnlyPolicy,
-  VENDORED_REGISTRY_COMMIT,
-} from '@erc7730/sdk';
-
-const registry = createOfficialRegistry({ pin: VENDORED_REGISTRY_COMMIT });
-
-const tx = {
-  to: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-  data: '0xd0e30db0',
-  value: 10n ** 18n,
-  chainId: 1,
-} as const;
-
-const result = await decodeTransaction(tx, {
-  registry,
-  trust: officialOnlyPolicy(),
-});
-
-console.log(result.interpolatedIntent ?? result.intent);
 console.log(result.source, result.confidence, result.trust.accepted);
 ```
-The tarball does not ship a descriptor catalog. With no network, pass `indexes` and `cache`. Without a registry, the SDK falls back to ABI inference at `confidence: 'low'`.
+{/* quickstart:end */}
+
+Expected output: `Wrap`, an Amount field of `1 ETH`, then `official-registry high true`.
+
+## Production
+
+Name the registry `pin` at the call site. With no network, pass `indexes` and `cache`. ERC-20, ERC-721, and WETH builtins fill in when no registry descriptor matches. `officialOnlyPolicy()` rejects that source, so confidence stays `low`.
 
 Prefer [the wallet guide](/ERC-7730/guide/) for prefetch, `extend()`, `ExternalDataProvider` (token / ENS / NFT — the SDK does no RPC), `trustedTokens`, batch, and UserOp.
 
@@ -83,6 +63,6 @@ Prefer [the wallet guide](/ERC-7730/guide/) for prefetch, `extend()`, `ExternalD
 
 - [Decode](/ERC-7730/sdk/decode/) — `decodeTransaction` / `decodeTypedData` / `decodeBatch` / `decodeUserOp`
 - [Validate & resolve](/ERC-7730/sdk/validate-resolve/) — schema, includes, path engine
-- [viem adapters](/ERC-7730/sdk/viem/)
+- [Calling from viem](/ERC-7730/sdk/viem/)
 - [Generated API](/ERC-7730/sdk/api/) — TypeDoc from exported symbols
 - [Trust](/ERC-7730/trust/) · [Registry](/ERC-7730/registry/)

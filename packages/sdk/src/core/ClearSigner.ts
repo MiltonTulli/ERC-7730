@@ -174,6 +174,7 @@ function asDescriptorList(
 /**
  * Bound `DecodeOptions` for repeated decode calls. Prefer
  * {@link createClearSigner} over `new ClearSigner()`.
+ * `signatures` and `loadVerifiedAbi` stay on this instance. They are not process globals.
  */
 export class ClearSigner {
   private readonly options: DecodeOptions;

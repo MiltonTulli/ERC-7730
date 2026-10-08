@@ -11,6 +11,7 @@ export type DecodeSource =
   | 'attested'
   | 'local-override'
   | 'trusted-token'
+  | 'builtin'
   | 'sourcify'
   | 'generated'
   | 'inferred'
@@ -85,9 +86,14 @@ export interface TrustReport {
 
 export interface TrustContext {
   descriptor?: ResolvedDescriptor;
-  chainId: number;
+  chainId?: number;
   address?: Address;
   source: DecodeSource;
+  /**
+   * Unix time in seconds from `DecodeOptions.now`.
+   * Policies fall back to `Date.now` only when this is omitted.
+   */
+  now?: number;
 }
 
 export interface TrustPolicy {
@@ -117,7 +123,7 @@ export interface DecodedOperation {
     owner?: string;
     contractName?: string;
     protocolUrl?: string;
-    chainId: number;
+    chainId?: number;
     contractAddress?: Address;
     descriptorId?: string;
     registryPath?: string;
@@ -202,10 +208,17 @@ export interface DecodeOptions {
    */
   trustedTokens?: TrustedTokens;
   /**
-   * Wallet-supplied policy. When omitted, decode uses a stub
-   * (`policy: "unspecified"`) that accepts official-registry / attested /
-   * local-override and rejects Sourcify / generated / inferred / basic.
-   * Production should pass `officialOnlyPolicy()`.
+   * ERC-20, ERC-721, and WETH builtins after registry and `trustedTokens`.
+   * WETH matches only its deployments. Default true.
+   * `officialOnlyPolicy()` rejects this source, so confidence stays `"low"`.
+   * `officialOrLocalPolicy()` accepts it at `"medium"`. Never `"high"`.
+   */
+  builtins?: boolean;
+  /**
+   * Wallet-supplied policy. When omitted, decode uses `officialOnlyPolicy()`:
+   * official-registry and attested are accepted; local overrides, Sourcify,
+   * generated, inferred, and basic are rejected. Pass `officialOrLocalPolicy()`
+   * to accept app `extend()` overrides.
    */
   trust?: TrustPolicy;
   /**
@@ -214,14 +227,18 @@ export interface DecodeOptions {
    */
   spenderAllowlist?: Address[];
   /**
+   * Selector → Solidity declaration for this call only.
+   * Overrides `COMMON_SIGNATURES` on a match. There is no process-wide signature map.
+   */
+  signatures?: Record<string, string>;
+  /**
    * Opt-in Sourcify ABI fallback. Default false: decode does not touch the network.
-   * Also requires a loader: `loadVerifiedAbi`, or `enableSourcifyAbiLoader()` first.
-   * Importing `@erc7730/sdk` does not register one. Never `confidence: "high"`.
+   * Also requires `loadVerifiedAbi` on this call. Never `confidence: "high"`.
    */
   useSourcifyFallback?: boolean;
   /**
    * Verified-ABI loader used when `useSourcifyFallback` is true.
-   * Pass `sourcifyVerifiedAbiLoader`, or omit this after `enableSourcifyAbiLoader()`.
+   * Pass `sourcifyVerifiedAbiLoader`. There is no process-wide loader.
    */
   loadVerifiedAbi?: (chainId: number, address: Address) => Promise<VerifiedContractAbi | null>;
   /** @internal Recursion guard for nested `calldata` fields. */

@@ -3,16 +3,13 @@
  * This allows decoding without network calls for common functions
  */
 
-import { keccak256, toBytes } from 'viem/utils';
+import { keccak256 } from '../keccak';
 
 export interface FunctionSignature {
   selector: string;
   signature: string;
   name: string;
 }
-
-// Runtime-registered signatures (from custom descriptors/ABIs)
-const customSignatures: Map<string, FunctionSignature> = new Map();
 
 /**
  * Built-in function signatures for common operations
@@ -210,54 +207,36 @@ export const COMMON_SIGNATURES: Record<string, FunctionSignature> = {
 };
 
 /**
- * Get function signature by selector
+ * Look up a function signature by selector.
+ * `extra` is call-scoped and wins over `COMMON_SIGNATURES`. There is no process-wide map.
  */
-export function getSignatureBySelector(selector: string): FunctionSignature | null {
+export function getSignatureBySelector(
+  selector: string,
+  extra?: Record<string, string>
+): FunctionSignature | null {
   const normalized = selector.toLowerCase();
-  // Check custom signatures first (allows overrides)
-  return customSignatures.get(normalized) || COMMON_SIGNATURES[normalized] || null;
+  if (extra) {
+    for (const [key, signature] of Object.entries(extra)) {
+      if (key.toLowerCase() !== normalized) {
+        continue;
+      }
+      const match = signature.match(/^(\w+)\(/);
+      return {
+        selector: normalized,
+        signature,
+        name: match?.[1] ?? 'unknown',
+      };
+    }
+  }
+  return COMMON_SIGNATURES[normalized] ?? null;
 }
 
 /**
  * Compute selector from function signature
  */
 export function computeSelector(signature: string): string {
-  const hash = keccak256(toBytes(signature));
+  const hash = keccak256(signature);
   return hash.slice(0, 10).toLowerCase();
-}
-
-/**
- * Register a custom function signature
- */
-export function registerSignature(signature: string): FunctionSignature {
-  const selector = computeSelector(signature);
-  const match = signature.match(/^(\w+)\(/);
-  const name = match ? match[1] : 'unknown';
-
-  const sig: FunctionSignature = {
-    selector,
-    signature,
-    name,
-  };
-
-  customSignatures.set(selector, sig);
-  return sig;
-}
-
-/**
- * Register multiple signatures from an ABI-like list
- */
-export function registerSignatures(signatures: string[]): void {
-  for (const sig of signatures) {
-    registerSignature(sig);
-  }
-}
-
-/**
- * Clear all custom signatures (useful for testing)
- */
-export function clearCustomSignatures(): void {
-  customSignatures.clear();
 }
 
 /**
