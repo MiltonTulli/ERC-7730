@@ -15,7 +15,7 @@ npm install -D @erc7730/cli
 erc7730 --help
 ```
 
-Requires Node 18+. The published surface is the `erc7730` **binary only** (no `main` / `types` / `exports`). Do not import this package.
+Requires Node 20+. The published surface is the `erc7730` **binary only** (no `main` / `types` / `exports`). Do not import this package.
 
 ## Commands
 

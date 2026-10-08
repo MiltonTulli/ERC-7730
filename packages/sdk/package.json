@@ -3,6 +3,9 @@
   "version": "0.9.1",
   "description": "Decode blockchain transactions into human-readable format using ERC-7730 standard",
   "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
   "sideEffects": false,
   "main": "./dist/index.js",
   "module": "./dist/index.js",

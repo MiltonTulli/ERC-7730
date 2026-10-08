@@ -1,5 +1,8 @@
 name: CI
 
+permissions:
+  contents: read
+
 on:
   push:
     branches: [main]
@@ -57,6 +60,16 @@ jobs:
 
       - name: Run tests
         run: pnpm test
+
+      - name: SDK coverage
+        run: pnpm --filter @erc7730/sdk test:coverage
+
+      - name: Upload SDK coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdk-coverage-node-${{ matrix.node }}
+          path: packages/sdk/coverage/lcov.info
+          if-no-files-found: error
 
       - name: Check SDK bundle graph
         run: node scripts/check-sdk-bundles.mjs
@@ -180,7 +193,7 @@ jobs:
           CHANGED=$(git diff --name-only origin/main...HEAD)
           echo "Changed files:"
           echo "$CHANGED"
-          PUBLISHED_TOUCHED=$(echo "$CHANGED" | grep -E '^(packages/sdk/src/|packages/sdk/package.json$|packages/cli/src/|packages/cli/package.json$)' | grep -vE '/__tests__/' || true)
+          PUBLISHED_TOUCHED=$(echo "$CHANGED" | grep -E '^(packages/sdk/src/|packages/sdk/package.json$|packages/cli/src/|packages/cli/package.json$|packages/[^/]+/tsdown\.config\.ts$|packages/sdk/scripts/)' | grep -vE '/__tests__/' || true)
           CHANGESETS=$(echo "$CHANGED" | grep -E '^\.changeset/.+\.md$' | grep -v 'README.md' || true)
           if [ -n "$PUBLISHED_TOUCHED" ] && [ -z "$CHANGESETS" ]; then
             echo "::error::SDK or CLI source/package.json changed without a .changeset/*.md file. Run: pnpm changeset"

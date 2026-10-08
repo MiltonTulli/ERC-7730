@@ -11,7 +11,7 @@ Do not write `.js` or `.ts` in a relative specifier, and do not add `@/` aliases
 
 Do not edit `dist/`. `pnpm --filter @erc7730/sdk build` and `pnpm --filter @erc7730/cli build` run tsdown. The SDK tarball does not embed a descriptor catalog. Consumers import `@erc7730/sdk`. The `.js` files in `dist/` are the published runtime, not the authoring API.
 
-Building this repository needs Node 22.18 or newer. The published packages still run on Node 18 or newer.
+Building this repository needs Node 22.18 or newer. The published packages run on Node 20 or newer.
 
 The CLI imports `@erc7730/sdk` through its package exports, which point at `dist/`. Build the SDK before typechecking the CLI. Do not import `packages/sdk/src` from the CLI.
 
