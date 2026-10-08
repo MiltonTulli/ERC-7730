@@ -1,5 +1,14 @@
 # @erc7730/cli
 
+## 0.3.9
+
+### Patch Changes
+
+- 1fe0fd8: preview prints the registry pin it used, and diff exits with a clear error when a descriptor has no deployments.
+- Updated dependencies [9f32fee]
+- Updated dependencies [d85c365]
+  - @erc7730/sdk@0.9.1
+
 ## 0.3.8
 
 ### Patch Changes
