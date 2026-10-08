@@ -5,7 +5,7 @@
  * that can provide ABIs for verified contracts.
  */
 
-import { type VerifiedAbiLoader, setDefaultVerifiedAbiLoader } from '../decode/abiLoader';
+import type { VerifiedAbiLoader } from '../decode/abiLoader';
 import type { ABI } from '../generate/generate';
 
 const SOURCIFY_API_V2_BASE = 'https://sourcify.dev/server';
@@ -134,8 +134,8 @@ function extractContractName(abi: ABI | undefined): string | null {
 
 /**
  * Sourcify ABI fetch shaped as `DecodeOptions.loadVerifiedAbi`.
- * Pass it on a decode call, or register it with `enableSourcifyAbiLoader`.
- * Importing the package does not install this loader.
+ * Pass it on the decode call together with `useSourcifyFallback: true`.
+ * Importing the package does not install a loader.
  */
 export const sourcifyVerifiedAbiLoader: VerifiedAbiLoader = async (chainId, address) => {
   const result = await fetchFromSourcify(chainId, address);
@@ -144,14 +144,6 @@ export const sourcifyVerifiedAbiLoader: VerifiedAbiLoader = async (chainId, addr
   }
   return { abi: result.abi, name: result.name || undefined };
 };
-
-/**
- * Register `sourcifyVerifiedAbiLoader` as the process-wide default.
- * Decode still skips it unless `useSourcifyFallback` is true.
- */
-export function enableSourcifyAbiLoader(): void {
-  setDefaultVerifiedAbiLoader(sourcifyVerifiedAbiLoader);
-}
 
 /** Check if a contract is verified on Sourcify (quick check without fetching ABI). */
 export async function isVerifiedOnSourcify(chainId: number, address: string): Promise<boolean> {

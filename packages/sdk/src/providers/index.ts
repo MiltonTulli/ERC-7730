@@ -11,7 +11,6 @@ export {
 } from './rpc';
 
 export {
-  enableSourcifyAbiLoader,
   fetchFromSourcify,
   isVerifiedOnSourcify,
   sourcifyVerifiedAbiLoader,

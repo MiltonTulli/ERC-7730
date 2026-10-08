@@ -115,6 +115,33 @@ describe('createClearSigner', () => {
     expect(signer).toBeInstanceOf(ClearSigner);
   });
 
+  it('keeps signatures on each signer when two run in parallel', async () => {
+    const unknown = '0x1111111111111111111111111111111111111111' as const;
+    const tx = { to: unknown, data: TRANSFER_100_USDC, chainId: 1 };
+    const send = createClearSigner({
+      provider: null,
+      useSourcifyFallback: false,
+      signatures: { '0xa9059cbb': 'send(address payee,uint256 coins)' },
+    });
+    const give = createClearSigner({
+      provider: null,
+      useSourcifyFallback: false,
+      signatures: { '0xA9059CBB': 'give(address dest,uint256 coins)' },
+    });
+
+    const [left, right] = await Promise.all([
+      send.decodeTransaction(tx),
+      give.decodeTransaction(tx),
+    ]);
+
+    expect(left.functionName).toBe('send');
+    expect(right.functionName).toBe('give');
+    expect(left.intent).toBe('Send');
+    expect(right.intent).toBe('Give');
+    expect(left.fields.map((field) => field.label)).toEqual(['payee', 'coins']);
+    expect(right.fields.map((field) => field.label)).toEqual(['dest', 'coins']);
+  });
+
   it('decode is an alias of decodeTransaction', async () => {
     const signer = createClearSigner({ provider: null, useSourcifyFallback: false });
     const viaAlias = await signer.decode(transferTx);

@@ -252,23 +252,22 @@ Load attestation JSON with `createOfficialRegistry({ pin, attachAttestations: tr
 
 Importing `@erc7730/sdk`, `@erc7730/sdk/lite`, or `@erc7730/sdk/viem` does not contact Sourcify and does not install a default ABI loader. `fetchFromSourcify` stays exported for apps that want the client.
 
-Opt in per call. `useSourcifyFallback: true` still does nothing until a loader is set:
+Opt in per call. `useSourcifyFallback: true` does nothing until that call passes a loader. There is no process-wide loader.
 
 ```ts
-import {
-  decodeTransaction,
-  enableSourcifyAbiLoader,
-  sourcifyVerifiedAbiLoader,
-} from '@erc7730/sdk';
+import { decodeTransaction, sourcifyVerifiedAbiLoader } from '@erc7730/sdk';
 
-// Process-wide default. Inert until useSourcifyFallback is true.
-enableSourcifyAbiLoader();
-await decodeTransaction(tx, { useSourcifyFallback: true });
-
-// Or pass the loader on this call only.
 await decodeTransaction(tx, {
   useSourcifyFallback: true,
   loadVerifiedAbi: sourcifyVerifiedAbiLoader,
+});
+```
+
+Call-scoped signatures override the built-in selector table for that decode only. Pass them on `DecodeOptions` or `createClearSigner`. There is no process-wide signature map.
+
+```ts
+await decodeTransaction(tx, {
+  signatures: { '0xa9059cbb': 'send(address payee,uint256 coins)' },
 });
 ```
 

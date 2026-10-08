@@ -23,10 +23,7 @@ export { decodeCalldata, extractSelector } from './core/decoder';
 export {
   getSignatureBySelector,
   COMMON_SIGNATURES,
-  registerSignature,
-  registerSignatures,
   computeSelector,
-  clearCustomSignatures,
 } from './core/signatures';
 
 // Format utilities
@@ -55,8 +52,7 @@ export {
   isChainSupported,
   getChainName,
   getBlockExplorer,
-  // Sourcify integration. Opt-in: importing this module does not register a loader.
-  enableSourcifyAbiLoader,
+  // Sourcify client. Opt-in per call via loadVerifiedAbi. Import does not fetch.
   fetchFromSourcify,
   isVerifiedOnSourcify,
   sourcifyVerifiedAbiLoader,

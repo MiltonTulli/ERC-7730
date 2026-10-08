@@ -19,8 +19,6 @@ describe('@erc7730/sdk import', () => {
     await import('../index');
     await import('../lite');
     await import('../viem');
-    const { getDefaultVerifiedAbiLoader } = await import('../decode/abiLoader');
-    expect(getDefaultVerifiedAbiLoader()).toBeUndefined();
     expect(Reflect.ownKeys(globalThis).filter((key) => !before.has(key))).toEqual([]);
   });
 });

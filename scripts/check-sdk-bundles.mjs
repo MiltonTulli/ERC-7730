@@ -63,8 +63,11 @@ const liteFile = join(dist, 'lite.js');
 if (!index.includes('fetchFromSourcify') && !index.includes('sourcify.dev')) {
   fail('dist/index.js no longer includes the Sourcify client');
 }
-if (!index.includes('enableSourcifyAbiLoader')) {
-  fail('dist/index.js no longer exports enableSourcifyAbiLoader');
+if (index.includes('enableSourcifyAbiLoader')) {
+  fail('dist/index.js still exports enableSourcifyAbiLoader');
+}
+if (index.includes('setDefaultVerifiedAbiLoader') || index.includes('customSignatures')) {
+  fail('dist/index.js still has a process-global Sourcify loader or signature map');
 }
 if (!/from\s*['"]ajv\/dist\/2020\.js['"]/.test(index)) {
   fail('SDK bundle does not keep ajv/dist/2020.js external');

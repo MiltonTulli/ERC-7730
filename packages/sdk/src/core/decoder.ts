@@ -72,7 +72,10 @@ export function decodeParameters(types: string[], data: string): unknown[] {
 /**
  * Decode raw transaction calldata
  */
-export function decodeCalldata(tx: TransactionInput): RawDecodedTransaction {
+export function decodeCalldata(
+  tx: TransactionInput,
+  signatures?: Record<string, string>
+): RawDecodedTransaction {
   const { data } = tx;
 
   if (!data || data === '0x') {
@@ -86,7 +89,7 @@ export function decodeCalldata(tx: TransactionInput): RawDecodedTransaction {
   }
 
   const selector = extractSelector(data);
-  const sig = getSignatureBySelector(selector);
+  const sig = getSignatureBySelector(selector, signatures);
 
   if (!sig) {
     // Unknown function - return raw

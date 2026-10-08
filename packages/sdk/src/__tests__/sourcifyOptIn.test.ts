@@ -2,9 +2,8 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { getDefaultVerifiedAbiLoader, setDefaultVerifiedAbiLoader } from '../decode/abiLoader';
 import { decodeTransaction } from '../decode/decodeTransaction';
-import { enableSourcifyAbiLoader, sourcifyVerifiedAbiLoader } from '../providers/sourcify';
+import { sourcifyVerifiedAbiLoader } from '../providers/sourcify';
 import { decodeViemTransaction } from '../viem';
 
 const srcRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -32,22 +31,19 @@ function readSrc(name: string): string {
 }
 
 afterEach(() => {
-  setDefaultVerifiedAbiLoader(undefined);
   vi.unstubAllGlobals();
 });
 
 describe('Sourcify ABI loader opt-in', () => {
   it('does not register a loader from the package entries', () => {
     expect(decodeViemTransaction).toBeTypeOf('function');
-    expect(getDefaultVerifiedAbiLoader()).toBeUndefined();
-    for (const file of ['index.ts', 'viem.ts']) {
+    for (const file of ['index.ts', 'viem.ts', 'providers/sourcify.ts', 'decode/abiLoader.ts']) {
       expect(readSrc(file)).not.toMatch(/setDefaultVerifiedAbiLoader\s*\(/);
+      expect(readSrc(file)).not.toContain('enableSourcifyAbiLoader');
     }
     const lite = readSrc('lite.ts');
     expect(lite).not.toContain('providers/sourcify');
-    expect(lite).not.toContain('enableSourcifyAbiLoader');
     expect(lite).not.toContain('fetchFromSourcify');
-    expect(readSrc('index.ts')).toContain('enableSourcifyAbiLoader');
     expect(readSrc('index.ts')).toContain('sourcifyVerifiedAbiLoader');
   });
 
@@ -62,31 +58,19 @@ describe('Sourcify ABI loader opt-in', () => {
     expect(result.source).not.toBe('sourcify');
   });
 
-  it('does not fetch after enableSourcifyAbiLoader unless the call opts in', async () => {
+  it('does not fetch when a loader is passed but useSourcifyFallback is false', async () => {
     const fetchMock = vi.fn();
     vi.stubGlobal('fetch', fetchMock);
-    enableSourcifyAbiLoader();
-    expect(getDefaultVerifiedAbiLoader()).toBe(sourcifyVerifiedAbiLoader);
     const result = await decodeTransaction(
       { to: TO, data: TRANSFER, chainId: 1 },
-      { provider: null, useSourcifyFallback: false }
+      {
+        provider: null,
+        useSourcifyFallback: false,
+        loadVerifiedAbi: sourcifyVerifiedAbiLoader,
+      }
     );
     expect(fetchMock).not.toHaveBeenCalled();
     expect(result.source).not.toBe('sourcify');
-  });
-
-  it('fetches after enableSourcifyAbiLoader when useSourcifyFallback is true', async () => {
-    vi.stubGlobal(
-      'fetch',
-      vi.fn(async () => new Response(JSON.stringify(transferAbi), { status: 200 }))
-    );
-    enableSourcifyAbiLoader();
-    const result = await decodeTransaction(
-      { to: TO, data: TRANSFER, chainId: 1 },
-      { provider: null, useSourcifyFallback: true }
-    );
-    expect(result.source).toBe('sourcify');
-    expect(result.confidence).toBe('low');
   });
 
   it('fetches when the call passes sourcifyVerifiedAbiLoader', async () => {
@@ -102,7 +86,6 @@ describe('Sourcify ABI loader opt-in', () => {
         loadVerifiedAbi: sourcifyVerifiedAbiLoader,
       }
     );
-    expect(getDefaultVerifiedAbiLoader()).toBeUndefined();
     expect(result.source).toBe('sourcify');
     expect(result.confidence).toBe('low');
   });

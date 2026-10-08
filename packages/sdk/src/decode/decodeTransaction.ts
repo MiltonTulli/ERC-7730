@@ -9,7 +9,6 @@ import { createMemoryIncludeLoader, resolveDescriptor } from '../resolve';
 import type { TransactionInput } from '../types';
 import type { Hex, InputDescriptor, ResolvedDescriptor } from '../types/descriptor';
 import { decodeNamedArgs, parseDeclaration, wellKnownAliases } from './abi';
-import { getDefaultVerifiedAbiLoader } from './abiLoader';
 import {
   ZERO_ADDRESS,
   absorbEmbedded,
@@ -227,8 +226,7 @@ async function tryVerifiedAbi(
     return { operation: null, selectorMismatch: false };
   }
   const useFallback = options?.useSourcifyFallback === true;
-  const loader =
-    options?.loadVerifiedAbi ?? (useFallback ? getDefaultVerifiedAbiLoader() : undefined);
+  const loader = options?.loadVerifiedAbi;
   if (!useFallback || !loader) {
     return { operation: null, selectorMismatch: false };
   }
@@ -268,8 +266,9 @@ async function fallbackOperation(
   trustOverride?: TrustReport
 ): Promise<DecodedOperation> {
   const selector = selectorFromTx(tx);
-  const raw = selector ? decodeCalldata(tx) : null;
-  const known = selector ? getSignatureBySelector(selector) : null;
+  const signatures = options?.signatures;
+  const raw = selector ? decodeCalldata(tx, signatures) : null;
+  const known = selector ? getSignatureBySelector(selector, signatures) : null;
   const source: DecodeSource = known || raw?.signature ? 'inferred' : 'basic';
   const fields: DecodedField[] = [];
 

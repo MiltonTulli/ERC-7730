@@ -5,7 +5,7 @@
  * Protocol lookup is `createOfficialRegistry()`, not a bundled catalog.
  */
 
-import { computeSelector, registerSignature } from '../core/signatures';
+import { computeSelector } from '../core/signatures';
 import { type ValidationResult, validateDescriptor } from '../schema';
 import type { InputDescriptor } from '../types/descriptor';
 import { ERC20_DESCRIPTOR } from './erc20';
@@ -252,11 +252,8 @@ export class Registry {
         const normalized = normalizeSignature(signature);
         this.customIndex.set(normalized, { descriptor, format });
 
-        // Register signature with the decoder so it can decode the calldata
-        // This is necessary for custom descriptors to work
+        // Index by selector so lookup does not depend on a process-wide signature map.
         if (!signature.startsWith('0x')) {
-          registerSignature(signature);
-          // Also index by selector for lookup
           const selector = computeSelector(signature);
           this.customIndex.set(selector, { descriptor, format });
         }

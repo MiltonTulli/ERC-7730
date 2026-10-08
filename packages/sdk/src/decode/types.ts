@@ -214,14 +214,18 @@ export interface DecodeOptions {
    */
   spenderAllowlist?: Address[];
   /**
+   * Selector → Solidity declaration for this call only.
+   * Overrides `COMMON_SIGNATURES` on a match. There is no process-wide signature map.
+   */
+  signatures?: Record<string, string>;
+  /**
    * Opt-in Sourcify ABI fallback. Default false: decode does not touch the network.
-   * Also requires a loader: `loadVerifiedAbi`, or `enableSourcifyAbiLoader()` first.
-   * Importing `@erc7730/sdk` does not register one. Never `confidence: "high"`.
+   * Also requires `loadVerifiedAbi` on this call. Never `confidence: "high"`.
    */
   useSourcifyFallback?: boolean;
   /**
    * Verified-ABI loader used when `useSourcifyFallback` is true.
-   * Pass `sourcifyVerifiedAbiLoader`, or omit this after `enableSourcifyAbiLoader()`.
+   * Pass `sourcifyVerifiedAbiLoader`. There is no process-wide loader.
    */
   loadVerifiedAbi?: (chainId: number, address: Address) => Promise<VerifiedContractAbi | null>;
   /** @internal Recursion guard for nested `calldata` fields. */
