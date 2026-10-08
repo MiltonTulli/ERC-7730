@@ -1,5 +1,12 @@
 # @erc7730/sdk
 
+## 0.9.1
+
+### Patch Changes
+
+- 9f32fee: Inferred calldata for well-known signatures uses readable argument labels instead of Param 1.
+- d85c365: viem is now a regular dependency; it was always required at runtime.
+
 ## 0.9.0
 
 ### Minor Changes
