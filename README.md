@@ -129,6 +129,7 @@ ERC-7730/
 - [EIP-7730](https://eips.ethereum.org/EIPS/eip-7730) · [clearsigning.org](https://clearsigning.org)
 - Official registry · Ledger [`python-erc7730`](https://github.com/LedgerHQ/python-erc7730) · Sourcify clear-signing
 - Interop notes: [`docs/interop.md`](./docs/interop.md) · Divergences: [`docs/divergences.md`](./docs/divergences.md)
+- Security reports: [`SECURITY.md`](./SECURITY.md)
 
 ## License
 
