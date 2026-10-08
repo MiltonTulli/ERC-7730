@@ -5,4 +5,4 @@ import source from '../schema/official/source.json' with { type: 'json' };
  * was vendored. Default pin when `createOfficialRegistry()` omits `pin` and
  * `ref`.
  */
-export const VENDORED_REGISTRY_COMMIT = String(source.commit);
+export const VENDORED_REGISTRY_COMMIT = source.commit;
