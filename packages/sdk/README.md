@@ -13,9 +13,9 @@ This package is **not** a descriptor catalog, and the published tarball does not
 
 ```bash
 npm install @erc7730/sdk
-# optional peer
-npm install viem
 ```
+
+`viem` is included with `@erc7730/sdk`. Adapters and a viem `PublicClient` use that copy.
 
 | Entry | Use |
 | --- | --- |

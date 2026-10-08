@@ -30,6 +30,8 @@ npm install @erc7730/sdk
 npm install -D @erc7730/cli
 ```
 
+`viem` is included with `@erc7730/sdk`.
+
 ## Quick start
 
 ### 1. Smallest call (intent + fields)

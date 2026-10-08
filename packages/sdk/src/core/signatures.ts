@@ -3,7 +3,7 @@
  * This allows decoding without network calls for common functions
  */
 
-import { keccak256, toBytes } from 'viem';
+import { keccak256, toBytes } from 'viem/utils';
 
 export interface FunctionSignature {
   selector: string;

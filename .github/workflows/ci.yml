@@ -69,8 +69,39 @@ jobs:
         run: |
           pnpm exec publint
           # SDK is ESM-only (type: module, export conditions are import/types).
-          # attw 0.18 has no optional-peer-dependency rule; esm-only skips node10/CJS.
+          # attw --profile esm-only skips the node10/CJS checks.
           pnpm exec attw --pack . --profile esm-only
+
+  consumer-install:
+    name: Consumer install (Node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [20, 22, 24]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: pnpm
+
+      - name: Install dependencies
+        # The monorepo engines field is >=22.18. This job still builds the
+        # tarball on Node 20 so a clean npm install can be checked there.
+        run: pnpm install --frozen-lockfile --config.engine-strict=false
+
+      - name: Build SDK
+        run: pnpm --filter @erc7730/sdk build
+
+      - name: Consumer install
+        run: node scripts/sdk-consumer-install.mjs
 
   golden-python:
     name: Golden python-erc7730

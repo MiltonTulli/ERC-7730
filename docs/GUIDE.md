@@ -6,9 +6,9 @@ How to wire `@erc7730/sdk` into a wallet as a clear-signing drop-in. Structure m
 
 ```bash
 npm install @erc7730/sdk
-# optional peer for adapters / public clients
-npm install viem
 ```
+
+`viem` is included with `@erc7730/sdk`. Adapters and a viem `PublicClient` use that copy.
 
 The published package does not include a descriptor catalog. `@erc7730/sdk/lite` is a deprecated narrower entry (it omits the Sourcify client and `generateDescriptor` from that graph). It is not a separate install and it is not how descriptors are loaded. Importing `@erc7730/sdk` does not register an ABI loader.
 

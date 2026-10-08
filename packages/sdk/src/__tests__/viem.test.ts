@@ -91,12 +91,12 @@ describe('viem typed-data adapter', () => {
 });
 
 describe('viem package entry point', () => {
-  it('exports a separate adapter entry point and keeps viem an optional peer', async () => {
+  it('exports a separate adapter entry point and depends on viem at runtime', async () => {
     const pkg = JSON.parse(await readFile(new URL('../../package.json', import.meta.url), 'utf8'));
     expect(pkg.exports['./viem']).toEqual({ types: './dist/viem.d.ts', import: './dist/viem.js' });
-    expect(pkg.peerDependencies.viem).toBe('^2.0.0');
-    expect(pkg.peerDependenciesMeta.viem.optional).toBe(true);
-    expect(pkg.dependencies.viem).toBeUndefined();
+    expect(pkg.dependencies.viem).toBe('^2.21.0');
+    expect(pkg.peerDependencies?.viem).toBeUndefined();
+    expect(pkg.peerDependenciesMeta).toBeUndefined();
     const entry = await readFile(new URL('../index.ts', import.meta.url), 'utf8');
     expect(entry).not.toMatch(/from ['"]\.\/viem\.js['"]/);
   });

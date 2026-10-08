@@ -69,6 +69,9 @@ if (!index.includes('enableSourcifyAbiLoader')) {
 if (!/from\s*['"]ajv\/dist\/2020\.js['"]/.test(index)) {
   fail('SDK bundle does not keep ajv/dist/2020.js external');
 }
+if (!/from\s*['"]viem(?:\/[^'"]*)?['"]/.test(index)) {
+  fail('SDK bundle does not keep viem external');
+}
 if (statSync(liteFile).size >= statSync(join(dist, 'index.js')).size) {
   fail(
     'dist/lite.js is not smaller than dist/index.js; Sourcify and generateDescriptor should stay off the lite graph'
