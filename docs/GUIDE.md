@@ -35,6 +35,8 @@ console.log(result.interpolatedIntent ?? result.intent);
 console.log(result.fields);
 ```
 
+Wrap · 1 ETH · official-registry · high · accepted: true
+
 ## 3. Production (explicit pin + trust)
 
 Same call with a frozen SHA and `officialOnlyPolicy()`. That policy rejects Sourcify / `generateDescriptor` / inferred / basic as high confidence. Clear signing is not ABI pretty-printing.
@@ -83,7 +85,7 @@ const indexes = await fetchPrebuiltRegistryIndex({ pin });
 const registry = createOfficialRegistry({ pin, indexes });
 ```
 
-Passing `indexes` means those two files are not fetched again. You can also bundle the JSON at build time. With no network, pass `indexes` and a `cache`. ERC-20, ERC-721, and WETH builtins (`ERC20_DESCRIPTOR`, `ERC721_DESCRIPTOR`, `WETH_DESCRIPTOR`) stay local fallbacks. They are not a catalog.
+Passing `indexes` means those two files are not fetched again. You can also bundle the JSON at build time. With no network, pass `indexes` and a `cache`. Without a registry, the SDK falls back to ABI inference at `confidence: 'low'`.
 
 ## 5. Local overrides with `extend()`
 

@@ -44,6 +44,8 @@ console.log(result.interpolatedIntent ?? result.intent);
 console.log(result.fields);
 ```
 
+Wrap · 1 ETH · official-registry · high · accepted: true
+
 ### 2. Production (explicit pin + trust)
 
 Same call with a frozen SHA and `officialOnlyPolicy()`. That policy rejects Sourcify / `generateDescriptor` / inferred / basic as high confidence:
@@ -73,7 +75,7 @@ const result = await decodeTransaction(tx, {
 console.log(result.interpolatedIntent ?? result.intent);
 console.log(result.source, result.confidence, result.trust.accepted);
 ```
-The tarball does not ship a descriptor catalog. With no network, pass `indexes` and `cache`. ERC-20, ERC-721, and WETH builtins stay as local fallbacks.
+The tarball does not ship a descriptor catalog. With no network, pass `indexes` and `cache`. Without a registry, the SDK falls back to ABI inference at `confidence: 'low'`.
 
 Prefer [the wallet guide](/ERC-7730/guide/) for prefetch, `extend()`, `ExternalDataProvider` (token / ENS / NFT — the SDK does no RPC), `trustedTokens`, batch, and UserOp.
 
