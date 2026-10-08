@@ -57,7 +57,7 @@ console.log(result.interpolatedIntent ?? result.intent);
 console.log(result.fields);
 ```
 
-Wrap · 1 ETH · official-registry · high · accepted: true
+Illustrative summary: Wrap · 1 ETH · official-registry · high · accepted: true
 
 ### 2. Production (explicit pin + trust)
 

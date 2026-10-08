@@ -48,7 +48,7 @@ console.log(result.interpolatedIntent ?? result.intent);
 console.log(result.fields);
 ```
 
-Wrap · 1 ETH · official-registry · high · accepted: true
+Illustrative summary: Wrap · 1 ETH · official-registry · high · accepted: true
 
 ### 2. Production (explicit pin + trust)
 
@@ -84,7 +84,7 @@ Clear signing is not ABI pretty-printing. Prefetch, `extend()`, `ExternalDataPro
 
 ## Schema
 
-SDK 0.x reads v1 and validates v1/v2. Package versions are independent of the ERC-7730 schema version.
+SDK 0.x decodes v1 and v2 descriptors, and `validateDescriptor` accepts v1 and v2. Package versions are independent of the ERC-7730 schema version.
 
 ## Developing
 
