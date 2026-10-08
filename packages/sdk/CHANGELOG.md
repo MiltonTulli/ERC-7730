@@ -1,5 +1,35 @@
 # @erc7730/sdk
 
+## 0.10.0
+
+### Minor Changes
+
+- 0a8074a: ERC-20, ERC-721, and WETH builtins are the fallback when no registry descriptor matches. The source is `builtin`. `officialOnlyPolicy()` rejects it (`confidence: "low"`). `officialOrLocalPolicy()` accepts it at `medium`. It is never `high`. WETH matches only its own deployments. Pass `builtins: false` to skip them.
+- 63fdb50: `viem` is no longer a dependency of the root entry. Keccak is `@noble/hashes` and the ABI codec is `ox`. `attestedPolicy` is imported from `@erc7730/sdk/attest`, which can depend on `viem`. RPC helpers (`getChain`, `getDefaultRpc`, and the rest) are removed.
+- d06db11: Published `@erc7730/sdk` and `@erc7730/cli` require Node.js 20 or newer. Building this repository still needs Node.js 22.18 or newer.
+- 3a44727: Malformed transactions and typed data throw `InvalidInputError` instead of a low-confidence decode. `TransactionInput.to` and `data` are hex strings. A missing EIP-712 chain id stays unset.
+- c6934d0: Signatures and the Sourcify ABI loader are no longer process globals. Pass `signatures` and `loadVerifiedAbi` on the decode call or on `createClearSigner`. `registerSignature`, `registerSignatures`, `clearCustomSignatures`, and `enableSourcifyAbiLoader` are removed.
+- f5ebc52: Omitted `trust` is now `officialOnlyPolicy()` on `decodeTransaction`, `decodeTypedData`, `decodeBatch`, `decodeUserOp`, `format`, and `formatTypedData`. The `policy: "unspecified"` stub is gone.
+
+  If you relied on local overrides being accepted without a policy, pass `trust: officialOrLocalPolicy()`.
+
+  `format` / `formatTypedData` are deprecated aliases of `decode*` and use the same default. `erc7730 preview` prints `official-only` instead of `unspecified`.
+
+- 1d04ce9: The decoder resolves field paths with the strict path engine. `decode/path.ts` is gone, so there is one `resolvePath` and one `PathResolveError`. Missing fields stay empty via `tryResolvePath`. Invalid paths throw.
+- 4cf3bc3: Prototype keys are dropped while merging descriptors and naming decoded arguments. `createOfficialRegistry({ ref })` rejects `..`, empty segments, and characters outside a safe path. Sourcify URLs are built only for an integer chain id and a 20-byte address. `attestedPolicy` reads `DecodeOptions.now` instead of the process clock.
+- a8a1e3d: `@erc7730/sdk/lite` and `@erc7730/sdk/viem` are removed. Import `decodeViemTypedData` from `@erc7730/sdk`. `decodeViemTransaction` is removed; use `decodeTransaction`.
+- bff686f: `DecodedField`, `SecurityWarning`, and `FieldFormat` exported from `@erc7730/sdk` are the types on `DecodedOperation`. The legacy module `types/erc7730.ts` is gone.
+
+  | If you used                                                                                        | It is now                                                                                                                                      |
+  | -------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+  | `DecodedField` without `required`                                                                  | `DecodedField` from the decoder, including `required`                                                                                          |
+  | `SecurityWarning.type` of `unusual_recipient`, `high_value`, `unknown_contract`, or `proxy_call`   | the decoder union (`infinite_approval`, `untrusted_descriptor`, `ownership_change`, `proxy_upgrade`, and the rest of `SECURITY_WARNING_TYPES`) |
+  | `FieldFormat` including only the registry subset                                                   | the decoder `FieldFormat` (`addressName`, `amount`, `calldata`, and the other formats decode returns)                                          |
+  | `DecodedTransaction`                                                                               | `DecodedOperation`                                                                                                                             |
+  | `ERC7730Descriptor`, `ERC7730V2Descriptor`, `ContractContext`, `FunctionFormat`, `FieldDefinition` | `InputDescriptor`. The old aliases are not exported from the package root                                                                      |
+
+- 48321da: Vendored JSON is typed by the compiler. `VENDORED_REGISTRY_COMMIT` is `source.commit`. The catch-all `json.d.ts` module is gone.
+
 ## 0.9.1
 
 ### Patch Changes

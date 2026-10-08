@@ -1,5 +1,29 @@
 # @erc7730/cli
 
+## 0.3.10
+
+### Patch Changes
+
+- d06db11: Published `@erc7730/sdk` and `@erc7730/cli` require Node.js 20 or newer. Building this repository still needs Node.js 22.18 or newer.
+- f5ebc52: Omitted `trust` is now `officialOnlyPolicy()` on `decodeTransaction`, `decodeTypedData`, `decodeBatch`, `decodeUserOp`, `format`, and `formatTypedData`. The `policy: "unspecified"` stub is gone.
+
+  If you relied on local overrides being accepted without a policy, pass `trust: officialOrLocalPolicy()`.
+
+  `format` / `formatTypedData` are deprecated aliases of `decode*` and use the same default. `erc7730 preview` prints `official-only` instead of `unspecified`.
+
+- Updated dependencies [0a8074a]
+- Updated dependencies [63fdb50]
+- Updated dependencies [d06db11]
+- Updated dependencies [3a44727]
+- Updated dependencies [c6934d0]
+- Updated dependencies [f5ebc52]
+- Updated dependencies [1d04ce9]
+- Updated dependencies [4cf3bc3]
+- Updated dependencies [a8a1e3d]
+- Updated dependencies [bff686f]
+- Updated dependencies [48321da]
+  - @erc7730/sdk@0.10.0
+
 ## 0.3.9
 
 ### Patch Changes
