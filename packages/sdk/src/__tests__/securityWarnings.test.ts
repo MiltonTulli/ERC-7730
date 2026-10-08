@@ -537,7 +537,7 @@ describe('decode security warnings', () => {
 
   it('adds missing_metadata when decode runs with no descriptor', async () => {
     const result = await decodeTransaction(
-      { to: RANDOM, data: '0x12345678abcdef', chainId: 1 },
+      { to: RANDOM, data: '0x12345678', chainId: 1 },
       { provider: null, useSourcifyFallback: false }
     );
     expect(result.source).toBe('basic');

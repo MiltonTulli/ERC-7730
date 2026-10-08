@@ -3,6 +3,7 @@ import {
   type DecodedOperation,
   type GeneratedDescriptor,
   type InputDescriptor,
+  InvalidInputError,
   SUPPORTED_CHAINS,
   VENDORED_REGISTRY_COMMIT,
   createClearSigner,
@@ -244,14 +245,18 @@ decodeBtn.addEventListener('click', async () => {
     }
 
     const result = await signer.decodeTransaction({
-      to: contract,
-      data: calldata,
+      to: contract as `0x${string}`,
+      data: calldata as `0x${string}`,
       chainId,
     });
 
     renderResult(result);
   } catch (error) {
-    showError(`Failed to decode: ${(error as Error).message}`);
+    if (error instanceof InvalidInputError) {
+      showError(`${error.code}: ${error.message}`);
+    } else {
+      showError(`Failed to decode: ${(error as Error).message}`);
+    }
   } finally {
     decodeBtn.disabled = false;
     decodeBtn.textContent = 'Decode Transaction';

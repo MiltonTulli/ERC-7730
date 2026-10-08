@@ -85,7 +85,7 @@ export interface TrustReport {
 
 export interface TrustContext {
   descriptor?: ResolvedDescriptor;
-  chainId: number;
+  chainId?: number;
   address?: Address;
   source: DecodeSource;
   /**
@@ -122,7 +122,7 @@ export interface DecodedOperation {
     owner?: string;
     contractName?: string;
     protocolUrl?: string;
-    chainId: number;
+    chainId?: number;
     contractAddress?: Address;
     descriptorId?: string;
     registryPath?: string;

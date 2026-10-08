@@ -44,7 +44,7 @@ export interface WarningScan {
   /** EIP-712 message; not filtered by display `excluded`. */
   message?: Record<string, unknown>;
   source: DecodeSource;
-  chainId: number;
+  chainId?: number;
   selectorMismatch?: boolean;
 }
 
@@ -409,7 +409,7 @@ export async function appendSecurityWarnings(
     }
   }
 
-  if (!hasWarning(warnings, 'untrusted_spender')) {
+  if (!hasWarning(warnings, 'untrusted_spender') && scan.chainId !== undefined) {
     const spender = await untrustedSpenderWarning(scan, name, scan.chainId, options);
     if (spender) {
       warnings.push(spender);

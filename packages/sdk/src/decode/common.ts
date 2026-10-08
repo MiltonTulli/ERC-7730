@@ -1,3 +1,4 @@
+import { InvalidInputError } from '../errors';
 import { isPlainObject } from '../resolve/util';
 import { officialOnlyPolicy } from '../trust/policy';
 import { sourceAcceptedReason, sourceRejectedReason } from '../trust/reasons';
@@ -14,10 +15,14 @@ import type {
 } from './types';
 
 const CONFIDENCE_RANK: Record<Confidence, number> = { low: 0, medium: 1, high: 2 };
+const ADDRESS_RE = /^0x[0-9a-fA-F]{40}$/;
 
 export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000' as Address;
 
 export function asAddress(value: string): Address {
+  if (!ADDRESS_RE.test(value)) {
+    throw new InvalidInputError('INVALID_ADDRESS', `Invalid address: ${value}`);
+  }
   return value as Address;
 }
 
@@ -227,7 +232,7 @@ export async function resolveTrust(
   options: DecodeOptions | undefined,
   source: DecodeSource,
   descriptor: ResolvedDescriptor | undefined,
-  chainId: number,
+  chainId: number | undefined,
   address?: Address
 ): Promise<TrustReport> {
   const policy = options?.trust ?? officialOnlyPolicy();

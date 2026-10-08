@@ -29,6 +29,7 @@ import type {
   SecurityWarning,
   TrustReport,
 } from './types';
+import { validateTypedDataInput } from './validate';
 import { finalizeDecodedWarnings } from './warnings';
 
 function chainIdOf(data: TypedDataInput): number | undefined {
@@ -92,7 +93,7 @@ function envelopeFrom(
     to: address,
     data: '0x',
     chainId,
-    from,
+    from: from as `0x${string}` | undefined,
     value: 0n,
   };
 }
@@ -213,7 +214,7 @@ async function fallbackOperation(
   data: TypedDataInput,
   message: Record<string, unknown>,
   encoded: string,
-  chainId: number,
+  chainId: number | undefined,
   address: Address | undefined,
   options: DecodeOptions | undefined,
   trustOverride?: TrustReport
@@ -319,7 +320,8 @@ export async function decodeTypedData(
   data: TypedDataInput,
   options?: DecodeOptions
 ): Promise<DecodedOperation> {
-  const chainId = chainIdOf(data) ?? 0;
+  validateTypedDataInput(data);
+  const chainId = chainIdOf(data);
   const address = verifyingContractOf(data);
   const encoded = encodeType(data.primaryType, data.types);
   const encodeTypeHash = hashEncodeType(data.primaryType, data.types);
@@ -327,8 +329,8 @@ export async function decodeTypedData(
     ? normalizeTypedDataMessage(data.message, data.types, data.primaryType)
     : {};
 
-  const found = await lookupEip712(data, options, chainIdOf(data), address, encodeTypeHash);
-  if (found && address) {
+  const found = await lookupEip712(data, options, chainId, address, encodeTypeHash);
+  if (found && address && chainId !== undefined) {
     const bound = await matchContext(found, data, {
       provider: options?.provider,
       fromBlock: options?.fromBlock,

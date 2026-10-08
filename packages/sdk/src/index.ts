@@ -16,6 +16,9 @@
  * ```
  */
 
+export { Erc7730Error, InvalidInputError } from './errors';
+export type { InvalidInputCode } from './errors';
+
 export { ClearSigner, createClearSigner } from './core/ClearSigner';
 
 // Core utilities

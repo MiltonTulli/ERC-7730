@@ -11,6 +11,7 @@ import {
   minConfidence,
 } from './innerCalls';
 import type { Address, DecodeOptions, DecodedOperation } from './types';
+import { validateTransactionInput } from './validate';
 
 export interface UserOpInput {
   chainId: number;
@@ -32,6 +33,11 @@ export async function decodeUserOp(
   op: UserOpInput,
   options?: DecodeOptions
 ): Promise<DecodedOperation> {
+  validateTransactionInput({
+    to: op.sender,
+    data: op.callData,
+    chainId: op.chainId,
+  });
   const sender = asAddress(op.sender);
   const calls = extractUserOpCalls(op.callData);
   const selector = op.callData.slice(0, 10).toLowerCase() as Hex;

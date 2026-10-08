@@ -6,15 +6,15 @@ export * from './v2';
  */
 export interface TransactionInput {
   /** Contract address */
-  to: string;
-  /** Calldata (hex string) */
-  data: string;
-  /** Value in wei (optional) */
+  to: `0x${string}`;
+  /** Calldata (even-length hex, at least `0x`) */
+  data: `0x${string}`;
+  /** Value in wei (optional). A non-negative integer. */
   value?: string | bigint;
-  /** Chain ID */
+  /** Chain ID. A positive integer. */
   chainId: number;
   /** Sender address (optional, used for context) */
-  from?: string;
+  from?: `0x${string}`;
 }
 
 /**

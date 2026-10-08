@@ -37,6 +37,7 @@ import type {
   TrustReport,
   TrustedTokenStandard,
 } from './types';
+import { validateTransactionInput } from './validate';
 import { finalizeDecodedWarnings, sourcifySelectorMismatch } from './warnings';
 
 function asHex(value: string): Hex {
@@ -444,6 +445,7 @@ export async function decodeTransaction(
   tx: TransactionInput,
   options?: DecodeOptions
 ): Promise<DecodedOperation> {
+  validateTransactionInput(tx);
   const core = await decodeTransactionCore(tx, options);
   return expandNestedCalls(core, tx, options);
 }

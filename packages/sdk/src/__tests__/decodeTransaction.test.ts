@@ -171,7 +171,7 @@ describe('decodeTransaction', () => {
     const result = await decodeTransaction(
       {
         to: '0x1234567890123456789012345678901234567890',
-        data: '0x12345678abcdef',
+        data: '0x12345678',
         chainId: 1,
       },
       { provider: null, useSourcifyFallback: false }
@@ -183,19 +183,17 @@ describe('decodeTransaction', () => {
     expect(result.trust.policy).toBe('official-only');
   });
 
-  it('returns source basic for calldata shorter than a selector', async () => {
-    const result = await decodeTransaction(
-      {
-        to: '0x1234567890123456789012345678901234567890',
-        data: '0x1234',
-        chainId: 1,
-      },
-      { provider: null, useSourcifyFallback: false }
-    );
-
-    expect(result.source).toBe('basic');
-    expect(result.confidence).toBe('low');
-    expect(result.selector).toBeUndefined();
+  it('rejects calldata shorter than a selector', async () => {
+    await expect(
+      decodeTransaction(
+        {
+          to: '0x1234567890123456789012345678901234567890',
+          data: '0x1234',
+          chainId: 1,
+        },
+        { provider: null, useSourcifyFallback: false }
+      )
+    ).rejects.toMatchObject({ name: 'InvalidInputError', code: 'INVALID_CALLDATA' });
   });
 
   it('sets source official-registry for a WETH deposit from the registry client', async () => {

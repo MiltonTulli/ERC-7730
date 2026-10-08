@@ -40,7 +40,9 @@ describe('viem adapters with the real decode core', () => {
       expect(result.signature).toBe('EIP712Domain()');
       expect(result.fields).toEqual([]);
       expect(result.raw.message).toEqual({});
-      expect(result.metadata.chainId).toBe('chainId' in input.domain ? input.domain.chainId : 0);
+      expect(result.metadata.chainId).toBe(
+        'chainId' in input.domain ? input.domain.chainId : undefined
+      );
       expect(result.source).toBe('inferred');
       expect(result.confidence).toBe('low');
       expect(result.trust.accepted).toBe(false);
@@ -134,7 +136,7 @@ describe('viem adapters with the real decode core', () => {
       },
       options
     );
-    expect(result.metadata.chainId).toBe(0);
+    expect(result.metadata.chainId).toBeUndefined();
     expect(result.source).toBe('inferred');
     expect(result.trust.accepted).toBe(false);
   });

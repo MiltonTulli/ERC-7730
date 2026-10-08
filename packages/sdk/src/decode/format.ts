@@ -466,7 +466,7 @@ async function formatCalldataField(
   }
 
   const embedded = await options.onCalldata({
-    to: callee,
+    to: callee as `0x${string}`,
     data: data as `0x${string}`,
     chainId: tx.chainId,
     from: tx.from,
