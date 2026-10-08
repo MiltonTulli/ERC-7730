@@ -10,7 +10,7 @@ npm install @erc7730/sdk
 
 `viem` is included with `@erc7730/sdk`. Adapters and a viem `PublicClient` use that copy.
 
-The published package does not include a descriptor catalog. `@erc7730/sdk/lite` is a deprecated narrower entry (it omits the Sourcify client and `generateDescriptor` from that graph). It is not a separate install and it is not how descriptors are loaded. Importing `@erc7730/sdk` does not register an ABI loader.
+The published package does not include a descriptor catalog. `@erc7730/sdk/lite` and `@erc7730/sdk/viem` are removed: import `decodeViemTypedData` from `@erc7730/sdk`, and use `decodeTransaction` instead of `decodeViemTransaction`. Importing `@erc7730/sdk` does not register an ABI loader.
 
 ## 2. Smallest call (intent + fields)
 

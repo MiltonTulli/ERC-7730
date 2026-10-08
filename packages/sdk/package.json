@@ -11,14 +11,6 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
-    },
-    "./lite": {
-      "types": "./dist/lite.d.ts",
-      "import": "./dist/lite.js"
-    },
-    "./viem": {
-      "types": "./dist/viem.d.ts",
-      "import": "./dist/viem.js"
     }
   },
   "files": ["dist", "!dist/**/*.map", "!dist/**/*.tsbuildinfo"],

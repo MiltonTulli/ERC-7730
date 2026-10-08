@@ -1,24 +1,6 @@
-import type { Address, Hex, TypedData, TypedDataDefinition } from 'viem';
-import { decodeTransaction } from './decode/decodeTransaction';
-import { decodeTypedData } from './decode/decodeTypedData';
-import type { DecodeOptions, DecodedOperation } from './decode/types';
-
-/** A viem transaction request with an explicit destination, calldata and chain. */
-export interface ViemTransactionInput {
-  to: Address;
-  data: Hex;
-  value?: bigint;
-  chainId: number;
-  from?: Address;
-}
-
-/** Decode a viem transaction request without changing the core trust policy. */
-export function decodeViemTransaction(
-  tx: ViemTransactionInput,
-  options?: DecodeOptions
-): Promise<DecodedOperation> {
-  return decodeTransaction(tx, options);
-}
+import type { TypedData, TypedDataDefinition } from 'viem';
+import { decodeTypedData } from './decodeTypedData';
+import type { DecodeOptions, DecodedOperation } from './types';
 
 /** Adapt viem message or domain-only definitions to the core EIP-712 input. */
 export function decodeViemTypedData(

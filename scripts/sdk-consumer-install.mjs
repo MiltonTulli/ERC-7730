@@ -58,15 +58,7 @@ try {
 
   execFileSync(
     process.execPath,
-    [
-      '--input-type=module',
-      '-e',
-      [
-        "await import('@erc7730/sdk');",
-        "await import('@erc7730/sdk/lite');",
-        "await import('@erc7730/sdk/viem');",
-      ].join('\n'),
-    ],
+    ['--input-type=module', '-e', ["await import('@erc7730/sdk');"].join('\n')],
     { cwd: app, stdio: 'inherit' }
   );
 

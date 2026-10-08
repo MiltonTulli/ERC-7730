@@ -1,9 +1,8 @@
-import type { TransactionRequest, TypedDataDefinition } from 'viem';
+import type { TypedDataDefinition } from 'viem';
 import { describe, expect, it } from 'vitest';
-import { decodeTransaction } from '../decode/decodeTransaction';
 import { decodeTypedData } from '../decode/decodeTypedData';
+import { decodeViemTypedData } from '../decode/viemTypedData';
 import { officialOnlyPolicy } from '../trust';
-import { decodeViemTransaction, decodeViemTypedData } from '../viem';
 
 const to = '0x1111111111111111111111111111111111111111' as const;
 const options = {
@@ -13,12 +12,6 @@ const options = {
   now: 123,
 };
 
-const tx = {
-  to,
-  data: '0x12345678',
-  chainId: 1,
-  value: 0n,
-} as const satisfies TransactionRequest & { chainId: number };
 const typedData = {
   domain: { chainId: 1n, verifyingContract: to },
   types: { Mail: [{ name: 'contents', type: 'string' }] },
@@ -102,13 +95,6 @@ describe('viem adapters with the real decode core', () => {
       );
       expect(result.fields.map(({ path }) => path)).toEqual('name' in domain ? ['name'] : []);
     }
-  });
-
-  it('preserves transaction fallback confidence, warnings and trust', async () => {
-    const result = await decodeViemTransaction(tx, options);
-    expect(result).toEqual(await decodeTransaction(tx, options));
-    expect(result.confidence).toBe('low');
-    expect(result.trust.accepted).toBe(false);
   });
 
   it('accepts a readonly viem typed-data definition and preserves trust', async () => {

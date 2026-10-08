@@ -144,12 +144,8 @@ try {
       '-e',
       [
         "import * as sdk from '@erc7730/sdk';",
-        "import * as lite from '@erc7730/sdk/lite';",
-        "import * as viem from '@erc7730/sdk/viem';",
         "if (typeof sdk.decodeTransaction !== 'function') throw new Error('packed sdk missing decodeTransaction');",
-        "if (typeof lite.decodeTransaction !== 'function') throw new Error('packed lite missing decodeTransaction');",
-        "if (typeof lite.createOfficialRegistry !== 'function') throw new Error('packed lite missing createOfficialRegistry');",
-        "if (typeof viem.decodeViemTransaction !== 'function') throw new Error('packed viem missing decodeViemTransaction');",
+        "if (typeof sdk.decodeViemTypedData !== 'function') throw new Error('packed sdk missing decodeViemTypedData');",
       ].join('\n'),
     ],
     { cwd: app, stdio: 'inherit' }

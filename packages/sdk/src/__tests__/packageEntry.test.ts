@@ -17,8 +17,6 @@ describe('@erc7730/sdk import', () => {
 
     const before = new Set(Reflect.ownKeys(globalThis));
     await import('../index');
-    await import('../lite');
-    await import('../viem');
     expect(Reflect.ownKeys(globalThis).filter((key) => !before.has(key))).toEqual([]);
   });
 });

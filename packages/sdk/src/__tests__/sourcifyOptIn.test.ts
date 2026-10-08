@@ -4,7 +4,6 @@ import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { decodeTransaction } from '../decode/decodeTransaction';
 import { sourcifyVerifiedAbiLoader } from '../providers/sourcify';
-import { decodeViemTransaction } from '../viem';
 
 const srcRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 const TO = '0x1234567890123456789012345678901234567890' as const;
@@ -21,15 +20,12 @@ afterEach(() => {
 
 describe('Sourcify ABI loader opt-in', () => {
   it('does not register a loader from the package entries', () => {
-    expect(decodeViemTransaction).toBeTypeOf('function');
-    for (const file of ['index.ts', 'viem.ts', 'providers/sourcify.ts', 'decode/abiLoader.ts']) {
+    for (const file of ['index.ts', 'providers/sourcify.ts', 'decode/abiLoader.ts']) {
       expect(readSrc(file)).not.toMatch(/setDefaultVerifiedAbiLoader\s*\(/);
       expect(readSrc(file)).not.toContain('enableSourcifyAbiLoader');
     }
-    const lite = readSrc('lite.ts');
-    expect(lite).not.toContain('providers/sourcify');
-    expect(lite).not.toContain('fetchFromSourcify');
     expect(readSrc('index.ts')).toContain('sourcifyVerifiedAbiLoader');
+    expect(readSrc('index.ts')).toContain('decodeViemTypedData');
   });
 
   it('does not fetch when useSourcifyFallback is true and no loader is set', async () => {

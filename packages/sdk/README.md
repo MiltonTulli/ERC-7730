@@ -19,9 +19,9 @@ npm install @erc7730/sdk
 
 | Entry | Use |
 | --- | --- |
-| `@erc7730/sdk` | Full runtime. Sourcify is opt-in (`loadVerifiedAbi: sourcifyVerifiedAbiLoader` and `useSourcifyFallback: true`). Import does not fetch. `useSourcifyFallback` defaults to `false` |
-| `@erc7730/sdk/lite` | Deprecated narrower entry. Same install. Omits the Sourcify client and `generateDescriptor` from that graph. Not how descriptors are loaded |
-| `@erc7730/sdk/viem` | `decodeViemTransaction` / `decodeViemTypedData` (does not register a Sourcify loader) |
+| `@erc7730/sdk` | Full runtime. Sourcify is opt-in (`loadVerifiedAbi: sourcifyVerifiedAbiLoader` and `useSourcifyFallback: true`). Import does not fetch. `useSourcifyFallback` defaults to `false`. `decodeViemTypedData` lives here |
+
+`@erc7730/sdk/lite` and `@erc7730/sdk/viem` are removed. Use `decodeTransaction` instead of `decodeViemTransaction`.
 
 ## Quick start
 

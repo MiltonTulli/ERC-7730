@@ -548,51 +548,6 @@ describe('wallet drop-in parity (#53)', () => {
     expect(inner?.embedded?.source).toBe('official-registry');
     expect(inner?.value).toContain('Send');
   });
-
-  it('keeps lite free of RPC and Sourcify static imports', async () => {
-    const { readFileSync: read } = await import('node:fs');
-    const { dirname: dir, join: j } = await import('node:path');
-    const { fileURLToPath: toPath } = await import('node:url');
-    const root = j(dir(toPath(import.meta.url)), '..');
-    const visited = new Set<string>();
-    const queue = [j(root, 'lite.ts')];
-    const importRe = /from\s+['"](\.[^'"]+)['"]/g;
-
-    while (queue.length > 0) {
-      const file = queue.pop();
-      if (!file || visited.has(file)) {
-        continue;
-      }
-      visited.add(file);
-      const source = read(file, 'utf8');
-      expect(source.includes('providers/rpc')).toBe(false);
-      expect(source.includes('providers/sourcify')).toBe(false);
-      for (const match of source.matchAll(importRe)) {
-        const spec = match[1];
-        if (!spec) {
-          continue;
-        }
-        if (spec.endsWith('.json')) {
-          continue;
-        }
-        const stem = spec.endsWith('.js') ? spec.slice(0, -3) : spec;
-        const base = dir(file);
-        const candidates = [j(base, `${stem}.ts`), j(base, stem, 'index.ts')];
-        const resolved = candidates.find((candidate) => {
-          try {
-            read(candidate);
-            return true;
-          } catch {
-            return false;
-          }
-        });
-        expect(resolved, `unresolved import ${spec} from ${file}`).toBeTruthy();
-        if (resolved) {
-          queue.push(resolved);
-        }
-      }
-    }
-  });
 });
 
 describe('renderIntent path matching', () => {

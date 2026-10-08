@@ -1,10 +1,6 @@
 import type { DecodeOptions, DecodedOperation } from '@erc7730/sdk';
-import {
-  type ViemTransactionInput,
-  decodeViemTransaction,
-  decodeViemTypedData,
-} from '@erc7730/sdk/viem';
-import type { TransactionRequest, TypedDataDefinition } from 'viem';
+import { decodeViemTypedData } from '@erc7730/sdk';
+import type { TypedDataDefinition } from 'viem';
 
 const address = '0x1111111111111111111111111111111111111111' as const;
 const options: DecodeOptions = { provider: null, useSourcifyFallback: false };
@@ -27,17 +23,9 @@ const explicitDomain: TypedDataDefinition<typeof domainTypes, 'EIP712Domain'> = 
   primaryType: 'EIP712Domain',
   domain: { name: 'Example' },
 };
-const transaction = {
-  to: address,
-  data: '0x12345678',
-  chainId: 1,
-  value: 1n,
-  from: address,
-} as const satisfies TransactionRequest & ViemTransactionInput;
 
 export const results: Promise<DecodedOperation>[] = [
   decodeViemTypedData(message, options),
   decodeViemTypedData(domainOnly, options),
   decodeViemTypedData(explicitDomain, options),
-  decodeViemTransaction(transaction, options),
 ];

@@ -103,6 +103,8 @@ export {
   SECURITY_WARNING_TYPES,
 } from './decode';
 
+export { decodeViemTypedData } from './decode/viemTypedData';
+
 export {
   composePolicies,
   officialOnlyPolicy,

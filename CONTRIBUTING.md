@@ -9,7 +9,7 @@ import { validateDescriptor } from './schema';
 
 Do not write `.js` or `.ts` in a relative specifier, and do not add `@/` aliases.
 
-Do not edit `dist/`. `pnpm --filter @erc7730/sdk build` and `pnpm --filter @erc7730/cli build` run tsdown. The SDK tarball does not embed a descriptor catalog. Consumers import `@erc7730/sdk`, `@erc7730/sdk/lite`, or `@erc7730/sdk/viem`. The `.js` files in `dist/` are the published runtime, not the authoring API. `@erc7730/sdk/lite` is a deprecated narrower entry, not a separate install.
+Do not edit `dist/`. `pnpm --filter @erc7730/sdk build` and `pnpm --filter @erc7730/cli build` run tsdown. The SDK tarball does not embed a descriptor catalog. Consumers import `@erc7730/sdk`. The `.js` files in `dist/` are the published runtime, not the authoring API.
 
 Building this repository needs Node 22.18 or newer. The published packages still run on Node 18 or newer.
 
