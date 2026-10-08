@@ -199,6 +199,13 @@ export async function runDiff(args: string[], ctx: CliContext): Promise<CliResul
   const input = asInputDescriptor(await readJsonFile(file), positionals[0]);
   const local = await resolveDescriptor(input, createFsIncludeLoader(file));
 
+  if (local.deployments.length === 0) {
+    throw new UsageError(
+      'descriptor has no deployments to compare; diff needs context.contract.deployments',
+      DIFF_HELP
+    );
+  }
+
   const pin = resolvePin(values.pin, ctx.io.env);
   const registry = await openRegistry(ctx, {
     pin,

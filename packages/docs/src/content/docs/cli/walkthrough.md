@@ -59,7 +59,7 @@ Exit `1` on error-level issues. Warnings (empty formats, missing intent) do not 
 
 ## 3. Preview a call
 
-Needs a 40-character `--pin` (or `ERC7730_REGISTRY_PIN`) or a local `ERC7730_REGISTRY_PATH` / prior `registry update`.
+`--pin` is optional. Omitted, preview uses the vendored commit and prints `Pin: <sha> (vendored default)`. With `--pin`, the line is `Pin: <sha> (--pin)`. `ERC7730_REGISTRY_PIN` prints `Pin: <sha> (ERC7730_REGISTRY_PIN)`. A local `ERC7730_REGISTRY_PATH`, or a prior `registry update`, still supplies the descriptor files.
 
 ```bash
 erc7730 registry update --pin 9f37816afde954ff6617fb5baa346133e5af26c5

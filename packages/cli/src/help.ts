@@ -62,7 +62,8 @@ Refuses to overwrite existing files unless --force is set.
 export const DIFF_HELP = `Usage: erc7730 diff <file> --against official [--pin <sha>] [--registry-path <dir>]
 
 Compare a local descriptor to the official registry file for the same
-deployment. Exit 1 when the comparable slice differs.
+deployment. The descriptor needs context.contract.deployments.
+Exit 1 when the comparable slice differs.
 `;
 
 export const REGISTRY_HELP = `Usage: erc7730 registry update [--pin <sha>] [--cache-dir <dir>]

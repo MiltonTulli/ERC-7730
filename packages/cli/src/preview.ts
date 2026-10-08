@@ -7,7 +7,8 @@ import {
 } from '@erc7730/sdk';
 import { parseAddress, parseChainId } from './fsjson';
 import { PREVIEW_HELP } from './help';
-import { openRegistry, resolvePin } from './registry';
+import { openRegistry, pinOrigin, resolvePin } from './registry';
+import type { PinOrigin } from './registry';
 import type { CliContext, CliResult } from './types';
 import { HEX_RE, UsageError } from './types';
 
@@ -40,7 +41,21 @@ function parseValue(value: string | undefined): TransactionInput['value'] {
   return parsed;
 }
 
-function formatPreview(result: Awaited<ReturnType<typeof decodeTransaction>>): string {
+function pinLine(pin: string, origin: PinOrigin): string {
+  if (origin === 'flag') {
+    return `Pin: ${pin} (--pin)`;
+  }
+  if (origin === 'env') {
+    return `Pin: ${pin} (ERC7730_REGISTRY_PIN)`;
+  }
+  return `Pin: ${pin} (vendored default)`;
+}
+
+function formatPreview(
+  result: Awaited<ReturnType<typeof decodeTransaction>>,
+  pin: string,
+  origin: PinOrigin
+): string {
   const lines: string[] = [];
   lines.push(`Intent: ${result.intent}`);
   if (result.interpolatedIntent) {
@@ -51,6 +66,7 @@ function formatPreview(result: Awaited<ReturnType<typeof decodeTransaction>>): s
       result.trust.accepted ? 'accepted' : 'rejected'
     } (${result.trust.policy})`
   );
+  lines.push(pinLine(pin, origin));
   if (result.trust.reasons.length > 0) {
     lines.push(`Trust reasons: ${result.trust.reasons.join(', ')}`);
   }
@@ -141,6 +157,7 @@ export async function runPreview(args: string[], ctx: CliContext): Promise<CliRe
     tx.value = value;
   }
 
+  const origin = pinOrigin(values.pin, ctx.io.env);
   const pin = resolvePin(values.pin, ctx.io.env);
   const registry = await openRegistry(ctx, {
     pin,
@@ -159,7 +176,7 @@ export async function runPreview(args: string[], ctx: CliContext): Promise<CliRe
   if (values.json) {
     ctx.out.writeOut(`${JSON.stringify(decoded, jsonReplacer, 2)}\n`);
   } else {
-    ctx.out.writeOut(formatPreview(decoded));
+    ctx.out.writeOut(formatPreview(decoded, pin, origin));
   }
   return ctx.out.result(0);
 }

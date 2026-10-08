@@ -367,6 +367,48 @@ describe('erc7730 preview', () => {
     expect(result.stdout).toMatch(/Amount/);
     expect(result.stdout).toMatch(/1 ETH/);
     expect(result.stdout).toMatch(/official-registry/);
+    expect(result.stdout).toContain(`Pin: ${PIN} (--pin)`);
+  });
+
+  it('prints the vendored pin when --pin is omitted', async () => {
+    const result = await runCli(
+      [
+        'preview',
+        '--data',
+        '0xd0e30db0',
+        '--to',
+        WETH,
+        '--chain-id',
+        '1',
+        '--value',
+        '1000000000000000000',
+      ],
+      io()
+    );
+
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout).toContain(`Pin: ${PIN} (vendored default)`);
+    expect(result.stdout).toMatch(/Trust: accepted \(unspecified\)/);
+  });
+
+  it('prints the env pin when ERC7730_REGISTRY_PIN is set', async () => {
+    const result = await runCli(
+      [
+        'preview',
+        '--data',
+        '0xd0e30db0',
+        '--to',
+        WETH,
+        '--chain-id',
+        '1',
+        '--value',
+        '1000000000000000000',
+      ],
+      io({ env: { ERC7730_REGISTRY_PIN: PIN } })
+    );
+
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout).toContain(`Pin: ${PIN} (ERC7730_REGISTRY_PIN)`);
   });
 
   it('prints interpolatedIntent for a Lido submit with --pin', async () => {
@@ -457,6 +499,17 @@ describe('erc7730 diff', () => {
     );
     expect(result.exitCode).toBe(1);
     expect(result.stderr).toMatch(/eip155:1:0x0000000000000000000000000000000000000001/);
+  });
+
+  it('exits 1 when the descriptor has no deployments', async () => {
+    const erc20 = join(here, '../../../registry/descriptors/erc20/calldata-erc20.json');
+    const result = await runCli(['diff', erc20, '--against', 'official', '--pin', PIN], io());
+
+    expect(result.exitCode).toBe(1);
+    expect(result.stderr).toContain(
+      'descriptor has no deployments to compare; diff needs context.contract.deployments'
+    );
+    expect(result.stderr).not.toContain('No official descriptor for');
   });
 });
 
