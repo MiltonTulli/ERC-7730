@@ -4,8 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
+    "dev": "pnpm --filter @erc7730/sdk build && vite",
+    "build": "pnpm --filter @erc7730/sdk build && tsc && vite build",
+    "test:e2e": "playwright test",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist",
@@ -16,6 +17,7 @@
     "viem": "^2.21.0"
   },
   "devDependencies": {
+    "@playwright/test": "1.64.0",
     "@types/node": "^20.11.0",
     "typescript": "^5.3.3",
     "vite": "^5.0.12"

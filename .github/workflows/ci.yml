@@ -177,6 +177,34 @@ jobs:
       - name: Build docs site
         run: pnpm --filter @erc7730/docs build:site
 
+  playground:
+    name: Playground
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build SDK
+        run: pnpm --filter @erc7730/sdk build
+
+      - name: Install Playwright browser
+        run: pnpm --filter @erc7730/web exec playwright install --with-deps chromium
+
+      - name: Playground end to end
+        run: pnpm --filter @erc7730/web test:e2e
+
   changeset:
     name: Changeset (when SDK or CLI source changes)
     if: github.event_name == 'pull_request'

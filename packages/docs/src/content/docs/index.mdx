@@ -104,7 +104,7 @@ Packages are versioned independently (`sdk-v*` / `cli-v*` tags). Generated and S
 
 <CardGrid>
   <Card title="Trust model" icon="approve-check">
-    Production wallets use `officialOnlyPolicy()` or `attestedPolicy()`. The [playground](/ERC-7730/demo/) uses `officialOrLocalPolicy()` on purpose.
+    Production wallets use `officialOnlyPolicy()` or `attestedPolicy()`. The [playground](/ERC-7730/demo/) opens in that policy. Exploration opts into local overrides and Sourcify.
   </Card>
   <Card title="Official registry" icon="external">
     Commit SHA pins. `createOfficialRegistry()` defaults to the vendored SHA; production still passes an explicit `pin`. `extend()` is local. New protocol metadata goes to the [official registry](https://github.com/ethereum/clear-signing-erc7730-registry).

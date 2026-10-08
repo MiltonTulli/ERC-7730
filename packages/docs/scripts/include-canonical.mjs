@@ -176,7 +176,7 @@ const pinOrAttested = composePolicies([pinOnly, attested], 'any');
 
 ## Demo vs production
 
-The [interactive demo](/ERC-7730/demo/) injects \`officialOrLocalPolicy()\` so local overrides and generate drafts are easy to explore. That is a **playground** default. Production wallets should pass \`officialOnlyPolicy()\` or \`attestedPolicy()\`.
+The [interactive demo](/ERC-7730/demo/) defaults to Production (\`officialOnlyPolicy()\`, no Sourcify). Exploration opts into \`officialOrLocalPolicy()\` and Sourcify. Production wallets should pass \`officialOnlyPolicy()\` or \`attestedPolicy()\`.
 
 ## See also
 

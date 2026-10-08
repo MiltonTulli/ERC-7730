@@ -66,6 +66,9 @@ packages/web/.vite/
 
 # Playwright MCP local artifacts
 .playwright-mcp/
+test-results/
+playwright-report/
+blob-report/
 
 # Docs site (generated content + Astro cache)
 packages/docs/.astro/

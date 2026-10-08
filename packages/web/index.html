@@ -52,10 +52,25 @@
       font-size: 1.75rem;
       font-weight: 600;
       margin-bottom: 0.5rem;
+    }
+
+    .mode-toggle {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .mode-option {
       display: flex;
       align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
+      gap: 0.4rem;
+      width: auto;
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    .mode-option input {
+      width: auto;
     }
 
     header p {
@@ -815,7 +830,7 @@
 <body>
   <div class="container">
     <header>
-      <h1>🔍 ERC-7730 SDK</h1>
+      <h1>ERC-7730 toolkit</h1>
       <p>Decode transactions. <code>source</code> tells you whether the metadata is trusted.</p>
       <p class="header-links">
         <a href="https://eips.ethereum.org/EIPS/eip-7730" target="_blank" rel="noreferrer">EIP-7730</a>
@@ -837,8 +852,9 @@
       <strong>Untrusted:</strong> Sourcify and <code>generateDescriptor</code> — never
       <code>confidence: "high"</code>.
       New protocol metadata goes to the official registry, not this repo.
-      This playground injects <code>officialOrLocalPolicy()</code>; production wallets should use
-      <code>officialOnlyPolicy()</code> or <code>attestedPolicy()</code>.
+      This playground opens in Production (<code>officialOnlyPolicy()</code>, no Sourcify).
+      Exploration opts into <code>officialOrLocalPolicy()</code> and Sourcify.
+      Wallets in production use <code>officialOnlyPolicy()</code> or <code>attestedPolicy()</code>.
       Every decode shows <code>source</code>, <code>confidence</code>, <code>warnings</code>, and
       <code>trust.accepted</code>.
       <a href=".." id="docs-home-link">Docs</a>
@@ -854,29 +870,35 @@
     <div id="main-tab-decode" class="main-tab-content active">
       <!-- Custom Descriptor Indicator (hidden by default) -->
       <div id="custom-descriptor-indicator" class="custom-descriptor-indicator" style="display: none;">
-        <span>📋 Using local override (<code>source: local-override</code>). This playground policy may accept it; <code>officialOnlyPolicy()</code> would not.</span>
+        <span>Using a local override. Production rejects it. Switch to Exploration to accept it.</span>
         <button id="clear-custom-descriptor">Clear</button>
       </div>
 
       <div class="card">
+        <div class="mode-toggle" role="radiogroup" aria-label="Decode mode">
+          <label class="mode-option">
+            <input type="radio" name="decode-mode" value="production" checked />
+            Production
+          </label>
+          <label class="mode-option">
+            <input type="radio" name="decode-mode" value="exploration" />
+            Exploration
+          </label>
+        </div>
+        <p class="help-text" id="mode-help">Production uses <code>officialOnlyPolicy()</code> and does not call Sourcify. Exploration uses <code>officialOrLocalPolicy()</code> and the Sourcify ABI loader.</p>
+
         <div class="form-group">
-          <label for="calldata">Transaction Calldata or Hash</label>
+          <label for="calldata">Transaction calldata</label>
           <textarea
             id="calldata"
-            placeholder="Paste calldata (0x...) or transaction hash..."
+            placeholder="Paste calldata (0x...)"
           ></textarea>
         </div>
 
-        <div class="row">
+        <div class="row-3">
           <div class="form-group">
             <label for="chain">Chain</label>
-            <select id="chain">
-              <option value="1">Ethereum</option>
-              <option value="42161">Arbitrum</option>
-              <option value="10">Optimism</option>
-              <option value="8453">Base</option>
-              <option value="137">Polygon</option>
-            </select>
+            <select id="chain"></select>
           </div>
 
           <div class="form-group">
@@ -885,6 +907,15 @@
               type="text"
               id="contract"
               placeholder="0x..."
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="tx-value">Value (wei, optional)</label>
+            <input
+              type="text"
+              id="tx-value"
+              placeholder="0"
             />
           </div>
         </div>
@@ -919,6 +950,7 @@
         <details class="examples">
           <summary>Load example</summary>
           <div class="examples-list">
+            <button class="example-btn" data-example="weth">WETH deposit</button>
             <button class="example-btn" data-example="transfer">ERC20 Transfer</button>
             <button class="example-btn" data-example="approve">ERC20 Approve</button>
             <button class="example-btn" data-example="infinite">Infinite Approval ⚠️</button>
@@ -947,13 +979,7 @@
         <div class="row-3">
           <div class="form-group">
             <label for="gen-chain">Chain</label>
-            <select id="gen-chain">
-              <option value="1">Ethereum</option>
-              <option value="42161">Arbitrum</option>
-              <option value="10">Optimism</option>
-              <option value="8453">Base</option>
-              <option value="137">Polygon</option>
-            </select>
+            <select id="gen-chain"></select>
           </div>
 
           <div class="form-group">

@@ -9,7 +9,7 @@ Say this out loud before integrating:
 2. **Not the reference TypeScript implementation.** That seat belongs to Sourcify clear-signing and the working group. This toolkit is pin-SHA + pluggable `TrustPolicy` + a JS authoring CLI, with documented interop against Ledger `python-erc7730`.
 3. **Not ABI pretty-printing.** `generateDescriptor`, Sourcify ABI fallback, inferred selectors, and basic decoding are labeled by `source` and are **never** `confidence: "high"` under `officialOnlyPolicy()`.
 4. **Not a second firmware converter.** Ledger `python-erc7730` owns authoring/firmware conversion the official registry CI runs. See [divergences](/ERC-7730/divergences/).
-5. **The demo is not production policy.** The [playground](/ERC-7730/demo/) uses `officialOrLocalPolicy()` so local drafts are easy to try. Production guidance is `officialOnlyPolicy()` or `attestedPolicy()`.
+5. **Exploration is not the production default.** The [playground](/ERC-7730/demo/) opens in Production (`officialOnlyPolicy()`, no Sourcify). Exploration opts into local overrides and Sourcify. Production guidance is `officialOnlyPolicy()` or `attestedPolicy()`.
 
 ## Related
 
