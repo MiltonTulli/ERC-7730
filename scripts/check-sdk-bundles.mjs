@@ -38,7 +38,7 @@ function relativeChunks(file, seen = new Set()) {
   return files;
 }
 
-const required = ['index.js', 'index.d.ts'];
+const required = ['index.js', 'index.d.ts', 'attest.js', 'attest.d.ts'];
 for (const name of required) {
   const file = join(dist, name);
   try {
@@ -71,8 +71,17 @@ if (index.includes('setDefaultVerifiedAbiLoader') || index.includes('customSigna
 if (!/from\s*['"]ajv\/dist\/2020\.js['"]/.test(index)) {
   fail('SDK bundle does not keep ajv/dist/2020.js external');
 }
-if (!/from\s*['"]viem(?:\/[^'"]*)?['"]/.test(index)) {
-  fail('SDK bundle does not keep viem external');
+if (/from\s*['"]viem(?:\/[^'"]*)?['"]/.test(index)) {
+  fail('dist/index.js still imports viem');
+}
+const attestFile = join(dist, 'attest.js');
+const attest = readFileSync(attestFile, 'utf8');
+if (!/from\s*['"]viem(?:\/[^'"]*)?['"]/.test(attest)) {
+  fail('dist/attest.js should keep viem external');
+}
+const indexDts = readFileSync(join(dist, 'index.d.ts'), 'utf8');
+if (/\bviem\b/.test(indexDts)) {
+  fail('dist/index.d.ts still names viem');
 }
 for (const name of ['lite.js', 'viem.js', 'lite.d.ts', 'viem.d.ts']) {
   try {

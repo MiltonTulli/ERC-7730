@@ -44,18 +44,8 @@ export {
   KNOWN_ADDRESSES,
 } from './formats/addressName';
 
-// Provider utilities
+// Sourcify client. Opt-in per call via loadVerifiedAbi. Import does not fetch.
 export {
-  SUPPORTED_CHAINS,
-  EXTRA_PUBLIC_RPCS,
-  getChain,
-  getDefaultRpc,
-  getRpcUrls,
-  getSupportedChainIds,
-  isChainSupported,
-  getChainName,
-  getBlockExplorer,
-  // Sourcify client. Opt-in per call via loadVerifiedAbi. Import does not fetch.
   fetchFromSourcify,
   isVerifiedOnSourcify,
   sourcifyVerifiedAbiLoader,
@@ -109,10 +99,6 @@ export {
   composePolicies,
   officialOnlyPolicy,
   officialOrLocalPolicy,
-  attestedPolicy,
-  ERC8176_SCHEMA_UID,
-  EAS_CONTRACT,
-  EAS_CHAIN_ID,
   TRUST_REASON_CODES,
 } from './trust';
 
@@ -196,7 +182,7 @@ export type {
   VerifiedContractAbi,
 } from './decode';
 
-export type { AttestedPolicyConfig, TrustReasonCode } from './trust';
+export type { TrustReasonCode } from './trust';
 
 export type {
   PrefetchRegistryIndexOptions,

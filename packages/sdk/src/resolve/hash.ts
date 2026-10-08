@@ -6,7 +6,7 @@
  * Node and browsers produce the same digest.
  */
 
-import { keccak256, toBytes } from 'viem/utils';
+import { keccak256 } from '../keccak';
 import type { Hex, InputDescriptor } from '../types/descriptor';
 import { isPlainObject } from './util';
 
@@ -40,5 +40,5 @@ function canonicalize(value: unknown): unknown {
  */
 export function descriptorHash(input: InputDescriptor): Hex {
   const json = JSON.stringify(canonicalize(input));
-  return keccak256(toBytes(json));
+  return keccak256(json);
 }

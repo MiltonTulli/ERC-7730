@@ -3,7 +3,7 @@
  * This allows decoding without network calls for common functions
  */
 
-import { keccak256, toBytes } from 'viem/utils';
+import { keccak256 } from '../keccak';
 
 export interface FunctionSignature {
   selector: string;
@@ -235,7 +235,7 @@ export function getSignatureBySelector(
  * Compute selector from function signature
  */
 export function computeSelector(signature: string): string {
-  const hash = keccak256(toBytes(signature));
+  const hash = keccak256(signature);
   return hash.slice(0, 10).toLowerCase();
 }
 

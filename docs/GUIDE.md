@@ -8,7 +8,7 @@ How to wire `@erc7730/sdk` into a wallet as a clear-signing drop-in. Structure m
 npm install @erc7730/sdk
 ```
 
-`viem` is included with `@erc7730/sdk`. Adapters and a viem `PublicClient` use that copy.
+`viem` is not installed with `@erc7730/sdk`. Import `attestedPolicy` from `@erc7730/sdk/attest` and add `viem` only when you use that entry. A viem `PublicClient` is still a valid `provider` if you already depend on viem.
 
 The published package does not include a descriptor catalog. `@erc7730/sdk/lite` and `@erc7730/sdk/viem` are removed: import `decodeViemTypedData` from `@erc7730/sdk`, and use `decodeTransaction` instead of `decodeViemTransaction`. Importing `@erc7730/sdk` does not register an ABI loader.
 

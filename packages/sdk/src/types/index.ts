@@ -34,11 +34,11 @@ export interface TypedDataInput {
   message: Record<string, unknown>;
 }
 
-/** Block tags accepted by `eth_getLogs` / viem `PublicClient.getLogs`. */
+/** Block tags accepted by `eth_getLogs`. */
 export type LogBlockTag = 'latest' | 'earliest' | 'pending' | 'safe' | 'finalized';
 
 /**
- * Provider interface - compatible with viem's PublicClient
+ * Provider interface. A wallet client with these methods can be passed through.
  */
 export interface Provider {
   /** Read contract function */
@@ -66,7 +66,7 @@ export interface Provider {
 
   /**
    * Logs for `context.contract.factory.deployEvent`.
-   * Parameter shape is a subset of viem `PublicClient.getLogs`.
+   * Parameter shape is the subset of `eth_getLogs` this matcher reads.
    */
   getLogs?: (args: {
     address?: `0x${string}` | `0x${string}`[];

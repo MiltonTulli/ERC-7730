@@ -49,11 +49,14 @@ try {
   const installed = JSON.parse(
     readFileSync(join(app, 'node_modules/@erc7730/sdk/package.json'), 'utf8')
   );
-  if (installed.dependencies?.viem !== '^2.21.0') {
-    fail(`Packed SDK dependencies.viem is ${String(installed.dependencies?.viem)}`);
+  if (installed.dependencies?.viem != null) {
+    fail(`Packed SDK still depends on viem: ${String(installed.dependencies?.viem)}`);
   }
   if (installed.peerDependencies?.viem != null || installed.peerDependenciesMeta?.viem != null) {
     fail('Packed SDK still declares viem as a peer');
+  }
+  if (!installed.dependencies?.ox || !installed.dependencies?.['@noble/hashes']) {
+    fail(`Packed SDK is missing ox or @noble/hashes: ${JSON.stringify(installed.dependencies)}`);
   }
 
   execFileSync(
@@ -62,9 +65,14 @@ try {
     { cwd: app, stdio: 'inherit' }
   );
 
-  const listed = execFileSync('npm', ['ls', 'viem', '--all'], { cwd: app, encoding: 'utf8' });
-  if (!/@erc7730\/sdk@/.test(listed) || !/viem@/.test(listed)) {
-    fail(`npm ls viem did not show viem installed through @erc7730/sdk:\n${listed}`);
+  let listed = '';
+  try {
+    listed = execFileSync('npm', ['ls', 'viem', '--all'], { cwd: app, encoding: 'utf8' });
+  } catch (error) {
+    listed = String(error.stdout ?? error.message ?? '');
+  }
+  if (/viem@/.test(listed)) {
+    fail(`Root install pulled viem:\n${listed}`);
   }
 } finally {
   rmSync(stage, { recursive: true, force: true });

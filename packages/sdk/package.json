@@ -11,6 +11,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./attest": {
+      "types": "./dist/attest.d.ts",
+      "import": "./dist/attest.js"
     }
   },
   "files": ["dist", "!dist/**/*.map", "!dist/**/*.tsbuildinfo"],
@@ -26,9 +30,10 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
+    "@noble/hashes": "^2.4.0",
     "ajv": "^8.20.0",
     "ajv-formats": "^3.0.1",
-    "viem": "^2.21.0"
+    "ox": "^1.8.6"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "0.18.5",
@@ -38,6 +43,7 @@
     "publint": "0.3.24",
     "tsdown": "0.23.0",
     "typescript": "^5.3.3",
+    "viem": "^2.21.0",
     "vitest": "^1.2.0"
   },
   "keywords": [

@@ -3,6 +3,7 @@ import { defineConfig } from 'tsdown';
 export default defineConfig({
   entry: {
     index: 'src/index.ts',
+    attest: 'src/attest.ts',
   },
   format: 'esm',
   dts: true,
@@ -10,8 +11,7 @@ export default defineConfig({
   target: 'node18',
   sourcemap: false,
   clean: true,
-  // viem is required at runtime. Keep the package and its subpaths external so
-  // a consumer bundler still sees viem/utils and viem/chains.
+  // `@erc7730/sdk/attest` imports viem. Keep it external so the root graph does not ship it.
   deps: {
     neverBundle: [/^viem(?:\/|$)/],
   },

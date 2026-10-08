@@ -4,13 +4,18 @@ import { fileURLToPath } from 'node:url';
 import { type Hex, encodePacked, keccak256, stringToHex, zeroAddress, zeroHash } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { describe, expect, it } from 'vitest';
+import {
+  EAS_CONTRACT,
+  ERC8176_SCHEMA_UID,
+  attestedPolicy,
+  offchainAttestationUid,
+} from '../attest';
 import { absorbEmbedded, renderIntent } from '../decode/common';
 import { decodeBatch } from '../decode/decodeBatch';
 import { decodeTransaction } from '../decode/decodeTransaction';
 import type { DecodeRegistry, ExternalDataProvider } from '../decode/types';
 import { createOfficialRegistry } from '../official-registry';
 import { createMemoryIncludeLoader, resolveDescriptor } from '../resolve';
-import { EAS_CONTRACT, ERC8176_SCHEMA_UID, attestedPolicy, offchainAttestationUid } from '../trust';
 import { officialOnlyPolicy } from '../trust/policy';
 import type { InputDescriptor, ResolvedDescriptor } from '../types/descriptor';
 

@@ -4,18 +4,16 @@ import {
   type GeneratedDescriptor,
   type InputDescriptor,
   InvalidInputError,
-  SUPPORTED_CHAINS,
   VENDORED_REGISTRY_COMMIT,
   createClearSigner,
   createOfficialRegistry,
   fetchFromSourcify,
   generateDescriptor,
-  getChain,
-  getDefaultRpc,
   officialOrLocalPolicy,
   sourcifyVerifiedAbiLoader,
 } from '@erc7730/sdk';
 import { http, createPublicClient } from 'viem';
+import { PLAYGROUND_CHAINS, playgroundChain, playgroundChainExport, playgroundRpc } from './chains';
 
 // GitHub repository configuration
 const GITHUB_REPO = 'ethereum/clear-signing-erc7730-registry';
@@ -124,9 +122,9 @@ document.querySelectorAll('.main-tab').forEach((tab) => {
 // ============================================================================
 function populateChainSelect(selectElement: HTMLSelectElement) {
   selectElement.innerHTML = '';
-  for (const [chainId, chain] of Object.entries(SUPPORTED_CHAINS)) {
+  for (const chain of PLAYGROUND_CHAINS) {
     const option = document.createElement('option');
-    option.value = chainId;
+    option.value = String(chain.id);
     option.textContent = chain.name;
     selectElement.appendChild(option);
   }
@@ -135,7 +133,7 @@ function populateChainSelect(selectElement: HTMLSelectElement) {
 
 function updateRpcPlaceholder() {
   const chainId = Number.parseInt(chainSelect.value);
-  const defaultRpc = getDefaultRpc(chainId);
+  const defaultRpc = playgroundRpc(chainId);
   rpcInput.placeholder = defaultRpc || 'No default RPC available';
 }
 
@@ -215,8 +213,8 @@ decodeBtn.addEventListener('click', async () => {
     return;
   }
 
-  const chain = getChain(chainId);
-  const rpcUrl = customRpcUrl || getDefaultRpc(chainId) || '';
+  const chain = playgroundChain(chainId);
+  const rpcUrl = customRpcUrl || playgroundRpc(chainId) || '';
   currentInput = { calldata, contract, chainId, rpcUrl };
 
   decodeBtn.disabled = true;
@@ -525,16 +523,17 @@ signer.extend([customDescriptor]);
 // No RPC was selected in the demo. Replace this URL with your provider.
 `;
 
+  const chainExport = playgroundChainExport(currentInput.chainId);
   return `import { createPublicClient, http } from 'viem';
+import { ${chainExport} } from 'viem/chains';
 import {
   createClearSigner,
   createOfficialRegistry,
-  getChain,
   officialOrLocalPolicy,
   sourcifyVerifiedAbiLoader,
 } from '@erc7730/sdk';
 ${rpcNote}
-const chain = getChain(${currentInput.chainId});
+const chain = ${chainExport};
 const rpcUrl = '${rpcUrl}';
 const provider = chain
   ? createPublicClient({ chain, transport: http(rpcUrl) })

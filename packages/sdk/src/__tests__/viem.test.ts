@@ -68,12 +68,18 @@ describe('viem package entry point', () => {
     const pkg = JSON.parse(await readFile(new URL('../../package.json', import.meta.url), 'utf8'));
     expect(pkg.exports['./lite']).toBeUndefined();
     expect(pkg.exports['./viem']).toBeUndefined();
-    expect(pkg.dependencies.viem).toBe('^2.21.0');
+    expect(pkg.exports['./attest']).toEqual({
+      types: './dist/attest.d.ts',
+      import: './dist/attest.js',
+    });
+    expect(pkg.dependencies.viem).toBeUndefined();
+    expect(pkg.dependencies.ox).toEqual(expect.any(String));
+    expect(pkg.dependencies['@noble/hashes']).toEqual(expect.any(String));
     expect(pkg.peerDependencies?.viem).toBeUndefined();
     expect(pkg.peerDependenciesMeta).toBeUndefined();
     const entry = await readFile(new URL('../index.ts', import.meta.url), 'utf8');
     expect(entry).toContain('decodeViemTypedData');
-    expect(entry).not.toMatch(/from ['"]\.\/viem['"]/);
-    expect(entry).not.toMatch(/from ['"]\.\/lite['"]/);
+    expect(entry).not.toMatch(/from ['"]\.\/attest['"]/);
+    expect(entry).not.toMatch(/from ['"]viem/);
   });
 });

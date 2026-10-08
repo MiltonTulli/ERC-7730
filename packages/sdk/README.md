@@ -15,7 +15,7 @@ This package is **not** a descriptor catalog, and the published tarball does not
 npm install @erc7730/sdk
 ```
 
-`viem` is included with `@erc7730/sdk`. Adapters and a viem `PublicClient` use that copy.
+`viem` is not a dependency of this package. Keccak is `@noble/hashes` and the ABI codec is `ox`. Import `attestedPolicy` from `@erc7730/sdk/attest` and install `viem` only for that entry. `decodeViemTypedData` stays on the root and does not require `viem` at runtime.
 
 | Entry | Use |
 | --- | --- |
