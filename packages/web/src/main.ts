@@ -1,5 +1,6 @@
 import {
   type ABI,
+  type ClearSignScreens,
   type DecodedOperation,
   type GeneratedDescriptor,
   type InputDescriptor,
@@ -12,6 +13,7 @@ import {
   officialOnlyPolicy,
   officialOrLocalPolicy,
   sourcifyVerifiedAbiLoader,
+  toScreens,
 } from '@erc7730/sdk';
 import { http, createPublicClient } from 'viem';
 import { PLAYGROUND_CHAINS, playgroundChain, playgroundChainExport, playgroundRpc } from './chains';
@@ -92,6 +94,9 @@ let lastGeneratedDescriptor: GeneratedDescriptor | null = null;
 // ============================================================================
 // DOM Elements - Decode Tab
 // ============================================================================
+const hashInput = document.getElementById('tx-hash') as HTMLInputElement;
+const loadHashBtn = document.getElementById('load-hash-btn') as HTMLButtonElement;
+const shareBtn = document.getElementById('share-btn') as HTMLButtonElement;
 const calldataInput = document.getElementById('calldata') as HTMLTextAreaElement;
 const chainSelect = document.getElementById('chain') as HTMLSelectElement;
 const contractInput = document.getElementById('contract') as HTMLInputElement;
@@ -224,7 +229,7 @@ document.querySelectorAll('.example-btn').forEach((btn) => {
 // ============================================================================
 // Decode Transaction
 // ============================================================================
-decodeBtn.addEventListener('click', async () => {
+async function runDecode(): Promise<void> {
   const calldata = calldataInput.value.trim();
   const chainId = Number.parseInt(chainSelect.value);
   const contract = contractInput.value.trim() || '0x0000000000000000000000000000000000000000';
@@ -280,7 +285,7 @@ decodeBtn.addEventListener('click', async () => {
       signer.extend([customDescriptor as InputDescriptor]);
     }
 
-    const result = await signer.decodeTransaction({
+    const result = await signer.clearSign({
       to: contract as `0x${string}`,
       data: calldata as `0x${string}`,
       chainId,
@@ -298,6 +303,57 @@ decodeBtn.addEventListener('click', async () => {
     decodeBtn.disabled = false;
     decodeBtn.textContent = 'Decode Transaction';
   }
+}
+
+decodeBtn.addEventListener('click', () => {
+  void runDecode();
+});
+
+loadHashBtn.addEventListener('click', async () => {
+  const hash = hashInput.value.trim();
+  if (!/^0x[0-9a-fA-F]{64}$/.test(hash)) {
+    showError('Transaction hash must be 0x plus 64 hex characters');
+    return;
+  }
+  const chainId = Number.parseInt(chainSelect.value);
+  const chain = playgroundChain(chainId);
+  const rpcUrl = rpcInput.value.trim() || playgroundRpc(chainId) || '';
+  if (!chain || !rpcUrl) {
+    showError('Select a chain with an RPC to load a transaction hash');
+    return;
+  }
+  loadHashBtn.disabled = true;
+  try {
+    const provider = createPublicClient({ chain, transport: http(rpcUrl) });
+    const tx = await provider.getTransaction({ hash: hash as `0x${string}` });
+    if (!tx.to) {
+      showError('Contract-creation transactions have no destination');
+      return;
+    }
+    contractInput.value = tx.to;
+    calldataInput.value = tx.input;
+    valueInput.value = tx.value > 0n ? tx.value.toString() : '';
+    await runDecode();
+  } catch (error) {
+    showError(`Failed to load transaction: ${(error as Error).message}`);
+  } finally {
+    loadHashBtn.disabled = false;
+  }
+});
+
+shareBtn.addEventListener('click', () => {
+  const params = new URLSearchParams();
+  params.set('chainId', chainSelect.value);
+  const to = contractInput.value.trim();
+  const data = calldataInput.value.trim();
+  const value = valueInput.value.trim();
+  const hash = hashInput.value.trim();
+  if (to) params.set('to', to);
+  if (data) params.set('data', data);
+  if (value) params.set('value', value);
+  if (hash) params.set('hash', hash);
+  const next = `${window.location.pathname}?${params.toString()}`;
+  window.history.replaceState(null, '', next);
 });
 
 // ============================================================================
@@ -544,7 +600,7 @@ function showContributePopup(descriptor: GeneratedDescriptor) {
 // ============================================================================
 // Render Functions
 // ============================================================================
-function generateCodeSnippet(result: DecodedOperation): string {
+function generateCodeSnippet(result: DecodedOperation & { screens: ClearSignScreens }): string {
   if (!currentInput) return '// No input available';
 
   const customDescriptorCode = customDescriptor
@@ -599,12 +655,13 @@ const signer = createClearSigner({
   ${trustOptions}
 });
 ${customDescriptorCode}
-const result = await signer.decodeTransaction({
+const signed = await signer.clearSign({
   to: '${currentInput.contract}',
   data: '${currentInput.calldata}',
   chainId: ${currentInput.chainId},${valueLine}
 });
 
+console.log(signed.screens.headline); // "${result.screens.headline}"
 console.log(result.intent);       // "${result.intent}"
 console.log(result.source);       // "${result.source}"
 console.log(result.confidence);   // "${result.confidence}" — treat "high" only for trusted registry metadata
@@ -678,7 +735,7 @@ function getConfidenceBadge(result: DecodedOperation): string {
   return '<span class="badge badge-error">Low confidence</span>';
 }
 
-function renderResult(result: DecodedOperation) {
+function renderResult(result: DecodedOperation & { screens: ClearSignScreens }) {
   const trust = getTrustDisplay(result);
   const confidenceBadge = getConfidenceBadge(result);
   const sourceBadge = getSourceBadge(result.source);
@@ -729,6 +786,51 @@ function renderResult(result: DecodedOperation) {
   };
 
   const codeSnippet = generateCodeSnippet(result);
+  const screens = result.screens ?? toScreens(result);
+  const selector =
+    currentInput && currentInput.calldata.length >= 10
+      ? currentInput.calldata.slice(0, 10)
+      : (result.selector ?? '');
+  const primaryHtml = screens.primary
+    .map(
+      (field) => `
+      <div class="field">
+        <span class="field-label">${escapeHtml(field.label)}</span>
+        <span class="field-value">${escapeHtml(field.value)}</span>
+      </div>`
+    )
+    .join('');
+  const riskHtml = screens.risks
+    .map(
+      (risk) =>
+        `<div class="warning"><span class="warning-text">${escapeHtml(risk.message)}</span></div>`
+    )
+    .join('');
+  const compareHtml = `
+    <div class="screen-grid">
+      <section id="without-erc7730">
+        <h3>Without ERC-7730</h3>
+        <div class="field">
+          <span class="field-label">To</span>
+          <span class="field-value">${escapeHtml(currentInput?.contract ?? '')}</span>
+        </div>
+        <div class="field">
+          <span class="field-label">Selector</span>
+          <span class="field-value">${escapeHtml(selector)}</span>
+        </div>
+        <div class="field">
+          <span class="field-label">Calldata</span>
+          <span class="field-value">${escapeHtml(currentInput?.calldata ?? '')}</span>
+        </div>
+      </section>
+      <section id="with-erc7730">
+        <h3>With ERC-7730</h3>
+        <p>${escapeHtml(screens.verificationLabel)}</p>
+        <div class="intent">${escapeHtml(screens.headline)}</div>
+        ${primaryHtml}
+        ${riskHtml}
+      </section>
+    </div>`;
 
   const untrustedBanner =
     result.source === 'sourcify' || result.source === 'inferred' || result.source === 'basic'
@@ -747,6 +849,8 @@ function renderResult(result: DecodedOperation) {
       </div>
 
       ${untrustedBanner}
+
+      ${compareHtml}
 
       <div class="intent">
         ✨ ${escapeHtml(result.intent)}
@@ -1076,3 +1180,21 @@ calldataInput.addEventListener('keydown', (e) => {
     decodeBtn.click();
   }
 });
+
+const initialQuery = new URLSearchParams(window.location.search);
+const queryChain = initialQuery.get('chainId');
+if (queryChain && chainSelect.querySelector(`option[value="${queryChain}"]`)) {
+  chainSelect.value = queryChain;
+  updateRpcPlaceholder();
+}
+const queryTo = initialQuery.get('to');
+const queryData = initialQuery.get('data');
+const queryValue = initialQuery.get('value');
+const queryHash = initialQuery.get('hash');
+if (queryTo) contractInput.value = queryTo;
+if (queryData) calldataInput.value = queryData;
+if (queryValue) valueInput.value = queryValue;
+if (queryHash) hashInput.value = queryHash;
+if (queryTo && queryData) {
+  void runDecode();
+}

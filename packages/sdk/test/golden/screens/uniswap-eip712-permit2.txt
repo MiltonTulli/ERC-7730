@@ -1,0 +1,9 @@
+Verified by ERC-7730 registry
+Authorize spending of token
+Secondary:
+  Spender: 0x0000000000000000000000000000000000000000
+  Amount allowance: 0 (raw)
+  Approval expires: 1/1/1970, 12:00:00 AM
+Risks:
+  [high] untrusted_spender: Spender is not in the registry or was not accepted by the trust policy
+  [medium] missing_metadata: Token decimals are unknown; amount is shown in raw base units

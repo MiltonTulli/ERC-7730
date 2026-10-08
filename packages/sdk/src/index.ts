@@ -6,13 +6,12 @@
  *
  * @example
  * ```typescript
- * import { createOfficialRegistry, decodeTransaction, officialOnlyPolicy } from '@erc7730/sdk';
+ * import { clearSign } from '@erc7730/sdk';
  *
- * const registry = createOfficialRegistry(); // defaults to VENDORED_REGISTRY_COMMIT
- * const result = await decodeTransaction(tx, { registry, trust: officialOnlyPolicy() });
+ * const signed = await clearSign(tx);
  *
- * console.log(result.intent);
- * console.log(result.fields);
+ * console.log(signed.screens.headline);
+ * console.log(signed.screens.verification);
  * ```
  */
 
@@ -20,6 +19,16 @@ export { Erc7730Error, InvalidInputError } from './errors';
 export type { InvalidInputCode } from './errors';
 
 export { ClearSigner, createClearSigner } from './core/ClearSigner';
+export { clearSign, getDefaultClearSignRegistry } from './clearSign';
+export type { ClearSignInput, ClearSignedBatch, ClearSignedOperation } from './clearSign';
+export { renderScreensText, screenVerification, toScreens } from './screens';
+export type {
+  ClearSignScreens,
+  ScreenField,
+  ScreenRisk,
+  ScreenVerification,
+  ToScreensOptions,
+} from './screens';
 
 // Core utilities
 export { decodeCalldata, extractSelector } from './core/decoder';
@@ -162,9 +171,18 @@ export type {
   Confidence,
   ContextMatch,
   ContextMatchVia,
+  AddressNameDetails,
+  CalldataDetails,
+  ClearSignEvent,
+  DateDetails,
   DecodedField,
   DecodedOperation,
+  DecodeDiagnostic,
   DecodeOptions,
+  EnumDetails,
+  NftNameDetails,
+  RawDetails,
+  TokenAmountDetails,
   DecodeRegistry,
   DecodeSource,
   ExternalDataProvider,

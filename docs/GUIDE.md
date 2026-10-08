@@ -14,9 +14,33 @@ What this toolkit is not: [not this](https://miltontulli.github.io/ERC-7730/not-
 
 ## 2. Quick start
 
-`createOfficialRegistry({ pin: VENDORED_REGISTRY_COMMIT })` freezes the registry SHA shipped with the SDK. `officialOnlyPolicy()` is also what you get when `trust` is omitted. The snippet is [`docs/snippets/quickstart.ts`](./snippets/quickstart.ts).
+`clearSign` is the wallet entry. With no registry it uses one official-registry client pinned to the commit shipped with the SDK. `officialOnlyPolicy()` is what you get when `trust` is omitted. The snippet is [`docs/snippets/quickstart.ts`](./snippets/quickstart.ts).
 
 <!-- quickstart:start -->
+```ts
+import { clearSign, type TransactionInput } from '@erc7730/sdk';
+
+const tx = {
+  to: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+  data: '0xd0e30db0',
+  value: 10n ** 18n,
+  chainId: 1,
+} satisfies TransactionInput;
+
+const signed = await clearSign(tx);
+
+console.log(signed.screens.headline);
+console.log(signed.screens.verification);
+console.log(signed.source, signed.confidence, signed.trust.accepted);
+```
+<!-- quickstart:end -->
+
+Expected output for this WETH `deposit()`: headline `Wrap`, verification `verified`, then `official-registry high true`. Amount is on `screens.secondary` because the format lists no required fields.
+
+## Advanced
+
+`decodeTransaction` is the same decode without the screen object. Name the pin at the call site when you want that explicit.
+
 ```ts
 import {
   VENDORED_REGISTRY_COMMIT,
@@ -27,27 +51,23 @@ import {
 
 const registry = createOfficialRegistry({ pin: VENDORED_REGISTRY_COMMIT });
 
-const result = await decodeTransaction(
-  {
-    to: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-    data: '0xd0e30db0',
-    value: 10n ** 18n,
-    chainId: 1,
-  },
-  { registry, trust: officialOnlyPolicy() }
-);
+const tx = {
+  to: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2' as const,
+  data: '0xd0e30db0' as const,
+  value: 10n ** 18n,
+  chainId: 1,
+};
+
+const result = await decodeTransaction(tx, { registry, trust: officialOnlyPolicy() });
 
 console.log(result.interpolatedIntent ?? result.intent);
 console.log(result.fields);
 console.log(result.source, result.confidence, result.trust.accepted);
 ```
-<!-- quickstart:end -->
-
-Expected output for this WETH `deposit()`: `Wrap`, an Amount field of `1 ETH`, then `official-registry high true`.
 
 ## 3. Production
 
-The snippet above is the production call.
+`clearSign(tx)` is the production call. The Advanced sample is the same policy with the pin written out.
 
 - Pass an explicit `pin`. The omitted pin is the vendored SHA; name it at the call site.
 - `officialOnlyPolicy()` accepts `official-registry` and `attested` only. Sourcify, generated drafts, inferred selectors, basic decoding, and builtins stay `confidence: "low"`.

@@ -40,12 +40,13 @@ specs/erc7730-tests-v2.schema.json instead of descriptor schema.
 Exit 1 if any error-level issue is reported.
 `;
 
-export const PREVIEW_HELP = `Usage: erc7730 preview --data <hex> --to <addr> --chain-id <id> [--from <addr>] [--value <n>] [--pin <sha>] [--registry-path <dir>] [--json] [--sourcify]
+export const PREVIEW_HELP = `Usage: erc7730 preview --data <hex> --to <addr> --chain-id <id> [--from <addr>] [--value <n>] [--pin <sha>] [--registry-path <dir>] [--json] [--sourcify] [--explain]
 
 Decode a transaction with the official registry (or ERC7730_REGISTRY_PATH) and
 print intent, interpolatedIntent, fields, and trust to stdout.
 
   --sourcify   Opt in to the untrusted Sourcify / generated ABI fallback
+  --explain    Print the diagnostic chain (why the call matched or missed)
 `;
 
 export const SCAFFOLD_HELP = `Usage: erc7730 scaffold --chain-id <id> --address <addr> --abi <file> --owner <name> --out <dir> [--url <url>] [--force]

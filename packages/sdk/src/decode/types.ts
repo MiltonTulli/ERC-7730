@@ -37,17 +37,117 @@ export type FieldFormat =
   | 'chainId'
   | 'interoperableAddressName';
 
-export interface DecodedField {
+export interface TokenAmountDetails {
+  amount: bigint;
+  token?: TokenInfo;
+  isInfinite: boolean;
+  nativeCurrency?: boolean;
+}
+
+export interface AddressNameDetails {
+  address: Address;
+  name?: string;
+  nameSource?: 'descriptor' | 'provider' | 'none';
+  types?: string[];
+}
+
+export interface DateDetails {
+  timestamp: number;
+  encoding: 'timestamp' | 'blockheight';
+}
+
+export interface EnumDetails {
+  raw: string;
+  resolved?: string;
+}
+
+export interface NftNameDetails {
+  collection: Address;
+  tokenId: bigint;
+}
+
+export interface CalldataDetails {
+  /** Inner `decodeTransaction`. Not Multicall3 / batch `children`. */
+  embedded: DecodedOperation;
+}
+
+export interface RawDetails {
+  raw: unknown;
+}
+
+interface DecodedFieldBase {
   path: string;
   label: string;
-  format: FieldFormat;
   value: string;
   rawValue: unknown;
-  required: boolean;
+  /**
+   * `true` when the format lists this path as required.
+   * `'implicit'` when the format declares no required list.
+   */
+  required: boolean | 'implicit';
   params?: Record<string, unknown>;
-  /** Inner `decodeTransaction` when `format` is `calldata`. Not Multicall3. */
-  embedded?: DecodedOperation;
+  hidden?: boolean;
 }
+
+export type DecodedField =
+  | (DecodedFieldBase & { format: 'tokenAmount'; details: TokenAmountDetails })
+  | (DecodedFieldBase & { format: 'addressName'; details: AddressNameDetails })
+  | (DecodedFieldBase & { format: 'date'; details: DateDetails })
+  | (DecodedFieldBase & { format: 'enum'; details: EnumDetails })
+  | (DecodedFieldBase & { format: 'nftName'; details: NftNameDetails })
+  | (DecodedFieldBase & { format: 'calldata'; details: CalldataDetails })
+  | (DecodedFieldBase & {
+      format: 'raw' | 'amount' | 'duration' | 'unit' | 'chainId' | 'tokenTicker';
+      details: RawDetails;
+    });
+
+export type DecodeDiagnosticStage =
+  | 'input'
+  | 'registry-lookup'
+  | 'context-match'
+  | 'format-match'
+  | 'include-resolve'
+  | 'trust'
+  | 'fallback';
+
+export type DecodeDiagnosticOutcome = 'hit' | 'miss' | 'skipped' | 'error';
+
+export interface DecodeDiagnostic {
+  stage: DecodeDiagnosticStage;
+  outcome: DecodeDiagnosticOutcome;
+  code: string;
+  message: string;
+  details?: Record<string, unknown>;
+}
+
+export interface DiagnosticLog {
+  readonly entries: DecodeDiagnostic[];
+  push(entry: DecodeDiagnostic): void;
+}
+
+/** Notified when the official registry reads or fetches a file. */
+export interface RegistryCacheObserver {
+  hit(path: string): void;
+  fetch(path: string, durationMs: number): void;
+}
+
+export type ClearSignKind = 'transaction' | 'typed-data' | 'batch' | 'user-op';
+
+export type ClearSignEvent =
+  | { type: 'decode:start'; kind: ClearSignKind }
+  | {
+      type: 'decode:end';
+      kind: ClearSignKind;
+      durationMs: number;
+      source: DecodeSource;
+      confidence: Confidence;
+    }
+  | { type: 'registry:fetch'; path: string; durationMs: number }
+  | { type: 'registry:cache-hit'; path: string }
+  | { type: 'registry:miss'; chainId?: number; address?: string }
+  | { type: 'trust:accepted'; reasons: string[] }
+  | { type: 'trust:rejected'; reasons: string[] }
+  | { type: 'warning:emitted'; warningType: SecurityWarningType };
 
 /**
  * Source of truth for `SecurityWarning.type`. Adding a check here is what
@@ -117,6 +217,8 @@ export interface DecodedOperation {
   excluded: string[];
   warnings: SecurityWarning[];
   trust: TrustReport;
+  /** Decision chain for this operation. Always set, including on a hit. */
+  diagnostics: DecodeDiagnostic[];
   /** Nested Multicall3 / Safe CALL / UserOp inner targets. */
   children?: DecodedOperation[];
   metadata: {
@@ -144,6 +246,7 @@ export interface DecodeRegistry {
     provider?: Provider | null;
     fromBlock?: bigint | LogBlockTag;
     toBlock?: bigint | LogBlockTag;
+    cacheObserver?: RegistryCacheObserver;
   }): Promise<ResolvedDescriptor | null>;
   findEip712?(key: {
     chainId: number;
@@ -155,6 +258,7 @@ export interface DecodeRegistry {
     provider?: Provider | null;
     fromBlock?: bigint | LogBlockTag;
     toBlock?: bigint | LogBlockTag;
+    cacheObserver?: RegistryCacheObserver;
   }): Promise<ResolvedDescriptor | null>;
 }
 
@@ -262,6 +366,15 @@ export interface DecodeOptions {
    */
   fromBlock?: bigint | LogBlockTag;
   toBlock?: bigint | LogBlockTag;
+  /**
+   * Observability hook. Nested decodes emit their own events with the same callback.
+   * Does not open a network connection.
+   */
+  onEvent?: (event: ClearSignEvent) => void;
+  /** @internal Per-call diagnostic buffer. Public decode functions own this. */
+  diagnosticLog?: DiagnosticLog;
+  /** @internal Forwarded into official-registry file loads for this call. */
+  cacheObserver?: RegistryCacheObserver;
 }
 
 export type { TransactionInput, TypedDataInput };

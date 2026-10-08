@@ -10,6 +10,7 @@ import {
   mergeTrust,
   minConfidence,
 } from './innerCalls';
+import { beginDecode, endDecode, failDecode } from './session';
 import type { Address, DecodeOptions, DecodedOperation } from './types';
 import { validateTransactionInput } from './validate';
 
@@ -29,7 +30,7 @@ export interface UserOpInput {
  *
  * Other account factories are out of scope.
  */
-export async function decodeUserOp(
+async function decodeUserOpCore(
   op: UserOpInput,
   options?: DecodeOptions
 ): Promise<DecodedOperation> {
@@ -43,6 +44,13 @@ export async function decodeUserOp(
   const selector = op.callData.slice(0, 10).toLowerCase() as Hex;
 
   if (!calls || calls.length === 0) {
+    options?.diagnosticLog?.push({
+      stage: 'fallback',
+      outcome: 'miss',
+      code: 'SELECTOR_NOT_IN_FORMATS',
+      message: 'UserOp callData is not a Simple Account execute or executeBatch',
+      details: { selector },
+    });
     return {
       confidence: 'low',
       source: 'basic',
@@ -58,6 +66,7 @@ export async function decodeUserOp(
         },
       ],
       trust: await resolveTrust(options, 'basic', undefined, op.chainId, sender),
+      diagnostics: [],
       metadata: {
         chainId: op.chainId,
         contractAddress: sender,
@@ -94,6 +103,7 @@ export async function decodeUserOp(
     excluded: [],
     warnings: [],
     trust: isSingleExecute ? children[0].trust : mergeTrust(children),
+    diagnostics: [],
     metadata: {
       chainId: op.chainId,
       contractAddress: sender,
@@ -104,4 +114,18 @@ export async function decodeUserOp(
   };
 
   return attachChildren(base, children);
+}
+
+export async function decodeUserOp(
+  op: UserOpInput,
+  options?: DecodeOptions
+): Promise<DecodedOperation> {
+  const session = beginDecode('user-op', options);
+  try {
+    const operation = await decodeUserOpCore(op, session.options);
+    return endDecode('user-op', options, session, operation);
+  } catch (error) {
+    failDecode('user-op', options, session.started);
+    throw error;
+  }
 }

@@ -76,6 +76,10 @@ packages/docs/src/content/docs/guide.md
 packages/docs/src/content/docs/interop.md
 packages/docs/src/content/docs/action.md
 packages/docs/src/content/docs/divergences.md
+packages/docs/src/content/docs/diagnostics.md
+packages/docs/src/content/docs/rendering.md
+packages/docs/src/content/docs/observability.md
+packages/docs/src/content/docs/case-studies/
 packages/docs/src/content/docs/trust.md
 packages/docs/src/content/docs/cli/generate.md
 packages/docs/src/content/docs/sdk/api/

@@ -54,9 +54,13 @@ const DOMAIN_FIELD_ORDER = ['name', 'version', 'chainId', 'verifyingContract', '
 
 export type ContextMatchVia = 'deployment' | 'factory' | 'proxy' | 'eip712';
 
+export type ContextMismatchReason = 'chain_id' | 'address' | 'unmatched';
+
 export interface ContextMatch {
   matched: boolean;
   via?: ContextMatchVia;
+  /** Set when `matched` is false. */
+  reason?: ContextMismatchReason;
 }
 
 export interface MatchContextOptions {
@@ -143,6 +147,13 @@ function deploymentsInclude(
 ): boolean {
   const want = address.toLowerCase();
   return deployments.some((item) => item.chainId === chainId && item.address === want);
+}
+
+function deploymentsHaveChain(
+  deployments: Array<{ chainId: number; address: Address }>,
+  chainId: number
+): boolean {
+  return deployments.some((item) => item.chainId === chainId);
 }
 
 function addressFromWord(word: string | null | undefined): Address | undefined {
@@ -550,7 +561,7 @@ async function matchContractContext(
   const hasFactory = factory !== undefined && typeof factory.deployEvent === 'string';
 
   if (deployments.length === 0 && !hasFactory) {
-    return { matched: false };
+    return { matched: false, reason: 'unmatched' };
   }
 
   if (deployments.length > 0 && deploymentsInclude(deployments, chainId, address)) {
@@ -568,7 +579,10 @@ async function matchContractContext(
     return { matched: true, via: 'factory' };
   }
 
-  return { matched: false };
+  if (deployments.length > 0 && !deploymentsHaveChain(deployments, chainId)) {
+    return { matched: false, reason: 'chain_id' };
+  }
+  return { matched: false, reason: deployments.length > 0 ? 'address' : 'unmatched' };
 }
 
 async function matchEip712Context(
@@ -585,14 +599,14 @@ async function matchEip712Context(
   const hasSeparator = typeof domainSeparator === 'string' && domainSeparator.length > 0;
 
   if (!hasDomain && !hasDeployments && !hasSeparator) {
-    return { matched: false };
+    return { matched: false, reason: 'unmatched' };
   }
 
   if (hasDomain && domain) {
     for (const [key, expected] of Object.entries(domain)) {
       const actual = data.domain[key as keyof typeof data.domain];
       if (!domainFieldEqual(key, expected, actual)) {
-        return { matched: false };
+        return { matched: false, reason: key === 'chainId' ? 'chain_id' : 'unmatched' };
       }
     }
   }
@@ -601,12 +615,15 @@ async function matchEip712Context(
     const chainId = chainIdOfTypedData(data);
     const verifying = normalizeAddr(data.domain.verifyingContract);
     if (chainId === undefined || !verifying) {
-      return { matched: false };
+      return { matched: false, reason: 'unmatched' };
     }
     if (!deploymentsInclude(deployments, chainId, verifying)) {
       const impl = await resolveImplementation(verifying, options?.provider);
       if (!impl || !deploymentsInclude(deployments, chainId, impl)) {
-        return { matched: false };
+        return {
+          matched: false,
+          reason: deploymentsHaveChain(deployments, chainId) ? 'address' : 'chain_id',
+        };
       }
     }
   }
@@ -614,7 +631,7 @@ async function matchEip712Context(
   if (hasSeparator) {
     const hashed = hashEip712Domain(data);
     if (!hashed || hashed.toLowerCase() !== domainSeparator.toLowerCase()) {
-      return { matched: false };
+      return { matched: false, reason: 'unmatched' };
     }
   }
 
@@ -635,24 +652,24 @@ export async function matchContext(
   const merged = mergedOf(descriptor);
   const context = asRecord(merged.context);
   if (!context) {
-    return { matched: false };
+    return { matched: false, reason: 'unmatched' };
   }
 
   if (isTypedData(target)) {
     const eip712 = asRecord(context.eip712);
     if (!eip712) {
-      return { matched: false };
+      return { matched: false, reason: 'unmatched' };
     }
     return matchEip712Context(eip712, target, options);
   }
 
   const contract = asRecord(context.contract);
   if (!contract) {
-    return { matched: false };
+    return { matched: false, reason: 'unmatched' };
   }
   const address = normalizeAddr(target.to);
   if (!address || typeof target.chainId !== 'number') {
-    return { matched: false };
+    return { matched: false, reason: 'unmatched' };
   }
   return matchContractContext(contract, target.chainId, address, options);
 }

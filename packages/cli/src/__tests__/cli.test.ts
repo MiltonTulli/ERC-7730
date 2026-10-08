@@ -370,6 +370,48 @@ describe('erc7730 preview', () => {
     expect(result.stdout).toContain(`Pin: ${PIN} (--pin)`);
   });
 
+  it('prints the diagnostic chain with --explain', async () => {
+    const hit = await runCli(
+      [
+        'preview',
+        '--data',
+        '0xd0e30db0',
+        '--to',
+        WETH,
+        '--chain-id',
+        '1',
+        '--value',
+        '1000000000000000000',
+        '--pin',
+        PIN,
+        '--explain',
+      ],
+      io()
+    );
+    expect(hit.exitCode).toBe(0);
+    expect(hit.stdout).toMatch(/registry-lookup REGISTRY_HIT hit/);
+    expect(hit.stdout).toMatch(/format-match FORMAT_MATCHED hit/);
+    expect(hit.stdout).toMatch(/trust TRUST_ACCEPTED hit/);
+
+    const miss = await runCli(
+      [
+        'preview',
+        '--explain',
+        '--data',
+        '0xdeadbeef',
+        '--to',
+        '0x1111111111111111111111111111111111111111',
+        '--chain-id',
+        '1',
+        '--pin',
+        PIN,
+      ],
+      io()
+    );
+    expect(miss.exitCode).toBe(0);
+    expect(miss.stdout).toMatch(/registry-lookup REGISTRY_NO_DESCRIPTOR miss/);
+  });
+
   it('prints the vendored pin when --pin is omitted', async () => {
     const result = await runCli(
       [

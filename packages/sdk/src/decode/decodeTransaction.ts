@@ -1,5 +1,6 @@
 import { decodeCalldata, extractSelector } from '../core/decoder';
 import { computeSelector, getSignatureBySelector } from '../core/signatures';
+import { InvalidInputError } from '../errors';
 import { generateDescriptor } from '../generate/generate';
 import type { ABI } from '../generate/generate';
 import type { PathContext } from '../path/types';
@@ -29,6 +30,7 @@ import { matchContext } from './context';
 import { type FormatOptions, flattenFields, formatDisplayField } from './format';
 import { expandNestedCalls } from './innerCalls';
 import { matchFormat } from './match';
+import { beginDecode, endDecode, failDecode } from './session';
 import type {
   DecodeOptions,
   DecodeSource,
@@ -206,6 +208,7 @@ async function renderFromDescriptor(
     excluded,
     warnings: absorbed.warnings,
     trust,
+    diagnostics: [],
     metadata: {
       ...meta,
       chainId: tx.chainId,
@@ -289,14 +292,27 @@ async function fallbackOperation(
         format = 'addressName';
         formatted = value;
       }
-      fields.push({
-        path: alias ?? `[${i}]`,
-        label,
-        format,
-        value: formatted,
-        rawValue: value,
-        required: false,
-      });
+      if (format === 'addressName' && typeof value === 'string') {
+        fields.push({
+          path: alias ?? `[${i}]`,
+          label,
+          format: 'addressName',
+          value: formatted,
+          rawValue: value,
+          required: false,
+          details: { address: value as `0x${string}`, nameSource: 'none' },
+        });
+      } else {
+        fields.push({
+          path: alias ?? `[${i}]`,
+          label,
+          format: 'raw',
+          value: formatted,
+          rawValue: value,
+          required: false,
+          details: { raw: value },
+        });
+      }
     }
   }
 
@@ -317,6 +333,7 @@ async function fallbackOperation(
     excluded: [],
     warnings,
     trust,
+    diagnostics: [],
     metadata: {
       chainId: tx.chainId,
       contractAddress: asAddress(tx.to),
@@ -421,6 +438,13 @@ async function tryTrustedToken(
   return rendered;
 }
 
+function pushDiagnostic(
+  options: DecodeOptions | undefined,
+  entry: Parameters<NonNullable<DecodeOptions['diagnosticLog']>['push']>[0]
+): void {
+  options?.diagnosticLog?.push(entry);
+}
+
 async function decodeTransactionCore(
   tx: TransactionInput,
   options?: DecodeOptions
@@ -428,22 +452,91 @@ async function decodeTransactionCore(
   const selector = selectorFromTx(tx);
   const useSourcify = options?.useSourcifyFallback === true;
 
-  if (options?.registry && selector) {
-    const found = await options.registry.findCalldata({
-      chainId: tx.chainId,
-      address: asAddress(tx.to),
-      selector,
-      provider: options.provider,
-      fromBlock: options.fromBlock,
-      toBlock: options.toBlock,
+  if (!options?.registry) {
+    pushDiagnostic(options, {
+      stage: 'registry-lookup',
+      outcome: 'skipped',
+      code: 'REGISTRY_SKIPPED',
+      message: 'No registry was provided',
     });
-    if (found) {
+  } else if (!selector) {
+    pushDiagnostic(options, {
+      stage: 'registry-lookup',
+      outcome: 'skipped',
+      code: 'REGISTRY_SKIPPED',
+      message: 'Transaction has no 4-byte selector',
+    });
+  } else {
+    let found: Awaited<ReturnType<NonNullable<DecodeOptions['registry']>['findCalldata']>> = null;
+    try {
+      found = await options.registry.findCalldata({
+        chainId: tx.chainId,
+        address: asAddress(tx.to),
+        selector,
+        provider: options.provider,
+        fromBlock: options.fromBlock,
+        toBlock: options.toBlock,
+        cacheObserver: options.cacheObserver,
+      });
+    } catch (error) {
+      if (error instanceof InvalidInputError) {
+        throw error;
+      }
+      pushDiagnostic(options, {
+        stage: 'include-resolve',
+        outcome: 'error',
+        code: 'INCLUDE_FETCH_FAILED',
+        message: error instanceof Error ? error.message : String(error),
+      });
+      found = null;
+    }
+    if (!found) {
+      if (!options.diagnosticLog?.entries.some((entry) => entry.code === 'INCLUDE_FETCH_FAILED')) {
+        pushDiagnostic(options, {
+          stage: 'registry-lookup',
+          outcome: 'miss',
+          code: 'REGISTRY_NO_DESCRIPTOR',
+          message: 'No descriptor for this chain and address',
+          details: { chainId: tx.chainId, address: tx.to, selector },
+        });
+        options.onEvent?.({
+          type: 'registry:miss',
+          chainId: tx.chainId,
+          address: tx.to,
+        });
+      }
+    } else {
+      pushDiagnostic(options, {
+        stage: 'registry-lookup',
+        outcome: 'hit',
+        code: 'REGISTRY_HIT',
+        message: 'Registry returned a descriptor',
+        details: { chainId: tx.chainId, address: tx.to, registryPath: found.registryPath },
+      });
       const bound = await matchContext(found, tx, {
         provider: options.provider,
         fromBlock: options.fromBlock,
         toBlock: options.toBlock,
       });
-      if (bound.matched) {
+      if (!bound.matched) {
+        pushDiagnostic(options, {
+          stage: 'context-match',
+          outcome: 'miss',
+          code: bound.reason === 'chain_id' ? 'CHAIN_ID_MISMATCH' : 'CONTEXT_MISMATCH',
+          message:
+            bound.reason === 'chain_id'
+              ? 'Descriptor deployments do not include this chainId'
+              : 'Descriptor context did not match this transaction',
+          details: { chainId: tx.chainId, address: tx.to, reason: bound.reason },
+        });
+      } else {
+        pushDiagnostic(options, {
+          stage: 'context-match',
+          outcome: 'hit',
+          code: 'CONTEXT_MATCHED',
+          message: `Context matched via ${bound.via ?? 'deployment'}`,
+          details: { via: bound.via },
+        });
         const rendered = await renderFromDescriptor(
           tx,
           found,
@@ -451,7 +544,22 @@ async function decodeTransactionCore(
           selector,
           options
         );
-        if (rendered) {
+        if (!rendered) {
+          pushDiagnostic(options, {
+            stage: 'format-match',
+            outcome: 'miss',
+            code: 'SELECTOR_NOT_IN_FORMATS',
+            message: 'Selector is not listed in the descriptor formats',
+            details: { selector },
+          });
+        } else {
+          pushDiagnostic(options, {
+            stage: 'format-match',
+            outcome: 'hit',
+            code: 'FORMAT_MATCHED',
+            message: 'Selector matched a display format',
+            details: { selector, signature: rendered.signature },
+          });
           return finalizeDecodedWarnings(
             await presentDescriptorResult(rendered, tx, options),
             options
@@ -464,10 +572,22 @@ async function decodeTransactionCore(
   if (selector) {
     const trusted = await tryTrustedToken(tx, selector, options);
     if (trusted) {
+      pushDiagnostic(options, {
+        stage: 'fallback',
+        outcome: 'hit',
+        code: 'TRUSTED_TOKEN_FALLBACK',
+        message: 'Rendered from a trusted-token template',
+      });
       return finalizeDecodedWarnings(trusted, options);
     }
     const builtin = await tryBuiltin(tx, selector, options);
     if (builtin) {
+      pushDiagnostic(options, {
+        stage: 'fallback',
+        outcome: 'hit',
+        code: 'BUILTIN_FALLBACK',
+        message: 'Rendered from an ERC-20, ERC-721, or WETH builtin',
+      });
       return finalizeDecodedWarnings(builtin, options);
     }
   }
@@ -475,17 +595,39 @@ async function decodeTransactionCore(
   if (useSourcify && selector) {
     const verified = await tryVerifiedAbi(tx, selector, options);
     if (verified.operation) {
+      pushDiagnostic(options, {
+        stage: 'fallback',
+        outcome: 'hit',
+        code: 'SOURCIFY_FALLBACK',
+        message: 'Rendered from a Sourcify ABI',
+      });
       return finalizeDecodedWarnings(verified.operation, options, {
         selectorMismatch: verified.selectorMismatch,
       });
     }
     if (verified.selectorMismatch) {
       const fallback = await fallbackOperation(tx, options);
+      pushDiagnostic(options, {
+        stage: 'fallback',
+        outcome: 'hit',
+        code: 'INFERRED_FALLBACK',
+        message: 'Sourcify ABI did not match the selector',
+      });
       return finalizeDecodedWarnings(fallback, options, { selectorMismatch: true });
     }
   }
 
-  return finalizeDecodedWarnings(await fallbackOperation(tx, options), options);
+  const fallback = await fallbackOperation(tx, options);
+  pushDiagnostic(options, {
+    stage: 'fallback',
+    outcome: 'hit',
+    code: fallback.source === 'basic' ? 'BASIC_FALLBACK' : 'INFERRED_FALLBACK',
+    message:
+      fallback.source === 'basic'
+        ? 'No descriptor or known signature; showing the raw call'
+        : 'No descriptor; showing fields inferred from a known signature',
+  });
+  return finalizeDecodedWarnings(fallback, options);
 }
 
 /**
@@ -499,6 +641,13 @@ export async function decodeTransaction(
   options?: DecodeOptions
 ): Promise<DecodedOperation> {
   validateTransactionInput(tx);
-  const core = await decodeTransactionCore(tx, options);
-  return expandNestedCalls(core, tx, options);
+  const session = beginDecode('transaction', options);
+  try {
+    const core = await decodeTransactionCore(tx, session.options);
+    const expanded = await expandNestedCalls(core, tx, session.options);
+    return endDecode('transaction', options, session, expanded);
+  } catch (error) {
+    failDecode('transaction', options, session.started);
+    throw error;
+  }
 }
