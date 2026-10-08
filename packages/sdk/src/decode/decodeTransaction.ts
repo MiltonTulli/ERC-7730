@@ -7,7 +7,7 @@ import { ERC721_DESCRIPTOR } from '../registry/erc721';
 import { createMemoryIncludeLoader, resolveDescriptor } from '../resolve';
 import type { TransactionInput } from '../types';
 import type { Hex, InputDescriptor, ResolvedDescriptor } from '../types/descriptor';
-import { decodeNamedArgs, parseDeclaration } from './abi';
+import { decodeNamedArgs, parseDeclaration, wellKnownAliases } from './abi';
 import { getDefaultVerifiedAbiLoader } from './abiLoader';
 import {
   ZERO_ADDRESS,
@@ -256,6 +256,12 @@ async function tryVerifiedAbi(
   }
 }
 
+const READABLE_LABELS: Record<string, string> = {
+  to: 'To',
+  amount: 'Amount',
+  spender: 'Spender',
+};
+
 async function fallbackOperation(
   tx: TransactionInput,
   options: DecodeOptions | undefined,
@@ -269,11 +275,13 @@ async function fallbackOperation(
 
   if (raw) {
     const declaration = raw.signature ? parseDeclaration(raw.signature) : null;
+    const aliases = declaration ? wellKnownAliases(declaration.canonical) : undefined;
     for (let i = 0; i < raw.args.length; i++) {
       const type = raw.inputTypes[i] || 'unknown';
       const value = raw.args[i];
       const paramName = declaration?.params[i]?.name;
-      const label = paramName ?? `Param ${i + 1}`;
+      const alias = paramName || aliases?.[i];
+      const label = (alias && READABLE_LABELS[alias]) || alias || `Param ${i + 1}`;
       let format: DecodedField['format'] = 'raw';
       let formatted = typeof value === 'bigint' ? value.toString() : String(value ?? 'Unknown');
       if (type === 'address' && typeof value === 'string') {
@@ -281,7 +289,7 @@ async function fallbackOperation(
         formatted = value;
       }
       fields.push({
-        path: paramName ?? `[${i}]`,
+        path: alias ?? `[${i}]`,
         label,
         format,
         value: formatted,

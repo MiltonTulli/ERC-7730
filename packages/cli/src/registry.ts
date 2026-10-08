@@ -33,6 +33,18 @@ export function pinDir(root: string, pin: string): string {
   return join(root, 'registry', pin);
 }
 
+export type PinOrigin = 'flag' | 'env' | 'vendored';
+
+export function pinOrigin(flag: string | undefined, env: NodeJS.ProcessEnv): PinOrigin {
+  if (flag !== undefined) {
+    return 'flag';
+  }
+  if (env.ERC7730_REGISTRY_PIN !== undefined) {
+    return 'env';
+  }
+  return 'vendored';
+}
+
 export function resolvePin(flag: string | undefined, env: NodeJS.ProcessEnv): string {
   const value = (flag ?? env.ERC7730_REGISTRY_PIN ?? VENDORED_REGISTRY_COMMIT).trim();
   if (!isCommitSha(value) || !PIN_RE.test(value)) {

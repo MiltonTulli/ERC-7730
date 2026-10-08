@@ -6,9 +6,9 @@ How to wire `@erc7730/sdk` into a wallet as a clear-signing drop-in. Structure m
 
 ```bash
 npm install @erc7730/sdk
-# optional peer for adapters / public clients
-npm install viem
 ```
+
+`viem` is included with `@erc7730/sdk`. Adapters and a viem `PublicClient` use that copy.
 
 The published package does not include a descriptor catalog. `@erc7730/sdk/lite` is a deprecated narrower entry (it omits the Sourcify client and `generateDescriptor` from that graph). It is not a separate install and it is not how descriptors are loaded. Importing `@erc7730/sdk` does not register an ABI loader.
 
@@ -34,6 +34,8 @@ const result = await decodeTransaction(
 console.log(result.interpolatedIntent ?? result.intent);
 console.log(result.fields);
 ```
+
+Illustrative summary: Wrap · 1 ETH · official-registry · high · accepted: true
 
 ## 3. Production (explicit pin + trust)
 
@@ -83,7 +85,7 @@ const indexes = await fetchPrebuiltRegistryIndex({ pin });
 const registry = createOfficialRegistry({ pin, indexes });
 ```
 
-Passing `indexes` means those two files are not fetched again. You can also bundle the JSON at build time. With no network, pass `indexes` and a `cache`. ERC-20, ERC-721, and WETH builtins (`ERC20_DESCRIPTOR`, `ERC721_DESCRIPTOR`, `WETH_DESCRIPTOR`) stay local fallbacks. They are not a catalog.
+Passing `indexes` means those two files are not fetched again. You can also bundle the JSON at build time. With no network, pass `indexes` and a `cache`. Without a registry, the SDK falls back to ABI inference at `confidence: 'low'`.
 
 ## 5. Local overrides with `extend()`
 

@@ -9,7 +9,7 @@ TypeScript tooling for [ERC-7730](https://eips.ethereum.org/EIPS/eip-7730) clear
 
 **Docs:** [miltontulli.github.io/ERC-7730](https://miltontulli.github.io/ERC-7730/) · **Playground:** […/demo](https://miltontulli.github.io/ERC-7730/demo/)
 
-This repository is a small toolkit. It is **not** the descriptor catalog and **not** the reference TypeScript implementation. The source of truth is [`ethereum/clear-signing-erc7730-registry`](https://github.com/ethereum/clear-signing-erc7730-registry). New protocol metadata belongs there, not in this repo. The published `@erc7730/sdk` tarball does not include a catalog. Lookup is `createOfficialRegistry()` (defaults to the vendored commit SHA) or `createOfficialRegistry({ pin })`. With no network, pass `indexes` and `cache`. ERC-20, ERC-721, and WETH builtins stay as local fallbacks.
+This repository is a small toolkit. It is **not** the descriptor catalog and **not** the reference TypeScript implementation. The source of truth is [`ethereum/clear-signing-erc7730-registry`](https://github.com/ethereum/clear-signing-erc7730-registry). New protocol metadata belongs there, not in this repo. The published `@erc7730/sdk` tarball does not include a catalog. Lookup is `createOfficialRegistry()` (defaults to the vendored commit SHA) or `createOfficialRegistry({ pin })`. With no network, pass `indexes` and `cache`. Without a registry, the SDK falls back to ABI inference at `confidence: 'low'`.
 
 ## Packages
 
@@ -29,6 +29,8 @@ This repository is a small toolkit. It is **not** the descriptor catalog and **n
 npm install @erc7730/sdk
 npm install -D @erc7730/cli
 ```
+
+`viem` is included with `@erc7730/sdk`.
 
 ## Quick start
 
@@ -54,6 +56,8 @@ const result = await decodeTransaction(
 console.log(result.interpolatedIntent ?? result.intent);
 console.log(result.fields);
 ```
+
+Illustrative summary: Wrap · 1 ETH · official-registry · high · accepted: true
 
 ### 2. Production (explicit pin + trust)
 
@@ -102,7 +106,7 @@ Walkthrough and flag reference: [CLI docs](https://miltontulli.github.io/ERC-773
 
 | Package line | ERC-7730 schema |
 | --- | --- |
-| SDK 0.x | Reads v1. `validateDescriptor` accepts v1 and v2 |
+| SDK 0.x | Decodes v1 and v2 descriptors; `validateDescriptor` accepts v1 and v2 |
 | CLI 0.x | Lints v1 and v2. `generate` writes a v2 draft |
 
 ## Project structure
@@ -125,6 +129,7 @@ ERC-7730/
 - [EIP-7730](https://eips.ethereum.org/EIPS/eip-7730) · [clearsigning.org](https://clearsigning.org)
 - Official registry · Ledger [`python-erc7730`](https://github.com/LedgerHQ/python-erc7730) · Sourcify clear-signing
 - Interop notes: [`docs/interop.md`](./docs/interop.md) · Divergences: [`docs/divergences.md`](./docs/divergences.md)
+- Security reports: [`SECURITY.md`](./SECURITY.md)
 
 ## License
 

@@ -1,5 +1,5 @@
+import { type Hex, zeroAddress, zeroHash } from 'viem';
 import {
-  type Hex,
   encodeFunctionData,
   encodePacked,
   hexToBigInt,
@@ -8,9 +8,7 @@ import {
   keccak256,
   recoverTypedDataAddress,
   stringToHex,
-  zeroAddress,
-  zeroHash,
-} from 'viem';
+} from 'viem/utils';
 import type { Address, TrustContext, TrustPolicy, TrustReport } from '../decode/types';
 import { isPlainObject } from '../resolve/util';
 

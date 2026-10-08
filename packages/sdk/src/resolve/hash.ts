@@ -6,7 +6,7 @@
  * Node and browsers produce the same digest.
  */
 
-import { keccak256, toBytes } from 'viem';
+import { keccak256, toBytes } from 'viem/utils';
 import type { Hex, InputDescriptor } from '../types/descriptor';
 import { isPlainObject } from './util';
 

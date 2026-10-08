@@ -97,6 +97,9 @@ importers:
       ajv-formats:
         specifier: ^3.0.1
         version: 3.0.1(ajv@8.20.0)
+      viem:
+        specifier: ^2.21.0
+        version: 2.56.8(typescript@5.9.3)(zod@4.6.5)
     devDependencies:
       '@arethetypeswrong/cli':
         specifier: 0.18.5
@@ -119,9 +122,6 @@ importers:
       typescript:
         specifier: ^5.3.3
         version: 5.9.3
-      viem:
-        specifier: ^2.21.0
-        version: 2.56.8(typescript@5.9.3)(zod@4.6.5)
       vitest:
         specifier: ^1.2.0
         version: 1.6.1(@types/node@20.19.43)(lightningcss@1.33.0)

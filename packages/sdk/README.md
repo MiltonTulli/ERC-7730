@@ -7,15 +7,15 @@ TypeScript **runtime** for [ERC-7730](https://eips.ethereum.org/EIPS/eip-7730) c
 
 **Docs:** [miltontulli.github.io/ERC-7730](https://miltontulli.github.io/ERC-7730/) (API reference is generated from exports).
 
-This package is **not** a descriptor catalog, and the published tarball does not include one. `createOfficialRegistry()` defaults to the vendored commit SHA of [`ethereum/clear-signing-erc7730-registry`](https://github.com/ethereum/clear-signing-erc7730-registry). Production wallets should still pass an explicit `pin`. With no network, pass `indexes` and `cache`. ERC-20, ERC-721, and WETH builtins stay as local fallbacks. Authoring CLI: [`@erc7730/cli`](https://www.npmjs.com/package/@erc7730/cli) (separate package, independent version).
+This package is **not** a descriptor catalog, and the published tarball does not include one. `createOfficialRegistry()` defaults to the vendored commit SHA of [`ethereum/clear-signing-erc7730-registry`](https://github.com/ethereum/clear-signing-erc7730-registry). Production wallets should still pass an explicit `pin`. With no network, pass `indexes` and `cache`. Without a registry, the SDK falls back to ABI inference at `confidence: 'low'`. Authoring CLI: [`@erc7730/cli`](https://www.npmjs.com/package/@erc7730/cli) (separate package, independent version).
 
 ## Install
 
 ```bash
 npm install @erc7730/sdk
-# optional peer
-npm install viem
 ```
+
+`viem` is included with `@erc7730/sdk`. Adapters and a viem `PublicClient` use that copy.
 
 | Entry | Use |
 | --- | --- |
@@ -47,6 +47,8 @@ const result = await decodeTransaction(
 console.log(result.interpolatedIntent ?? result.intent);
 console.log(result.fields);
 ```
+
+Illustrative summary: Wrap · 1 ETH · official-registry · high · accepted: true
 
 ### 2. Production (explicit pin + trust)
 
@@ -82,7 +84,7 @@ Clear signing is not ABI pretty-printing. Prefetch, `extend()`, `ExternalDataPro
 
 ## Schema
 
-SDK 0.x reads v1 and validates v1/v2. Package versions are independent of the ERC-7730 schema version.
+SDK 0.x decodes v1 and v2 descriptors, and `validateDescriptor` accepts v1 and v2. Package versions are independent of the ERC-7730 schema version.
 
 ## Developing
 

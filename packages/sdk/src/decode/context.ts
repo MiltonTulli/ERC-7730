@@ -13,7 +13,7 @@
  * not hardcoded.
  */
 
-import { decodeEventLog, encodeAbiParameters, keccak256, toBytes } from 'viem';
+import { decodeEventLog, encodeAbiParameters, keccak256, toBytes } from 'viem/utils';
 import { isPlainObject } from '../resolve/util';
 import type { LogBlockTag, Provider, TransactionInput, TypedDataInput } from '../types';
 import type { Hex, InputDescriptor, ResolvedDescriptor } from '../types/descriptor';

@@ -61,6 +61,10 @@ export default defineConfig({
             { slug: 'trust' },
             { slug: 'registry' },
             { slug: 'not-this' },
+            {
+              label: 'Security',
+              link: 'https://github.com/MiltonTulli/ERC-7730/blob/main/SECURITY.md',
+            },
           ],
         },
         {

@@ -2,7 +2,8 @@
  * Core calldata decoder
  */
 
-import { type Hex, decodeAbiParameters, parseAbiParameters } from 'viem';
+import type { Hex } from 'viem';
+import { decodeAbiParameters, parseAbiParameters } from 'viem/utils';
 import type { TransactionInput } from '../types';
 import { getSignatureBySelector, parseSignature } from './signatures';
 
