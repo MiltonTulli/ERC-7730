@@ -329,7 +329,11 @@ export function attestedPolicy(config: AttestedPolicyConfig): TrustPolicy {
 
       const allowed = new Set(attesters.map((item) => item.toLowerCase()));
       const rawList = ctx.descriptor.attestations ?? [];
-      const now = BigInt(Math.floor(Date.now() / 1000));
+      const clock =
+        typeof ctx.now === 'number' && Number.isFinite(ctx.now)
+          ? Math.trunc(ctx.now)
+          : Math.floor(Date.now() / 1000);
+      const now = BigInt(clock);
 
       for (const raw of rawList) {
         const attestation = parseAttestation(raw);

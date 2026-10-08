@@ -88,6 +88,11 @@ export interface TrustContext {
   chainId: number;
   address?: Address;
   source: DecodeSource;
+  /**
+   * Unix time in seconds from `DecodeOptions.now`.
+   * Policies fall back to `Date.now` only when this is omitted.
+   */
+  now?: number;
 }
 
 export interface TrustPolicy {

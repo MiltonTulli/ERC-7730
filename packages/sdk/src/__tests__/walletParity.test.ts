@@ -418,6 +418,23 @@ describe('wallet drop-in parity (#53)', () => {
       attesterAccount.address.toLowerCase()
     );
 
+    const staleClock = await decodeTransaction(
+      { to: USDC, data: TRANSFER_100_USDC, chainId: 1 },
+      {
+        registry: registryFrom(withAttestation),
+        provider: null,
+        useSourcifyFallback: false,
+        now: 1,
+        trust: attestedPolicy({
+          attesters: [attesterAccount.address],
+          eas: {
+            call: async () => '0x0000000000000000000000000000000000000000000000000000000000000000',
+          },
+        }),
+      }
+    );
+    expect(staleClock.trust.accepted).toBe(false);
+
     const revoked = await decodeTransaction(
       { to: USDC, data: TRANSFER_100_USDC, chainId: 1 },
       {

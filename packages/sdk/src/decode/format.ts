@@ -157,7 +157,7 @@ function formatEnum(value: unknown, map: unknown): string {
     keys.push(asInt.toString(), `0x${asInt.toString(16)}`);
   }
   for (const key of keys) {
-    if (key in record) {
+    if (Object.hasOwn(record, key)) {
       return String(record[key]);
     }
   }

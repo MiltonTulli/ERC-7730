@@ -110,7 +110,7 @@ export function getSupportedChainIds(): number[] {
  * Check if a chain is supported
  */
 export function isChainSupported(chainId: number): boolean {
-  return chainId in SUPPORTED_CHAINS;
+  return Object.hasOwn(SUPPORTED_CHAINS, chainId);
 }
 
 /**

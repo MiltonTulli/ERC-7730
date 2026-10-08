@@ -1,5 +1,6 @@
 import { decodeParameters } from '../core/decoder';
 import { computeSelector } from '../core/signatures';
+import { FORBIDDEN_KEYS } from '../resolve/util';
 
 export interface ParsedParam {
   type: string;
@@ -100,7 +101,59 @@ function canonicalizeType(type: string): string {
   const arrayMatch = type.match(/^(.*?)((?:\[\d*\])+)$/);
   const base = arrayMatch ? arrayMatch[1] : type;
   const suffix = arrayMatch ? arrayMatch[2] : '';
-  return `${TYPE_ALIASES[base] ?? base}${suffix}`;
+  const mapped =
+    base !== undefined && Object.hasOwn(TYPE_ALIASES, base) ? TYPE_ALIASES[base] : base;
+  return `${mapped}${suffix}`;
+}
+
+function isSpace(char: string): boolean {
+  return char === ' ' || char === '\t' || char === '\n' || char === '\r' || char === '\f';
+}
+
+function isIdentStart(char: string): boolean {
+  const code = char.charCodeAt(0);
+  return (code >= 65 && code <= 90) || (code >= 97 && code <= 122) || char === '_';
+}
+
+function isIdentPart(char: string): boolean {
+  const code = char.charCodeAt(0);
+  return isIdentStart(char) || (code >= 48 && code <= 57);
+}
+
+/** Linear split of `name(params)`. Avoids the polynomial declaration regex. */
+function splitDeclaration(src: string): { name: string; paramsSrc: string } | null {
+  const n = src.length;
+  let i = 0;
+  while (i < n && isSpace(src[i] ?? '')) {
+    i++;
+  }
+  if (i >= n || !isIdentStart(src[i] ?? '')) {
+    return null;
+  }
+  const start = i;
+  i++;
+  while (i < n && isIdentPart(src[i] ?? '')) {
+    i++;
+  }
+  const name = src.slice(start, i);
+  while (i < n && isSpace(src[i] ?? '')) {
+    i++;
+  }
+  if (i >= n || src[i] !== '(') {
+    return null;
+  }
+  const close = findMatchingParen(src, i);
+  if (close === -1) {
+    return null;
+  }
+  let end = close + 1;
+  while (end < n && isSpace(src[end] ?? '')) {
+    end++;
+  }
+  if (end !== n) {
+    return null;
+  }
+  return { name, paramsSrc: src.slice(i + 1, close) };
 }
 
 export function parseParams(src: string): ParsedParam[] {
@@ -145,13 +198,12 @@ export function canonicalizeDeclaration(declaration: string): string {
   if (trimmed.startsWith('0x')) {
     return trimmed.toLowerCase();
   }
-  const match = trimmed.match(/^([A-Za-z_][A-Za-z0-9_]*)\s*\((.*)\)\s*$/s);
-  if (!match) {
+  const split = splitDeclaration(declaration);
+  if (!split) {
     return trimmed.replace(/\s+/g, '');
   }
-  const name = match[1];
-  const params = parseParams(match[2] ?? '');
-  return `${name}(${params.map((param) => param.type).join(',')})`;
+  const params = parseParams(split.paramsSrc);
+  return `${split.name}(${params.map((param) => param.type).join(',')})`;
 }
 
 export function parseDeclaration(declaration: string): ParsedDeclaration | null {
@@ -159,15 +211,14 @@ export function parseDeclaration(declaration: string): ParsedDeclaration | null 
   if (trimmed.startsWith('0x')) {
     return null;
   }
-  const match = trimmed.match(/^([A-Za-z_][A-Za-z0-9_]*)\s*\((.*)\)\s*$/s);
-  if (!match) {
+  const split = splitDeclaration(declaration);
+  if (!split) {
     return null;
   }
-  const name = match[1];
-  const params = parseParams(match[2] ?? '');
-  const canonical = `${name}(${params.map((param) => param.type).join(',')})`;
+  const params = parseParams(split.paramsSrc);
+  const canonical = `${split.name}(${params.map((param) => param.type).join(',')})`;
   return {
-    name,
+    name: split.name,
     params,
     canonical,
     selector: computeSelector(canonical),
@@ -194,16 +245,21 @@ export function zipNamedArgs(
   params: ParsedParam[],
   aliases?: string[]
 ): Record<string, unknown> {
-  const result: Record<string, unknown> = {};
+  const result: Record<string, unknown> = Object.create(null);
+  const assign = (key: string, value: unknown) => {
+    if (!FORBIDDEN_KEYS.has(key)) {
+      result[key] = value;
+    }
+  };
   for (let i = 0; i < values.length; i++) {
     const param = params[i];
     const nested = param ? nestValue(values[i], param) : values[i];
-    result[String(i)] = nested;
-    result[`[${i}]`] = nested;
+    assign(String(i), nested);
+    assign(`[${i}]`, nested);
     if (param?.name) {
-      result[param.name] = nested;
+      assign(param.name, nested);
     } else if (aliases?.[i]) {
-      result[aliases[i]] = nested;
+      assign(aliases[i], nested);
     }
   }
   return result;
@@ -229,7 +285,9 @@ export function decodeNamedArgs(
       };
     }
   }
-  const aliases = WELL_KNOWN_NAMES[declaration.canonical];
+  const aliases = Object.hasOwn(WELL_KNOWN_NAMES, declaration.canonical)
+    ? WELL_KNOWN_NAMES[declaration.canonical]
+    : undefined;
   return {
     positional,
     named: zipNamedArgs(positional, declaration.params, aliases),
@@ -237,5 +295,5 @@ export function decodeNamedArgs(
 }
 
 export function wellKnownAliases(canonical: string): string[] | undefined {
-  return WELL_KNOWN_NAMES[canonical];
+  return Object.hasOwn(WELL_KNOWN_NAMES, canonical) ? WELL_KNOWN_NAMES[canonical] : undefined;
 }

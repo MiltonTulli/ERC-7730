@@ -22,11 +22,16 @@ export function toCaip10(chainId: number, address: string): Caip10 {
   return `eip155:${chainId}:${normalizeAddress(address)}`;
 }
 
+function encodeSegments(value: string): string {
+  return value
+    .split('/')
+    .map((segment) => encodeURIComponent(segment))
+    .join('/');
+}
+
 export function registryFileUrl(baseUrl: string, pin: string, path: string): string {
   const prefix = baseUrl.replace(/\/+$/, '');
-  // `#` in a branch/tag must not become a URL fragment (e.g. release#candidate).
-  const tree = pin.replace(/#/g, '%23');
-  return `${prefix}/${tree}/${path}`;
+  return `${prefix}/${encodeSegments(pin)}/${encodeSegments(path)}`;
 }
 
 /**

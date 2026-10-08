@@ -236,6 +236,7 @@ export async function resolveTrust(
     chainId,
     address,
     source,
+    now: nowSeconds(options),
   });
   return finalizeTrust(report, source, descriptor, policy.id);
 }

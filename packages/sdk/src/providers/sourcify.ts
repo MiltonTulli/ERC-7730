@@ -9,6 +9,11 @@ import type { VerifiedAbiLoader } from '../decode/abiLoader';
 import type { ABI } from '../generate/generate';
 
 const SOURCIFY_API_V2_BASE = 'https://sourcify.dev/server';
+const ADDRESS_RE = /^0x[0-9a-fA-F]{40}$/;
+
+function isSourcifyTarget(chainId: number, address: string): boolean {
+  return Number.isInteger(chainId) && chainId >= 0 && ADDRESS_RE.test(address);
+}
 
 export interface SourcifyMatch {
   match: 'exact_match' | 'match' | null;
@@ -52,6 +57,9 @@ export interface SourcifyResult {
  * @returns Contract details including ABI if verified
  */
 export async function fetchFromSourcify(chainId: number, address: string): Promise<SourcifyResult> {
+  if (!isSourcifyTarget(chainId, address)) {
+    return { verified: false, abi: null, name: null, match: null };
+  }
   try {
     // Only request the 'abi' field - 'name' is not a valid field in Sourcify API v2
     const url = `${SOURCIFY_API_V2_BASE}/v2/contract/${chainId}/${address}?fields=abi`;
@@ -147,6 +155,9 @@ export const sourcifyVerifiedAbiLoader: VerifiedAbiLoader = async (chainId, addr
 
 /** Check if a contract is verified on Sourcify (quick check without fetching ABI). */
 export async function isVerifiedOnSourcify(chainId: number, address: string): Promise<boolean> {
+  if (!isSourcifyTarget(chainId, address)) {
+    return false;
+  }
   try {
     const url = `${SOURCIFY_API_V2_BASE}/v2/contract/${chainId}/${address}`;
     const response = await fetch(url, { method: 'HEAD' });

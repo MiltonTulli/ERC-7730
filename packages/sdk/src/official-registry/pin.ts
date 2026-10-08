@@ -3,6 +3,19 @@ import { VENDORED_REGISTRY_COMMIT } from './vendored';
 
 const COMMIT_SHA_RE = /^[0-9a-f]{40}$/i;
 const FLOATING_REFS = new Set(['master', 'main', 'head', 'origin/master', 'origin/main']);
+const SAFE_REF_RE = /^[A-Za-z0-9._/-]+$/;
+
+/**
+ * Branch or tag used in a raw GitHub URL.
+ * Allows only a single path of safe segments: no `..`, no empty segments, no `#`.
+ */
+export function assertSafeRef(ref: string): string {
+  const segments = ref.split('/');
+  if (!SAFE_REF_RE.test(ref) || ref.includes('..') || segments.some((part) => part.length === 0)) {
+    throw new OfficialRegistryError(`Unsafe registry ref: ${ref}`);
+  }
+  return ref;
+}
 
 export function isCommitSha(value: string): boolean {
   return COMMIT_SHA_RE.test(value);
@@ -60,7 +73,7 @@ export function resolveRegistryTreeRef(config: {
         'createOfficialRegistry requires config.ref to be a non-empty branch or tag'
       );
     }
-    return trimmed;
+    return assertSafeRef(trimmed);
   }
 
   if (typeof config.pin === 'string') {
