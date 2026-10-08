@@ -83,7 +83,7 @@ if (!(await exists(apiDir))) {
 
 const apiListing = await readdir(apiDir, { recursive: true });
 const apiJoined = apiListing.join('\n');
-for (const symbol of ['decodeTransaction', 'decodeViemTransaction']) {
+for (const symbol of ['decodeTransaction', 'decodeViemTypedData']) {
   if (!apiJoined.toLowerCase().includes(symbol.toLowerCase())) {
     // File names may be kebab or nested; also scan HTML contents
     let found = false;
@@ -132,8 +132,13 @@ for (const needle of ['@erc7730/sdk', '@erc7730/cli', 'python-erc7730', 'Sourcif
     process.exit(1);
   }
 }
-if (!/descriptor catalog/i.test(home)) {
-  console.error('docs smoke: home page should state we are not a catalog');
+if (!home.includes('not-this')) {
+  console.error('docs smoke: home page should link to /not-this/');
+  process.exit(1);
+}
+const notThis = await readFile(join(root, 'not-this/index.html'), 'utf8');
+if (!/descriptor catalog/i.test(notThis)) {
+  console.error('docs smoke: /not-this/ should state we are not a descriptor catalog');
   process.exit(1);
 }
 

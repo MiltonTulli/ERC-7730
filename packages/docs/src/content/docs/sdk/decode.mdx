@@ -31,7 +31,7 @@ Signatures and types: see the [generated API](/ERC-7730/sdk/api/).
 
 `format` / `formatTypedData` are deprecated aliases of `decode*` / `decodeTypedData`. When `trust` is omitted, both use `officialOnlyPolicy()`. `DecodedOperation` remains the source of truth — not Sourcify’s `DisplayModel`.
 
-Pass `trust: officialOrLocalPolicy()` to accept an app `extend()` override. Pass `attestedPolicy` (from the trust helpers) when the wallet verifies ERC-8176 attestations.
+Pass `trust: officialOrLocalPolicy()` to accept an app `extend()` override. Import `attestedPolicy` from `@erc7730/sdk/attest` when the wallet verifies ERC-8176 attestations.
 
 ## Context matching
 

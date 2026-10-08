@@ -8,6 +8,59 @@ const outDir = join(here, '../src/content/docs');
 
 const GITHUB_BLOB = 'https://github.com/MiltonTulli/ERC-7730/blob/main';
 
+/** HTML comments break MDX. JSX comments would show on GitHub-flavored READMEs. */
+const quickstartTargets = [
+  { rel: 'README.md', comment: 'html' },
+  { rel: 'packages/sdk/README.md', comment: 'html' },
+  { rel: 'docs/GUIDE.md', comment: 'html' },
+  { rel: 'packages/docs/src/content/docs/index.mdx', comment: 'mdx' },
+  { rel: 'packages/docs/src/content/docs/sdk.mdx', comment: 'mdx' },
+];
+
+const quickstartSource = (
+  await readFile(join(repoRoot, 'docs/snippets/quickstart.ts'), 'utf8')
+).replace(/\s+$/, '');
+
+/**
+ * @param {'html' | 'mdx'} comment
+ */
+function quickstartBlock(comment) {
+  const open = comment === 'mdx' ? '{/* quickstart:start */}' : '<!-- quickstart:start -->';
+  const close = comment === 'mdx' ? '{/* quickstart:end */}' : '<!-- quickstart:end -->';
+  return `${open}\n\`\`\`ts\n${quickstartSource}\n\`\`\`\n${close}`;
+}
+
+/**
+ * @param {'html' | 'mdx'} comment
+ */
+function quickstartPattern(comment) {
+  return comment === 'mdx'
+    ? /{\/\* quickstart:start \*\/}[\s\S]*?{\/\* quickstart:end \*\/}/
+    : /<!-- quickstart:start -->[\s\S]*?<!-- quickstart:end -->/;
+}
+
+let quickstartDrift = false;
+for (const target of quickstartTargets) {
+  const path = join(repoRoot, target.rel);
+  const raw = await readFile(path, 'utf8');
+  const pattern = quickstartPattern(target.comment);
+  if (!pattern.test(raw)) {
+    console.error(`missing quickstart markers in ${target.rel}`);
+    process.exit(1);
+  }
+  const next = raw.replace(pattern, quickstartBlock(target.comment));
+  if (next !== raw) {
+    await writeFile(path, next);
+    console.error(`quickstart drift in ${target.rel}; rewritten from docs/snippets/quickstart.ts`);
+    quickstartDrift = true;
+  } else {
+    console.log(`quickstart ok ${target.rel}`);
+  }
+}
+if (quickstartDrift) {
+  process.exit(1);
+}
+
 /** @type {Array<{ source: string; dest: string; title: string; description: string }>} */
 const pages = [
   {
@@ -15,7 +68,7 @@ const pages = [
     dest: 'guide.md',
     title: 'Wallet integration guide',
     description:
-      'Wire @erc7730/sdk into a wallet: smallest decode first, then explicit pin + TrustPolicy, prefetch, ExternalDataProvider, batch, and UserOp.',
+      'Wire @erc7730/sdk into a wallet: quick start, production pin and TrustPolicy, prefetch, ExternalDataProvider, batch, and UserOp.',
   },
   {
     source: 'docs/interop.md',
@@ -94,7 +147,8 @@ ${trustTable}
 ## Production policies
 
 \`\`\`ts
-import { officialOnlyPolicy, attestedPolicy, composePolicies } from '@erc7730/sdk';
+import { officialOnlyPolicy, composePolicies } from '@erc7730/sdk';
+import { attestedPolicy } from '@erc7730/sdk/attest';
 
 const pinOnly = officialOnlyPolicy();
 

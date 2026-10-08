@@ -1,13 +1,11 @@
 # @erc7730/sdk
 
-TypeScript **runtime** for [ERC-7730](https://eips.ethereum.org/EIPS/eip-7730) clear signing.
+The safest way to show a transaction to a human in TypeScript.
 
 [![npm version](https://img.shields.io/npm/v/@erc7730/sdk.svg)](https://www.npmjs.com/package/@erc7730/sdk)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 **Docs:** [miltontulli.github.io/ERC-7730](https://miltontulli.github.io/ERC-7730/) (API reference is generated from exports).
-
-This package is **not** a descriptor catalog, and the published tarball does not include one. `createOfficialRegistry()` defaults to the vendored commit SHA of [`ethereum/clear-signing-erc7730-registry`](https://github.com/ethereum/clear-signing-erc7730-registry). Production wallets should still pass an explicit `pin`. With no network, pass `indexes` and `cache`. ERC-20, ERC-721, and WETH builtins are the fallback when no registry matches. They are never `confidence: "high"` under `officialOnlyPolicy()`. Authoring CLI: [`@erc7730/cli`](https://www.npmjs.com/package/@erc7730/cli) (separate package, independent version).
 
 ## Install
 
@@ -19,20 +17,23 @@ npm install @erc7730/sdk
 
 | Entry | Use |
 | --- | --- |
-| `@erc7730/sdk` | Full runtime. Sourcify is opt-in (`loadVerifiedAbi: sourcifyVerifiedAbiLoader` and `useSourcifyFallback: true`). Import does not fetch. `useSourcifyFallback` defaults to `false`. `decodeViemTypedData` lives here |
-
-`@erc7730/sdk/lite` and `@erc7730/sdk/viem` are removed. Use `decodeTransaction` instead of `decodeViemTransaction`.
+| `@erc7730/sdk` | Runtime. Sourcify is opt-in (`loadVerifiedAbi: sourcifyVerifiedAbiLoader` and `useSourcifyFallback: true`). Import does not fetch. `useSourcifyFallback` defaults to `false`. `decodeViemTypedData` lives here |
+| `@erc7730/sdk/attest` | `attestedPolicy`. This entry can depend on `viem` |
 
 ## Quick start
 
-### 1. Smallest call (intent + fields)
+WETH `deposit()` on mainnet. `officialOnlyPolicy()` is also the default when `trust` is omitted.
 
-`createOfficialRegistry()` uses the vendored commit SHA. No policy yet:
+<!-- quickstart:start -->
+```ts
+import {
+  VENDORED_REGISTRY_COMMIT,
+  createOfficialRegistry,
+  decodeTransaction,
+  officialOnlyPolicy,
+} from '@erc7730/sdk';
 
-```typescript
-import { createOfficialRegistry, decodeTransaction } from '@erc7730/sdk';
-
-const registry = createOfficialRegistry();
+const registry = createOfficialRegistry({ pin: VENDORED_REGISTRY_COMMIT });
 
 const result = await decodeTransaction(
   {
@@ -41,46 +42,22 @@ const result = await decodeTransaction(
     value: 10n ** 18n,
     chainId: 1,
   },
-  { registry }
+  { registry, trust: officialOnlyPolicy() }
 );
 
 console.log(result.interpolatedIntent ?? result.intent);
 console.log(result.fields);
-```
-
-Illustrative summary: Wrap · 1 ETH · official-registry · high · accepted: true
-
-### 2. Production (explicit pin + trust)
-
-Same call with a frozen SHA and `officialOnlyPolicy()`. That policy rejects Sourcify / `generateDescriptor` / inferred / basic as high confidence:
-
-```typescript
-import {
-  createOfficialRegistry,
-  decodeTransaction,
-  officialOnlyPolicy,
-  VENDORED_REGISTRY_COMMIT,
-} from '@erc7730/sdk';
-
-const registry = createOfficialRegistry({ pin: VENDORED_REGISTRY_COMMIT });
-
-const tx = {
-  to: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-  data: '0xd0e30db0',
-  value: 10n ** 18n,
-  chainId: 1,
-} as const;
-
-const result = await decodeTransaction(tx, {
-  registry,
-  trust: officialOnlyPolicy(),
-});
-
-console.log(result.interpolatedIntent ?? result.intent);
 console.log(result.source, result.confidence, result.trust.accepted);
 ```
+<!-- quickstart:end -->
 
-Clear signing is not ABI pretty-printing. Prefetch, `extend()`, `ExternalDataProvider` (token / ENS / NFT — the SDK does no RPC), batch, UserOp, and attestations: [`docs/GUIDE.md`](../../docs/GUIDE.md) or the [site guide](https://miltontulli.github.io/ERC-7730/guide/). Trust table: [site /trust](https://miltontulli.github.io/ERC-7730/trust/). Generated API: [site /sdk/api](https://miltontulli.github.io/ERC-7730/sdk/api/).
+Expected output: `Wrap`, an Amount field of `1 ETH`, then `official-registry high true`.
+
+## Production
+
+Name the registry `pin` at the call site. With no network, pass `indexes` and `cache`. ERC-20, ERC-721, and WETH builtins fill in when no registry descriptor matches. `officialOnlyPolicy()` rejects that source, so confidence stays `low`.
+
+What this toolkit is not: [not this](https://miltontulli.github.io/ERC-7730/not-this/). Upgrading notes: [`docs/GUIDE.md`](../../docs/GUIDE.md).
 
 ## Schema
 

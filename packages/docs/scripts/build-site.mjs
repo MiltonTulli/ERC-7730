@@ -24,6 +24,7 @@ if (major < 22) {
 
 run('node', ['scripts/check-stale-phrases.mjs']);
 run('node', ['scripts/include-canonical.mjs']);
+run('node', ['scripts/check-quickstart.mjs']);
 run('node', ['scripts/generate-cli-ref.mjs']);
 run('pnpm', ['exec', 'astro', 'build']);
 run('node', ['scripts/mount-demo.mjs']);

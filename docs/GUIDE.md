@@ -1,6 +1,6 @@
 # Wallet integration guide
 
-How to wire `@erc7730/sdk` into a wallet as a clear-signing drop-in. Structure matches the Sourcify TS guide: smallest call first, then the production path, then the rest.
+How to wire `@erc7730/sdk` into a wallet as a clear-signing drop-in. Start with the quick start, then the production notes, then the rest.
 
 ## 1. Install
 
@@ -8,18 +8,24 @@ How to wire `@erc7730/sdk` into a wallet as a clear-signing drop-in. Structure m
 npm install @erc7730/sdk
 ```
 
-`viem` is not installed with `@erc7730/sdk`. Import `attestedPolicy` from `@erc7730/sdk/attest` and add `viem` only when you use that entry. A viem `PublicClient` is still a valid `provider` if you already depend on viem.
+`viem` is not installed with `@erc7730/sdk`. Import `attestedPolicy` from `@erc7730/sdk/attest` and add `viem` only when you use that entry. A viem `PublicClient` is still a valid `provider` if you already depend on viem. Importing `@erc7730/sdk` does not register an ABI loader.
 
-The published package does not include a descriptor catalog. `@erc7730/sdk/lite` and `@erc7730/sdk/viem` are removed: import `decodeViemTypedData` from `@erc7730/sdk`, and use `decodeTransaction` instead of `decodeViemTransaction`. Importing `@erc7730/sdk` does not register an ABI loader.
+What this toolkit is not: [not this](https://miltontulli.github.io/ERC-7730/not-this/).
 
-## 2. Smallest call (intent + fields)
+## 2. Quick start
 
-`createOfficialRegistry()` with no pin uses `VENDORED_REGISTRY_COMMIT` (a commit SHA shipped with the SDK). Paste this, print an intent, then harden:
+`createOfficialRegistry({ pin: VENDORED_REGISTRY_COMMIT })` freezes the registry SHA shipped with the SDK. `officialOnlyPolicy()` is also what you get when `trust` is omitted. The snippet is [`docs/snippets/quickstart.ts`](./snippets/quickstart.ts).
 
+<!-- quickstart:start -->
 ```ts
-import { createOfficialRegistry, decodeTransaction } from '@erc7730/sdk';
+import {
+  VENDORED_REGISTRY_COMMIT,
+  createOfficialRegistry,
+  decodeTransaction,
+  officialOnlyPolicy,
+} from '@erc7730/sdk';
 
-const registry = createOfficialRegistry();
+const registry = createOfficialRegistry({ pin: VENDORED_REGISTRY_COMMIT });
 
 const result = await decodeTransaction(
   {
@@ -28,46 +34,28 @@ const result = await decodeTransaction(
     value: 10n ** 18n,
     chainId: 1,
   },
-  { registry }
+  { registry, trust: officialOnlyPolicy() }
 );
 
 console.log(result.interpolatedIntent ?? result.intent);
 console.log(result.fields);
-```
-
-Illustrative summary: Wrap · 1 ETH · official-registry · high · accepted: true
-
-## 3. Production (explicit pin + trust)
-
-Same call with a frozen SHA and `officialOnlyPolicy()`. That policy rejects Sourcify / `generateDescriptor` / inferred / basic as high confidence. Clear signing is not ABI pretty-printing.
-
-```ts
-import {
-  createOfficialRegistry,
-  decodeTransaction,
-  officialOnlyPolicy,
-  VENDORED_REGISTRY_COMMIT,
-} from '@erc7730/sdk';
-
-const registry = createOfficialRegistry({ pin: VENDORED_REGISTRY_COMMIT });
-
-const tx = {
-  to: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-  data: '0xd0e30db0',
-  value: 10n ** 18n,
-  chainId: 1,
-} as const;
-
-const result = await decodeTransaction(tx, {
-  registry,
-  trust: officialOnlyPolicy(),
-});
-
-console.log(result.interpolatedIntent ?? result.intent);
 console.log(result.source, result.confidence, result.trust.accepted);
 ```
+<!-- quickstart:end -->
 
-Full source × policy × confidence table: [`trust-table.md`](./trust-table.md) (also [/trust](https://miltontulli.github.io/ERC-7730/trust/) on the docs site). Or require ERC-8176 attestations — see [Attestations](#8-attestations) below.
+Expected output for this WETH `deposit()`: `Wrap`, an Amount field of `1 ETH`, then `official-registry high true`.
+
+## 3. Production
+
+The snippet above is the production call.
+
+- Pass an explicit `pin`. The omitted pin is the vendored SHA; name it at the call site.
+- `officialOnlyPolicy()` accepts `official-registry` and `attested` only. Sourcify, generated drafts, inferred selectors, basic decoding, and builtins stay `confidence: "low"`.
+- With no network, pass `indexes` and `cache`. See [Prefetch](#4-prefetch-the-official-indexes).
+- ERC-20, ERC-721, and WETH builtins run when the registry has no match (`builtins` defaults to `true`). Official-only rejects that source.
+- ERC-8176: import `attestedPolicy` from `@erc7730/sdk/attest`. See [Attestations](#8-attestations).
+
+Full source × policy × confidence table: [`trust-table.md`](./trust-table.md) (also [/trust](https://miltontulli.github.io/ERC-7730/trust/) on the docs site).
 
 ## 4. Prefetch the official indexes
 
@@ -210,6 +198,8 @@ const trustedTokens = {
 
 A registry descriptor for the same address always wins over the template.
 
+Import `attestedPolicy` from `@erc7730/sdk/attest`. The other policies come from `@erc7730/sdk`.
+
 ### Policy recipes
 
 | Recipe | Code |
@@ -225,7 +215,7 @@ A registry descriptor for the same address always wins over the template.
 ## 8. Attestations
 
 ```ts
-import { attestedPolicy } from '@erc7730/sdk';
+import { attestedPolicy } from '@erc7730/sdk/attest';
 
 const trustAttested = attestedPolicy({
   attesters: ['0x3846c3A30E62075Fa916216b35EF04B8F53931f6'],
@@ -250,7 +240,7 @@ Load attestation JSON with `createOfficialRegistry({ pin, attachAttestations: tr
 
 ## 10. Sourcify ABI fallback
 
-Importing `@erc7730/sdk`, `@erc7730/sdk/lite`, or `@erc7730/sdk/viem` does not contact Sourcify and does not install a default ABI loader. `fetchFromSourcify` stays exported for apps that want the client.
+Importing `@erc7730/sdk` does not contact Sourcify and does not install a default ABI loader. `fetchFromSourcify` stays exported for apps that want the client.
 
 Opt in per call. `useSourcifyFallback: true` does nothing until that call passes a loader. There is no process-wide loader.
 
@@ -271,7 +261,19 @@ await decodeTransaction(tx, {
 });
 ```
 
-Result `source` is `"sourcify"` and confidence is never high. That path verifies an ABI; it is not clear-signing metadata. `@erc7730/sdk/lite` does not import the Sourcify client. That entry is not the descriptor lookup.
+Result `source` is `"sourcify"` and confidence is never high. That path verifies an ABI; it is not clear-signing metadata.
+
+## 11. Migrating to 0.10
+
+- Omitted `trust` is `officialOnlyPolicy()`. The `unspecified` policy id is gone.
+- Public field and warning types are `DecodedField`, `SecurityWarning`, and `FieldFormat` from `@erc7730/sdk`. The old `ERC7730*` aliases are not exported from the package root.
+- `@erc7730/sdk/lite` and `@erc7730/sdk/viem` are removed. `decodeViemTransaction` is removed; call `decodeTransaction`. `decodeViemTypedData` is exported from `@erc7730/sdk`.
+- `attestedPolicy` is imported from `@erc7730/sdk/attest`. That entry can depend on `viem`. The root entry does not.
+- ERC-20, ERC-721, and WETH builtins run when no registry descriptor matches (`DecodeOptions.builtins`, default `true`). `officialOnlyPolicy()` rejects them, so confidence stays `low`.
+- `viem` is not a dependency of the root. Keccak is `@noble/hashes`. The ABI codec is `ox`.
+- Published `@erc7730/sdk` and `@erc7730/cli` require Node.js 20 or newer. Building this repository still needs Node.js 22.18 or newer.
+- Malformed input throws `InvalidInputError` (`INVALID_ADDRESS`, `INVALID_HEX`, `INVALID_CHAIN_ID`, `INVALID_CALLDATA`, `INVALID_TYPED_DATA`).
+- There is no process-global signature table or Sourcify loader. Pass `signatures` and `loadVerifiedAbi` on the call.
 
 ## See also
 
