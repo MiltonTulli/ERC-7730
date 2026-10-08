@@ -1,3 +1,4 @@
+import type { PathContext } from '../path/types';
 import type { TransactionInput, TypedDataInput } from '../types';
 import type { Hex, ResolvedDescriptor } from '../types/descriptor';
 import {
@@ -18,7 +19,6 @@ import {
 import { matchContext } from './context';
 import { type FormatOptions, flattenFields, formatDisplayField } from './format';
 import { matchEip712Format } from './match';
-import type { PathContext } from './path';
 import { encodeType, hashEncodeType, normalizeTypedDataMessage } from './typedData';
 import type {
   Address,

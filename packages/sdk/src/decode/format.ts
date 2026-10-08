@@ -5,12 +5,12 @@ import {
   getTokenInfo,
   isInfiniteApproval,
 } from '../formats/tokenAmount';
+import { tryResolvePath } from '../path/resolve';
+import type { PathContext } from '../path/types';
 import { isPlainObject } from '../resolve/util';
 import type { Provider } from '../types';
 import type { ResolvedDescriptor } from '../types/descriptor';
 import type { DisplayField, DisplayFieldItem, ERC7730V2Metadata } from '../types/v2';
-import type { PathContext } from './path';
-import { resolvePath } from './path';
 import type {
   DecodedField,
   DecodedOperation,
@@ -200,7 +200,7 @@ function resolveParamPath(raw: unknown, ctx: PathContext): unknown {
     raw.includes('.') ||
     raw.includes('[')
   ) {
-    const resolved = resolvePath(raw, ctx);
+    const resolved = tryResolvePath(raw, ctx);
     return resolved === undefined ? raw : resolved;
   }
   return raw;
@@ -295,11 +295,11 @@ async function resolveTokenInfo(
 ): Promise<{ symbol: string; decimals: number } | null> {
   let tokenRaw: unknown;
   if (typeof params?.tokenPath === 'string') {
-    tokenRaw = resolvePath(params.tokenPath, ctx);
+    tokenRaw = tryResolvePath(params.tokenPath, ctx);
   } else if (params?.token !== undefined) {
     tokenRaw = resolveParamPath(params.token, ctx);
   } else {
-    tokenRaw = resolvePath('@.to', ctx);
+    tokenRaw = tryResolvePath('@.to', ctx);
   }
 
   const tokenAddress = typeof tokenRaw === 'string' ? tokenRaw : undefined;
@@ -314,7 +314,7 @@ async function resolveTokenInfo(
 
   const chainRaw =
     params?.chainIdPath !== undefined
-      ? resolvePath(String(params.chainIdPath), ctx)
+      ? tryResolvePath(String(params.chainIdPath), ctx)
       : resolveParamPath(params?.chainId, ctx);
   const chainId = toBigInt(chainRaw);
   const lookupChain = chainId !== undefined ? Number(chainId) : tx.chainId;
@@ -374,7 +374,7 @@ async function formatNftName(
   const id = formatRaw(rawValue);
   let collection: unknown;
   if (typeof params?.collectionPath === 'string') {
-    collection = resolvePath(params.collectionPath, ctx);
+    collection = tryResolvePath(params.collectionPath, ctx);
   } else if (params?.collection !== undefined) {
     collection = resolveParamPath(params.collection, ctx);
   }
@@ -430,7 +430,7 @@ async function formatCalldataField(
 
   let callee: unknown;
   if (typeof params?.calleePath === 'string') {
-    callee = resolvePath(params.calleePath, ctx);
+    callee = tryResolvePath(params.calleePath, ctx);
   } else if (params?.callee !== undefined) {
     callee = resolveParamPath(params.callee, ctx);
   }
@@ -441,7 +441,7 @@ async function formatCalldataField(
   let data = hex;
   let selector: unknown;
   if (typeof params?.selectorPath === 'string') {
-    selector = resolvePath(params.selectorPath, ctx);
+    selector = tryResolvePath(params.selectorPath, ctx);
   } else if (params?.selector !== undefined) {
     selector = resolveParamPath(params.selector, ctx);
   }
@@ -455,7 +455,7 @@ async function formatCalldataField(
 
   let valueWei: bigint | undefined;
   if (typeof params?.amountPath === 'string') {
-    valueWei = toBigInt(resolvePath(params.amountPath, ctx));
+    valueWei = toBigInt(tryResolvePath(params.amountPath, ctx));
   } else if (params?.amount !== undefined) {
     valueWei = toBigInt(resolveParamPath(params.amount, ctx));
   }
@@ -494,7 +494,7 @@ export async function formatDisplayField(
     fieldDef.value !== undefined
       ? fieldDef.value
       : fieldDef.path
-        ? resolvePath(fieldDef.path, ctx)
+        ? tryResolvePath(fieldDef.path, ctx)
         : undefined;
 
   if (!fieldVisible(fieldDef, rawValue)) {
@@ -554,7 +554,7 @@ export async function formatDisplayField(
       break;
     case 'enum': {
       const ref = typeof params?.$ref === 'string' ? params.$ref : undefined;
-      value = formatEnum(rawValue, ref ? resolvePath(ref, ctx) : undefined);
+      value = formatEnum(rawValue, ref ? tryResolvePath(ref, ctx) : undefined);
       break;
     }
     case 'nftName':

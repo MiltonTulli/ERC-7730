@@ -222,3 +222,18 @@ export function resolvePath(path: string, ctx: PathContext): unknown {
       throw new PathResolveError('Unknown path root', path, 'invalid');
   }
 }
+
+/**
+ * Decoder-facing lookup. A missing field is `undefined`.
+ * Invalid syntax and missing structured data still throw.
+ */
+export function tryResolvePath(path: string, ctx: PathContext): unknown {
+  try {
+    return resolvePath(path, ctx);
+  } catch (error) {
+    if (error instanceof PathResolveError && error.code === 'not_found') {
+      return undefined;
+    }
+    throw error;
+  }
+}

@@ -2,6 +2,7 @@ import { decodeCalldata, extractSelector } from '../core/decoder';
 import { getSignatureBySelector } from '../core/signatures';
 import { generateDescriptor } from '../generate/generate';
 import type { ABI } from '../generate/generate';
+import type { PathContext } from '../path/types';
 import { ERC20_DESCRIPTOR } from '../registry/erc20';
 import { ERC721_DESCRIPTOR } from '../registry/erc721';
 import { createMemoryIncludeLoader, resolveDescriptor } from '../resolve';
@@ -28,7 +29,6 @@ import { matchContext } from './context';
 import { type FormatOptions, flattenFields, formatDisplayField } from './format';
 import { expandNestedCalls } from './innerCalls';
 import { matchFormat } from './match';
-import type { PathContext } from './path';
 import type {
   DecodeOptions,
   DecodeSource,
