@@ -1,4 +1,3 @@
-export * from './erc7730';
 export * from './descriptor';
 export * from './v2';
 

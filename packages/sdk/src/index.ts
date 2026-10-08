@@ -175,12 +175,15 @@ export type {
   Confidence,
   ContextMatch,
   ContextMatchVia,
+  DecodedField,
   DecodedOperation,
   DecodeOptions,
   DecodeRegistry,
   DecodeSource,
   ExternalDataProvider,
+  FieldFormat,
   MatchContextOptions,
+  SecurityWarning,
   SecurityWarningType,
   TokenInfo,
   TrustedTokenStandard,
@@ -207,30 +210,14 @@ export type { DecodeOptions as ClearSignerConfig } from './decode';
 
 // Types
 export type {
-  // Config
   RegistryConfig,
   LogBlockTag,
   Provider,
   TransactionInput,
   TypedDataInput,
   ChainName,
-  // ERC-7730 types (InputDescriptor is the schema input model; aliases below are deprecated)
-  ERC7730Descriptor,
-  ERC7730Context,
-  ERC7730Metadata,
-  ERC7730Display,
-  ContractContext,
-  ContractDeployment,
-  FunctionFormat,
-  FieldDefinition,
-  FieldFormat,
-  ERC7730V2Descriptor,
   ERC7730V2Context,
   ERC7730V2Metadata,
   ERC7730V2Display,
   ERC7730V2FieldFormat,
-  // Result types
-  DecodedTransaction,
-  DecodedField,
-  SecurityWarning,
 } from './types';

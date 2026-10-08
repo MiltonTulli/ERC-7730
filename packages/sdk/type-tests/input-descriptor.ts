@@ -3,12 +3,7 @@
  * Run via `pnpm --filter @erc7730/sdk typecheck:consumer` after `pnpm --filter @erc7730/sdk build`.
  */
 
-import type {
-  ERC7730Descriptor,
-  ERC7730V2Descriptor,
-  InputDescriptor,
-  ValidationResult,
-} from '@erc7730/sdk';
+import type { InputDescriptor, ValidationResult } from '@erc7730/sdk';
 import { validateDescriptor } from '@erc7730/sdk';
 
 const sample: InputDescriptor = {
@@ -44,9 +39,3 @@ if (result.ok) {
   const _ok: InputDescriptor = result.descriptor;
   void _ok;
 }
-
-// Deprecated aliases stay assignable for one minor.
-const _v2: ERC7730V2Descriptor = sample;
-const _legacy: ERC7730Descriptor = sample;
-void _v2;
-void _legacy;

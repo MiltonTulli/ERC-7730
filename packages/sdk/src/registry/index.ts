@@ -8,9 +8,9 @@
 import { computeSelector, registerSignature } from '../core/signatures';
 import { type ValidationResult, validateDescriptor } from '../schema';
 import type { InputDescriptor } from '../types/descriptor';
-import type { FunctionFormat } from '../types/erc7730';
 import { ERC20_DESCRIPTOR } from './erc20';
 import { ERC721_DESCRIPTOR } from './erc721';
+import type { FunctionFormat } from './signature';
 import { WETH_DESCRIPTOR } from './weth';
 
 function descriptorMatchesAddress(
