@@ -81,7 +81,7 @@ describe('ClearSigner.decode (deprecated alias)', () => {
 
     expect(result.intent).toBe('Send tokens');
     expect(result.confidence).toBe('low');
-    expect(result.source).toBe('inferred');
+    expect(result.source).toBe('builtin');
     expect(result.trust).toMatchObject({ accepted: false, policy: 'official-only' });
     expect(result.fields.length).toBeGreaterThan(0);
   });

@@ -326,7 +326,7 @@ describe('decodeTransaction context matchers', () => {
       { registry: registryFrom(resolved), provider: null, useSourcifyFallback: false }
     );
 
-    expect(result.source).toBe('inferred');
+    expect(result.source).toBe('builtin');
     expect(result.confidence).toBe('low');
     expect(result.intent).toBe('Send tokens');
     expect(result.metadata.contractName).toBeUndefined();

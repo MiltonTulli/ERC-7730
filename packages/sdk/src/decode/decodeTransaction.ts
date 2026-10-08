@@ -1,10 +1,11 @@
 import { decodeCalldata, extractSelector } from '../core/decoder';
-import { getSignatureBySelector } from '../core/signatures';
+import { computeSelector, getSignatureBySelector } from '../core/signatures';
 import { generateDescriptor } from '../generate/generate';
 import type { ABI } from '../generate/generate';
 import type { PathContext } from '../path/types';
 import { ERC20_DESCRIPTOR } from '../registry/erc20';
 import { ERC721_DESCRIPTOR } from '../registry/erc721';
+import { WETH_DESCRIPTOR } from '../registry/weth';
 import { createMemoryIncludeLoader, resolveDescriptor } from '../resolve';
 import type { TransactionInput } from '../types';
 import type { Hex, InputDescriptor, ResolvedDescriptor } from '../types/descriptor';
@@ -351,6 +352,57 @@ async function presentDescriptorResult(
   };
 }
 
+const builtinIncludeLoader = createMemoryIncludeLoader({});
+const builtinResolved = {
+  erc20: resolveDescriptor(ERC20_DESCRIPTOR, builtinIncludeLoader),
+  erc721: resolveDescriptor(ERC721_DESCRIPTOR, builtinIncludeLoader),
+  weth: resolveDescriptor(WETH_DESCRIPTOR, builtinIncludeLoader),
+};
+
+const ERC721_ONLY_SELECTORS = new Set([
+  computeSelector('safeTransferFrom(address,address,uint256)'),
+  computeSelector('safeTransferFrom(address,address,uint256,bytes)'),
+  computeSelector('setApprovalForAll(address,bool)'),
+]);
+
+function isWethDeployment(chainId: number, address: string): boolean {
+  const context = WETH_DESCRIPTOR.context;
+  if (!context || !('contract' in context)) {
+    return false;
+  }
+  const deployments = context.contract.deployments ?? [];
+  const want = address.toLowerCase();
+  return deployments.some(
+    (item) => item.chainId === chainId && item.address?.toLowerCase() === want
+  );
+}
+
+async function tryBuiltin(
+  tx: TransactionInput,
+  selector: Hex | undefined,
+  options: DecodeOptions | undefined
+): Promise<DecodedOperation | null> {
+  if (options?.builtins === false || !selector || !tx.to) {
+    return null;
+  }
+  if (isWethDeployment(tx.chainId, tx.to)) {
+    const rendered = await renderFromDescriptor(
+      tx,
+      await builtinResolved.weth,
+      'builtin',
+      selector,
+      options
+    );
+    if (rendered) {
+      return rendered;
+    }
+  }
+  const resolved = ERC721_ONLY_SELECTORS.has(selector.toLowerCase())
+    ? await builtinResolved.erc721
+    : await builtinResolved.erc20;
+  return renderFromDescriptor(tx, resolved, 'builtin', selector, options);
+}
+
 async function tryTrustedToken(
   tx: TransactionInput,
   selector: Hex | undefined,
@@ -364,10 +416,7 @@ async function tryTrustedToken(
     return null;
   }
   const template = standard === 'erc721' ? ERC721_DESCRIPTOR : ERC20_DESCRIPTOR;
-  const resolved = await resolveDescriptor(
-    template as InputDescriptor,
-    createMemoryIncludeLoader({})
-  );
+  const resolved = await resolveDescriptor(template, createMemoryIncludeLoader({}));
   const rendered = await renderFromDescriptor(tx, resolved, 'trusted-token', selector, options);
   return rendered;
 }
@@ -416,6 +465,10 @@ async function decodeTransactionCore(
     const trusted = await tryTrustedToken(tx, selector, options);
     if (trusted) {
       return finalizeDecodedWarnings(trusted, options);
+    }
+    const builtin = await tryBuiltin(tx, selector, options);
+    if (builtin) {
+      return finalizeDecodedWarnings(builtin, options);
     }
   }
 

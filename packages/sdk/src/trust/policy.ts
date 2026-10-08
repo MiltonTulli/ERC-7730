@@ -13,6 +13,7 @@ const OFFICIAL_OR_LOCAL_SOURCES: ReadonlySet<DecodeSource> = new Set([
   'official-registry',
   'attested',
   'local-override',
+  'builtin',
 ]);
 
 function reportFor(
@@ -33,7 +34,7 @@ function reportFor(
 
 /**
  * Accept only a pinned official-registry (or attested) descriptor.
- * Sourcify / generated / inferred / basic / local-override are rejected.
+ * Builtins, Sourcify, generated, inferred, basic, and local-override are rejected.
  */
 export function officialOnlyPolicy(): TrustPolicy {
   return {
@@ -45,8 +46,9 @@ export function officialOnlyPolicy(): TrustPolicy {
 }
 
 /**
- * Accept a pinned official-registry descriptor or an app `extend()` override.
- * Sourcify / generated / inferred / basic are still rejected.
+ * Accept a pinned official-registry descriptor, an app `extend()` override,
+ * or an ERC-20 / ERC-721 / WETH builtin. Sourcify, generated, inferred, and
+ * basic stay rejected. Builtins are never `confidence: "high"`.
  */
 export function officialOrLocalPolicy(): TrustPolicy {
   return {

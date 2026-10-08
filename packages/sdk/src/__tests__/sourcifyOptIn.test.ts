@@ -11,21 +11,6 @@ const TO = '0x1234567890123456789012345678901234567890' as const;
 const TRANSFER =
   '0xa9059cbb000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa960450000000000000000000000000000000000000000000000000000000000000001' as const;
 
-const transferAbi = {
-  match: 'exact_match',
-  abi: [
-    {
-      type: 'function',
-      name: 'transfer',
-      inputs: [
-        { name: 'to', type: 'address' },
-        { name: 'value', type: 'uint256' },
-      ],
-      stateMutability: 'nonpayable',
-    },
-  ],
-};
-
 function readSrc(name: string): string {
   return readFileSync(join(srcRoot, name), 'utf8');
 }
@@ -76,10 +61,30 @@ describe('Sourcify ABI loader opt-in', () => {
   it('fetches when the call passes sourcifyVerifiedAbiLoader', async () => {
     vi.stubGlobal(
       'fetch',
-      vi.fn(async () => new Response(JSON.stringify(transferAbi), { status: 200 }))
+      vi.fn(
+        async () =>
+          new Response(
+            JSON.stringify({
+              match: 'exact_match',
+              abi: [
+                {
+                  type: 'function',
+                  name: 'mint',
+                  inputs: [{ name: 'amount', type: 'uint256' }],
+                  stateMutability: 'nonpayable',
+                },
+              ],
+            }),
+            { status: 200 }
+          )
+      )
     );
     const result = await decodeTransaction(
-      { to: TO, data: TRANSFER, chainId: 1 },
+      {
+        to: TO,
+        data: '0xa0712d680000000000000000000000000000000000000000000000000000000000000001',
+        chainId: 1,
+      },
       {
         provider: null,
         useSourcifyFallback: true,

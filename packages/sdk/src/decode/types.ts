@@ -11,6 +11,7 @@ export type DecodeSource =
   | 'attested'
   | 'local-override'
   | 'trusted-token'
+  | 'builtin'
   | 'sourcify'
   | 'generated'
   | 'inferred'
@@ -206,6 +207,13 @@ export interface DecodeOptions {
    * Never `confidence: "high"` under `officialOnlyPolicy()`.
    */
   trustedTokens?: TrustedTokens;
+  /**
+   * ERC-20, ERC-721, and WETH builtins after registry and `trustedTokens`.
+   * WETH matches only its deployments. Default true.
+   * `officialOnlyPolicy()` rejects this source, so confidence stays `"low"`.
+   * `officialOrLocalPolicy()` accepts it at `"medium"`. Never `"high"`.
+   */
+  builtins?: boolean;
   /**
    * Wallet-supplied policy. When omitted, decode uses `officialOnlyPolicy()`:
    * official-registry and attested are accepted; local overrides, Sourcify,

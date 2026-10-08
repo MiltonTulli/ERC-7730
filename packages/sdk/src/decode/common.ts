@@ -97,6 +97,9 @@ export function confidenceFor(source: DecodeSource, accepted: boolean): Confiden
   if (source === 'trusted-token') {
     return 'low';
   }
+  if (source === 'builtin') {
+    return accepted ? 'medium' : 'low';
+  }
   if (source === 'official-registry' || source === 'attested') {
     return accepted ? 'high' : 'low';
   }

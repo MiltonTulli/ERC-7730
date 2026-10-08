@@ -4,7 +4,8 @@
 | --- | --- | --- | --- | --- |
 | Official registry (commit SHA pin) or attestation | Curated ERC-7730 | `accepted: true` | `accepted: true` | `"high"` |
 | Local `extend()` override | App-supplied | **`false`** | `true` | `"medium"` |
-| Trusted-token template | Bundled ERC-20 / ERC-721 | **`false`** | policy-dependent | **never `"high"` under official-only** |
+| Trusted-token template | Wallet `trustedTokens` map | **`false`** | policy-dependent | **never `"high"` under official-only** |
+| Builtin ERC-20 / ERC-721 / WETH | Selector fallback. WETH only on its deployments | **`false`** | `true` | **`"medium"`**. Never `"high"` |
 | Sourcify / `generateDescriptor` | ABI-generated fallback | **`false`** | **`false`** | **never `"high"`** |
 | Inferred / basic selector decode | Guess from 4-byte + types | **`false`** | **`false`** | **`"low"`** |
 

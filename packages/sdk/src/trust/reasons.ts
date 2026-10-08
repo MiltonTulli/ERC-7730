@@ -13,6 +13,8 @@ export const TRUST_REASON_CODES = [
   'source:local-override:rejected',
   'source:trusted-token:accepted',
   'source:trusted-token:rejected',
+  'source:builtin:accepted',
+  'source:builtin:rejected',
   'source:sourcify:accepted',
   'source:sourcify:rejected',
   'source:generated:accepted',

@@ -4,8 +4,8 @@
 
 import type { InputDescriptor } from '../types/descriptor';
 
-export const ERC721_DESCRIPTOR = {
-  $schema: 'https://eips.ethereum.org/assets/eip-7730/erc7730-v1.schema.json',
+export const ERC721_DESCRIPTOR: InputDescriptor = {
+  $schema: 'https://eips.ethereum.org/assets/eip-7730/erc7730-v2.schema.json',
   context: {
     $id: 'ERC721',
     contract: {
@@ -15,7 +15,6 @@ export const ERC721_DESCRIPTOR = {
   metadata: {
     owner: 'ERC-721 Standard',
     info: {
-      legalName: 'ERC-721 Non-Fungible Token Standard',
       url: 'https://eips.ethereum.org/EIPS/eip-721',
     },
   },
@@ -116,4 +115,4 @@ export const ERC721_DESCRIPTOR = {
       },
     },
   },
-} as InputDescriptor;
+};

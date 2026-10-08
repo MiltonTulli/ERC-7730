@@ -5,7 +5,7 @@
 import type { InputDescriptor } from '../types/descriptor';
 
 export const WETH_DESCRIPTOR: InputDescriptor = {
-  $schema: 'https://eips.ethereum.org/assets/eip-7730/erc7730-v1.schema.json',
+  $schema: 'https://eips.ethereum.org/assets/eip-7730/erc7730-v2.schema.json',
   context: {
     $id: 'WETH',
     contract: {

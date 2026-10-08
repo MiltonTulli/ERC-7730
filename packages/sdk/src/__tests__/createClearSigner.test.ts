@@ -117,16 +117,19 @@ describe('createClearSigner', () => {
 
   it('keeps signatures on each signer when two run in parallel', async () => {
     const unknown = '0x1111111111111111111111111111111111111111' as const;
-    const tx = { to: unknown, data: TRANSFER_100_USDC, chainId: 1 };
+    // (address,uint256,bool) is not an ERC-20/721/WETH builtin, so the per-signer map is what names the call.
+    const word = (hex: string) => hex.padStart(64, '0');
+    const data = `0xd124dc4f${word(VITALIK)}${word('5f5e100')}${word('1')}` as const;
+    const tx = { to: unknown, data, chainId: 1 };
     const send = createClearSigner({
       provider: null,
       useSourcifyFallback: false,
-      signatures: { '0xa9059cbb': 'send(address payee,uint256 coins)' },
+      signatures: { '0xd124dc4f': 'send(address payee,uint256 coins,bool flag)' },
     });
     const give = createClearSigner({
       provider: null,
       useSourcifyFallback: false,
-      signatures: { '0xA9059CBB': 'give(address dest,uint256 coins)' },
+      signatures: { '0xD124DC4F': 'give(address dest,uint256 coins,bool flag)' },
     });
 
     const [left, right] = await Promise.all([
@@ -138,8 +141,8 @@ describe('createClearSigner', () => {
     expect(right.functionName).toBe('give');
     expect(left.intent).toBe('Send');
     expect(right.intent).toBe('Give');
-    expect(left.fields.map((field) => field.label)).toEqual(['payee', 'coins']);
-    expect(right.fields.map((field) => field.label)).toEqual(['dest', 'coins']);
+    expect(left.fields.map((field) => field.label)).toEqual(['payee', 'coins', 'flag']);
+    expect(right.fields.map((field) => field.label)).toEqual(['dest', 'coins', 'flag']);
   });
 
   it('decode is an alias of decodeTransaction', async () => {
@@ -263,6 +266,6 @@ describe('createClearSigner', () => {
     ).toThrow(/include loader/i);
 
     const result = await signer.decodeTransaction(transferTx);
-    expect(result.source).toBe('inferred');
+    expect(result.source).toBe('builtin');
   });
 });
