@@ -86,19 +86,24 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
 
-      - name: Setup Node
+      - name: Setup Node 22
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node }}
+          node-version: 22
           cache: pnpm
 
       - name: Install dependencies
-        # The monorepo engines field is >=22.18. This job still builds the
-        # tarball on Node 20 so a clean npm install can be checked there.
-        run: pnpm install --frozen-lockfile --config.engine-strict=false
+        run: pnpm install --frozen-lockfile
 
       - name: Build SDK
+        # tsdown imports unrun, which fails on Node 20. The repo engines
+        # field is >=22.18. The matrix below only installs the packed tarball.
         run: pnpm --filter @erc7730/sdk build
+
+      - name: Setup consumer Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
 
       - name: Consumer install
         run: node scripts/sdk-consumer-install.mjs

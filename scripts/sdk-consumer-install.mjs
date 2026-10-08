@@ -13,7 +13,7 @@ function fail(message) {
 }
 
 function pack(dir) {
-  const packedOut = execFileSync('pnpm', ['pack', '--pack-destination', stage], {
+  const packedOut = execFileSync('npm', ['pack', '--pack-destination', stage], {
     cwd: dir,
     encoding: 'utf8',
   });
