@@ -316,7 +316,7 @@ async function presentDescriptorResult(
     upgraded.trust
   );
   const warnings = [...fallback.warnings];
-  if (!warnings.some((warning) => warning.type === 'NO_TRUSTED_ATTESTATION')) {
+  if (!warnings.some((warning) => warning.type === 'no_trusted_attestation')) {
     warnings.push(noTrustedAttestationWarning());
   }
   return {

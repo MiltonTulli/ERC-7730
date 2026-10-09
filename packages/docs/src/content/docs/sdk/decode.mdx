@@ -23,7 +23,7 @@ Signatures and types: see the [generated API](/ERC-7730/sdk/api/).
 
 - Prefer `interpolatedIntent` when present (spec option 1).
 - Otherwise show `intent` + `fields`.
-- Surface `warnings` (e.g. `infinite_approval`, `NO_TRUSTED_ATTESTATION`, `interpolation_failed`).
+- Surface `warnings` (e.g. `infinite_approval`, `no_trusted_attestation`, `interpolation_failed`).
 - Nested `format: "calldata"` fields expose `field.embedded`. Multicall3 / Safe CALL / UserOp expose `children: DecodedOperation[]` with per-child `source` and `trust`.
 - `locale` only formats numbers and dates. Descriptor intent strings are never translated.
 

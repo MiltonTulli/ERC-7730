@@ -111,7 +111,7 @@ export function confidenceFor(source: DecodeSource, accepted: boolean): Confiden
 
 export function attestationFailed(trust: TrustReport): boolean {
   return trust.reasons.some(
-    (reason) => reason === 'NO_TRUSTED_ATTESTATION' || reason === 'ATTESTATION_OPTIONS_INCOMPLETE'
+    (reason) => reason === 'no_trusted_attestation' || reason === 'attestation_options_incomplete'
   );
 }
 
@@ -133,7 +133,7 @@ export function withAttestedSource(operation: DecodedOperation): DecodedOperatio
 
 export function noTrustedAttestationWarning(): SecurityWarning {
   return {
-    type: 'NO_TRUSTED_ATTESTATION',
+    type: 'no_trusted_attestation',
     severity: 'high',
     message: 'No trusted ERC-8176 attestation for this descriptor',
   };
