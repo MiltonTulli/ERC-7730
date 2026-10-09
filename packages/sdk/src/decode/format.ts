@@ -232,10 +232,7 @@ function requiredFlag(path: string, requiredPaths: Set<string>): boolean | 'impl
   if (requiredPaths.size === 0) {
     return 'implicit';
   }
-  if (
-    requiredPaths.has(path) ||
-    [...requiredPaths].some((item) => item === path || path.endsWith(item))
-  ) {
+  if (requiredPaths.has(path) || [...requiredPaths].some((item) => path.endsWith(`.${item}`))) {
     return true;
   }
   return false;
