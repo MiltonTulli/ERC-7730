@@ -59,18 +59,19 @@ jobs:
         if: steps.detect.outputs.has_changesets == 'true'
         run: git config core.hooksPath /dev/null
 
-      # v2 requires @changesets/cli 3 and renamed these inputs. CLI stays on 2.x;
-      # publishing is the custom job below, not this action.
+      # Publishing stays in the job below. This step only opens the version PR.
+      # v2 ignores GITHUB_TOKEN from the environment; pass github-token instead.
       - name: Open or update Version PR
         if: steps.detect.outputs.has_changesets == 'true'
-        uses: changesets/action@v1
+        uses: changesets/action@v2
         with:
-          title: "chore: version packages"
-          commit: "chore: version packages"
-          version: pnpm version-packages
-          createGithubReleases: false
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          pr-title: "chore: version packages"
+          commit-message: "chore: version packages"
+          version-script: pnpm version-packages
+          create-github-releases: false
+          push-git-tags: false
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           HUSKY: "0"
 
   publish:
