@@ -3,6 +3,7 @@
  * This allows decoding without network calls for common functions
  */
 
+import { Erc7730Error } from '../errors';
 import { keccak256 } from '../keccak';
 
 export interface FunctionSignature {
@@ -248,7 +249,7 @@ export function parseSignature(signature: string): {
 } {
   const match = signature.match(/^(\w+)\((.*)?\)$/);
   if (!match) {
-    throw new Error(`Invalid function signature: ${signature}`);
+    throw new Erc7730Error('INVALID_SIGNATURE', `Invalid function signature: ${signature}`);
   }
 
   const name = match[1];

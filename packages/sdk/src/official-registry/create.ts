@@ -1,12 +1,13 @@
 import { matchContext, resolveImplementation } from '../decode/context';
 import { eip712FormatMatchesLookup } from '../decode/match';
 import type { RegistryCacheObserver } from '../decode/types';
+import { invalidDescriptors } from '../resolve/error';
 import { resolveDescriptor } from '../resolve/resolve';
 import { isPlainObject } from '../resolve/util';
 import { validateDescriptor } from '../schema/validate';
 import type { IncludeLoader, InputDescriptor, ResolvedDescriptor } from '../types/descriptor';
 import { cacheKey, createMemoryDescriptorCache } from './cache';
-import { OfficialRegistryError } from './error';
+import { OfficialRegistryError, registryHttpError } from './error';
 import {
   DEFAULT_OFFICIAL_REGISTRY_BASE_URL,
   OFFICIAL_REGISTRY_REPO,
@@ -33,7 +34,10 @@ const GITHUB_API = 'https://api.github.com';
 
 function asInputDescriptor(value: unknown, path: string): InputDescriptor {
   if (!isPlainObject(value)) {
-    throw new OfficialRegistryError(`Registry file is not a JSON object: ${path}`);
+    throw new OfficialRegistryError(
+      'INDEX_MALFORMED',
+      `Registry file is not a JSON object: ${path}`
+    );
   }
   return value as InputDescriptor;
 }
@@ -87,6 +91,7 @@ export function createOfficialRegistry(config: OfficialRegistryConfig = {}): Off
   const fetchImpl = options.fetch ?? globalThis.fetch;
   if (typeof fetchImpl !== 'function') {
     throw new OfficialRegistryError(
+      'REGISTRY_FETCH_FAILED',
       'createOfficialRegistry needs fetch (pass config.fetch in this runtime)'
     );
   }
@@ -153,14 +158,24 @@ export function createOfficialRegistry(config: OfficialRegistryConfig = {}): Off
         response = await fetchImpl(url);
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        throw new OfficialRegistryError(`Failed to fetch ${path}: ${message}`);
-      }
-      if (!response.ok) {
         throw new OfficialRegistryError(
-          `Failed to fetch ${path} (${response.status}) from pin ${pin}`
+          'REGISTRY_FETCH_FAILED',
+          `Failed to fetch ${path}: ${message}`,
+          { cause: error }
         );
       }
-      const json: unknown = await response.json();
+      if (!response.ok) {
+        throw registryHttpError(path, response.status, pin);
+      }
+      let json: unknown;
+      try {
+        json = await response.json();
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        throw new OfficialRegistryError('INDEX_MALFORMED', `Failed to parse ${path}: ${message}`, {
+          cause: error,
+        });
+      }
       await writeCache(key, json);
       observer?.fetch(path, performance.now() - started);
       return json;
@@ -214,6 +229,7 @@ export function createOfficialRegistry(config: OfficialRegistryConfig = {}): Off
       // attestations for a custom mirror is the caller's job.
       if (baseUrl !== DEFAULT_OFFICIAL_REGISTRY_BASE_URL) {
         throw new OfficialRegistryError(
+          'REGISTRY_FETCH_FAILED',
           'attachAttestations lists sigs through the GitHub contents API of the official repo. Pass descriptor.attestations when baseUrl is a custom gateway.'
         );
       }
@@ -225,20 +241,26 @@ export function createOfficialRegistry(config: OfficialRegistryConfig = {}): Off
         });
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        throw new OfficialRegistryError(`Failed to list ${sigsDir}: ${message}`);
+        throw new OfficialRegistryError(
+          'REGISTRY_FETCH_FAILED',
+          `Failed to list ${sigsDir}: ${message}`,
+          { cause: error }
+        );
       }
       if (response.status === 404) {
         listing = [];
       } else if (!response.ok) {
-        throw new OfficialRegistryError(
-          `Failed to list ${sigsDir} (${response.status}) from pin ${pin}`
-        );
+        throw registryHttpError(sigsDir, response.status, pin);
       } else {
         try {
           listing = await response.json();
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
-          throw new OfficialRegistryError(`Failed to parse ${sigsDir} listing: ${message}`);
+          throw new OfficialRegistryError(
+            'INDEX_MALFORMED',
+            `Failed to parse ${sigsDir} listing: ${message}`,
+            { cause: error }
+          );
         }
       }
       await writeCache(listKey, listing);
@@ -389,7 +411,10 @@ export function createOfficialRegistry(config: OfficialRegistryConfig = {}): Off
 
       const index = (await loadJson(CALLDATA_INDEX, key.cacheObserver)) as CalldataIndex;
       if (!isPlainObject(index)) {
-        throw new OfficialRegistryError(`${CALLDATA_INDEX} is not a JSON object`);
+        throw new OfficialRegistryError(
+          'INDEX_MALFORMED',
+          `${CALLDATA_INDEX} is not a JSON object`
+        );
       }
       const direct = await lookupIndexPath(index, key.chainId, key.address);
       if (direct) {
@@ -417,7 +442,7 @@ export function createOfficialRegistry(config: OfficialRegistryConfig = {}): Off
 
       const index = (await loadJson(EIP712_INDEX, key.cacheObserver)) as Eip712Index;
       if (!isPlainObject(index)) {
-        throw new OfficialRegistryError(`${EIP712_INDEX} is not a JSON object`);
+        throw new OfficialRegistryError('INDEX_MALFORMED', `${EIP712_INDEX} is not a JSON object`);
       }
       const direct = pickEip712Path(index[toCaip10(key.chainId, key.address)], key);
       if (direct) {
@@ -441,10 +466,7 @@ export function createOfficialRegistry(config: OfficialRegistryConfig = {}): Off
         const hasIncludes =
           typeof descriptor.includes === 'string' ? descriptor.includes.length > 0 : false;
         if (!validation.ok && !hasIncludes) {
-          const details = validation.errors
-            .map((error) => `${error.path}: ${error.message}`)
-            .join('; ');
-          throw new OfficialRegistryError(`Invalid descriptor at index ${i}: ${details}`);
+          throw invalidDescriptors(i, validation.errors);
         }
         overrides.push(descriptor);
       }

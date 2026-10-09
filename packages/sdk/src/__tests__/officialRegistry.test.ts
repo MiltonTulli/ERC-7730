@@ -12,6 +12,7 @@ import {
   isCommitSha,
   toCaip10,
 } from '../official-registry';
+import { DescriptorResolveError } from '../resolve';
 import type { Provider } from '../types';
 import type { InputDescriptor } from '../types/descriptor';
 
@@ -438,10 +439,26 @@ describe('extend', () => {
     expect(found?.source).toBe('local-override');
   });
 
-  it('throws on an invalid override', () => {
-    expect(() => registry().extend([{ metadata: { owner: 'Nope' } } as InputDescriptor])).toThrow(
-      OfficialRegistryError
-    );
+  it('throws DescriptorResolveError with every validation issue', () => {
+    try {
+      registry().extend([
+        {
+          $schema: 'https://eips.ethereum.org/assets/eip-7730/erc7730-v2.schema.json',
+          context: {
+            contract: {
+              deployments: [{ chainId: 'mainnet', address: 1 }],
+            },
+          },
+          metadata: { owner: 'Nope' },
+        } as InputDescriptor,
+      ]);
+      expect.fail('expected DescriptorResolveError');
+    } catch (error) {
+      expect(error).toBeInstanceOf(DescriptorResolveError);
+      const resolveError = error as DescriptorResolveError;
+      expect(resolveError.code).toBe('VALIDATION_FAILED');
+      expect(resolveError.issues.length).toBeGreaterThan(1);
+    }
   });
 });
 
@@ -488,9 +505,8 @@ describe('live official registry (pinned GitHub)', () => {
       expect(found).not.toBeNull();
       expect(found?.merged.metadata).toMatchObject({ owner: 'WETH' });
     } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      if (/Failed to fetch|fetch failed|ENOTFOUND|ECONNRESET/i.test(message)) {
-        console.warn('Skipping live registry test:', message);
+      if (error instanceof OfficialRegistryError && error.code === 'REGISTRY_FETCH_FAILED') {
+        console.warn('Skipping live registry test:', error.message);
         return;
       }
       throw error;

@@ -247,7 +247,13 @@ async function tryVerifiedAbi(
     const resolved = await resolveDescriptor(result.descriptor, createMemoryIncludeLoader({}));
     const operation = await renderFromDescriptor(tx, resolved, 'sourcify', selector, options);
     return { operation, selectorMismatch };
-  } catch {
+  } catch (error) {
+    options?.diagnosticLog?.push({
+      stage: 'fallback',
+      outcome: 'error',
+      code: 'VERIFIED_ABI_FAILED',
+      message: error instanceof Error ? error.message : String(error),
+    });
     return { operation: null, selectorMismatch: false };
   }
 }
@@ -510,6 +516,7 @@ async function decodeTransactionCore(
         provider: options.provider,
         fromBlock: options.fromBlock,
         toBlock: options.toBlock,
+        diagnosticLog: options.diagnosticLog,
       });
       if (!bound.matched) {
         pushDiagnostic(options, {

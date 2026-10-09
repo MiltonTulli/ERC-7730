@@ -6,6 +6,7 @@
  */
 
 import { computeSelector } from '../core/signatures';
+import { Erc7730Error } from '../errors';
 import { type ValidationResult, validateDescriptor } from '../schema';
 import type { InputDescriptor } from '../types/descriptor';
 import { ERC20_DESCRIPTOR } from './erc20';
@@ -166,7 +167,8 @@ export class Registry {
 
   constructor(options: { useExternalRegistry?: never } = {}) {
     if ('useExternalRegistry' in options) {
-      throw new Error(
+      throw new Erc7730Error(
+        'USE_EXTERNAL_REGISTRY_REMOVED',
         'useExternalRegistry was removed. Look up descriptors with createOfficialRegistry(), or pass indexes and cache for offline use.'
       );
     }

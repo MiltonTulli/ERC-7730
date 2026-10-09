@@ -289,8 +289,14 @@ async function lookupSpender(
     if (found && descriptorCoversAddress(found, chainId, spender)) {
       return found;
     }
-  } catch {
+  } catch (error) {
     // Spender lookup must not fail decode.
+    options?.diagnosticLog?.push({
+      stage: 'registry-lookup',
+      outcome: 'error',
+      code: 'SPENDER_LOOKUP_FAILED',
+      message: error instanceof Error ? error.message : String(error),
+    });
   }
   const findEip712 = registry.findEip712;
   if (typeof findEip712 !== 'function') {
@@ -301,7 +307,14 @@ async function lookupSpender(
     if (found && descriptorCoversAddress(found, chainId, spender)) {
       return found;
     }
-  } catch {
+  } catch (error) {
+    options?.diagnosticLog?.push({
+      stage: 'registry-lookup',
+      outcome: 'error',
+      code: 'SPENDER_LOOKUP_FAILED',
+      message: error instanceof Error ? error.message : String(error),
+      details: { kind: 'eip712' },
+    });
     return null;
   }
   return null;

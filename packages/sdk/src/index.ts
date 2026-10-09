@@ -120,8 +120,11 @@ export type {
   DescriptorCache,
   OfficialRegistry,
   OfficialRegistryConfig,
+  OfficialRegistryErrorCode,
   RegistryLookupKey,
 } from './official-registry';
+
+export type { DescriptorResolveErrorCode } from './resolve';
 
 export type { PathContext, PathEnvelope, PathResolveErrorCode } from './path';
 
@@ -139,6 +142,7 @@ export type {
   DecodedField,
   DecodedOperation,
   DecodeDiagnostic,
+  DiagnosticLog,
   DecodeOptions,
   EnumDetails,
   NftNameDetails,

@@ -6,6 +6,7 @@
  */
 
 import type { VerifiedAbiLoader } from '../decode/abiLoader';
+import { Erc7730Error } from '../errors';
 import { type ABI, asInputDescriptor, generateDescriptor } from '../generate/generate';
 
 const DEFAULT_SOURCIFY_BASE = 'https://sourcify.dev/server';
@@ -107,7 +108,7 @@ export async function fetchFromSourcify(
           match: null,
         };
       }
-      throw new Error(`Sourcify API error: ${response.statusText}`);
+      throw new Erc7730Error('SOURCIFY_FETCH_FAILED', `Sourcify API error: ${response.statusText}`);
     }
 
     const data: SourcifyContractDetails = await response.json();

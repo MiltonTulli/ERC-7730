@@ -1,4 +1,4 @@
-import { OfficialRegistryError } from './error';
+import { OfficialRegistryError, registryHttpError } from './error';
 import { DEFAULT_OFFICIAL_REGISTRY_BASE_URL, registryFileUrl } from './paths';
 import { assertRegistryPin } from './pin';
 import type { CalldataIndex, Eip712Index } from './types';
@@ -24,6 +24,7 @@ export async function fetchPrebuiltRegistryIndex(
 ): Promise<PrefetchedRegistryIndexes> {
   if (!options || typeof options.pin !== 'string') {
     throw new OfficialRegistryError(
+      'INVALID_PIN',
       'fetchPrebuiltRegistryIndex requires pin to be a 40-character git commit SHA'
     );
   }
@@ -32,6 +33,7 @@ export async function fetchPrebuiltRegistryIndex(
   const fetchImpl = options.fetch ?? globalThis.fetch;
   if (typeof fetchImpl !== 'function') {
     throw new OfficialRegistryError(
+      'REGISTRY_FETCH_FAILED',
       'fetchPrebuiltRegistryIndex needs fetch (pass options.fetch in this runtime)'
     );
   }
@@ -43,14 +45,25 @@ export async function fetchPrebuiltRegistryIndex(
       response = await fetchImpl(url);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      throw new OfficialRegistryError(`Failed to fetch ${path}: ${message}`);
-    }
-    if (!response.ok) {
       throw new OfficialRegistryError(
-        `Failed to fetch ${path} (${response.status}) from pin ${pin}`
+        'REGISTRY_FETCH_FAILED',
+        `Failed to fetch ${path}: ${message}`,
+        {
+          cause: error,
+        }
       );
     }
-    return response.json();
+    if (!response.ok) {
+      throw registryHttpError(path, response.status, pin);
+    }
+    try {
+      return await response.json();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new OfficialRegistryError('INDEX_MALFORMED', `Failed to parse ${path}: ${message}`, {
+        cause: error,
+      });
+    }
   }
 
   const [calldata, eip712] = await Promise.all([
@@ -59,10 +72,10 @@ export async function fetchPrebuiltRegistryIndex(
   ]);
 
   if (!calldata || typeof calldata !== 'object' || Array.isArray(calldata)) {
-    throw new OfficialRegistryError('index.calldata.json is not a JSON object');
+    throw new OfficialRegistryError('INDEX_MALFORMED', 'index.calldata.json is not a JSON object');
   }
   if (!eip712 || typeof eip712 !== 'object' || Array.isArray(eip712)) {
-    throw new OfficialRegistryError('index.eip712.json is not a JSON object');
+    throw new OfficialRegistryError('INDEX_MALFORMED', 'index.eip712.json is not a JSON object');
   }
 
   return {

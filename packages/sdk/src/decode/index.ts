@@ -20,6 +20,7 @@ export type {
   DecodedField,
   DecodedOperation,
   DecodeDiagnostic,
+  DiagnosticLog,
   DecodeOptions,
   DecodeRegistry,
   DecodeSource,

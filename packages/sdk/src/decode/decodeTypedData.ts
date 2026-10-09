@@ -397,6 +397,7 @@ async function decodeTypedDataCore(
         provider: options?.provider,
         fromBlock: options?.fromBlock,
         toBlock: options?.toBlock,
+        diagnosticLog: options?.diagnosticLog,
       });
       if (!bound.matched) {
         options?.diagnosticLog?.push({

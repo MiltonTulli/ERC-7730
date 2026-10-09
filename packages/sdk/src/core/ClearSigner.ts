@@ -18,6 +18,7 @@ import { eip712FormatMatchesLookup } from '../decode/match';
 import type { DecodeOptions, DecodeRegistry, DecodedOperation } from '../decode/types';
 import type { OfficialRegistry } from '../official-registry/types';
 import { createMemoryIncludeLoader, resolveDescriptor } from '../resolve';
+import { DescriptorResolveError, invalidDescriptors } from '../resolve/error';
 import { isPlainObject } from '../resolve/util';
 import { validateDescriptor } from '../schema';
 import type { Provider, TransactionInput, TypedDataInput } from '../types';
@@ -150,16 +151,15 @@ function createBoundRegistry(base?: DecodeRegistry | OfficialRegistry): BoundReg
         const hasIncludes =
           typeof descriptor.includes === 'string' ? descriptor.includes.length > 0 : false;
         if (hasIncludes) {
-          throw new Error(
-            `Descriptor at index ${i} uses includes; the local overlay has no include loader. Pass createOfficialRegistry({ pin }) or resolve includes first.`
+          throw new DescriptorResolveError(
+            'INCLUDE_NOT_FOUND',
+            `Descriptor at index ${i} uses includes; the local overlay has no include loader. Pass createOfficialRegistry({ pin }) or resolve includes first.`,
+            { path: '/includes' }
           );
         }
         const validation = validateDescriptor(descriptor);
         if (!validation.ok) {
-          const details = validation.errors
-            .map((error) => `${error.path}: ${error.message}`)
-            .join('; ');
-          throw new Error(`Invalid descriptor at index ${i}: ${details}`);
+          throw invalidDescriptors(i, validation.errors);
         }
         overrides.push(descriptor);
       }

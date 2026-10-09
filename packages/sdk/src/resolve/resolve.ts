@@ -118,11 +118,10 @@ export async function resolveDescriptor(
       : Array.isArray((input as { includes?: unknown }).includes);
 
   if (!validation.ok && !hasIncludes) {
-    const first = validation.errors[0];
-    throw new DescriptorResolveError(
-      first ? `${first.path}: ${first.message}` : 'Invalid descriptor',
-      first?.path
-    );
+    throw new DescriptorResolveError('VALIDATION_FAILED', 'Invalid descriptor', {
+      path: validation.errors[0]?.path,
+      issues: validation.errors,
+    });
   }
 
   const version = validation.ok ? validation.version : versionFromSchema(input);
@@ -131,7 +130,9 @@ export async function resolveDescriptor(
   const withRefs = inlineFieldRefs(mergedDoc);
   const merged = lowercaseBindingAddresses(withRefs);
   if (!isPlainObject(merged)) {
-    throw new DescriptorResolveError('Merged descriptor is not an object', '/');
+    throw new DescriptorResolveError('VALIDATION_FAILED', 'Merged descriptor is not an object', {
+      path: '/',
+    });
   }
 
   const descriptor = asInputDescriptor(merged);
@@ -148,7 +149,9 @@ export function createMemoryIncludeLoader(files: Record<string, unknown>): Inclu
   return {
     async load(ref) {
       if (!Object.hasOwn(files, ref)) {
-        throw new DescriptorResolveError(`Include not found: ${ref}`, '/includes');
+        throw new DescriptorResolveError('INCLUDE_NOT_FOUND', `Include not found: ${ref}`, {
+          path: '/includes',
+        });
       }
       return files[ref];
     },

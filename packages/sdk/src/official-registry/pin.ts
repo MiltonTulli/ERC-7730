@@ -12,7 +12,7 @@ const SAFE_REF_RE = /^[A-Za-z0-9._/-]+$/;
 export function assertSafeRef(ref: string): string {
   const segments = ref.split('/');
   if (!SAFE_REF_RE.test(ref) || ref.includes('..') || segments.some((part) => part.length === 0)) {
-    throw new OfficialRegistryError(`Unsafe registry ref: ${ref}`);
+    throw new OfficialRegistryError('INVALID_REF', `Unsafe registry ref: ${ref}`);
   }
   return ref;
 }
@@ -28,11 +28,13 @@ export function assertRegistryPin(pin: string): string {
   const trimmed = pin.trim();
   if (FLOATING_REFS.has(trimmed.toLowerCase())) {
     throw new OfficialRegistryError(
+      'INVALID_PIN',
       `createOfficialRegistry requires a commit SHA pin; refusing floating ref "${trimmed}" (use config.ref for a branch or tag)`
     );
   }
   if (!isCommitSha(trimmed)) {
     throw new OfficialRegistryError(
+      'INVALID_PIN',
       'createOfficialRegistry requires config.pin to be a 40-character git commit SHA'
     );
   }
@@ -51,10 +53,16 @@ export function resolveRegistryTreeRef(config: {
   ref?: unknown;
 }): string {
   if (config.pin !== undefined && typeof config.pin !== 'string') {
-    throw new OfficialRegistryError('createOfficialRegistry requires config.pin to be a string');
+    throw new OfficialRegistryError(
+      'INVALID_PIN',
+      'createOfficialRegistry requires config.pin to be a string'
+    );
   }
   if (config.ref !== undefined && typeof config.ref !== 'string') {
-    throw new OfficialRegistryError('createOfficialRegistry requires config.ref to be a string');
+    throw new OfficialRegistryError(
+      'INVALID_REF',
+      'createOfficialRegistry requires config.ref to be a string'
+    );
   }
 
   const hasPin = typeof config.pin === 'string';
@@ -62,6 +70,7 @@ export function resolveRegistryTreeRef(config: {
 
   if (hasPin && hasRef) {
     throw new OfficialRegistryError(
+      'INVALID_PIN',
       'createOfficialRegistry accepts either config.pin or config.ref, not both'
     );
   }
@@ -70,6 +79,7 @@ export function resolveRegistryTreeRef(config: {
     const trimmed = config.ref.trim();
     if (trimmed.length === 0) {
       throw new OfficialRegistryError(
+        'INVALID_REF',
         'createOfficialRegistry requires config.ref to be a non-empty branch or tag'
       );
     }

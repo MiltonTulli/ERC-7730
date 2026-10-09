@@ -5,6 +5,7 @@ import {
   matchContext,
   resolveImplementation,
 } from '../decode/context';
+import { createDiagnosticLog } from '../decode/session';
 import type { Address, Provider } from '../types';
 import type { InputDescriptor } from '../types/descriptor';
 
@@ -315,5 +316,39 @@ describe('matchContext eip712', () => {
       domain: { ...payload.domain, name: 'Fake Coin' },
     });
     expect(result.matched).toBe(false);
+  });
+});
+
+describe('context lookup diagnostics', () => {
+  it('records FACTORY_LOGS_FAILED when getLogs throws and still returns unmatched', async () => {
+    const log = createDiagnosticLog();
+    const provider: Provider = {
+      async getLogs() {
+        throw new Error('rpc down');
+      },
+    };
+    const result = await matchContext(
+      factoryDescriptor,
+      { to: CLONE, data: '0xd4d9bdcd', chainId: 1 },
+      { provider, diagnosticLog: log }
+    );
+    expect(result.matched).toBe(false);
+    expect(log.entries.some((entry) => entry.code === 'FACTORY_LOGS_FAILED')).toBe(true);
+  });
+
+  it('records IMPLEMENTATION_LOOKUP_FAILED without failing the lookup', async () => {
+    const log = createDiagnosticLog();
+    const provider: Provider = {
+      async getStorageAt() {
+        throw new Error('slot down');
+      },
+      async getCode() {
+        throw new Error('code down');
+      },
+    };
+    expect(await resolveImplementation(CLONE, provider, log)).toBeUndefined();
+    expect(
+      log.entries.filter((entry) => entry.code === 'IMPLEMENTATION_LOOKUP_FAILED')
+    ).toHaveLength(2);
   });
 });
