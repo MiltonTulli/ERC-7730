@@ -3,7 +3,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { decodeTypedData } from '../decode/decodeTypedData';
-import { encodeType, hashEncodeType } from '../decode/typedData';
+import { encodeType, hashEncodeType, normalizeTypedDataMessage } from '../decode/typedData';
 import type { DecodeRegistry } from '../decode/types';
 import { createOfficialRegistry } from '../official-registry';
 import { createMemoryIncludeLoader, resolveDescriptor } from '../resolve';
@@ -188,6 +188,31 @@ describe('encodeType', () => {
     expect(encodeType('PermitSingle', types)).toBe(
       'PermitSingle(PermitDetails details,address spender,uint256 sigDeadline)PermitDetails(address token,uint160 amount,uint48 expiration,uint48 nonce)'
     );
+  });
+
+  it('follows the element type of array fields', () => {
+    const types = {
+      Batch: [{ name: 'items', type: 'Item[][]' }],
+      Item: [{ name: 'value', type: 'uint256' }],
+    };
+    expect(encodeType('Batch', types)).toBe('Batch(Item[][] items)Item(uint256 value)');
+  });
+});
+
+describe('normalizeTypedDataMessage', () => {
+  it('coerces integers inside nested and fixed arrays', () => {
+    const types = {
+      Batch: [
+        { name: 'items', type: 'uint256[][]' },
+        { name: 'pair', type: 'uint256[2]' },
+      ],
+    };
+    expect(
+      normalizeTypedDataMessage({ items: [['1', 2]], pair: ['3', 4] }, types, 'Batch')
+    ).toEqual({
+      items: [[1n, 2n]],
+      pair: [3n, 4n],
+    });
   });
 });
 

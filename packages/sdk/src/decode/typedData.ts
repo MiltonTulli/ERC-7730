@@ -9,10 +9,33 @@ export interface TypedDataField {
 
 export type TypedDataTypes = Record<string, TypedDataField[] | undefined>;
 
-const ARRAY_SUFFIX = /(\[\d*\])+$/;
+/**
+ * Split one trailing `[]` or `[N]` suffix.
+ * A linear scan: the old `/(\[\d*\])+/` form backtracks on untrusted type strings.
+ */
+function splitTrailingArray(type: string): { base: string; suffix: string } | undefined {
+  if (!type.endsWith(']')) {
+    return undefined;
+  }
+  let index = type.length - 2;
+  while (index >= 0 && type[index] >= '0' && type[index] <= '9') {
+    index -= 1;
+  }
+  if (index < 0 || type[index] !== '[') {
+    return undefined;
+  }
+  return { base: type.slice(0, index), suffix: type.slice(index) };
+}
 
 function unwrapType(type: string): string {
-  return type.replace(ARRAY_SUFFIX, '');
+  let current = type;
+  for (;;) {
+    const split = splitTrailingArray(current);
+    if (!split) {
+      return current;
+    }
+    current = split.base;
+  }
 }
 
 function findTypeDependencies(
@@ -78,12 +101,12 @@ function toBigInt(value: unknown): bigint | undefined {
 }
 
 function normalizeTypedValue(value: unknown, type: string, types: TypedDataTypes): unknown {
-  const arrayMatch = type.match(/^(.*)(\[\d*\])$/);
+  const arrayMatch = splitTrailingArray(type);
   if (arrayMatch) {
     if (!Array.isArray(value)) {
       return value;
     }
-    return value.map((item) => normalizeTypedValue(item, arrayMatch[1], types));
+    return value.map((item) => normalizeTypedValue(item, arrayMatch.base, types));
   }
 
   const nested = types[type];
