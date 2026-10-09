@@ -550,7 +550,9 @@ describe('wallet drop-in parity (#53)', () => {
       { registry, provider: null, useSourcifyFallback: false }
     );
     const inner = result.fields.find((field) => field.format === 'calldata');
-    expect(inner?.embedded?.source).toBe('official-registry');
+    expect(inner?.format === 'calldata' ? inner.details.embedded.source : undefined).toBe(
+      'official-registry'
+    );
     expect(inner?.value).toContain('Send');
   });
 });
@@ -623,23 +625,26 @@ describe('absorbEmbedded', () => {
           value: 'Send',
           rawValue: '0x',
           required: true,
-          embedded: {
-            confidence: 'high',
-            source: 'official-registry',
-            intent: 'Send',
-            fields: [],
-            excluded: [],
-            warnings: [
-              {
-                type: 'infinite_approval',
-                severity: 'high',
-                message: 'unlimited',
-                path: 'value',
-              },
-            ],
-            trust: { accepted: false, policy: 'official-only', reasons: ['rejected'] },
-            metadata: { chainId: 1 },
-            raw: {},
+          details: {
+            embedded: {
+              confidence: 'high',
+              source: 'official-registry',
+              intent: 'Send',
+              fields: [],
+              excluded: [],
+              warnings: [
+                {
+                  type: 'infinite_approval',
+                  severity: 'high',
+                  message: 'unlimited',
+                  path: 'value',
+                },
+              ],
+              trust: { accepted: false, policy: 'official-only', reasons: ['rejected'] },
+              diagnostics: [],
+              metadata: { chainId: 1 },
+              raw: {},
+            },
           },
         },
       ],

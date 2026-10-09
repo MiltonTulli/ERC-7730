@@ -22,36 +22,28 @@ npm install @erc7730/sdk
 
 ## Quick start
 
-WETH `deposit()` on mainnet. `officialOnlyPolicy()` is also the default when `trust` is omitted.
+WETH `deposit()` on mainnet. `clearSign` uses the registry pinned to the commit shipped with the SDK. `officialOnlyPolicy()` is the default when `trust` is omitted.
 
 <!-- quickstart:start -->
 ```ts
-import {
-  VENDORED_REGISTRY_COMMIT,
-  createOfficialRegistry,
-  decodeTransaction,
-  officialOnlyPolicy,
-} from '@erc7730/sdk';
+import { type TransactionInput, clearSign } from '@erc7730/sdk';
 
-const registry = createOfficialRegistry({ pin: VENDORED_REGISTRY_COMMIT });
+const tx = {
+  to: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+  data: '0xd0e30db0',
+  value: 10n ** 18n,
+  chainId: 1,
+} satisfies TransactionInput;
 
-const result = await decodeTransaction(
-  {
-    to: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-    data: '0xd0e30db0',
-    value: 10n ** 18n,
-    chainId: 1,
-  },
-  { registry, trust: officialOnlyPolicy() }
-);
+const signed = await clearSign(tx);
 
-console.log(result.interpolatedIntent ?? result.intent);
-console.log(result.fields);
-console.log(result.source, result.confidence, result.trust.accepted);
+console.log(signed.screens.headline);
+console.log(signed.screens.verification);
+console.log(signed.source, signed.confidence, signed.trust.accepted);
 ```
 <!-- quickstart:end -->
 
-Expected output: `Wrap`, an Amount field of `1 ETH`, then `official-registry high true`.
+Expected output: headline `Wrap`, verification `verified`, then `official-registry high true`. An explicit pin plus `decodeTransaction` is in [`docs/GUIDE.md`](../../docs/GUIDE.md) under Advanced.
 
 ## Production
 

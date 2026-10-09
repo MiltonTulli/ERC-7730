@@ -90,6 +90,30 @@ const pages = [
     description:
       'Justified differences between SDK resolveDescriptor and Ledger python-erc7730 resolve/lint.',
   },
+  {
+    source: 'docs/diagnostics.md',
+    dest: 'diagnostics.md',
+    title: "Why didn't my transaction decode?",
+    description: 'Diagnostic codes for registry, context, format, include, and trust.',
+  },
+  {
+    source: 'docs/rendering.md',
+    dest: 'rendering.md',
+    title: 'Rendering a confirmation screen',
+    description: 'toScreens() and a short React and vanilla example.',
+  },
+  {
+    source: 'docs/observability.md',
+    dest: 'observability.md',
+    title: 'Observability',
+    description: 'Per-call onEvent counters for registry, trust, and decode latency.',
+  },
+  {
+    source: 'docs/case-studies/ambire.md',
+    dest: 'case-studies/ambire.md',
+    title: 'Case study: Ambire confirmation screen',
+    description: 'Twenty wallet calls scored with clearSign against the vendored registry pin.',
+  },
 ];
 
 /** @param {string} body */
@@ -98,6 +122,9 @@ function rewriteLinks(body) {
     .replaceAll('](./interop.md)', '](/ERC-7730/interop/)')
     .replaceAll('](./github-action.md)', '](/ERC-7730/action/)')
     .replaceAll('](./divergences.md)', '](/ERC-7730/divergences/)')
+    .replaceAll('](./diagnostics.md)', '](/ERC-7730/diagnostics/)')
+    .replaceAll('](./rendering.md)', '](/ERC-7730/rendering/)')
+    .replaceAll('](./observability.md)', '](/ERC-7730/observability/)')
     .replaceAll('](./trust-table.md)', '](/ERC-7730/trust/)')
     .replaceAll('](../README.md)', `](${GITHUB_BLOB}/README.md)`)
     .replaceAll('](../ROADMAP.md)', `](${GITHUB_BLOB}/ROADMAP.md)`);
@@ -114,6 +141,8 @@ function stripLeadingH1(body) {
 await mkdir(outDir, { recursive: true });
 
 for (const page of pages) {
+  const destPath = join(outDir, page.dest);
+  await mkdir(dirname(destPath), { recursive: true });
   const raw = await readFile(join(repoRoot, page.source), 'utf8');
   const body = rewriteLinks(stripLeadingH1(raw)).trimStart();
   const content = `---
@@ -124,7 +153,7 @@ description: ${JSON.stringify(page.description)}
 
 ${body}
 `;
-  await writeFile(join(outDir, page.dest), content);
+  await writeFile(destPath, content);
   console.log(`included ${page.source} → ${page.dest}`);
 }
 

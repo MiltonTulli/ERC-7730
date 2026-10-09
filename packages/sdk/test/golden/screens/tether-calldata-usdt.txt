@@ -1,0 +1,5 @@
+Verified by ERC-7730 registry
+Send
+Secondary:
+  Amount: 0 USDT
+  To: Null Address

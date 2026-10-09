@@ -1,0 +1,4 @@
+Verified by ERC-7730 registry
+Stake 1 ETH
+Secondary:
+  Amount: 1 ETH

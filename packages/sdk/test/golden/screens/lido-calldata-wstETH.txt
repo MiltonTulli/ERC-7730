@@ -1,0 +1,6 @@
+Verified by ERC-7730 registry
+Wrap 0 (raw)
+Secondary:
+  stETH amount: 0 (raw)
+Risks:
+  [medium] missing_metadata: Token decimals are unknown; amount is shown in raw base units

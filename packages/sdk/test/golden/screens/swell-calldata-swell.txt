@@ -1,0 +1,8 @@
+Verified by ERC-7730 registry
+Approve spender
+Secondary:
+  Spender: Null Address
+  Amount: 0 (raw)
+Risks:
+  [high] untrusted_spender: Spender is not in the registry or was not accepted by the trust policy
+  [medium] missing_metadata: Token decimals are unknown; amount is shown in raw base units

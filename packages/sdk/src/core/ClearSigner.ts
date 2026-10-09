@@ -3,7 +3,15 @@
  * {@link decodeTransaction} / {@link decodeTypedData} APIs.
  */
 
+import {
+  type ClearSignInput,
+  type ClearSignedBatch,
+  type ClearSignedOperation,
+  clearSign,
+  getDefaultClearSignRegistry,
+} from '../clearSign';
 import { matchContext, resolveImplementation } from '../decode/context';
+import type { BatchInput } from '../decode/decodeBatch';
 import { decodeTransaction } from '../decode/decodeTransaction';
 import { decodeTypedData } from '../decode/decodeTypedData';
 import { eip712FormatMatchesLookup } from '../decode/match';
@@ -179,10 +187,29 @@ function asDescriptorList(
 export class ClearSigner {
   private readonly options: DecodeOptions;
   private readonly registry: BoundRegistry;
+  private readonly clearSignRegistry: BoundRegistry;
 
   constructor(options: DecodeOptions = {}) {
     this.registry = createBoundRegistry(options.registry);
+    this.clearSignRegistry =
+      options.registry === undefined
+        ? createBoundRegistry(getDefaultClearSignRegistry())
+        : this.registry;
     this.options = { ...options, registry: this.registry };
+  }
+
+  /**
+   * Same contract as {@link clearSign}. Uses the bound registry when one was
+   * passed, otherwise the pinned official registry. `.decodeTransaction` is unchanged.
+   */
+  clearSign(input: BatchInput): Promise<ClearSignedBatch>;
+  clearSign(input: Exclude<ClearSignInput, BatchInput>): Promise<ClearSignedOperation>;
+  clearSign(input: ClearSignInput): Promise<ClearSignedOperation | ClearSignedBatch> {
+    const options = { ...this.options, registry: this.clearSignRegistry };
+    if (Array.isArray((input as BatchInput).calls)) {
+      return clearSign(input as BatchInput, options);
+    }
+    return clearSign(input as TransactionInput, options);
   }
 
   decodeTransaction(tx: TransactionInput): Promise<DecodedOperation> {
@@ -199,7 +226,11 @@ export class ClearSigner {
    * Accepts one document or an array (the v1 `extend` shape).
    */
   extend(descriptors: InputDescriptor | readonly InputDescriptor[]): void {
-    this.registry.extend(asDescriptorList(descriptors));
+    const list = asDescriptorList(descriptors);
+    this.registry.extend(list);
+    if (this.clearSignRegistry !== this.registry) {
+      this.clearSignRegistry.extend(list);
+    }
   }
 
   /**

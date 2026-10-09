@@ -1,0 +1,8 @@
+Verified by ERC-7730 registry
+Authorize spending of tokens
+Secondary:
+  Spender: 0x0000000000000000000000000000000000000000
+  Max spending amount: 0 USDC
+  Valid until: 1/1/1970, 12:00:00 AM
+Risks:
+  [high] untrusted_spender: Spender is not in the registry or was not accepted by the trust policy

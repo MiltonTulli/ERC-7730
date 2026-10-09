@@ -438,6 +438,52 @@ describe('decodeTransaction formats', () => {
     expect(result.fields.every((field) => field.required)).toBe(true);
   });
 
+  it('matches a required path only on a segment boundary', async () => {
+    const merged: InputDescriptor = {
+      context: {
+        contract: {
+          deployments: [{ chainId: 1, address: '0x1111111111111111111111111111111111111111' }],
+        },
+      },
+      display: {
+        formats: {
+          'transfer(address to,uint256 value)': {
+            intent: 'Send',
+            fields: [
+              { path: '#.value', label: 'Amount', format: 'raw', value: '1' },
+              { path: 'order.value', label: 'Nested', format: 'raw', value: '2' },
+              { path: 'maxValue', label: 'Max', format: 'raw', value: '3' },
+              { path: 'details.amountvalue', label: 'Detail', format: 'raw', value: '4' },
+            ],
+            required: ['value'],
+          },
+        },
+      },
+    };
+    const resolved: ResolvedDescriptor = {
+      version: '1',
+      hash: `0x${'cd'.repeat(32)}`,
+      input: merged,
+      merged,
+      deployments: [{ chainId: 1, address: '0x1111111111111111111111111111111111111111' }],
+    };
+
+    const result = await decodeTransaction(
+      { to: '0x1111111111111111111111111111111111111111', data: TRANSFER_100_USDC, chainId: 1 },
+      { registry: registryFrom(resolved), provider: null, useSourcifyFallback: false }
+    );
+
+    const requiredByLabel = Object.fromEntries(
+      result.fields.map((field) => [field.label, field.required])
+    );
+    expect(requiredByLabel).toEqual({
+      Amount: true,
+      Nested: true,
+      Max: false,
+      Detail: false,
+    });
+  });
+
   it('resolves Solidity-declaration names (#._to) from USDT-style keys', async () => {
     const descriptor: InputDescriptor = {
       $schema: 'https://eips.ethereum.org/assets/eip-7730/erc7730-v2.schema.json',

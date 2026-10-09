@@ -1,0 +1,9 @@
+Verified by ERC-7730 registry
+Swap
+Secondary:
+  Amount to Send: 0 (raw)
+  Minimum to Receive: 0 (raw)
+  Recipient: Null Address
+Risks:
+  [medium] missing_metadata: Token decimals are unknown; amount is shown in raw base units
+  [medium] missing_metadata: Token decimals are unknown; amount is shown in raw base units

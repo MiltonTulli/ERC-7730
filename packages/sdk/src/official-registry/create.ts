@@ -1,5 +1,6 @@
 import { matchContext, resolveImplementation } from '../decode/context';
 import { eip712FormatMatchesLookup } from '../decode/match';
+import type { RegistryCacheObserver } from '../decode/types';
 import { resolveDescriptor } from '../resolve/resolve';
 import { isPlainObject } from '../resolve/util';
 import { validateDescriptor } from '../schema/validate';
@@ -123,7 +124,7 @@ export function createOfficialRegistry(config: OfficialRegistryConfig = {}): Off
     }
   }
 
-  async function loadJson(path: string): Promise<unknown> {
+  async function loadJson(path: string, observer?: RegistryCacheObserver): Promise<unknown> {
     assertSafeRegistryPath(path);
     if (path === CALLDATA_INDEX && options.indexes?.calldata) {
       return options.indexes.calldata;
@@ -135,6 +136,7 @@ export function createOfficialRegistry(config: OfficialRegistryConfig = {}): Off
     const key = cacheKey(pin, path);
     const cached = await readCache(key);
     if (cached !== undefined) {
+      observer?.hit(path);
       return cached;
     }
 
@@ -145,6 +147,7 @@ export function createOfficialRegistry(config: OfficialRegistryConfig = {}): Off
 
     const request = (async () => {
       const url = registryFileUrl(baseUrl, pin, path);
+      const started = performance.now();
       let response: Response;
       try {
         response = await fetchImpl(url);
@@ -159,6 +162,7 @@ export function createOfficialRegistry(config: OfficialRegistryConfig = {}): Off
       }
       const json: unknown = await response.json();
       await writeCache(key, json);
+      observer?.fetch(path, performance.now() - started);
       return json;
     })();
 
@@ -170,20 +174,23 @@ export function createOfficialRegistry(config: OfficialRegistryConfig = {}): Off
     }
   }
 
-  async function loadDescriptor(path: string): Promise<InputDescriptor> {
-    const json = asInputDescriptor(await loadJson(path), path);
+  async function loadDescriptor(
+    path: string,
+    observer?: RegistryCacheObserver
+  ): Promise<InputDescriptor> {
+    const json = asInputDescriptor(await loadJson(path, observer), path);
     origins.set(json, path);
     return json;
   }
 
-  function includeLoader(fallbackPath: string): IncludeLoader {
+  function includeLoader(fallbackPath: string, observer?: RegistryCacheObserver): IncludeLoader {
     return {
       async load(ref, from) {
         // resolveDescriptor clones the input, so WeakMap identity is lost on the
         // first include. Fall back to the file we started resolving.
         const fromPath = origins.get(from as object) ?? fallbackPath;
         const resolved = resolveRegistryPath(fromPath, ref);
-        const json = await loadJson(resolved);
+        const json = await loadJson(resolved, observer);
         if (isPlainObject(json)) {
           origins.set(json, resolved);
         }
@@ -261,13 +268,19 @@ export function createOfficialRegistry(config: OfficialRegistryConfig = {}): Off
     return out;
   }
 
-  async function resolvePath(path: string): Promise<ResolvedDescriptor> {
-    const input = await loadDescriptor(path);
-    return resolveDescriptor(input, includeLoader(path));
+  async function resolvePath(
+    path: string,
+    observer?: RegistryCacheObserver
+  ): Promise<ResolvedDescriptor> {
+    const input = await loadDescriptor(path, observer);
+    return resolveDescriptor(input, includeLoader(path, observer));
   }
 
-  async function resolveOfficial(path: string): Promise<ResolvedDescriptor> {
-    const resolved = await resolvePath(path);
+  async function resolveOfficial(
+    path: string,
+    observer?: RegistryCacheObserver
+  ): Promise<ResolvedDescriptor> {
+    const resolved = await resolvePath(path, observer);
     const attestations = options.attachAttestations ? await loadAttestations(path) : undefined;
     return {
       ...resolved,
@@ -374,20 +387,20 @@ export function createOfficialRegistry(config: OfficialRegistryConfig = {}): Off
         return { ...local, source: 'local-override' as const };
       }
 
-      const index = (await loadJson(CALLDATA_INDEX)) as CalldataIndex;
+      const index = (await loadJson(CALLDATA_INDEX, key.cacheObserver)) as CalldataIndex;
       if (!isPlainObject(index)) {
         throw new OfficialRegistryError(`${CALLDATA_INDEX} is not a JSON object`);
       }
       const direct = await lookupIndexPath(index, key.chainId, key.address);
       if (direct) {
-        return resolveOfficial(direct);
+        return resolveOfficial(direct, key.cacheObserver);
       }
 
       const impl = await resolveImplementation(normalizeAddress(key.address), key.provider);
       if (impl && impl.toLowerCase() !== normalizeAddress(key.address)) {
         const viaProxy = await lookupIndexPath(index, key.chainId, impl);
         if (viaProxy) {
-          return resolveOfficial(viaProxy);
+          return resolveOfficial(viaProxy, key.cacheObserver);
         }
       }
       // Official `index.calldata.json` is CAIP-10 of `contract.deployments`
@@ -402,20 +415,20 @@ export function createOfficialRegistry(config: OfficialRegistryConfig = {}): Off
         return { ...local, source: 'local-override' as const };
       }
 
-      const index = (await loadJson(EIP712_INDEX)) as Eip712Index;
+      const index = (await loadJson(EIP712_INDEX, key.cacheObserver)) as Eip712Index;
       if (!isPlainObject(index)) {
         throw new OfficialRegistryError(`${EIP712_INDEX} is not a JSON object`);
       }
       const direct = pickEip712Path(index[toCaip10(key.chainId, key.address)], key);
       if (direct) {
-        return resolveOfficial(direct);
+        return resolveOfficial(direct, key.cacheObserver);
       }
 
       const impl = await resolveImplementation(normalizeAddress(key.address), key.provider);
       if (impl && impl.toLowerCase() !== normalizeAddress(key.address)) {
         const viaProxy = pickEip712Path(index[toCaip10(key.chainId, impl)], key);
         if (viaProxy) {
-          return resolveOfficial(viaProxy);
+          return resolveOfficial(viaProxy, key.cacheObserver);
         }
       }
       return null;

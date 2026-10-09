@@ -1,0 +1,4 @@
+Verified by ERC-7730 registry
+Modify threshold
+Secondary:
+  New threshold: 0

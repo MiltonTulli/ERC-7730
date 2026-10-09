@@ -96,6 +96,18 @@ function formatPreview(
   return `${lines.join('\n')}\n`;
 }
 
+export function formatDiagnostics(result: Awaited<ReturnType<typeof decodeTransaction>>): string {
+  const lines = ['Diagnostics:'];
+  if (result.diagnostics.length === 0) {
+    lines.push('  (none)');
+  } else {
+    for (const item of result.diagnostics) {
+      lines.push(`  ${item.stage} ${item.code} ${item.outcome} ${item.message}`);
+    }
+  }
+  return `${lines.join('\n')}\n`;
+}
+
 function jsonReplacer(_key: string, value: unknown): unknown {
   return typeof value === 'bigint' ? value.toString() : value;
 }
@@ -112,6 +124,7 @@ export async function runPreview(args: string[], ctx: CliContext): Promise<CliRe
     'registry-path'?: string;
     json?: boolean;
     sourcify?: boolean;
+    explain?: boolean;
   };
   try {
     values = parseArgs({
@@ -127,6 +140,7 @@ export async function runPreview(args: string[], ctx: CliContext): Promise<CliRe
         'registry-path': { type: 'string' },
         json: { type: 'boolean' },
         sourcify: { type: 'boolean' },
+        explain: { type: 'boolean' },
       },
     }).values;
   } catch (error) {
@@ -177,6 +191,9 @@ export async function runPreview(args: string[], ctx: CliContext): Promise<CliRe
     ctx.out.writeOut(`${JSON.stringify(decoded, jsonReplacer, 2)}\n`);
   } else {
     ctx.out.writeOut(formatPreview(decoded, pin, origin));
+    if (values.explain) {
+      ctx.out.writeOut(formatDiagnostics(decoded));
+    }
   }
   return ctx.out.result(0);
 }

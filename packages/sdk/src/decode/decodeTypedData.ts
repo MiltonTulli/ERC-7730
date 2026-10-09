@@ -1,3 +1,4 @@
+import { InvalidInputError } from '../errors';
 import type { PathContext } from '../path/types';
 import type { TransactionInput, TypedDataInput } from '../types';
 import type { Hex, ResolvedDescriptor } from '../types/descriptor';
@@ -19,6 +20,7 @@ import {
 import { matchContext } from './context';
 import { type FormatOptions, flattenFields, formatDisplayField } from './format';
 import { matchEip712Format } from './match';
+import { beginDecode, endDecode, failDecode } from './session';
 import { encodeType, hashEncodeType, normalizeTypedDataMessage } from './typedData';
 import type {
   Address,
@@ -77,6 +79,7 @@ async function lookupEip712(
     encodeTypeHash,
     typedData: data,
     provider: options?.provider,
+    cacheObserver: options?.cacheObserver,
     fromBlock: options?.fromBlock,
     toBlock: options?.toBlock,
   });
@@ -176,6 +179,7 @@ async function renderFromDescriptor(
     excluded,
     warnings: absorbed.warnings,
     trust,
+    diagnostics: [],
     metadata: {
       ...meta,
       chainId,
@@ -227,15 +231,28 @@ async function fallbackOperation(
   if (typeFields.length > 0) {
     for (const field of typeFields) {
       const rawValue = message[field.name];
-      const decoded: DecodedField = {
-        path: field.name,
-        label: field.name.charAt(0).toUpperCase() + field.name.slice(1),
-        format: field.type === 'address' ? 'addressName' : 'raw',
-        value: formatRaw(rawValue),
-        rawValue,
-        required: false,
-      };
-      fields.push(decoded);
+      const label = field.name.charAt(0).toUpperCase() + field.name.slice(1);
+      if (field.type === 'address' && typeof rawValue === 'string' && rawValue.startsWith('0x')) {
+        fields.push({
+          path: field.name,
+          label,
+          format: 'addressName',
+          value: formatRaw(rawValue),
+          rawValue,
+          required: false,
+          details: { address: rawValue as Address, nameSource: 'none' },
+        });
+      } else {
+        fields.push({
+          path: field.name,
+          label,
+          format: 'raw',
+          value: formatRaw(rawValue),
+          rawValue,
+          required: false,
+          details: { raw: rawValue },
+        });
+      }
     }
   } else {
     for (const [name, rawValue] of Object.entries(message)) {
@@ -246,6 +263,7 @@ async function fallbackOperation(
         value: formatRaw(rawValue),
         rawValue,
         required: false,
+        details: { raw: rawValue },
       });
     }
   }
@@ -264,6 +282,7 @@ async function fallbackOperation(
     excluded: [],
     warnings,
     trust,
+    diagnostics: [],
     metadata: {
       chainId,
       contractAddress: address,
@@ -316,11 +335,10 @@ async function presentDescriptorResult(
  * plus `primaryType` / keccak256(`encodeType`). Without a match, falls back to
  * inferred fields from the payload types — never `confidence: "high"`.
  */
-export async function decodeTypedData(
+async function decodeTypedDataCore(
   data: TypedDataInput,
-  options?: DecodeOptions
+  options: DecodeOptions | undefined
 ): Promise<DecodedOperation> {
-  validateTypedDataInput(data);
   const chainId = chainIdOf(data);
   const address = verifyingContractOf(data);
   const encoded = encodeType(data.primaryType, data.types);
@@ -329,43 +347,140 @@ export async function decodeTypedData(
     ? normalizeTypedDataMessage(data.message, data.types, data.primaryType)
     : {};
 
-  const found = await lookupEip712(data, options, chainId, address, encodeTypeHash);
-  if (found && address && chainId !== undefined) {
-    const bound = await matchContext(found, data, {
-      provider: options?.provider,
-      fromBlock: options?.fromBlock,
-      toBlock: options?.toBlock,
+  const registry = options?.registry;
+  if (!registry || chainId === undefined || !address || typeof registry.findEip712 !== 'function') {
+    options?.diagnosticLog?.push({
+      stage: 'registry-lookup',
+      outcome: 'skipped',
+      code: 'REGISTRY_SKIPPED',
+      message: 'No EIP-712 registry lookup for this payload',
     });
-    if (bound.matched) {
-      const rendered = await renderFromDescriptor(
-        data,
-        message,
-        found,
-        sourceFromResolved(found),
-        encoded,
-        chainId,
-        address,
-        options
-      );
-      if (rendered) {
-        return finalizeDecodedWarnings(
-          await presentDescriptorResult(
-            rendered,
-            data,
-            message,
-            encoded,
-            chainId,
-            address,
-            options
-          ),
+  }
+
+  let found: ResolvedDescriptor | null = null;
+  try {
+    found = await lookupEip712(data, options, chainId, address, encodeTypeHash);
+  } catch (error) {
+    if (error instanceof InvalidInputError) {
+      throw error;
+    }
+    options?.diagnosticLog?.push({
+      stage: 'include-resolve',
+      outcome: 'error',
+      code: 'INCLUDE_FETCH_FAILED',
+      message: error instanceof Error ? error.message : String(error),
+    });
+    found = null;
+  }
+
+  if (registry && chainId !== undefined && address && typeof registry.findEip712 === 'function') {
+    if (!found) {
+      if (!options?.diagnosticLog?.entries.some((entry) => entry.code === 'INCLUDE_FETCH_FAILED')) {
+        options?.diagnosticLog?.push({
+          stage: 'registry-lookup',
+          outcome: 'miss',
+          code: 'REGISTRY_NO_DESCRIPTOR',
+          message: 'No EIP-712 descriptor for this domain',
+          details: { chainId, address, primaryType: data.primaryType },
+        });
+        options?.onEvent?.({ type: 'registry:miss', chainId, address });
+      }
+    } else {
+      options?.diagnosticLog?.push({
+        stage: 'registry-lookup',
+        outcome: 'hit',
+        code: 'REGISTRY_HIT',
+        message: 'Registry returned an EIP-712 descriptor',
+        details: { chainId, address, registryPath: found.registryPath },
+      });
+      const bound = await matchContext(found, data, {
+        provider: options?.provider,
+        fromBlock: options?.fromBlock,
+        toBlock: options?.toBlock,
+      });
+      if (!bound.matched) {
+        options?.diagnosticLog?.push({
+          stage: 'context-match',
+          outcome: 'miss',
+          code: bound.reason === 'chain_id' ? 'CHAIN_ID_MISMATCH' : 'CONTEXT_MISMATCH',
+          message:
+            bound.reason === 'chain_id'
+              ? 'Descriptor deployments do not include this chainId'
+              : 'EIP-712 context did not match this payload',
+          details: { chainId, address, reason: bound.reason },
+        });
+      } else {
+        options?.diagnosticLog?.push({
+          stage: 'context-match',
+          outcome: 'hit',
+          code: 'CONTEXT_MATCHED',
+          message: 'EIP-712 context matched',
+          details: { via: bound.via },
+        });
+        const rendered = await renderFromDescriptor(
+          data,
+          message,
+          found,
+          sourceFromResolved(found),
+          encoded,
+          chainId,
+          address,
           options
         );
+        if (!rendered) {
+          options?.diagnosticLog?.push({
+            stage: 'format-match',
+            outcome: 'miss',
+            code: 'SELECTOR_NOT_IN_FORMATS',
+            message: 'primaryType is not listed in the descriptor formats',
+            details: { primaryType: data.primaryType },
+          });
+        } else {
+          options?.diagnosticLog?.push({
+            stage: 'format-match',
+            outcome: 'hit',
+            code: 'FORMAT_MATCHED',
+            message: 'primaryType matched a display format',
+            details: { primaryType: data.primaryType },
+          });
+          return finalizeDecodedWarnings(
+            await presentDescriptorResult(
+              rendered,
+              data,
+              message,
+              encoded,
+              chainId,
+              address,
+              options
+            ),
+            options
+          );
+        }
       }
     }
   }
 
-  return finalizeDecodedWarnings(
-    await fallbackOperation(data, message, encoded, chainId, address, options),
-    options
-  );
+  const fallback = await fallbackOperation(data, message, encoded, chainId, address, options);
+  options?.diagnosticLog?.push({
+    stage: 'fallback',
+    outcome: 'hit',
+    code: 'INFERRED_FALLBACK',
+    message: 'No EIP-712 descriptor; showing fields from the typed-data message',
+  });
+  return finalizeDecodedWarnings(fallback, options);
+}
+
+export async function decodeTypedData(
+  data: TypedDataInput,
+  options?: DecodeOptions
+): Promise<DecodedOperation> {
+  validateTypedDataInput(data);
+  const session = beginDecode('typed-data', options);
+  try {
+    const operation = await decodeTypedDataCore(data, session.options);
+    return endDecode('typed-data', options, session, operation);
+  } catch (error) {
+    failDecode('typed-data', options, session.started);
+    throw error;
+  }
 }

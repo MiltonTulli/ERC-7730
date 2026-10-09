@@ -72,6 +72,9 @@ export default defineConfig({
           items: [
             { slug: 'sdk' },
             { slug: 'sdk/decode' },
+            { slug: 'diagnostics' },
+            { slug: 'rendering' },
+            { slug: 'observability' },
             { slug: 'sdk/validate-resolve' },
             { slug: 'sdk/viem' },
           ],
@@ -84,6 +87,10 @@ export default defineConfig({
         {
           label: 'Interop',
           items: [{ slug: 'interop' }, { slug: 'action' }, { slug: 'divergences' }],
+        },
+        {
+          label: 'Case studies',
+          items: [{ slug: 'case-studies/ambire' }],
         },
         {
           label: 'Playground',

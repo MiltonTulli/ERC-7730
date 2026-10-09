@@ -207,13 +207,35 @@ function resolveParamPath(raw: unknown, ctx: PathContext): unknown {
 }
 
 function normalizeFormat(format: string | undefined): FieldFormat {
-  if (!format) {
-    return 'raw';
-  }
-  if (format === 'addressOrName') {
-    return 'addressName';
+  if (!format || format === 'addressOrName') {
+    return format === 'addressOrName' ? 'addressName' : 'raw';
   }
   return format as FieldFormat;
+}
+
+function fieldLabel(explicit: string | undefined, path: string, format: string): string {
+  if (typeof explicit === 'string' && explicit.trim().length > 0) {
+    return explicit;
+  }
+  const tail = path.split('.').pop() ?? '';
+  const cleaned = tail.replace(/\[[^\]]*\]/g, '');
+  if (cleaned.length > 0) {
+    return cleaned;
+  }
+  if (path.length > 0) {
+    return path;
+  }
+  return format;
+}
+
+function requiredFlag(path: string, requiredPaths: Set<string>): boolean | 'implicit' {
+  if (requiredPaths.size === 0) {
+    return 'implicit';
+  }
+  if (requiredPaths.has(path) || [...requiredPaths].some((item) => path.endsWith(`.${item}`))) {
+    return true;
+  }
+  return false;
 }
 
 function fieldVisible(field: DisplayField, rawValue: unknown): boolean {
@@ -252,13 +274,27 @@ export function flattenFields(items: DisplayFieldItem[] | undefined): DisplayFie
   return out;
 }
 
+interface ResolvedToken {
+  symbol: string;
+  decimals: number;
+  name?: string;
+  native?: boolean;
+}
+
 async function formatTokenAmount(
   rawValue: unknown,
   params: Record<string, unknown> | undefined,
   ctx: PathContext,
   tx: TransactionInput,
   options: FormatOptions
-): Promise<{ value: string; infinite: boolean; missingMetadata?: boolean }> {
+): Promise<{
+  value: string;
+  infinite: boolean;
+  missingMetadata?: boolean;
+  amount?: bigint;
+  token?: ResolvedToken;
+  nativeCurrency?: boolean;
+}> {
   const amount = toBigInt(rawValue);
   if (amount === undefined) {
     return { value: formatRaw(rawValue), infinite: false };
@@ -272,19 +308,30 @@ async function formatTokenAmount(
 
   const infinite = isInfiniteApproval(amount) || (threshold !== undefined && amount >= threshold);
   const tickerHint = metadataOf(ctx.descriptor)?.token?.ticker;
+  const info = await resolveTokenInfo(params, ctx, tx, options);
   if (infinite) {
     const message = typeof params?.message === 'string' ? params.message : 'Unlimited';
-    const info = await resolveTokenInfo(params, ctx, tx, options);
     const symbol = info?.symbol ?? tickerHint;
-    return { value: symbol ? `${message} ${symbol}` : message, infinite: true };
+    return {
+      value: symbol ? `${message} ${symbol}` : message,
+      infinite: true,
+      amount,
+      token: info ?? undefined,
+      nativeCurrency: info?.native,
+    };
   }
 
-  const info = await resolveTokenInfo(params, ctx, tx, options);
   if (!info) {
     // Decimals are unknown: show the raw base-unit value, not a human amount.
-    return { value: `${amount.toString()} (raw)`, infinite: false, missingMetadata: true };
+    return { value: `${amount.toString()} (raw)`, infinite: false, missingMetadata: true, amount };
   }
-  return { value: formatAmount(amount, info.decimals, info.symbol), infinite: false };
+  return {
+    value: formatAmount(amount, info.decimals, info.symbol),
+    infinite: false,
+    amount,
+    token: info,
+    nativeCurrency: info.native,
+  };
 }
 
 async function resolveTokenInfo(
@@ -292,7 +339,7 @@ async function resolveTokenInfo(
   ctx: PathContext,
   tx: TransactionInput,
   options: FormatOptions
-): Promise<{ symbol: string; decimals: number } | null> {
+): Promise<ResolvedToken | null> {
   let tokenRaw: unknown;
   if (typeof params?.tokenPath === 'string') {
     tokenRaw = tryResolvePath(params.tokenPath, ctx);
@@ -304,7 +351,7 @@ async function resolveTokenInfo(
 
   const tokenAddress = typeof tokenRaw === 'string' ? tokenRaw : undefined;
   if (tokenAddress && isNativeTokenAddress(tokenAddress, params?.nativeCurrencyAddress)) {
-    return NATIVE_CURRENCY[tx.chainId] ?? { symbol: 'ETH', decimals: 18 };
+    return { ...(NATIVE_CURRENCY[tx.chainId] ?? { symbol: 'ETH', decimals: 18 }), native: true };
   }
 
   const fromMeta = tokenFromMetadata(tokenAddress, tx.to, metadataOf(ctx.descriptor));
@@ -343,25 +390,64 @@ async function formatAddressName(
   rawValue: unknown,
   tx: TransactionInput,
   options: FormatOptions
-): Promise<string> {
-  if (!rawValue || typeof rawValue !== 'string') {
-    return formatRaw(rawValue);
+): Promise<
+  | {
+      ok: true;
+      value: string;
+      address: `0x${string}`;
+      name?: string;
+      nameSource: 'descriptor' | 'provider' | 'none';
+    }
+  | { ok: false; value: string }
+> {
+  if (!rawValue || typeof rawValue !== 'string' || !ADDRESS_RE.test(rawValue)) {
+    return { ok: false, value: formatRaw(rawValue) };
   }
   const address = rawValue as `0x${string}`;
   const edp = options.externalDataProvider;
   if (edp?.resolveEnsName || edp?.resolveLocalName) {
     const ens = edp.resolveEnsName ? await edp.resolveEnsName(address) : null;
     if (ens) {
-      return formatAddress(address, ens);
+      return {
+        ok: true,
+        value: formatAddress(address, ens),
+        address,
+        name: ens,
+        nameSource: 'provider',
+      };
     }
     const local = edp.resolveLocalName ? await edp.resolveLocalName(address) : null;
     if (local) {
-      return formatAddress(address, local);
+      return {
+        ok: true,
+        value: formatAddress(address, local),
+        address,
+        name: local,
+        nameSource: 'provider',
+      };
     }
-    return formatAddress(address);
+    return { ok: true, value: formatAddress(address), address, nameSource: 'none' };
   }
   const resolved = await resolveAddress(rawValue, tx.chainId, options.provider);
-  return formatAddress(resolved.address, resolved.name);
+  if (resolved.name && resolved.type === 'ens') {
+    return {
+      ok: true,
+      value: formatAddress(resolved.address, resolved.name),
+      address,
+      name: resolved.name,
+      nameSource: 'provider',
+    };
+  }
+  if (resolved.name) {
+    return {
+      ok: true,
+      value: formatAddress(resolved.address, resolved.name),
+      address,
+      name: resolved.name,
+      nameSource: 'descriptor',
+    };
+  }
+  return { ok: true, value: formatAddress(address), address, nameSource: 'none' };
 }
 
 async function formatNftName(
@@ -501,19 +587,35 @@ export async function formatDisplayField(
     return null;
   }
 
-  const format = normalizeFormat(fieldDef.format);
+  const requested = normalizeFormat(fieldDef.format);
   const params = asRecord(fieldDef.params);
   const path = fieldDef.path ?? '';
-  const label = fieldDef.label ?? path ?? 'Field';
-  let value: string;
   const warnings: SecurityWarning[] = [];
+  const required = requiredFlag(path, requiredPaths);
+  const base = {
+    path,
+    rawValue,
+    required,
+    ...(params ? { params } : {}),
+  };
 
-  let embedded: DecodedOperation | undefined;
+  const rawField = (value: string, formatName: string = requested): DecodedField => ({
+    ...base,
+    label: fieldLabel(fieldDef.label, path, formatName),
+    format: 'raw',
+    value,
+    details: { raw: rawValue },
+  });
 
-  switch (format) {
+  let field: DecodedField;
+
+  switch (requested) {
     case 'tokenAmount': {
       const formatted = await formatTokenAmount(rawValue, params, ctx, tx, options);
-      value = formatted.value;
+      if (formatted.amount === undefined) {
+        field = rawField(formatted.value, 'raw');
+        break;
+      }
       if (formatted.infinite) {
         warnings.push({
           type: 'infinite_approval',
@@ -530,85 +632,197 @@ export async function formatDisplayField(
           path,
         });
       }
+      field = {
+        ...base,
+        label: fieldLabel(fieldDef.label, path, 'tokenAmount'),
+        format: 'tokenAmount',
+        value: formatted.value,
+        details: {
+          amount: formatted.amount,
+          ...(formatted.token
+            ? {
+                token: {
+                  symbol: formatted.token.symbol,
+                  decimals: formatted.token.decimals,
+                  ...(formatted.token.name ? { name: formatted.token.name } : {}),
+                },
+              }
+            : {}),
+          isInfinite: formatted.infinite,
+          ...(formatted.nativeCurrency ? { nativeCurrency: true } : {}),
+        },
+      };
       break;
     }
     case 'amount':
-      value = await formatNativeAmount(rawValue, tx, options);
+      field = {
+        ...base,
+        label: fieldLabel(fieldDef.label, path, 'amount'),
+        format: 'amount',
+        value: await formatNativeAmount(rawValue, tx, options),
+        details: { raw: rawValue },
+      };
       break;
-    case 'date':
-      value = await formatDate(
-        rawValue,
-        typeof params?.encoding === 'string' ? params.encoding : 'timestamp',
-        options.locale ?? 'en',
-        tx,
-        options
-      );
+    case 'date': {
+      const encoding = params?.encoding === 'blockheight' ? 'blockheight' : 'timestamp';
+      const n = toBigInt(rawValue);
+      if (n === undefined) {
+        field = rawField(formatRaw(rawValue), 'raw');
+        break;
+      }
+      const resolvedTs =
+        encoding === 'blockheight'
+          ? await options.externalDataProvider?.resolveBlockTimestamp?.(tx.chainId, n)
+          : undefined;
+      const timestamp =
+        resolvedTs !== null && resolvedTs !== undefined && Number.isFinite(resolvedTs)
+          ? resolvedTs
+          : Number(n);
+      field = {
+        ...base,
+        label: fieldLabel(fieldDef.label, path, 'date'),
+        format: 'date',
+        value: await formatDate(rawValue, encoding, options.locale ?? 'en', tx, options),
+        details: {
+          timestamp: Number.isFinite(timestamp) ? timestamp : 0,
+          encoding,
+        },
+      };
       break;
+    }
     case 'duration':
-      value = formatDuration(rawValue);
+      field = {
+        ...base,
+        label: fieldLabel(fieldDef.label, path, 'duration'),
+        format: 'duration',
+        value: formatDuration(rawValue),
+        details: { raw: rawValue },
+      };
       break;
     case 'addressName':
     case 'addressOrName':
-    case 'interoperableAddressName':
-      value = await formatAddressName(rawValue, tx, options);
-      break;
-    case 'enum': {
-      const ref = typeof params?.$ref === 'string' ? params.$ref : undefined;
-      value = formatEnum(rawValue, ref ? tryResolvePath(ref, ctx) : undefined);
+    case 'interoperableAddressName': {
+      const named = await formatAddressName(rawValue, tx, options);
+      if (!named.ok) {
+        field = rawField(named.value, 'raw');
+        break;
+      }
+      field = {
+        ...base,
+        label: fieldLabel(fieldDef.label, path, 'addressName'),
+        format: 'addressName',
+        value: named.value,
+        details: {
+          address: named.address,
+          ...(named.name ? { name: named.name } : {}),
+          nameSource: named.nameSource,
+        },
+      };
       break;
     }
-    case 'nftName':
-      value = await formatNftName(rawValue, params, ctx, tx, options);
+    case 'enum': {
+      const ref = typeof params?.$ref === 'string' ? params.$ref : undefined;
+      const raw = formatRaw(rawValue);
+      const resolved = formatEnum(rawValue, ref ? tryResolvePath(ref, ctx) : undefined);
+      field = {
+        ...base,
+        label: fieldLabel(fieldDef.label, path, 'enum'),
+        format: 'enum',
+        value: resolved,
+        details: resolved === raw ? { raw } : { raw, resolved },
+      };
       break;
+    }
+    case 'nftName': {
+      const tokenId = toBigInt(rawValue);
+      let collection: unknown;
+      if (typeof params?.collectionPath === 'string') {
+        collection = tryResolvePath(params.collectionPath, ctx);
+      } else if (params?.collection !== undefined) {
+        collection = resolveParamPath(params.collection, ctx);
+      }
+      const collectionAddress =
+        typeof collection === 'string' && ADDRESS_RE.test(collection)
+          ? (collection as `0x${string}`)
+          : ADDRESS_RE.test(tx.to)
+            ? tx.to
+            : undefined;
+      if (tokenId === undefined || !collectionAddress) {
+        field = rawField(await formatNftName(rawValue, params, ctx, tx, options), 'raw');
+        break;
+      }
+      field = {
+        ...base,
+        label: fieldLabel(fieldDef.label, path, 'nftName'),
+        format: 'nftName',
+        value: await formatNftName(rawValue, params, ctx, tx, options),
+        details: { collection: collectionAddress, tokenId },
+      };
+      break;
+    }
     case 'calldata': {
       const nested = await formatCalldataField(rawValue, params, ctx, tx, options);
-      value = nested.value;
-      embedded = nested.embedded;
+      if (!nested.embedded) {
+        field = rawField(nested.value, 'raw');
+        break;
+      }
+      field = {
+        ...base,
+        label: fieldLabel(fieldDef.label, path, 'calldata'),
+        format: 'calldata',
+        value: nested.value,
+        details: { embedded: nested.embedded },
+      };
       break;
     }
     case 'chainId': {
       const chain = toBigInt(rawValue);
+      let value: string;
       if (chain === undefined) {
         value = formatRaw(rawValue);
-        break;
+      } else {
+        const info = await options.externalDataProvider?.resolveChainInfo?.(Number(chain));
+        value = info?.name ?? chain.toString();
       }
-      const info = await options.externalDataProvider?.resolveChainInfo?.(Number(chain));
-      value = info?.name ?? chain.toString();
+      field = {
+        ...base,
+        label: fieldLabel(fieldDef.label, path, 'chainId'),
+        format: 'chainId',
+        value,
+        details: { raw: rawValue },
+      };
       break;
     }
     case 'unit': {
       const decimals = typeof params?.decimals === 'number' ? params.decimals : 0;
       const amount = toBigInt(rawValue);
-      const base = typeof params?.base === 'string' ? params.base : '';
-      if (amount === undefined) {
-        value = formatRaw(rawValue);
-      } else {
-        value = `${formatAmount(amount, decimals)}${base ? ` ${base}` : ''}`;
-      }
+      const unitBase = typeof params?.base === 'string' ? params.base : '';
+      const value =
+        amount === undefined
+          ? formatRaw(rawValue)
+          : `${formatAmount(amount, decimals)}${unitBase ? ` ${unitBase}` : ''}`;
+      field = {
+        ...base,
+        label: fieldLabel(fieldDef.label, path, 'unit'),
+        format: 'unit',
+        value,
+        details: { raw: rawValue },
+      };
       break;
     }
+    case 'tokenTicker':
+      field = {
+        ...base,
+        label: fieldLabel(fieldDef.label, path, 'tokenTicker'),
+        format: 'tokenTicker',
+        value: formatRaw(rawValue),
+        details: { raw: rawValue },
+      };
+      break;
     default:
-      value = formatRaw(rawValue);
+      field = rawField(formatRaw(rawValue), 'raw');
       break;
   }
 
-  const required =
-    requiredPaths.size === 0
-      ? true
-      : requiredPaths.has(path) ||
-        [...requiredPaths].some((item) => item === path || path.endsWith(item));
-
-  return {
-    field: {
-      path,
-      label,
-      format,
-      value,
-      rawValue,
-      required,
-      params,
-      embedded,
-    },
-    warnings,
-  };
+  return { field, warnings };
 }

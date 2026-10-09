@@ -1,0 +1,4 @@
+Verified by ERC-7730 registry
+Unstake
+Secondary:
+  Receiver: Null Address

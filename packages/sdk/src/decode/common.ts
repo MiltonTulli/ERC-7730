@@ -144,9 +144,9 @@ function lowerConfidence(current: Confidence, next: Confidence): Confidence {
 }
 
 /**
- * Nested `calldata` stays on `field.embedded`. Copy its warnings onto the
- * outer operation (path-prefixed) and never report a higher confidence than
- * the inner display.
+ * Nested `calldata` lives on `details.embedded` when `format` is `calldata`.
+ * Copy its warnings onto the outer operation (path-prefixed) and never report
+ * a higher confidence than the inner display.
  */
 export function absorbEmbedded(
   fields: DecodedField[],
@@ -156,10 +156,10 @@ export function absorbEmbedded(
   let next = confidence;
   const extra: SecurityWarning[] = [];
   for (const field of fields) {
-    const embedded = field.embedded;
-    if (!embedded) {
+    if (field.format !== 'calldata') {
       continue;
     }
+    const embedded = field.details.embedded;
     for (const warning of embedded.warnings) {
       const path = warning.path ? `${field.path}.${warning.path}` : field.path;
       extra.push({ ...warning, path });
@@ -246,7 +246,30 @@ export async function resolveTrust(
     source,
     now: nowSeconds(options),
   });
-  return finalizeTrust(report, source, descriptor, policy.id);
+  const finalized = finalizeTrust(report, source, descriptor, policy.id);
+  options?.diagnosticLog?.push(
+    finalized.accepted
+      ? {
+          stage: 'trust',
+          outcome: 'hit',
+          code: 'TRUST_ACCEPTED',
+          message: `Trust policy ${finalized.policy} accepted source ${source}`,
+          details: { reasons: finalized.reasons, source },
+        }
+      : {
+          stage: 'trust',
+          outcome: 'miss',
+          code: 'POLICY_REJECTED',
+          message: `Trust policy ${finalized.policy} rejected source ${source}`,
+          details: { reasons: finalized.reasons, source },
+        }
+  );
+  options?.onEvent?.(
+    finalized.accepted
+      ? { type: 'trust:accepted', reasons: [...finalized.reasons] }
+      : { type: 'trust:rejected', reasons: [...finalized.reasons] }
+  );
+  return finalized;
 }
 
 export function readMetadata(merged: unknown): {
