@@ -139,10 +139,6 @@ const externalDataProvider = {
     symbol: 'ETH',
     decimals: 18,
   }),
-  // Same hook attestedPolicy uses for EAS revocation.
-  chainClient: {
-    call: async (chainId, { to, data }) => rpcEthCall(chainId, to, data),
-  },
 };
 ```
 
@@ -152,7 +148,8 @@ const externalDataProvider = {
 | `resolveEnsName` / `resolveLocalName` | Human names for `addressName` |
 | `resolveNftCollectionName` | Collection label for NFT formats |
 | `resolveBlockTimestamp` / `resolveChainInfo` | Date and chain metadata |
-| `chainClient.call` | eth_call for EAS revocation under `attestedPolicy` |
+
+EAS revocation is not this provider. Pass `eas.call` to `attestedPolicy` from `@erc7730/sdk/attest`.
 
 Omit a method to fall back to raw formatting. The root entry has no curated token or address list. Pass `knownDataProvider()` from `@erc7730/sdk/known-data` when you want that list. Do not treat it, or a Sourcify ABI, as trusted clear-signing metadata.
 
@@ -164,12 +161,11 @@ import {
   decodeTypedData,
   decodeBatch,
   decodeUserOp,
-  format,
   composePolicies,
   officialOnlyPolicy,
   officialOrLocalPolicy,
-  attestedPolicy,
 } from '@erc7730/sdk';
+import { attestedPolicy } from '@erc7730/sdk/attest';
 
 const opts = {
   registry,
@@ -199,7 +195,7 @@ const userOpDisplay = await decodeUserOp(
 | `decodeTypedData` | `eth_signTypedData` |
 | `decodeBatch` | EIP-5792 `wallet_sendCalls` |
 | `decodeUserOp` | ERC-4337 Simple Account `execute` / `executeBatch` |
-| `format` / `formatTypedData` | Deprecated aliases of `decode*`. Omitted `trust` is `officialOnlyPolicy()` |
+| `format` / `formatTypedData` | Deprecated aliases of `decode*` on `@erc7730/sdk/legacy`. Omitted `trust` is `officialOnlyPolicy()` |
 
 Batch / nested `interpolatedIntent` joins per-call sentences with `" and "`.
 

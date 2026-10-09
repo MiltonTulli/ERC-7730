@@ -49,6 +49,8 @@ const required = [
   'sourcify.d.ts',
   'known-data.js',
   'known-data.d.ts',
+  'legacy.js',
+  'legacy.d.ts',
 ];
 for (const name of required) {
   const file = join(dist, name);
@@ -85,7 +87,18 @@ for (const token of rootBanned) {
     fail(`dist/index.js graph still includes ${token}`);
   }
 }
-const rootEntries = new Set(['generate.js', 'sourcify.js', 'known-data.js']);
+const movedOffRoot = [
+  'getDefaultClearSignRegistry',
+  'formatTypedData',
+  'BUILTIN_DESCRIPTORS',
+  'class Registry',
+];
+for (const token of movedOffRoot) {
+  if (index.includes(token)) {
+    fail(`dist/index.js graph still includes moved symbol ${token}`);
+  }
+}
+const rootEntries = new Set(['generate.js', 'sourcify.js', 'known-data.js', 'legacy.js']);
 for (const entry of indexGraph) {
   const base = entry.file.split('/').pop();
   if (rootEntries.has(base)) {
@@ -108,6 +121,67 @@ if (!knownData.includes('knownDataProvider') || !knownData.includes('KNOWN_TOKEN
   fail('dist/known-data.js must export knownDataProvider and KNOWN_TOKENS');
 }
 const indexDts = readFileSync(join(dist, 'index.d.ts'), 'utf8');
+const rootValues = [
+  'clearSign',
+  'createClearSigner',
+  'decodeTransaction',
+  'decodeTypedData',
+  'decodeBatch',
+  'decodeUserOp',
+  'decodeViemTypedData',
+  'toScreens',
+  'renderScreensText',
+  'screenVerification',
+  'createOfficialRegistry',
+  'fetchPrebuiltRegistryIndex',
+  'createMemoryDescriptorCache',
+  'validateDescriptor',
+  'validateDescriptorTests',
+  'resolveDescriptor',
+  'descriptorHash',
+  'resolvePath',
+  'matchContext',
+  'officialOnlyPolicy',
+  'officialOrLocalPolicy',
+  'composePolicies',
+  'Erc7730Error',
+  'InvalidInputError',
+  'DescriptorResolveError',
+  'OfficialRegistryError',
+  'PathResolveError',
+  'VENDORED_REGISTRY_COMMIT',
+  'TRUST_REASON_CODES',
+  'SECURITY_WARNING_TYPES',
+];
+const declared = new Set();
+const exportDecl =
+  /export\s+declare\s+(?:async\s+)?(?:function|const|class|enum)\s+([A-Za-z0-9_]+)/g;
+for (const match of indexDts.matchAll(exportDecl)) {
+  declared.add(match[1]);
+}
+const exportList = /export\s+\{([^}]+)\}/g;
+for (const match of indexDts.matchAll(exportList)) {
+  for (const part of match[1].split(',')) {
+    const trimmed = part.trim();
+    if (!trimmed || trimmed.startsWith('type ')) {
+      continue;
+    }
+    const name = trimmed
+      .split(/\s+as\s+/)
+      .pop()
+      ?.trim();
+    if (name) {
+      declared.add(name);
+    }
+  }
+}
+const missing = rootValues.filter((name) => !declared.has(name));
+const extra = [...declared].filter((name) => !rootValues.includes(name)).sort();
+if (missing.length > 0 || extra.length > 0 || declared.size > 30) {
+  fail(
+    `dist/index.d.ts value exports must be the 30-name root surface.\nmissing: ${missing.join(', ') || '(none)'}\nextra: ${extra.join(', ') || '(none)'}\ncount: ${declared.size}`
+  );
+}
 for (const token of [
   'generateDescriptor',
   'generateFunctionDescriptor',

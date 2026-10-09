@@ -291,9 +291,6 @@ export interface ExternalDataProvider {
   resolveNftCollectionName?(chainId: number, address: Address): Promise<string | null>;
   resolveBlockTimestamp?(chainId: number, blockHeight: bigint): Promise<number | null>;
   resolveChainInfo?(chainId: number): Promise<ChainInfo | null>;
-  chainClient?: {
-    call(chainId: number, req: { to: Address; data: Hex }): Promise<Hex>;
-  };
 }
 
 /** ABI returned by an optional verified-source adapter. */
@@ -352,10 +349,6 @@ export interface DecodeOptions {
    * There is no process-wide loader. The root entry does not include the client.
    */
   loadVerifiedAbi?: (chainId: number, address: Address) => Promise<VerifiedContractAbi | null>;
-  /** @internal Recursion guard for nested `calldata` fields. */
-  calldataDepth?: number;
-  /** @internal Recursion guard for Multicall3 / Safe / UserOp children. */
-  nestedDepth?: number;
   /**
    * BCP-47 locale for dates / amounts only. Descriptor `intent` strings are
    * never translated — string form, else `en`, else the first string value.
@@ -382,6 +375,12 @@ export interface DecodeOptions {
   diagnosticLog?: DiagnosticLog;
   /** @internal Forwarded into official-registry file loads for this call. */
   cacheObserver?: RegistryCacheObserver;
+}
+
+/** Recursion counters. Not part of public {@link DecodeOptions}. */
+export interface DecodeRunState {
+  calldataDepth?: number;
+  nestedDepth?: number;
 }
 
 export type { TransactionInput, TypedDataInput };

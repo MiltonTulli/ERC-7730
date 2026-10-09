@@ -264,23 +264,6 @@ export class Registry {
 
     return results;
   }
-
-  /**
-   * Get all registered descriptors
-   */
-  getAll(): InputDescriptor[] {
-    return [...this.customDescriptors, ...BUILTIN_DESCRIPTORS];
-  }
-
-  /**
-   * Get registry statistics
-   */
-  getStats() {
-    return {
-      custom: this.customDescriptors.length,
-      builtin: BUILTIN_DESCRIPTORS.length,
-    };
-  }
 }
 
 export { ERC20_DESCRIPTOR, ERC721_DESCRIPTOR, WETH_DESCRIPTOR };

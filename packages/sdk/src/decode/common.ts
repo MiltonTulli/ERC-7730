@@ -83,16 +83,6 @@ export function renderIntent(
   return { intent: replaced, interpolatedIntent: replaced, interpolationFailed: false };
 }
 
-/** @deprecated Prefer {@link renderIntent}. */
-export function intentFromFormat(
-  intent: unknown,
-  interpolated: unknown,
-  fields: DecodedField[],
-  locale: string
-): string {
-  return renderIntent(intent, interpolated, fields, locale).intent;
-}
-
 export function confidenceFor(source: DecodeSource, accepted: boolean): Confidence {
   if (source === 'trusted-token') {
     return 'low';

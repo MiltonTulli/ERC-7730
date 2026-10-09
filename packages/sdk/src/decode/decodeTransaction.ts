@@ -32,6 +32,7 @@ import { matchFormat } from './match';
 import { beginDecode, endDecode, failDecode } from './session';
 import type {
   DecodeOptions,
+  DecodeRunState,
   DecodeSource,
   DecodedField,
   DecodedOperation,
@@ -121,7 +122,7 @@ async function renderFromDescriptor(
   resolved: ResolvedDescriptor,
   source: DecodeSource,
   selector: Hex | undefined,
-  options: DecodeOptions | undefined
+  options: (DecodeOptions & DecodeRunState) | undefined
 ): Promise<DecodedOperation | null> {
   if (!selector) {
     return null;
@@ -153,7 +154,7 @@ async function renderFromDescriptor(
     onCalldata:
       depth < 2
         ? (inner) =>
-            decodeTransaction(inner, {
+            decodeTransactionRun(inner, {
               ...options,
               calldataDepth: depth + 1,
             })
@@ -446,7 +447,7 @@ function pushDiagnostic(
 
 async function decodeTransactionCore(
   tx: TransactionInput,
-  options?: DecodeOptions
+  options?: DecodeOptions & DecodeRunState
 ): Promise<DecodedOperation> {
   const selector = selectorFromTx(tx);
   const useSourcify = options?.useSourcifyFallback === true;
@@ -639,6 +640,14 @@ async function decodeTransactionCore(
 export async function decodeTransaction(
   tx: TransactionInput,
   options?: DecodeOptions
+): Promise<DecodedOperation> {
+  return decodeTransactionRun(tx, options);
+}
+
+/** Same decode, with recursion counters that stay off {@link DecodeOptions}. */
+export async function decodeTransactionRun(
+  tx: TransactionInput,
+  options?: DecodeOptions & DecodeRunState
 ): Promise<DecodedOperation> {
   validateTransactionInput(tx);
   const session = beginDecode('transaction', options);

@@ -287,6 +287,7 @@ describe('wallet drop-in parity (#53)', () => {
     const left = batch.calls[0]?.interpolatedIntent ?? batch.calls[0]?.intent;
     const right = batch.calls[1]?.interpolatedIntent ?? batch.calls[1]?.intent;
     expect(batch.interpolatedIntent).toBe(`${left} and ${right}`);
+    expect(batch.warnings).toEqual([]);
   });
 
   it('formats tokenAmount with a mocked ExternalDataProvider only', async () => {

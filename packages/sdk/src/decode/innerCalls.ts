@@ -1,7 +1,14 @@
 import { decodeCalldata } from '../core/decoder';
 import type { Hex, TransactionInput } from '../types';
 import { asAddress } from './common';
-import type { Address, Confidence, DecodeOptions, DecodedOperation, TrustReport } from './types';
+import type {
+  Address,
+  Confidence,
+  DecodeOptions,
+  DecodeRunState,
+  DecodedOperation,
+  TrustReport,
+} from './types';
 
 /** Multicall3 `aggregate((address,bytes)[])` */
 export const MULTICALL3_AGGREGATE = '0x252dba42' as Hex;
@@ -256,19 +263,19 @@ export function attachChildren(
 export async function decodeInnerCalls(
   calls: InnerCall[],
   outer: { chainId: number; from?: Address },
-  options: DecodeOptions | undefined
+  options: (DecodeOptions & DecodeRunState) | undefined
 ): Promise<DecodedOperation[]> {
   // Dynamic import breaks the decodeTransaction ↔ innerCalls cycle.
-  const { decodeTransaction } = await import('./decodeTransaction');
+  const { decodeTransactionRun } = await import('./decodeTransaction');
   const depth = options?.nestedDepth ?? 0;
-  const childOptions: DecodeOptions = {
+  const childOptions: DecodeOptions & DecodeRunState = {
     ...options,
     nestedDepth: depth + 1,
   };
   const children: DecodedOperation[] = [];
   for (const call of calls) {
     children.push(
-      await decodeTransaction(
+      await decodeTransactionRun(
         {
           chainId: outer.chainId,
           from: outer.from,
@@ -289,7 +296,7 @@ export async function decodeInnerCalls(
 export async function expandNestedCalls(
   operation: DecodedOperation,
   tx: TransactionInput,
-  options: DecodeOptions | undefined
+  options: (DecodeOptions & DecodeRunState) | undefined
 ): Promise<DecodedOperation> {
   const depth = options?.nestedDepth ?? 0;
   if (depth >= MAX_NESTED_DEPTH) {

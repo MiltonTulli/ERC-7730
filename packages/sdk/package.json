@@ -30,6 +30,10 @@
     "./known-data": {
       "types": "./dist/known-data.d.ts",
       "import": "./dist/known-data.js"
+    },
+    "./legacy": {
+      "types": "./dist/legacy.d.ts",
+      "import": "./dist/legacy.js"
     }
   },
   "files": ["dist", "!dist/**/*.map", "!dist/**/*.tsbuildinfo"],
@@ -40,6 +44,7 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "schema:types": "node scripts/generate-schema-types.mjs",
+    "api:report": "node scripts/api-report.mjs",
     "typecheck": "tsc --noEmit",
     "typecheck:consumer": "tsc -p type-tests/tsconfig.json",
     "clean": "rm -rf dist"
@@ -52,6 +57,7 @@
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "0.18.5",
+    "@microsoft/api-extractor": "7.52.8",
     "@types/node": "^20.11.0",
     "@vitest/coverage-v8": "^1.2.0",
     "json-schema-to-typescript": "15.0.4",

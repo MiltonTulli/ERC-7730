@@ -7,6 +7,7 @@ export default defineConfig({
     generate: 'src/generate/index.ts',
     sourcify: 'src/sourcify.ts',
     'known-data': 'src/known-data.ts',
+    legacy: 'src/legacy.ts',
   },
   format: 'esm',
   dts: true,

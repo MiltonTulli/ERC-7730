@@ -65,15 +65,3 @@ export function formatAddress(address: string, name?: string | null): string {
   // Truncate: 0x1234...5678
   return `${address.slice(0, 6)}...${address.slice(-4)}`;
 }
-
-/**
- * Check if address is a contract (requires provider)
- */
-export async function isContract(
-  _address: string,
-  _provider?: Provider | null
-): Promise<boolean | null> {
-  // We can't check without a provider that supports getCode
-  // This would require extending the Provider interface
-  return null;
-}

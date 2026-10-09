@@ -74,6 +74,11 @@ jobs:
       - name: Check SDK bundle graph
         run: node scripts/check-sdk-bundles.mjs
 
+      - name: Check SDK API report
+        run: |
+          pnpm --filter @erc7730/sdk api:report
+          git diff --exit-code -- api
+
       - name: CLI pack smoke
         run: node scripts/cli-pack-smoke.mjs
 
@@ -221,7 +226,7 @@ jobs:
           CHANGED=$(git diff --name-only origin/main...HEAD)
           echo "Changed files:"
           echo "$CHANGED"
-          PUBLISHED_TOUCHED=$(echo "$CHANGED" | grep -E '^(packages/sdk/src/|packages/sdk/package.json$|packages/cli/src/|packages/cli/package.json$|packages/[^/]+/tsdown\.config\.ts$|packages/sdk/scripts/)' | grep -vE '/__tests__/' || true)
+          PUBLISHED_TOUCHED=$(echo "$CHANGED" | grep -E '^(packages/sdk/src/|packages/sdk/package.json$|packages/cli/src/|packages/cli/package.json$|packages/[^/]+/tsdown\.config\.ts$|packages/sdk/scripts/|api/.+\.api\.md$)' | grep -vE '/__tests__/' || true)
           CHANGESETS=$(echo "$CHANGED" | grep -E '^\.changeset/.+\.md$' | grep -v 'README.md' || true)
           if [ -n "$PUBLISHED_TOUCHED" ] && [ -z "$CHANGESETS" ]; then
             echo "::error::SDK or CLI source/package.json changed without a .changeset/*.md file. Run: pnpm changeset"

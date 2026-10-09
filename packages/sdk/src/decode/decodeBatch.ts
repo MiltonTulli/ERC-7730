@@ -12,7 +12,8 @@ export interface BatchInput {
 export interface BatchDecodeResult {
   interpolatedIntent?: string;
   calls: DecodedOperation[];
-  warnings?: SecurityWarning[];
+  /** Child warnings, deduped by `type` and `path`. Always set, possibly empty. */
+  warnings: SecurityWarning[];
 }
 
 /**
@@ -50,5 +51,22 @@ export async function decodeBatch(
   return {
     interpolatedIntent: sentences.length > 0 ? sentences.join(' and ') : undefined,
     calls,
+    warnings: dedupedChildWarnings(calls),
   };
+}
+
+function dedupedChildWarnings(calls: DecodedOperation[]): SecurityWarning[] {
+  const seen = new Set<string>();
+  const warnings: SecurityWarning[] = [];
+  for (const call of calls) {
+    for (const warning of call.warnings) {
+      const key = `${warning.type}\0${warning.path ?? ''}`;
+      if (seen.has(key)) {
+        continue;
+      }
+      seen.add(key);
+      warnings.push(warning);
+    }
+  }
+  return warnings;
 }

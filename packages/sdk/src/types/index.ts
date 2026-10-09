@@ -52,9 +52,6 @@ export interface Provider {
   /** Get ENS name for address */
   getEnsName?: (args: { address: `0x${string}` }) => Promise<string | null>;
 
-  /** Get ENS address for name */
-  getEnsAddress?: (args: { name: string }) => Promise<`0x${string}` | null>;
-
   /** Storage slot read (EIP-1967 proxy implementation). */
   getStorageAt?: (args: {
     address: `0x${string}`;
@@ -80,23 +77,4 @@ export interface Provider {
       data: `0x${string}`;
     }>
   >;
-
-  /** Chain ID */
-  chain?: { id: number };
 }
-
-/**
- * Registry configuration
- */
-export interface RegistryConfig {
-  /** Use built-in descriptors (default: true) */
-  embedded?: boolean;
-
-  /** Additional custom descriptors */
-  custom?: import('./descriptor').InputDescriptor[];
-}
-
-/**
- * Supported chain names for convenience methods
- */
-export type ChainName = 'ethereum' | 'mainnet' | 'arbitrum' | 'optimism' | 'base' | 'polygon';

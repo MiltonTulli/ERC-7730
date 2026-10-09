@@ -37,7 +37,7 @@ This SDK matches those descriptors when they are loaded through `extend()` (or a
 | Simple Account `execute` | n/a | n/a | `decodeUserOp` one child |
 | Domain-only EIP-712 override | n/a | index miss | `extend()` + domain match |
 
-Sourcify `format()` is not snapshotted here: their default resolver fetches the registry at call time. Mapping their `DisplayModel` onto `DecodedOperation` is fine for wallets; this package keeps `DecodedOperation` as the source of truth (`format` / `formatTypedData` are thin aliases).
+Sourcify `format()` is not snapshotted here: their default resolver fetches the registry at call time. Mapping their `DisplayModel` onto `DecodedOperation` is fine for wallets; this package keeps `DecodedOperation` as the source of truth. `format` / `formatTypedData` are thin aliases on `@erc7730/sdk/legacy`.
 
 ## Trust reason codes
 

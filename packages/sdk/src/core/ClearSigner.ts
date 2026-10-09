@@ -8,7 +8,7 @@ import {
   type ClearSignedBatch,
   type ClearSignedOperation,
   clearSign,
-  getDefaultClearSignRegistry,
+  sharedClearSignRegistry,
 } from '../clearSign';
 import { matchContext, resolveImplementation } from '../decode/context';
 import type { BatchInput } from '../decode/decodeBatch';
@@ -193,7 +193,7 @@ export class ClearSigner {
     this.registry = createBoundRegistry(options.registry);
     this.clearSignRegistry =
       options.registry === undefined
-        ? createBoundRegistry(getDefaultClearSignRegistry())
+        ? createBoundRegistry(sharedClearSignRegistry())
         : this.registry;
     this.options = { ...options, registry: this.registry };
   }

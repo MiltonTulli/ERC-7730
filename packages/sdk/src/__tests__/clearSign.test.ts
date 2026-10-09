@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { clearSign, getDefaultClearSignRegistry } from '../clearSign';
+import { clearSign, sharedClearSignRegistry } from '../clearSign';
 import { createClearSigner } from '../core/ClearSigner';
 import { decodeTransaction } from '../decode/decodeTransaction';
 import type { ClearSignEvent, DecodeRegistry } from '../decode/types';
@@ -235,7 +235,7 @@ describe('clearSign', () => {
     expect(first.screens.headline).toBe('Wrap');
     expect(second.intent).toBe('Wrap');
     expect(fetched.length).toBe(fetchesAfterFirst);
-    expect(getDefaultClearSignRegistry()).toBe(getDefaultClearSignRegistry());
+    expect(sharedClearSignRegistry()).toBe(sharedClearSignRegistry());
   });
 
   it('dispatches typed data, batches, and user operations', async () => {

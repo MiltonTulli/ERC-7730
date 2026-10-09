@@ -18,8 +18,8 @@
 export { Erc7730Error, InvalidInputError } from './errors';
 export type { InvalidInputCode } from './errors';
 
-export { ClearSigner, createClearSigner } from './core/ClearSigner';
-export { clearSign, getDefaultClearSignRegistry } from './clearSign';
+export { createClearSigner } from './core/ClearSigner';
+export { clearSign } from './clearSign';
 export type { ClearSignInput, ClearSignedBatch, ClearSignedOperation } from './clearSign';
 export { renderScreensText, screenVerification, toScreens } from './screens';
 export type {
@@ -30,47 +30,14 @@ export type {
   ToScreensOptions,
 } from './screens';
 
-// Core utilities
-export { decodeCalldata, extractSelector } from './core/decoder';
-export {
-  getSignatureBySelector,
-  COMMON_SIGNATURES,
-  computeSelector,
-} from './core/signatures';
-
-// Format utilities
-export {
-  formatAmount,
-  getTokenInfo,
-  isInfiniteApproval,
-  NATIVE_CURRENCY,
-} from './formats/tokenAmount';
-
-export { resolveAddress, formatAddress } from './formats/addressName';
-
-// Registry
-export {
-  Registry,
-  BUILTIN_DESCRIPTORS,
-  ERC20_DESCRIPTOR,
-  ERC721_DESCRIPTOR,
-  WETH_DESCRIPTOR,
-} from './registry';
-
 export { validateDescriptor, validateDescriptorTests } from './schema';
 
-export {
-  decodeTransaction,
-  decodeTypedData,
-  decodeBatch,
-  decodeUserOp,
-  format,
-  formatTypedData,
-  matchContext,
-  resolveImplementation,
-  EIP1967_IMPLEMENTATION_SLOT,
-  SECURITY_WARNING_TYPES,
-} from './decode';
+export { decodeTransaction } from './decode/decodeTransaction';
+export { decodeTypedData } from './decode/decodeTypedData';
+export { decodeBatch } from './decode/decodeBatch';
+export { decodeUserOp } from './decode/decodeUserOp';
+export { matchContext } from './decode/context';
+export { SECURITY_WARNING_TYPES } from './decode/types';
 
 export { decodeViemTypedData } from './decode/viemTypedData';
 
@@ -81,12 +48,7 @@ export {
   TRUST_REASON_CODES,
 } from './trust';
 
-export {
-  resolveDescriptor,
-  descriptorHash,
-  createMemoryIncludeLoader,
-  DescriptorResolveError,
-} from './resolve';
+export { resolveDescriptor, descriptorHash, DescriptorResolveError } from './resolve';
 
 export { resolvePath, PathResolveError } from './path';
 
@@ -94,10 +56,6 @@ export {
   createOfficialRegistry,
   createMemoryDescriptorCache,
   OfficialRegistryError,
-  isCommitSha,
-  toCaip10,
-  DEFAULT_OFFICIAL_REGISTRY_BASE_URL,
-  OFFICIAL_REGISTRY_REPO,
   VENDORED_REGISTRY_COMMIT,
   fetchPrebuiltRegistryIndex,
 } from './official-registry';
@@ -110,7 +68,6 @@ export type {
   ResolvedDescriptor,
   ResolvedDeployment,
   ValidationIssue,
-  ValidationIssue as ValidationError,
   ValidationResult,
 } from './schema';
 
@@ -173,19 +130,11 @@ export type {
   OfficialRegistryIndexes,
 } from './official-registry';
 
-/**
- * @deprecated Use {@link DecodeOptions} with {@link createClearSigner}.
- */
-export type { DecodeOptions as ClearSignerConfig } from './decode';
-
-// Types
 export type {
-  RegistryConfig,
   LogBlockTag,
   Provider,
   TransactionInput,
   TypedDataInput,
-  ChainName,
   ERC7730V2Context,
   ERC7730V2Metadata,
   ERC7730V2Display,
