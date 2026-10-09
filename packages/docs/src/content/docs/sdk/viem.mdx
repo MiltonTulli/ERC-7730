@@ -27,6 +27,6 @@ const typed = await decodeViemTypedData(typedDataDefinition, {
 
 `attestedPolicy` is imported from `@erc7730/sdk/attest`. Install `viem` only if you import that entry.
 
-Sourcify stays opt-in on the call: `loadVerifiedAbi: sourcifyVerifiedAbiLoader` and `useSourcifyFallback: true`.
+Sourcify stays opt-in on the call. Import `sourcifyVerifiedAbiLoader` from `@erc7730/sdk/sourcify` and pass `loadVerifiedAbi: sourcifyVerifiedAbiLoader()` with `useSourcifyFallback: true`.
 
 API details: [generated docs](/ERC-7730/sdk/api/) for `decodeTransaction` and `decodeViemTypedData`.

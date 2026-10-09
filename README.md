@@ -49,7 +49,7 @@ Name the registry `pin` at the call site, as the snippet does. With no network, 
 
 `officialOnlyPolicy()` accepts `official-registry` and `attested` only. ERC-20, ERC-721, and WETH builtins run when the registry has no match, and that policy keeps them at `confidence: "low"`.
 
-`attestedPolicy` is imported from `@erc7730/sdk/attest`.
+`attestedPolicy` is imported from `@erc7730/sdk/attest`. `generateDescriptor` is `@erc7730/sdk/generate`. The Sourcify client is `@erc7730/sdk/sourcify`. Curated token and contract names are `knownDataProvider()` from `@erc7730/sdk/known-data`. The root entry does not apply that list.
 
 What this toolkit is not: [not this](https://miltontulli.github.io/ERC-7730/not-this/).
 

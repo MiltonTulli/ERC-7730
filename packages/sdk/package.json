@@ -18,6 +18,18 @@
     "./attest": {
       "types": "./dist/attest.d.ts",
       "import": "./dist/attest.js"
+    },
+    "./generate": {
+      "types": "./dist/generate.d.ts",
+      "import": "./dist/generate.js"
+    },
+    "./sourcify": {
+      "types": "./dist/sourcify.d.ts",
+      "import": "./dist/sourcify.js"
+    },
+    "./known-data": {
+      "types": "./dist/known-data.d.ts",
+      "import": "./dist/known-data.js"
     }
   },
   "files": ["dist", "!dist/**/*.map", "!dist/**/*.tsbuildinfo"],

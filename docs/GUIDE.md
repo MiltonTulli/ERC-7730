@@ -154,7 +154,7 @@ const externalDataProvider = {
 | `resolveBlockTimestamp` / `resolveChainInfo` | Date and chain metadata |
 | `chainClient.call` | eth_call for EAS revocation under `attestedPolicy` |
 
-Omit a method to fall back to raw formatting / local catalogs. Do not treat `KNOWN_TOKENS` or Sourcify ABI as trusted clear-signing metadata.
+Omit a method to fall back to raw formatting. The root entry has no curated token or address list. Pass `knownDataProvider()` from `@erc7730/sdk/known-data` when you want that list. Do not treat it, or a Sourcify ABI, as trusted clear-signing metadata.
 
 ## 7. Decode calls (batch / UserOp)
 
@@ -260,18 +260,21 @@ Load attestation JSON with `createOfficialRegistry({ pin, attachAttestations: tr
 
 ## 10. Sourcify ABI fallback
 
-Importing `@erc7730/sdk` does not contact Sourcify and does not install a default ABI loader. `fetchFromSourcify` stays exported for apps that want the client.
+Importing `@erc7730/sdk` does not contact Sourcify and does not install a default ABI loader. The client lives at `@erc7730/sdk/sourcify`.
 
-Opt in per call. `useSourcifyFallback: true` does nothing until that call passes a loader. There is no process-wide loader.
+Opt in per call. `useSourcifyFallback: true` does nothing until that call passes a loader. There is no process-wide loader. The loader authors a draft descriptor. The decode core does not.
 
 ```ts
-import { decodeTransaction, sourcifyVerifiedAbiLoader } from '@erc7730/sdk';
+import { decodeTransaction } from '@erc7730/sdk';
+import { sourcifyVerifiedAbiLoader } from '@erc7730/sdk/sourcify';
 
 await decodeTransaction(tx, {
   useSourcifyFallback: true,
-  loadVerifiedAbi: sourcifyVerifiedAbiLoader,
+  loadVerifiedAbi: sourcifyVerifiedAbiLoader(),
 });
 ```
+
+`sourcifyVerifiedAbiLoader({ fetch, baseUrl })` replaces the global `fetch` and the default `https://sourcify.dev/server` prefix. `generateDescriptor` and the infer helpers are `@erc7730/sdk/generate`.
 
 Call-scoped signatures override the built-in selector table for that decode only. Pass them on `DecodeOptions` or `createClearSigner`. There is no process-wide signature map.
 

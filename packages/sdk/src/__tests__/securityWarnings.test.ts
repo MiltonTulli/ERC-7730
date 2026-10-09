@@ -11,18 +11,12 @@ import {
   type SecurityWarningType,
 } from '../decode/types';
 import { createOfficialRegistry } from '../official-registry';
-import { fetchFromSourcify } from '../providers/sourcify';
+import { sourcifyVerifiedAbiLoader } from '../providers/sourcify';
 import { createMemoryIncludeLoader, resolveDescriptor } from '../resolve';
 import type { TypedDataInput } from '../types';
 import type { InputDescriptor, ResolvedDescriptor } from '../types/descriptor';
 
-async function sourcifyLoader(chainId: number, address: `0x${string}`) {
-  const result = await fetchFromSourcify(chainId, address);
-  if (!result.verified || !result.abi) {
-    return null;
-  }
-  return { abi: result.abi, name: result.name || undefined };
-}
+const sourcifyLoader = sourcifyVerifiedAbiLoader();
 
 const here = dirname(fileURLToPath(import.meta.url));
 const fixtures = join(here, 'fixtures');

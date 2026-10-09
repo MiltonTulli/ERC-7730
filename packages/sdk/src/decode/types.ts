@@ -1,6 +1,6 @@
 import type { OfficialRegistry } from '../official-registry/types';
 import type { LogBlockTag, Provider, TransactionInput, TypedDataInput } from '../types';
-import type { Hex, ResolvedDescriptor } from '../types/descriptor';
+import type { Hex, InputDescriptor, ResolvedDescriptor } from '../types/descriptor';
 
 export type Address = `0x${string}`;
 
@@ -295,10 +295,15 @@ export interface ExternalDataProvider {
   };
 }
 
-/** ABI returned by an optional verified-source adapter (Sourcify). */
+/** ABI returned by an optional verified-source adapter. */
 export interface VerifiedContractAbi {
   abi: readonly unknown[];
   name?: string;
+  /**
+   * Draft descriptor authored by the loader.
+   * The decode core does not build one from the ABI.
+   */
+  descriptor?: InputDescriptor;
 }
 
 export interface DecodeOptions {
@@ -342,7 +347,8 @@ export interface DecodeOptions {
   useSourcifyFallback?: boolean;
   /**
    * Verified-ABI loader used when `useSourcifyFallback` is true.
-   * Pass `sourcifyVerifiedAbiLoader`. There is no process-wide loader.
+   * Import it from `@erc7730/sdk/sourcify` and call the factory.
+   * There is no process-wide loader. The root entry does not include the client.
    */
   loadVerifiedAbi?: (chainId: number, address: Address) => Promise<VerifiedContractAbi | null>;
   /** @internal Recursion guard for nested `calldata` fields. */

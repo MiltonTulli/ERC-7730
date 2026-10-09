@@ -38,7 +38,18 @@ function relativeChunks(file, seen = new Set()) {
   return files;
 }
 
-const required = ['index.js', 'index.d.ts', 'attest.js', 'attest.d.ts'];
+const required = [
+  'index.js',
+  'index.d.ts',
+  'attest.js',
+  'attest.d.ts',
+  'generate.js',
+  'generate.d.ts',
+  'sourcify.js',
+  'sourcify.d.ts',
+  'known-data.js',
+  'known-data.d.ts',
+];
 for (const name of required) {
   const file = join(dist, name);
   try {
@@ -59,8 +70,63 @@ const indexFile = join(dist, 'index.js');
 const indexGraph = relativeChunks(indexFile);
 const index = indexGraph.map((entry) => entry.code).join('\n');
 
-if (!index.includes('fetchFromSourcify') && !index.includes('sourcify.dev')) {
-  fail('dist/index.js no longer includes the Sourcify client');
+const rootBanned = [
+  'fetchFromSourcify',
+  'sourcify.dev',
+  'generateDescriptor',
+  'GENERATED_DESCRIPTOR_COMMENT',
+  'looksLikeErc20',
+  'KNOWN_ADDRESSES',
+  'KNOWN_TOKENS',
+  'knownDataProvider',
+];
+for (const token of rootBanned) {
+  if (index.includes(token)) {
+    fail(`dist/index.js graph still includes ${token}`);
+  }
+}
+const rootEntries = new Set(['generate.js', 'sourcify.js', 'known-data.js']);
+for (const entry of indexGraph) {
+  const base = entry.file.split('/').pop();
+  if (rootEntries.has(base)) {
+    fail(`dist/index.js graph reaches ${base}`);
+  }
+}
+
+function graphText(file) {
+  return relativeChunks(file)
+    .map((entry) => entry.code)
+    .join('\n');
+}
+
+const sourcifyGraph = graphText(join(dist, 'sourcify.js'));
+if (!sourcifyGraph.includes('sourcify.dev') || !sourcifyGraph.includes('generateDescriptor')) {
+  fail('dist/sourcify.js must contain the Sourcify client and descriptor authoring');
+}
+const knownData = readFileSync(join(dist, 'known-data.js'), 'utf8');
+if (!knownData.includes('knownDataProvider') || !knownData.includes('KNOWN_TOKENS')) {
+  fail('dist/known-data.js must export knownDataProvider and KNOWN_TOKENS');
+}
+const indexDts = readFileSync(join(dist, 'index.d.ts'), 'utf8');
+for (const token of [
+  'generateDescriptor',
+  'generateFunctionDescriptor',
+  'inferIntent',
+  'inferFormat',
+  'inferLabel',
+  'looksLikeErc20',
+  'V2_SCHEMA_URI',
+  'GENERATED_DESCRIPTOR_COMMENT',
+  'fetchFromSourcify',
+  'isVerifiedOnSourcify',
+  'sourcifyVerifiedAbiLoader',
+  'KNOWN_TOKENS',
+  'KNOWN_ADDRESSES',
+  'knownDataProvider',
+]) {
+  if (new RegExp(`\\b${token}\\b`).test(indexDts)) {
+    fail(`dist/index.d.ts still names ${token}`);
+  }
 }
 if (index.includes('enableSourcifyAbiLoader')) {
   fail('dist/index.js still exports enableSourcifyAbiLoader');
@@ -79,7 +145,6 @@ const attest = readFileSync(attestFile, 'utf8');
 if (!/from\s*['"]viem(?:\/[^'"]*)?['"]/.test(attest)) {
   fail('dist/attest.js should keep viem external');
 }
-const indexDts = readFileSync(join(dist, 'index.d.ts'), 'utf8');
 if (/\bviem\b/.test(indexDts)) {
   fail('dist/index.d.ts still names viem');
 }

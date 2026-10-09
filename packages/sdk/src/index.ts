@@ -43,28 +43,10 @@ export {
   formatAmount,
   getTokenInfo,
   isInfiniteApproval,
-  KNOWN_TOKENS,
   NATIVE_CURRENCY,
 } from './formats/tokenAmount';
 
-export {
-  resolveAddress,
-  formatAddress,
-  KNOWN_ADDRESSES,
-} from './formats/addressName';
-
-// Sourcify client. Opt-in per call via loadVerifiedAbi. Import does not fetch.
-export {
-  fetchFromSourcify,
-  isVerifiedOnSourcify,
-  sourcifyVerifiedAbiLoader,
-} from './providers';
-
-export type {
-  SourcifyResult,
-  SourcifyMatch,
-  SourcifyContractDetails,
-} from './providers';
+export { resolveAddress, formatAddress } from './formats/addressName';
 
 // Registry
 export {
@@ -74,18 +56,6 @@ export {
   ERC721_DESCRIPTOR,
   WETH_DESCRIPTOR,
 } from './registry';
-
-// Descriptor generation
-export {
-  generateDescriptor,
-  generateFunctionDescriptor,
-  inferIntent,
-  inferFormat,
-  inferLabel,
-  looksLikeErc20,
-  V2_SCHEMA_URI,
-  GENERATED_DESCRIPTOR_COMMENT,
-} from './generate';
 
 export { validateDescriptor, validateDescriptorTests } from './schema';
 
@@ -131,15 +101,6 @@ export {
   VENDORED_REGISTRY_COMMIT,
   fetchPrebuiltRegistryIndex,
 } from './official-registry';
-
-export type {
-  GenerateOptions,
-  GenerateInput,
-  GeneratedDescriptor,
-  ABI,
-  ABIFunction,
-  ABIParameter,
-} from './generate';
 
 export type {
   DescriptorVersion,
