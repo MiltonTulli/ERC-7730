@@ -24,7 +24,7 @@ WETH `deposit()` on mainnet. `clearSign` uses the official registry pinned to th
 
 <!-- quickstart:start -->
 ```ts
-import { clearSign, type TransactionInput } from '@erc7730/sdk';
+import { type TransactionInput, clearSign } from '@erc7730/sdk';
 
 const tx = {
   to: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
