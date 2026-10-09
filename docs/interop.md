@@ -41,4 +41,4 @@ Sourcify `format()` is not snapshotted here: their default resolver fetches the 
 
 ## Trust reason codes
 
-`trust.reasons` are stable strings (`source:<source>:accepted|rejected`, `untrusted_descriptor`, `ATTESTED`, `NO_TRUSTED_ATTESTATION`, …). See `TRUST_REASON_CODES` in `@erc7730/sdk`. Warning `type` values stay the `#12` union — no third taxonomy. Wallet spender allowlist: `DecodeOptions.spenderAllowlist`.
+`trust.reasons` are `TrustReasonCode` values (`source_official_registry_accepted`, `source_local_override_rejected`, `untrusted_descriptor`, `attested`, `no_trusted_attestation`, …). Hyphens in a source name become underscores (`official-registry` → `official_registry`). See `TRUST_REASON_CODES` in `@erc7730/sdk`. Warning `type` values use the same snake_case list (`no_trusted_attestation`, not `NO_TRUSTED_ATTESTATION`). Wallet spender allowlist: `DecodeOptions.spenderAllowlist`.

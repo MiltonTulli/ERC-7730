@@ -107,7 +107,7 @@ const denyAll: TrustPolicy = {
       accepted: false,
       policy: 'deny-all',
       descriptorHash: inner.descriptor?.hash,
-      reasons: ['denied'],
+      reasons: ['untrusted_descriptor'],
     };
   },
 };
@@ -160,9 +160,9 @@ describe('composePolicies', () => {
     expect(all.id).toBe('compose:all');
     expect(any.id).toBe('compose:any');
     expect(allReport.accepted).toBe(false);
-    expect(allReport.reasons).toContain('denied');
+    expect(allReport.reasons).toContain('untrusted_descriptor');
     expect(anyReport.accepted).toBe(true);
-    expect(anyReport.reasons).toContain('source:official-registry:accepted');
+    expect(anyReport.reasons).toContain('source_official_registry_accepted');
   });
 
   it('rejects an empty compose and an unknown mode', async () => {
@@ -262,7 +262,7 @@ describe('decodeTransaction + TrustPolicy', () => {
     expect(result.source).toBe('official-registry');
     expect(result.trust.accepted).toBe(false);
     expect(result.trust.policy).toBe('deny-all');
-    expect(result.trust.reasons).toEqual(['denied']);
+    expect(result.trust.reasons).toEqual(['untrusted_descriptor']);
     expect(result.confidence).toBe('low');
     expect(result.warnings.some((warning) => warning.type === 'untrusted_descriptor')).toBe(true);
   });
@@ -313,7 +313,7 @@ describe('decodeTransaction + TrustPolicy', () => {
     expect(result.source).toBe('local-override');
     expect(result.trust.accepted).toBe(false);
     expect(result.trust.policy).toBe('official-only');
-    expect(result.trust.reasons).toContain('source:local-override:rejected');
+    expect(result.trust.reasons).toContain('source_local_override_rejected');
   });
 
   it('fills descriptorHash when a custom policy omits it', async () => {

@@ -230,7 +230,7 @@ Import `attestedPolicy` from `@erc7730/sdk/attest`. The other policies come from
 | Pin **or** attested | `trust: composePolicies([officialOnlyPolicy(), attestedPolicy(...)], 'any')` |
 | Pin **and** attested | `composePolicies([officialOnlyPolicy(), attestedPolicy(...)], 'all')` |
 
-`trust.reasons` are stable codes (`source:official-registry:accepted`, `ATTESTED`, …) — safe for telemetry / i18n. Prefer them over free-form sentences.
+`trust.reasons` are stable snake_case codes (`source_official_registry_accepted`, `attested`, …). See the trust table. Prefer them over free-form sentences.
 
 ## 8. Attestations
 
@@ -246,7 +246,7 @@ const trustAttested = attestedPolicy({
 });
 ```
 
-Without `eas.call`, `attestedPolicy` fails closed (`ATTESTATION_OPTIONS_INCOMPLETE` / `NO_TRUSTED_ATTESTATION`). The SDK never issues attestations.
+Without `eas.call`, `attestedPolicy` fails closed (`attestation_options_incomplete` / `no_trusted_attestation`). The SDK never issues attestations.
 
 Load attestation JSON with `createOfficialRegistry({ pin, attachAttestations: true })`, or set `ResolvedDescriptor.attestations` yourself in tests.
 
@@ -254,7 +254,7 @@ Load attestation JSON with `createOfficialRegistry({ pin, attachAttestations: tr
 
 - Prefer `interpolatedIntent` when present (spec option 1). Fields may still be shown.
 - Otherwise show `intent` + `fields`.
-- Surface `warnings` (e.g. `NO_TRUSTED_ATTESTATION`, `interpolation_failed`, `infinite_approval`).
+- Surface `warnings` (e.g. `no_trusted_attestation`, `interpolation_failed`, `infinite_approval`).
 - Nested `format: "calldata"` fields expose `field.embedded`. Multicall3 / Safe CALL / UserOp expose `children: DecodedOperation[]` with per-child `source` and `trust`.
 - `locale` only formats numbers and dates. Descriptor intent strings are never translated.
 

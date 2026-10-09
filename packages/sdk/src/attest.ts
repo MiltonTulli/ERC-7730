@@ -316,14 +316,14 @@ export function attestedPolicy(config: AttestedPolicyConfig): TrustPolicy {
         return {
           ...base,
           accepted: false,
-          reasons: ['ATTESTATION_OPTIONS_INCOMPLETE', 'NO_TRUSTED_ATTESTATION'],
+          reasons: ['attestation_options_incomplete', 'no_trusted_attestation'],
         };
       }
       if (!ctx.descriptor || !descriptorHash) {
         return {
           ...base,
           accepted: false,
-          reasons: ['NO_TRUSTED_ATTESTATION'],
+          reasons: ['no_trusted_attestation'],
         };
       }
 
@@ -419,7 +419,7 @@ export function attestedPolicy(config: AttestedPolicyConfig): TrustPolicy {
           return {
             ...base,
             accepted: false,
-            reasons: ['ATTESTATION_OPTIONS_INCOMPLETE', 'NO_TRUSTED_ATTESTATION'],
+            reasons: ['attestation_options_incomplete', 'no_trusted_attestation'],
           };
         }
 
@@ -428,14 +428,14 @@ export function attestedPolicy(config: AttestedPolicyConfig): TrustPolicy {
           policy: 'attested',
           descriptorHash,
           attesters: [signer],
-          reasons: ['ATTESTED'],
+          reasons: ['attested'],
         };
       }
 
       return {
         ...base,
         accepted: false,
-        reasons: ['NO_TRUSTED_ATTESTATION'],
+        reasons: ['no_trusted_attestation'],
       };
     },
   };

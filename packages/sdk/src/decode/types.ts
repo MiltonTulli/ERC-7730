@@ -1,4 +1,5 @@
 import type { OfficialRegistry } from '../official-registry/types';
+import type { TrustReasonCode } from '../trust/reasons';
 import type { LogBlockTag, Provider, TransactionInput, TypedDataInput } from '../types';
 import type { Hex, InputDescriptor, ResolvedDescriptor } from '../types/descriptor';
 
@@ -145,8 +146,8 @@ export type ClearSignEvent =
   | { type: 'registry:fetch'; path: string; durationMs: number }
   | { type: 'registry:cache-hit'; path: string }
   | { type: 'registry:miss'; chainId?: number; address?: string }
-  | { type: 'trust:accepted'; reasons: string[] }
-  | { type: 'trust:rejected'; reasons: string[] }
+  | { type: 'trust:accepted'; reasons: TrustReasonCode[] }
+  | { type: 'trust:rejected'; reasons: TrustReasonCode[] }
   | { type: 'warning:emitted'; warningType: SecurityWarningType };
 
 /**
@@ -164,7 +165,7 @@ export const SECURITY_WARNING_TYPES = [
   'selector_mismatch',
   'missing_metadata',
   'interpolation_failed',
-  'NO_TRUSTED_ATTESTATION',
+  'no_trusted_attestation',
 ] as const;
 
 export type SecurityWarningType = (typeof SECURITY_WARNING_TYPES)[number];
@@ -181,7 +182,7 @@ export interface TrustReport {
   policy: string;
   descriptorHash?: Hex;
   attesters?: Address[];
-  reasons: string[];
+  reasons: TrustReasonCode[];
 }
 
 export interface TrustContext {

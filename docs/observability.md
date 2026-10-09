@@ -11,7 +11,7 @@ Events:
 | `registry:fetch` | `path`, `durationMs` |
 | `registry:cache-hit` | `path` |
 | `registry:miss` | `chainId`, `address` |
-| `trust:accepted` / `trust:rejected` | `reasons` (stable trust-reason codes) |
+| `trust:accepted` / `trust:rejected` | `reasons` (`TrustReasonCode[]`, snake_case) |
 | `warning:emitted` | `warningType` from `SECURITY_WARNING_TYPES` |
 
 The official-registry client emits fetch and cache-hit only when the lookup passes the call's observer. Two decodes that share a registry do not mix counters. A cache hit on the second call does not emit `registry:fetch`.

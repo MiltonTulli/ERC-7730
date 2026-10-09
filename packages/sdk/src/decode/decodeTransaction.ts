@@ -349,7 +349,7 @@ async function presentDescriptorResult(
   }
   const fallback = await fallbackOperation(tx, options, upgraded.trust);
   const warnings = [...fallback.warnings];
-  if (!warnings.some((warning) => warning.type === 'NO_TRUSTED_ATTESTATION')) {
+  if (!warnings.some((warning) => warning.type === 'no_trusted_attestation')) {
     warnings.push(noTrustedAttestationWarning());
   }
   return {
