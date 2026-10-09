@@ -477,6 +477,7 @@ async function decodeTransactionCore(
         fromBlock: options.fromBlock,
         toBlock: options.toBlock,
         cacheObserver: options.cacheObserver,
+        diagnosticLog: options.diagnosticLog,
       });
     } catch (error) {
       if (error instanceof InvalidInputError) {

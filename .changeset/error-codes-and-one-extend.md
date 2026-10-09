@@ -10,4 +10,6 @@ Public errors extend `Erc7730Error` and carry a stable `code`.
 
 `PathResolveError` still uses `invalid`, `not_found`, and `missing_data`, and now extends `Erc7730Error`.
 
+An include loader that throws `OfficialRegistryError` keeps that error. Other loader failures stay `INCLUDE_NOT_FOUND`. `resolveDescriptor` validates the merged document and reports every issue.
+
 Proxy, factory, spender, and verified-ABI failures are recorded on `result.diagnostics` (`IMPLEMENTATION_LOOKUP_FAILED`, `FACTORY_LOGS_FAILED`, `SPENDER_LOOKUP_FAILED`, `VERIFIED_ABI_FAILED`) and no longer fail the decode.

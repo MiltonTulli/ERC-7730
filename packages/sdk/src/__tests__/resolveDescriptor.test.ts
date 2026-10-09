@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, join, resolve as resolvePath } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
+import { OfficialRegistryError } from '../official-registry';
 import {
   DescriptorResolveError,
   createMemoryIncludeLoader,
@@ -215,6 +216,60 @@ describe('resolveDescriptor', () => {
     await expect(
       resolveDescriptor(a, createMemoryIncludeLoader({ 'a.json': a, 'b.json': b }))
     ).rejects.toBeInstanceOf(DescriptorResolveError);
+  });
+
+  it('validates the merged document when the input has includes', async () => {
+    const parent: InputDescriptor = {
+      $schema: '../../specs/erc7730-v2.schema.json',
+      context: {
+        contract: {
+          deployments: [{ chainId: 1, address: '0x0000000000000000000000000000000000000001' }],
+        },
+      },
+      metadata: { owner: 'Parent' },
+      display: { formats: {} },
+    };
+    const child: InputDescriptor = {
+      $schema: '../../specs/erc7730-v2.schema.json',
+      includes: 'parent.json',
+      context: {
+        contract: {
+          deployments: [
+            {
+              chainId: 'mainnet' as unknown as number,
+              address: '0x0000000000000000000000000000000000000001',
+            },
+          ],
+        },
+      },
+    };
+    await expect(
+      resolveDescriptor(child, createMemoryIncludeLoader({ 'parent.json': parent }))
+    ).rejects.toMatchObject({
+      code: 'VALIDATION_FAILED',
+      issues: expect.arrayContaining([expect.objectContaining({ path: expect.any(String) })]),
+    });
+  });
+
+  it('keeps a coded registry error raised by the include loader', async () => {
+    const input: InputDescriptor = {
+      $schema: '../../specs/erc7730-v2.schema.json',
+      includes: 'parent.json',
+      context: {
+        contract: {
+          deployments: [{ chainId: 1, address: '0x0000000000000000000000000000000000000001' }],
+        },
+      },
+    };
+    const loader: IncludeLoader = {
+      async load() {
+        throw new OfficialRegistryError('REGISTRY_FETCH_FAILED', 'network down');
+      },
+    };
+    await expect(resolveDescriptor(input, loader)).rejects.toMatchObject({
+      name: 'OfficialRegistryError',
+      code: 'REGISTRY_FETCH_FAILED',
+    });
   });
 
   it('throws when an include is missing', async () => {

@@ -376,15 +376,17 @@ export function createOfficialRegistry(config: OfficialRegistryConfig = {}): Off
       if (impl && impl !== address && deploymentsHit(resolved, key.chainId, impl)) {
         return resolved;
       }
+      const matchOptions = {
+        provider: key.provider,
+        fromBlock: key.fromBlock,
+        toBlock: key.toBlock,
+        diagnosticLog: key.diagnosticLog,
+      };
       if (kind === 'eip712') {
         if (!key.typedData) {
           continue;
         }
-        const bound = await matchContext(resolved, key.typedData, {
-          provider: key.provider,
-          fromBlock: key.fromBlock,
-          toBlock: key.toBlock,
-        });
+        const bound = await matchContext(resolved, key.typedData, matchOptions);
         if (bound.matched) {
           return resolved;
         }
@@ -393,7 +395,7 @@ export function createOfficialRegistry(config: OfficialRegistryConfig = {}): Off
       const bound = await matchContext(
         resolved,
         { to: address, data: '0x', chainId: key.chainId },
-        { provider: key.provider, fromBlock: key.fromBlock, toBlock: key.toBlock }
+        matchOptions
       );
       if (bound.matched) {
         return resolved;

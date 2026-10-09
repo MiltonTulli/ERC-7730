@@ -60,7 +60,7 @@ for (const [entry, reportFileName] of entries) {
   }
   const reportPath = join(apiDir, reportFileName);
   const normalized = readFileSync(reportPath, 'utf8').replace(
-    /dist\/[A-Za-z0-9_.-]+-[A-Za-z0-9]{6,}\.d\.ts/g,
+    /dist\/[A-Za-z0-9_.-]+-[A-Za-z0-9_]{6,}\.d\.ts/g,
     'dist/<chunk>.d.ts'
   );
   writeFileSync(reportPath, normalized.endsWith('\n') ? normalized : `${normalized}\n`);

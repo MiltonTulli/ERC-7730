@@ -248,6 +248,7 @@ export interface DecodeRegistry {
     fromBlock?: bigint | LogBlockTag;
     toBlock?: bigint | LogBlockTag;
     cacheObserver?: RegistryCacheObserver;
+    diagnosticLog?: DiagnosticLog;
   }): Promise<ResolvedDescriptor | null>;
   findEip712?(key: {
     chainId: number;
@@ -260,6 +261,7 @@ export interface DecodeRegistry {
     fromBlock?: bigint | LogBlockTag;
     toBlock?: bigint | LogBlockTag;
     cacheObserver?: RegistryCacheObserver;
+    diagnosticLog?: DiagnosticLog;
   }): Promise<ResolvedDescriptor | null>;
 }
 

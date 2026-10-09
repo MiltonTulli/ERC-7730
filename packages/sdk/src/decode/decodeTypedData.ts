@@ -82,6 +82,7 @@ async function lookupEip712(
     cacheObserver: options?.cacheObserver,
     fromBlock: options?.fromBlock,
     toBlock: options?.toBlock,
+    diagnosticLog: options?.diagnosticLog,
   });
 }
 

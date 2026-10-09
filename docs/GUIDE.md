@@ -242,7 +242,7 @@ const trustAttested = attestedPolicy({
 });
 ```
 
-Without `eas.call`, `attestedPolicy` fails closed (`attestation_options_incomplete` / `no_trusted_attestation`). The SDK never issues attestations.
+Without `eas.call`, or when that revocation call throws, `attestedPolicy` fails closed (`attestation_options_incomplete` / `no_trusted_attestation`). The SDK never issues attestations.
 
 Load attestation JSON with `createOfficialRegistry({ pin, attachAttestations: true })`, or set `ResolvedDescriptor.attestations` yourself in tests.
 

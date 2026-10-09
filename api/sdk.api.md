@@ -294,6 +294,7 @@ export interface DecodeRegistry {
         fromBlock?: bigint | LogBlockTag;
         toBlock?: bigint | LogBlockTag;
         cacheObserver?: RegistryCacheObserver;
+        diagnosticLog?: DiagnosticLog;
     }): Promise<ResolvedDescriptor | null>;
     // (undocumented)
     findEip712?(key: {
@@ -306,6 +307,7 @@ export interface DecodeRegistry {
         fromBlock?: bigint | LogBlockTag;
         toBlock?: bigint | LogBlockTag;
         cacheObserver?: RegistryCacheObserver;
+        diagnosticLog?: DiagnosticLog;
     }): Promise<ResolvedDescriptor | null>;
 }
 
@@ -668,6 +670,7 @@ export interface RegistryLookupKey {
     cacheObserver?: RegistryCacheObserver;
     // (undocumented)
     chainId: number;
+    diagnosticLog?: DiagnosticLog;
     // (undocumented)
     encodeTypeHash?: Hex;
     // (undocumented)
@@ -925,7 +928,7 @@ export interface VerifiedContractAbi {
 
 // Warnings were encountered during analysis:
 //
-// dist/<chunk>.d.ts:263:3 - (ae-forgotten-export) The symbol "ClearSignKind" needs to be exported by the entry point index.d.ts
+// dist/<chunk>.d.ts:268:3 - (ae-forgotten-export) The symbol "ClearSignKind" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 

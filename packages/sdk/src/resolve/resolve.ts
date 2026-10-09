@@ -19,7 +19,6 @@
 
 import { validateDescriptor } from '../schema/validate';
 import type {
-  DescriptorVersion,
   IncludeLoader,
   InputDescriptor,
   ResolvedDeployment,
@@ -92,15 +91,6 @@ function asInputDescriptor(value: Record<string, unknown>): InputDescriptor {
   return value as InputDescriptor;
 }
 
-function versionFromSchema(input: InputDescriptor): DescriptorVersion {
-  if (typeof input.$schema === 'string') {
-    if (/erc7730-v1(?=[.\-_]|\/|$|\.schema)/i.test(input.$schema)) {
-      return '1';
-    }
-  }
-  return '2';
-}
-
 /**
  * Merge includes, inline field `$ref`s, and hash the canonical merged document.
  *
@@ -124,7 +114,6 @@ export async function resolveDescriptor(
     });
   }
 
-  const version = validation.ok ? validation.version : versionFromSchema(input);
   const original = cloneJson(validation.ok ? validation.descriptor : input);
   const mergedDoc = await mergeIncludes(original, loader);
   const withRefs = inlineFieldRefs(mergedDoc);
@@ -135,9 +124,17 @@ export async function resolveDescriptor(
     });
   }
 
+  const mergedValidation = validateDescriptor(merged);
+  if (!mergedValidation.ok) {
+    throw new DescriptorResolveError('VALIDATION_FAILED', 'Invalid descriptor', {
+      path: mergedValidation.errors[0]?.path,
+      issues: mergedValidation.errors,
+    });
+  }
+
   const descriptor = asInputDescriptor(merged);
   return {
-    version,
+    version: mergedValidation.version,
     hash: descriptorHash(descriptor),
     input: original,
     merged: descriptor,

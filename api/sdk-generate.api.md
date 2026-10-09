@@ -158,7 +158,7 @@ export type ValidationResult = {
 // Warnings were encountered during analysis:
 //
 // dist/<chunk>.d.ts:652:3 - (ae-forgotten-export) The symbol "DescriptorVersion" needs to be exported by the entry point generate.d.ts
-// dist/generate-CcFeWW7_.d.ts:50:3 - (ae-forgotten-export) The symbol "ERC7730V2Display" needs to be exported by the entry point generate.d.ts
+// dist/<chunk>.d.ts:50:3 - (ae-forgotten-export) The symbol "ERC7730V2Display" needs to be exported by the entry point generate.d.ts
 
 // (No @packageDocumentation comment for this package)
 

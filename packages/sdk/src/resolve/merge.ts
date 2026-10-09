@@ -1,3 +1,4 @@
+import { Erc7730Error } from '../errors';
 import type { IncludeLoader, InputDescriptor } from '../types/descriptor';
 import { DescriptorResolveError } from './error';
 import { FORBIDDEN_KEYS, cloneJson, isPlainObject } from './util';
@@ -165,7 +166,10 @@ export async function mergeIncludes(
     try {
       loaded = await loader.load(ref, input);
     } catch (error) {
-      if (error instanceof DescriptorResolveError) {
+      // A loader that already threw a coded error (for example a registry
+      // fetch failure) must keep that code. INCLUDE_NOT_FOUND is only for
+      // loaders that failed without one.
+      if (error instanceof Erc7730Error) {
         throw error;
       }
       const message = error instanceof Error ? error.message : String(error);
