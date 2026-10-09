@@ -13,3 +13,8 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    ignore:
+      # Action v2 needs @changesets/cli 3. The version job still uses CLI 2.
+      - dependency-name: "changesets/action"
+        update-types:
+          - "version-update:semver-major"

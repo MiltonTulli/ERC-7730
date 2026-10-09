@@ -59,9 +59,11 @@ jobs:
         if: steps.detect.outputs.has_changesets == 'true'
         run: git config core.hooksPath /dev/null
 
+      # v2 requires @changesets/cli 3 and renamed these inputs. CLI stays on 2.x;
+      # publishing is the custom job below, not this action.
       - name: Open or update Version PR
         if: steps.detect.outputs.has_changesets == 'true'
-        uses: changesets/action@v2
+        uses: changesets/action@v1
         with:
           title: "chore: version packages"
           commit: "chore: version packages"

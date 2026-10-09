@@ -47,7 +47,7 @@ Filename stays **`release.yml`** so npm Trusted Publishing (OIDC) keeps matching
 
 On `push` to `main` (and optional `workflow_dispatch` of this same file):
 
-1. Job **Open Version PR** (no Environment). If `.changeset/*.md` files exist besides `README.md`, `changesets/action` opens or updates PR `chore: version packages` (`pnpm version-packages`, then `biome check --write` on `packages/sdk/package.json` and `CHANGELOG.md` so Lint & Format stays green). If there are pending changesets, the publish job is skipped.
+1. Job **Open Version PR** (no Environment). If `.changeset/*.md` files exist besides `README.md`, `changesets/action@v1` opens or updates PR `chore: version packages` (`pnpm version-packages`, then `biome check --write` on `packages/sdk/package.json` and `CHANGELOG.md` so Lint & Format stays green). The action stays on v1 while `@changesets/cli` is 2.x: v2 rejects that CLI and ignores `title`, `commit`, `version`, and `createGithubReleases`. If there are pending changesets, the publish job is skipped.
 2. Job **Publish packages** (`environment: npm`) runs only when there are **no** pending changesets (typical after merging the Version PR).
 3. `pnpm install --frozen-lockfile`, then `pnpm build` / `typecheck` / `test`.
 4. For each package, the job checks two things independently: whether its version is **already on npm**, and whether its GitHub Release (`sdk-vX.Y.Z` / `cli-vX.Y.Z`) **already exists**. If both are true, nothing happens for that package. Docs-only merges to `main` stay green.
