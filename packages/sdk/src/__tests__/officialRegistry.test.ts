@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { keccak256, toBytes } from 'viem';
 import { describe, expect, it } from 'vitest';
 import { EIP1967_IMPLEMENTATION_SLOT } from '../decode/context';
+import { createDiagnosticLog } from '../decode/session';
 import {
   OfficialRegistryError,
   VENDORED_REGISTRY_COMMIT,
@@ -12,6 +13,7 @@ import {
   isCommitSha,
   toCaip10,
 } from '../official-registry';
+import { DescriptorResolveError } from '../resolve';
 import type { Provider } from '../types';
 import type { InputDescriptor } from '../types/descriptor';
 
@@ -368,6 +370,43 @@ describe('extend', () => {
     expect(found?.merged.metadata).toMatchObject({ owner: 'Safe clone' });
   });
 
+  it('records a factory log failure from an override lookup', async () => {
+    const factory = '0x4e1DCf7AD4e460CfD30791CCC4F9c8a4f820ec67' as const;
+    const clone = '0x2222222222222222222222222222222222222222' as const;
+    const provider: Provider = {
+      async getLogs() {
+        throw new Error('rpc down');
+      },
+    };
+    const client = registry();
+    client.extend([
+      {
+        $schema: '../../specs/erc7730-v2.schema.json',
+        context: {
+          contract: {
+            factory: {
+              deployments: [{ chainId: 1, address: factory }],
+              deployEvent: 'ProxyCreation(address indexed proxy, address singleton)',
+            },
+          },
+        },
+        metadata: { owner: 'Safe clone' },
+        display: { formats: { 'approveHash(bytes32 hash)': { intent: 'Approve Safe hash' } } },
+      } as InputDescriptor,
+    ]);
+    const log = createDiagnosticLog();
+
+    const found = await client.findCalldata({
+      chainId: 1,
+      address: clone,
+      provider,
+      diagnosticLog: log,
+    });
+
+    expect(found).toBeNull();
+    expect(log.entries.some((entry) => entry.code === 'FACTORY_LOGS_FAILED')).toBe(true);
+  });
+
   it('does not return an EIP-712 override from findCalldata', async () => {
     const client = registry();
     client.extend([
@@ -438,10 +477,26 @@ describe('extend', () => {
     expect(found?.source).toBe('local-override');
   });
 
-  it('throws on an invalid override', () => {
-    expect(() => registry().extend([{ metadata: { owner: 'Nope' } } as InputDescriptor])).toThrow(
-      OfficialRegistryError
-    );
+  it('throws DescriptorResolveError with every validation issue', () => {
+    try {
+      registry().extend([
+        {
+          $schema: 'https://eips.ethereum.org/assets/eip-7730/erc7730-v2.schema.json',
+          context: {
+            contract: {
+              deployments: [{ chainId: 'mainnet', address: 1 }],
+            },
+          },
+          metadata: { owner: 'Nope' },
+        } as InputDescriptor,
+      ]);
+      expect.fail('expected DescriptorResolveError');
+    } catch (error) {
+      expect(error).toBeInstanceOf(DescriptorResolveError);
+      const resolveError = error as DescriptorResolveError;
+      expect(resolveError.code).toBe('VALIDATION_FAILED');
+      expect(resolveError.issues.length).toBeGreaterThan(1);
+    }
   });
 });
 
@@ -488,9 +543,8 @@ describe('live official registry (pinned GitHub)', () => {
       expect(found).not.toBeNull();
       expect(found?.merged.metadata).toMatchObject({ owner: 'WETH' });
     } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      if (/Failed to fetch|fetch failed|ENOTFOUND|ECONNRESET/i.test(message)) {
-        console.warn('Skipping live registry test:', message);
+      if (error instanceof OfficialRegistryError && error.code === 'REGISTRY_FETCH_FAILED') {
+        console.warn('Skipping live registry test:', error.message);
         return;
       }
       throw error;

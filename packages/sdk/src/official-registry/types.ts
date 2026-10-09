@@ -1,4 +1,4 @@
-import type { RegistryCacheObserver } from '../decode/types';
+import type { DiagnosticLog, RegistryCacheObserver } from '../decode/types';
 import type { LogBlockTag, Provider, TypedDataInput } from '../types';
 import type { Hex, InputDescriptor, ResolvedDescriptor } from '../types/descriptor';
 
@@ -32,6 +32,11 @@ export interface RegistryLookupKey {
   toBlock?: bigint | LogBlockTag;
   /** Set by decode for this call. Official registry file loads notify it. */
   cacheObserver?: RegistryCacheObserver;
+  /**
+   * Per-call diagnostic log. Override context checks record factory and proxy
+   * failures here. The official index path does not run `matchContext`.
+   */
+  diagnosticLog?: DiagnosticLog;
 }
 
 export interface DescriptorCache {

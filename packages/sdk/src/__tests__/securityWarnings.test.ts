@@ -195,7 +195,7 @@ describe('SECURITY_WARNING_TYPES', () => {
       selector_mismatch: true,
       missing_metadata: true,
       interpolation_failed: true,
-      NO_TRUSTED_ATTESTATION: true,
+      no_trusted_attestation: true,
     };
     expect([...SECURITY_WARNING_TYPES].sort()).toEqual(Object.keys(required).sort());
   });

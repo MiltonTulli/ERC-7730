@@ -31,11 +31,12 @@ describe('Registry builtins', () => {
     expect(descriptor?.context).toMatchObject({ $id: 'WETH' });
   });
 
-  it('lists only the three builtins before extend()', () => {
+  it('lists the ERC-20, ERC-721, and WETH builtins before extend()', () => {
     const registry = new Registry();
-    expect(registry.getAll()).toHaveLength(3);
-    expect(registry.getStats()).toEqual({ custom: 0, builtin: 3 });
-    expect(registry.getStats()).not.toHaveProperty('external');
+    expect(registry.find('transfer(address,uint256)')).not.toBeNull();
+    expect(registry.find('safeTransferFrom(address,address,uint256)')).not.toBeNull();
+    expect(registry.find('deposit()')).not.toBeNull();
+    expect(registry.find('poke()')).toBeNull();
   });
 
   it('rejects useExternalRegistry instead of serving the old snapshot', () => {
@@ -54,12 +55,10 @@ describe('Registry builtins', () => {
     error.mockRestore();
 
     expect(rejected[0]?.ok).toBe(false);
-    expect(registry.getStats().custom).toBe(0);
     expect(registry.find('poke()')).toBeNull();
 
     const accepted = registry.extend(customDescriptor);
     expect(accepted[0]?.ok).toBe(true);
     expect(registry.find('poke()')?.format.intent).toBe('Poke');
-    expect(registry.getAll()).toHaveLength(4);
   });
 });

@@ -82,6 +82,7 @@ async function lookupEip712(
     cacheObserver: options?.cacheObserver,
     fromBlock: options?.fromBlock,
     toBlock: options?.toBlock,
+    diagnosticLog: options?.diagnosticLog,
   });
 }
 
@@ -316,7 +317,7 @@ async function presentDescriptorResult(
     upgraded.trust
   );
   const warnings = [...fallback.warnings];
-  if (!warnings.some((warning) => warning.type === 'NO_TRUSTED_ATTESTATION')) {
+  if (!warnings.some((warning) => warning.type === 'no_trusted_attestation')) {
     warnings.push(noTrustedAttestationWarning());
   }
   return {
@@ -397,6 +398,7 @@ async function decodeTypedDataCore(
         provider: options?.provider,
         fromBlock: options?.fromBlock,
         toBlock: options?.toBlock,
+        diagnosticLog: options?.diagnosticLog,
       });
       if (!bound.matched) {
         options?.diagnosticLog?.push({

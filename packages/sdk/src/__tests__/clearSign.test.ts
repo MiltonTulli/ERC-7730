@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { clearSign, getDefaultClearSignRegistry } from '../clearSign';
+import { clearSign, sharedClearSignRegistry } from '../clearSign';
 import { createClearSigner } from '../core/ClearSigner';
 import { decodeTransaction } from '../decode/decodeTransaction';
 import type { ClearSignEvent, DecodeRegistry } from '../decode/types';
@@ -129,6 +129,38 @@ describe('diagnostics', () => {
     expect(result.trust.accepted).toBe(false);
     expect(result.diagnostics.some((item) => item.code === 'POLICY_REJECTED')).toBe(true);
   });
+
+  it('reports VERIFIED_ABI_FAILED when the ABI loader throws', async () => {
+    const result = await decodeTransaction(
+      { to: USDC, data: TRANSFER, chainId: 1 },
+      {
+        provider: null,
+        builtins: false,
+        useSourcifyFallback: true,
+        async loadVerifiedAbi() {
+          throw new Error('sourcify down');
+        },
+      }
+    );
+    expect(result.diagnostics.some((item) => item.code === 'VERIFIED_ABI_FAILED')).toBe(true);
+    expect(result.source).not.toBe('sourcify');
+  });
+
+  it('reports SPENDER_LOOKUP_FAILED without failing an approval decode', async () => {
+    const registry: DecodeRegistry = {
+      async findCalldata() {
+        throw new Error('spender index down');
+      },
+    };
+    const approve =
+      '0x095ea7b300000000000000000000000011111111111111111111111111111111111111110000000000000000000000000000000000000000000000000000000000000001';
+    const result = await decodeTransaction(
+      { to: USDC, data: approve, chainId: 1 },
+      { registry, provider: null, builtins: false }
+    );
+    expect(result.diagnostics.some((item) => item.code === 'SPENDER_LOOKUP_FAILED')).toBe(true);
+    expect(result.intent.length).toBeGreaterThan(0);
+  });
 });
 
 describe('toScreens', () => {
@@ -203,7 +235,7 @@ describe('clearSign', () => {
     expect(first.screens.headline).toBe('Wrap');
     expect(second.intent).toBe('Wrap');
     expect(fetched.length).toBe(fetchesAfterFirst);
-    expect(getDefaultClearSignRegistry()).toBe(getDefaultClearSignRegistry());
+    expect(sharedClearSignRegistry()).toBe(sharedClearSignRegistry());
   });
 
   it('dispatches typed data, batches, and user operations', async () => {

@@ -32,6 +32,7 @@ import { matchFormat } from './match';
 import { beginDecode, endDecode, failDecode } from './session';
 import type {
   DecodeOptions,
+  DecodeRunState,
   DecodeSource,
   DecodedField,
   DecodedOperation,
@@ -121,7 +122,7 @@ async function renderFromDescriptor(
   resolved: ResolvedDescriptor,
   source: DecodeSource,
   selector: Hex | undefined,
-  options: DecodeOptions | undefined
+  options: (DecodeOptions & DecodeRunState) | undefined
 ): Promise<DecodedOperation | null> {
   if (!selector) {
     return null;
@@ -153,7 +154,7 @@ async function renderFromDescriptor(
     onCalldata:
       depth < 2
         ? (inner) =>
-            decodeTransaction(inner, {
+            decodeTransactionRun(inner, {
               ...options,
               calldataDepth: depth + 1,
             })
@@ -247,7 +248,13 @@ async function tryVerifiedAbi(
     const resolved = await resolveDescriptor(result.descriptor, createMemoryIncludeLoader({}));
     const operation = await renderFromDescriptor(tx, resolved, 'sourcify', selector, options);
     return { operation, selectorMismatch };
-  } catch {
+  } catch (error) {
+    options?.diagnosticLog?.push({
+      stage: 'fallback',
+      outcome: 'error',
+      code: 'VERIFIED_ABI_FAILED',
+      message: error instanceof Error ? error.message : String(error),
+    });
     return { operation: null, selectorMismatch: false };
   }
 }
@@ -349,7 +356,7 @@ async function presentDescriptorResult(
   }
   const fallback = await fallbackOperation(tx, options, upgraded.trust);
   const warnings = [...fallback.warnings];
-  if (!warnings.some((warning) => warning.type === 'NO_TRUSTED_ATTESTATION')) {
+  if (!warnings.some((warning) => warning.type === 'no_trusted_attestation')) {
     warnings.push(noTrustedAttestationWarning());
   }
   return {
@@ -440,7 +447,7 @@ function pushDiagnostic(
 
 async function decodeTransactionCore(
   tx: TransactionInput,
-  options?: DecodeOptions
+  options?: DecodeOptions & DecodeRunState
 ): Promise<DecodedOperation> {
   const selector = selectorFromTx(tx);
   const useSourcify = options?.useSourcifyFallback === true;
@@ -470,6 +477,7 @@ async function decodeTransactionCore(
         fromBlock: options.fromBlock,
         toBlock: options.toBlock,
         cacheObserver: options.cacheObserver,
+        diagnosticLog: options.diagnosticLog,
       });
     } catch (error) {
       if (error instanceof InvalidInputError) {
@@ -510,6 +518,7 @@ async function decodeTransactionCore(
         provider: options.provider,
         fromBlock: options.fromBlock,
         toBlock: options.toBlock,
+        diagnosticLog: options.diagnosticLog,
       });
       if (!bound.matched) {
         pushDiagnostic(options, {
@@ -632,6 +641,14 @@ async function decodeTransactionCore(
 export async function decodeTransaction(
   tx: TransactionInput,
   options?: DecodeOptions
+): Promise<DecodedOperation> {
+  return decodeTransactionRun(tx, options);
+}
+
+/** Same decode, with recursion counters that stay off {@link DecodeOptions}. */
+export async function decodeTransactionRun(
+  tx: TransactionInput,
+  options?: DecodeOptions & DecodeRunState
 ): Promise<DecodedOperation> {
   validateTransactionInput(tx);
   const session = beginDecode('transaction', options);

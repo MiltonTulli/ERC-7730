@@ -287,6 +287,7 @@ describe('wallet drop-in parity (#53)', () => {
     const left = batch.calls[0]?.interpolatedIntent ?? batch.calls[0]?.intent;
     const right = batch.calls[1]?.interpolatedIntent ?? batch.calls[1]?.intent;
     expect(batch.interpolatedIntent).toBe(`${left} and ${right}`);
+    expect(batch.warnings).toEqual([]);
   });
 
   it('formats tokenAmount with a mocked ExternalDataProvider only', async () => {
@@ -456,7 +457,7 @@ describe('wallet drop-in parity (#53)', () => {
     );
     expect(revoked.trust.accepted).toBe(false);
     expect(revoked.confidence).not.toBe('high');
-    expect(revoked.warnings.some((warning) => warning.type === 'NO_TRUSTED_ATTESTATION')).toBe(
+    expect(revoked.warnings.some((warning) => warning.type === 'no_trusted_attestation')).toBe(
       true
     );
 
@@ -475,7 +476,7 @@ describe('wallet drop-in parity (#53)', () => {
       }
     );
     expect(unknown.trust.accepted).toBe(false);
-    expect(unknown.warnings.some((warning) => warning.type === 'NO_TRUSTED_ATTESTATION')).toBe(
+    expect(unknown.warnings.some((warning) => warning.type === 'no_trusted_attestation')).toBe(
       true
     );
 
@@ -489,8 +490,8 @@ describe('wallet drop-in parity (#53)', () => {
       }
     );
     expect(incomplete.trust.accepted).toBe(false);
-    expect(incomplete.trust.reasons).toContain('ATTESTATION_OPTIONS_INCOMPLETE');
-    expect(incomplete.warnings.some((warning) => warning.type === 'NO_TRUSTED_ATTESTATION')).toBe(
+    expect(incomplete.trust.reasons).toContain('attestation_options_incomplete');
+    expect(incomplete.warnings.some((warning) => warning.type === 'no_trusted_attestation')).toBe(
       true
     );
   });
@@ -640,7 +641,11 @@ describe('absorbEmbedded', () => {
                   path: 'value',
                 },
               ],
-              trust: { accepted: false, policy: 'official-only', reasons: ['rejected'] },
+              trust: {
+                accepted: false,
+                policy: 'official-only',
+                reasons: ['untrusted_descriptor'],
+              },
               diagnostics: [],
               metadata: { chainId: 1 },
               raw: {},

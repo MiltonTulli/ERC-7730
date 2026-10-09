@@ -1,5 +1,6 @@
 export { createOfficialRegistry } from './create';
 export { OfficialRegistryError } from './error';
+export type { OfficialRegistryErrorCode } from './error';
 export { createMemoryDescriptorCache } from './cache';
 export { isCommitSha, resolveRegistryTreeRef } from './pin';
 export { toCaip10, DEFAULT_OFFICIAL_REGISTRY_BASE_URL, OFFICIAL_REGISTRY_REPO } from './paths';

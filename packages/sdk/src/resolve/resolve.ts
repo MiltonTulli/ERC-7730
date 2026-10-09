@@ -19,7 +19,6 @@
 
 import { validateDescriptor } from '../schema/validate';
 import type {
-  DescriptorVersion,
   IncludeLoader,
   InputDescriptor,
   ResolvedDeployment,
@@ -92,15 +91,6 @@ function asInputDescriptor(value: Record<string, unknown>): InputDescriptor {
   return value as InputDescriptor;
 }
 
-function versionFromSchema(input: InputDescriptor): DescriptorVersion {
-  if (typeof input.$schema === 'string') {
-    if (/erc7730-v1(?=[.\-_]|\/|$|\.schema)/i.test(input.$schema)) {
-      return '1';
-    }
-  }
-  return '2';
-}
-
 /**
  * Merge includes, inline field `$ref`s, and hash the canonical merged document.
  *
@@ -118,25 +108,33 @@ export async function resolveDescriptor(
       : Array.isArray((input as { includes?: unknown }).includes);
 
   if (!validation.ok && !hasIncludes) {
-    const first = validation.errors[0];
-    throw new DescriptorResolveError(
-      first ? `${first.path}: ${first.message}` : 'Invalid descriptor',
-      first?.path
-    );
+    throw new DescriptorResolveError('VALIDATION_FAILED', 'Invalid descriptor', {
+      path: validation.errors[0]?.path,
+      issues: validation.errors,
+    });
   }
 
-  const version = validation.ok ? validation.version : versionFromSchema(input);
   const original = cloneJson(validation.ok ? validation.descriptor : input);
   const mergedDoc = await mergeIncludes(original, loader);
   const withRefs = inlineFieldRefs(mergedDoc);
   const merged = lowercaseBindingAddresses(withRefs);
   if (!isPlainObject(merged)) {
-    throw new DescriptorResolveError('Merged descriptor is not an object', '/');
+    throw new DescriptorResolveError('VALIDATION_FAILED', 'Merged descriptor is not an object', {
+      path: '/',
+    });
+  }
+
+  const mergedValidation = validateDescriptor(merged);
+  if (!mergedValidation.ok) {
+    throw new DescriptorResolveError('VALIDATION_FAILED', 'Invalid descriptor', {
+      path: mergedValidation.errors[0]?.path,
+      issues: mergedValidation.errors,
+    });
   }
 
   const descriptor = asInputDescriptor(merged);
   return {
-    version,
+    version: mergedValidation.version,
     hash: descriptorHash(descriptor),
     input: original,
     merged: descriptor,
@@ -148,7 +146,9 @@ export function createMemoryIncludeLoader(files: Record<string, unknown>): Inclu
   return {
     async load(ref) {
       if (!Object.hasOwn(files, ref)) {
-        throw new DescriptorResolveError(`Include not found: ${ref}`, '/includes');
+        throw new DescriptorResolveError('INCLUDE_NOT_FOUND', `Include not found: ${ref}`, {
+          path: '/includes',
+        });
       }
       return files[ref];
     },

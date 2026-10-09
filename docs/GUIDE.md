@@ -139,10 +139,6 @@ const externalDataProvider = {
     symbol: 'ETH',
     decimals: 18,
   }),
-  // Same hook attestedPolicy uses for EAS revocation.
-  chainClient: {
-    call: async (chainId, { to, data }) => rpcEthCall(chainId, to, data),
-  },
 };
 ```
 
@@ -152,7 +148,8 @@ const externalDataProvider = {
 | `resolveEnsName` / `resolveLocalName` | Human names for `addressName` |
 | `resolveNftCollectionName` | Collection label for NFT formats |
 | `resolveBlockTimestamp` / `resolveChainInfo` | Date and chain metadata |
-| `chainClient.call` | eth_call for EAS revocation under `attestedPolicy` |
+
+EAS revocation is not this provider. Pass `eas.call` to `attestedPolicy` from `@erc7730/sdk/attest`.
 
 Omit a method to fall back to raw formatting. The root entry has no curated token or address list. Pass `knownDataProvider()` from `@erc7730/sdk/known-data` when you want that list. Do not treat it, or a Sourcify ABI, as trusted clear-signing metadata.
 
@@ -164,12 +161,11 @@ import {
   decodeTypedData,
   decodeBatch,
   decodeUserOp,
-  format,
   composePolicies,
   officialOnlyPolicy,
   officialOrLocalPolicy,
-  attestedPolicy,
 } from '@erc7730/sdk';
+import { attestedPolicy } from '@erc7730/sdk/attest';
 
 const opts = {
   registry,
@@ -199,7 +195,7 @@ const userOpDisplay = await decodeUserOp(
 | `decodeTypedData` | `eth_signTypedData` |
 | `decodeBatch` | EIP-5792 `wallet_sendCalls` |
 | `decodeUserOp` | ERC-4337 Simple Account `execute` / `executeBatch` |
-| `format` / `formatTypedData` | Deprecated aliases of `decode*`. Omitted `trust` is `officialOnlyPolicy()` |
+| `format` / `formatTypedData` | Deprecated aliases of `decode*` on `@erc7730/sdk/legacy`. Omitted `trust` is `officialOnlyPolicy()` |
 
 Batch / nested `interpolatedIntent` joins per-call sentences with `" and "`.
 
@@ -230,7 +226,7 @@ Import `attestedPolicy` from `@erc7730/sdk/attest`. The other policies come from
 | Pin **or** attested | `trust: composePolicies([officialOnlyPolicy(), attestedPolicy(...)], 'any')` |
 | Pin **and** attested | `composePolicies([officialOnlyPolicy(), attestedPolicy(...)], 'all')` |
 
-`trust.reasons` are stable codes (`source:official-registry:accepted`, `ATTESTED`, …) — safe for telemetry / i18n. Prefer them over free-form sentences.
+`trust.reasons` are stable snake_case codes (`source_official_registry_accepted`, `attested`, …). See the trust table. Prefer them over free-form sentences.
 
 ## 8. Attestations
 
@@ -246,7 +242,7 @@ const trustAttested = attestedPolicy({
 });
 ```
 
-Without `eas.call`, `attestedPolicy` fails closed (`ATTESTATION_OPTIONS_INCOMPLETE` / `NO_TRUSTED_ATTESTATION`). The SDK never issues attestations.
+Without `eas.call`, or when that revocation call throws, `attestedPolicy` fails closed (`attestation_options_incomplete` / `no_trusted_attestation`). The SDK never issues attestations.
 
 Load attestation JSON with `createOfficialRegistry({ pin, attachAttestations: true })`, or set `ResolvedDescriptor.attestations` yourself in tests.
 
@@ -254,7 +250,7 @@ Load attestation JSON with `createOfficialRegistry({ pin, attachAttestations: tr
 
 - Prefer `interpolatedIntent` when present (spec option 1). Fields may still be shown.
 - Otherwise show `intent` + `fields`.
-- Surface `warnings` (e.g. `NO_TRUSTED_ATTESTATION`, `interpolation_failed`, `infinite_approval`).
+- Surface `warnings` (e.g. `no_trusted_attestation`, `interpolation_failed`, `infinite_approval`).
 - Nested `format: "calldata"` fields expose `field.embedded`. Multicall3 / Safe CALL / UserOp expose `children: DecodedOperation[]` with per-child `source` and `trust`.
 - `locale` only formats numbers and dates. Descriptor intent strings are never translated.
 

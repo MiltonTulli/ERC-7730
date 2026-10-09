@@ -18,18 +18,23 @@ function lookupDefinition(merged: Record<string, unknown>, ref: string): Record<
   const id = definitionId(ref);
   if (id === undefined) {
     throw new DescriptorResolveError(
+      'REF_NOT_FOUND',
       `Field $ref must point at ${DEFINITIONS_PREFIX}<id>, got "${ref}"`,
-      '/display'
+      { path: '/display' }
     );
   }
 
   const display = merged.display;
   if (!isPlainObject(display)) {
-    throw new DescriptorResolveError(`Missing display.definitions.${id}`, '/display/definitions');
+    throw new DescriptorResolveError('REF_NOT_FOUND', `Missing display.definitions.${id}`, {
+      path: '/display/definitions',
+    });
   }
   const definitions = display.definitions;
   if (!isPlainObject(definitions) || !isPlainObject(definitions[id])) {
-    throw new DescriptorResolveError(`Unknown display definition "${id}"`, '/display/definitions');
+    throw new DescriptorResolveError('REF_NOT_FOUND', `Unknown display definition "${id}"`, {
+      path: '/display/definitions',
+    });
   }
   return definitions[id];
 }

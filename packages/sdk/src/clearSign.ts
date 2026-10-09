@@ -23,7 +23,7 @@ let defaultRegistry: OfficialRegistry | undefined;
  * Official registry pinned to the vendored commit, created once per process.
  * `clearSign()` with no registry uses this instance.
  */
-export function getDefaultClearSignRegistry(): OfficialRegistry {
+export function sharedClearSignRegistry(): OfficialRegistry {
   if (!defaultRegistry) {
     defaultRegistry = createOfficialRegistry({ cache: createMemoryDescriptorCache() });
   }
@@ -104,7 +104,7 @@ export async function clearSign(
   input: ClearSignInput,
   options?: DecodeOptions
 ): Promise<ClearSignedOperation | ClearSignedBatch> {
-  const registry = options?.registry ?? getDefaultClearSignRegistry();
+  const registry = options?.registry ?? sharedClearSignRegistry();
   const resolved: DecodeOptions = { ...options, registry };
   if (isBatch(input)) {
     options?.onEvent?.({ type: 'decode:start', kind: 'batch' });

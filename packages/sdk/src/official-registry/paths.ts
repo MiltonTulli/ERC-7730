@@ -10,14 +10,14 @@ export const OFFICIAL_REGISTRY_REPO = 'ethereum/clear-signing-erc7730-registry';
 
 export function normalizeAddress(address: string): Address {
   if (!ADDRESS_RE.test(address)) {
-    throw new OfficialRegistryError(`Invalid address: ${address}`);
+    throw new OfficialRegistryError('INVALID_REF', `Invalid address: ${address}`);
   }
   return address.toLowerCase() as Address;
 }
 
 export function toCaip10(chainId: number, address: string): Caip10 {
   if (!Number.isInteger(chainId) || chainId < 0) {
-    throw new OfficialRegistryError(`Invalid chainId: ${chainId}`);
+    throw new OfficialRegistryError('INVALID_REF', `Invalid chainId: ${chainId}`);
   }
   return `eip155:${chainId}:${normalizeAddress(address)}`;
 }
@@ -43,10 +43,13 @@ export function registryFileUrl(baseUrl: string, pin: string, path: string): str
 export function resolveRegistryPath(fromPath: string, ref: string): string {
   const trimmed = ref.trim();
   if (trimmed === '') {
-    throw new OfficialRegistryError('Empty include path');
+    throw new OfficialRegistryError('INVALID_REF', 'Empty include path');
   }
   if (/^[a-z][a-z0-9+.-]*:/i.test(trimmed)) {
-    throw new OfficialRegistryError(`Remote include URIs are not fetched: ${trimmed}`);
+    throw new OfficialRegistryError(
+      'INVALID_REF',
+      `Remote include URIs are not fetched: ${trimmed}`
+    );
   }
 
   const fromDir = fromPath.split('/').slice(0, -1);
@@ -58,7 +61,10 @@ export function resolveRegistryPath(fromPath: string, ref: string): string {
     }
     if (part === '..') {
       if (out.length === 0) {
-        throw new OfficialRegistryError(`Include path escapes registry root: ${trimmed}`);
+        throw new OfficialRegistryError(
+          'INVALID_REF',
+          `Include path escapes registry root: ${trimmed}`
+        );
       }
       out.pop();
       continue;
@@ -68,13 +74,16 @@ export function resolveRegistryPath(fromPath: string, ref: string): string {
 
   const resolved = out.join('/');
   if (!resolved) {
-    throw new OfficialRegistryError(`Include path escapes registry root: ${trimmed}`);
+    throw new OfficialRegistryError(
+      'INVALID_REF',
+      `Include path escapes registry root: ${trimmed}`
+    );
   }
   return resolved;
 }
 
 export function assertSafeRegistryPath(path: string): void {
   if (path.startsWith('/') || path.includes('\\') || path.split('/').includes('..')) {
-    throw new OfficialRegistryError(`Unsafe registry path: ${path}`);
+    throw new OfficialRegistryError('INVALID_REF', `Unsafe registry path: ${path}`);
   }
 }

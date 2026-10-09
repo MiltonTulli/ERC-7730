@@ -60,6 +60,7 @@ coverage/
 *.temp
 .tmp/
 .temp/
+packages/sdk/temp/
 
 # Vite
 packages/web/.vite/

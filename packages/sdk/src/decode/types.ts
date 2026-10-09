@@ -1,4 +1,5 @@
 import type { OfficialRegistry } from '../official-registry/types';
+import type { TrustReasonCode } from '../trust/reasons';
 import type { LogBlockTag, Provider, TransactionInput, TypedDataInput } from '../types';
 import type { Hex, InputDescriptor, ResolvedDescriptor } from '../types/descriptor';
 
@@ -145,8 +146,8 @@ export type ClearSignEvent =
   | { type: 'registry:fetch'; path: string; durationMs: number }
   | { type: 'registry:cache-hit'; path: string }
   | { type: 'registry:miss'; chainId?: number; address?: string }
-  | { type: 'trust:accepted'; reasons: string[] }
-  | { type: 'trust:rejected'; reasons: string[] }
+  | { type: 'trust:accepted'; reasons: TrustReasonCode[] }
+  | { type: 'trust:rejected'; reasons: TrustReasonCode[] }
   | { type: 'warning:emitted'; warningType: SecurityWarningType };
 
 /**
@@ -164,7 +165,7 @@ export const SECURITY_WARNING_TYPES = [
   'selector_mismatch',
   'missing_metadata',
   'interpolation_failed',
-  'NO_TRUSTED_ATTESTATION',
+  'no_trusted_attestation',
 ] as const;
 
 export type SecurityWarningType = (typeof SECURITY_WARNING_TYPES)[number];
@@ -181,7 +182,7 @@ export interface TrustReport {
   policy: string;
   descriptorHash?: Hex;
   attesters?: Address[];
-  reasons: string[];
+  reasons: TrustReasonCode[];
 }
 
 export interface TrustContext {
@@ -247,6 +248,7 @@ export interface DecodeRegistry {
     fromBlock?: bigint | LogBlockTag;
     toBlock?: bigint | LogBlockTag;
     cacheObserver?: RegistryCacheObserver;
+    diagnosticLog?: DiagnosticLog;
   }): Promise<ResolvedDescriptor | null>;
   findEip712?(key: {
     chainId: number;
@@ -259,6 +261,7 @@ export interface DecodeRegistry {
     fromBlock?: bigint | LogBlockTag;
     toBlock?: bigint | LogBlockTag;
     cacheObserver?: RegistryCacheObserver;
+    diagnosticLog?: DiagnosticLog;
   }): Promise<ResolvedDescriptor | null>;
 }
 
@@ -290,9 +293,6 @@ export interface ExternalDataProvider {
   resolveNftCollectionName?(chainId: number, address: Address): Promise<string | null>;
   resolveBlockTimestamp?(chainId: number, blockHeight: bigint): Promise<number | null>;
   resolveChainInfo?(chainId: number): Promise<ChainInfo | null>;
-  chainClient?: {
-    call(chainId: number, req: { to: Address; data: Hex }): Promise<Hex>;
-  };
 }
 
 /** ABI returned by an optional verified-source adapter. */
@@ -351,10 +351,6 @@ export interface DecodeOptions {
    * There is no process-wide loader. The root entry does not include the client.
    */
   loadVerifiedAbi?: (chainId: number, address: Address) => Promise<VerifiedContractAbi | null>;
-  /** @internal Recursion guard for nested `calldata` fields. */
-  calldataDepth?: number;
-  /** @internal Recursion guard for Multicall3 / Safe / UserOp children. */
-  nestedDepth?: number;
   /**
    * BCP-47 locale for dates / amounts only. Descriptor `intent` strings are
    * never translated — string form, else `en`, else the first string value.
@@ -381,6 +377,12 @@ export interface DecodeOptions {
   diagnosticLog?: DiagnosticLog;
   /** @internal Forwarded into official-registry file loads for this call. */
   cacheObserver?: RegistryCacheObserver;
+}
+
+/** Recursion counters. Not part of public {@link DecodeOptions}. */
+export interface DecodeRunState {
+  calldataDepth?: number;
+  nestedDepth?: number;
 }
 
 export type { TransactionInput, TypedDataInput };

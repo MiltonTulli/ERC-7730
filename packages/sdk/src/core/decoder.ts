@@ -3,6 +3,7 @@
  */
 
 import { AbiParameters } from 'ox';
+import { InvalidInputError } from '../errors';
 import type { TransactionInput } from '../types';
 import { getSignatureBySelector, parseSignature } from './signatures';
 
@@ -19,7 +20,7 @@ export interface RawDecodedTransaction {
  */
 export function extractSelector(data: string): string {
   if (!data || data.length < 10) {
-    throw new Error('Invalid calldata: too short');
+    throw new InvalidInputError('INVALID_CALLDATA', 'Invalid calldata: too short');
   }
   return data.slice(0, 10).toLowerCase();
 }

@@ -19,7 +19,7 @@ import { isPlainObject } from '../resolve/util';
 import type { LogBlockTag, Provider, TransactionInput, TypedDataInput } from '../types';
 import type { Hex, InputDescriptor, ResolvedDescriptor } from '../types/descriptor';
 import { ZERO_ADDRESS, asAddress, asRecord } from './common';
-import type { Address } from './types';
+import type { Address, DiagnosticLog } from './types';
 
 const ADDRESS_RE = /^0x[0-9a-fA-F]{40}$/;
 
@@ -72,6 +72,8 @@ export interface MatchContextOptions {
    */
   fromBlock?: bigint | LogBlockTag;
   toBlock?: bigint | LogBlockTag;
+  /** Receives proxy and factory lookup failures. Decode continues either way. */
+  diagnosticLog?: DiagnosticLog;
 }
 
 type DescriptorLike = InputDescriptor | ResolvedDescriptor;
@@ -203,9 +205,14 @@ function collectAddresses(value: unknown, into: Set<string>): void {
  * Read the implementation address of a well-known proxy. Custom slots (Safe
  * singleton at slot 0, etc.) are not guessed.
  */
+function thrownMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
+
 export async function resolveImplementation(
   address: Address,
-  provider: Provider | null | undefined
+  provider: Provider | null | undefined,
+  log?: DiagnosticLog
 ): Promise<Address | undefined> {
   if (!provider) {
     return undefined;
@@ -221,7 +228,14 @@ export async function resolveImplementation(
       if (impl) {
         return impl;
       }
-    } catch {
+    } catch (error) {
+      log?.push({
+        stage: 'context-match',
+        outcome: 'error',
+        code: 'IMPLEMENTATION_LOOKUP_FAILED',
+        message: thrownMessage(error),
+        details: { address, via: 'eip1967' },
+      });
       // Fall through to bytecode.
     }
   }
@@ -237,7 +251,14 @@ export async function resolveImplementation(
           return impl;
         }
       }
-    } catch {
+    } catch (error) {
+      log?.push({
+        stage: 'context-match',
+        outcome: 'error',
+        code: 'IMPLEMENTATION_LOOKUP_FAILED',
+        message: thrownMessage(error),
+        details: { address, via: 'eip1167' },
+      });
       return undefined;
     }
   }
@@ -432,7 +453,13 @@ async function matchFactory(
       fromBlock: options?.fromBlock ?? 'earliest',
       toBlock: options?.toBlock ?? 'latest',
     });
-  } catch {
+  } catch (error) {
+    options?.diagnosticLog?.push({
+      stage: 'context-match',
+      outcome: 'error',
+      code: 'FACTORY_LOGS_FAILED',
+      message: thrownMessage(error),
+    });
     return false;
   }
 
@@ -459,6 +486,7 @@ async function matchFactory(
         return true;
       }
     } catch {
+      // Best-effort parse of one log. A bad ABI layout is not a descriptor failure.
       const found = new Set<string>();
       collectAddresses(topics, found);
       collectAddresses(log.data, found);
@@ -569,7 +597,7 @@ async function matchContractContext(
   }
 
   if (deployments.length > 0) {
-    const impl = await resolveImplementation(address, options?.provider);
+    const impl = await resolveImplementation(address, options?.provider, options?.diagnosticLog);
     if (impl && deploymentsInclude(deployments, chainId, impl)) {
       return { matched: true, via: 'proxy' };
     }
@@ -618,7 +646,11 @@ async function matchEip712Context(
       return { matched: false, reason: 'unmatched' };
     }
     if (!deploymentsInclude(deployments, chainId, verifying)) {
-      const impl = await resolveImplementation(verifying, options?.provider);
+      const impl = await resolveImplementation(
+        verifying,
+        options?.provider,
+        options?.diagnosticLog
+      );
       if (!impl || !deploymentsInclude(deployments, chainId, impl)) {
         return {
           matched: false,

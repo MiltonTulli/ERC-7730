@@ -15,7 +15,7 @@ Primary wallet surface:
 | `decodeTypedData` | `eth_signTypedData` |
 | `decodeBatch` | EIP-5792 `wallet_sendCalls` |
 | `decodeUserOp` | ERC-4337 Simple Account `execute` / `executeBatch` |
-| `format` / `formatTypedData` | Compat aliases of `decode*` |
+| `format` / `formatTypedData` | Compat aliases of `decode*` on `@erc7730/sdk/legacy` |
 
 Signatures and types: see the [generated API](/ERC-7730/sdk/api/).
 
@@ -23,13 +23,13 @@ Signatures and types: see the [generated API](/ERC-7730/sdk/api/).
 
 - Prefer `interpolatedIntent` when present (spec option 1).
 - Otherwise show `intent` + `fields`.
-- Surface `warnings` (e.g. `infinite_approval`, `NO_TRUSTED_ATTESTATION`, `interpolation_failed`).
+- Surface `warnings` (e.g. `infinite_approval`, `no_trusted_attestation`, `interpolation_failed`).
 - Nested `format: "calldata"` fields expose `field.embedded`. Multicall3 / Safe CALL / UserOp expose `children: DecodedOperation[]` with per-child `source` and `trust`.
 - `locale` only formats numbers and dates. Descriptor intent strings are never translated.
 
 ## `format` aliases
 
-`format` / `formatTypedData` are deprecated aliases of `decode*` / `decodeTypedData`. When `trust` is omitted, both use `officialOnlyPolicy()`. `DecodedOperation` remains the source of truth — not Sourcify’s `DisplayModel`.
+`format` / `formatTypedData` on `@erc7730/sdk/legacy` are deprecated aliases of `decodeTransaction` / `decodeTypedData`. When `trust` is omitted, both use `officialOnlyPolicy()`. `DecodedOperation` remains the source of truth — not Sourcify’s `DisplayModel`.
 
 Pass `trust: officialOrLocalPolicy()` to accept an app `extend()` override. Import `attestedPolicy` from `@erc7730/sdk/attest` when the wallet verifies ERC-8176 attestations.
 

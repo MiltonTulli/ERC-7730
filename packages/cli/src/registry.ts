@@ -6,8 +6,8 @@ import {
   type OfficialRegistry,
   VENDORED_REGISTRY_COMMIT,
   createOfficialRegistry,
-  isCommitSha,
 } from '@erc7730/sdk';
+import { isCommitSha } from '@erc7730/sdk/legacy';
 import { pathExists, readJsonFile, resolveIncludePath, writeTextFile } from './fsjson';
 import { REGISTRY_HELP } from './help';
 import type { CliContext, CliResult } from './types';

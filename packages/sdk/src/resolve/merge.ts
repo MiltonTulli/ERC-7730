@@ -1,3 +1,4 @@
+import { Erc7730Error } from '../errors';
 import type { IncludeLoader, InputDescriptor } from '../types/descriptor';
 import { DescriptorResolveError } from './error';
 import { FORBIDDEN_KEYS, cloneJson, isPlainObject } from './util';
@@ -110,8 +111,9 @@ function includeRefs(includes: unknown): string[] {
     return includes as string[];
   }
   throw new DescriptorResolveError(
+    'VALIDATION_FAILED',
     'includes must be a URI string (or a list of URI strings)',
-    '/includes'
+    { path: '/includes' }
   );
 }
 
@@ -124,7 +126,9 @@ export async function mergeIncludes(
   stack: string[] = []
 ): Promise<Record<string, unknown>> {
   if (!isPlainObject(input)) {
-    throw new DescriptorResolveError('Descriptor must be a JSON object', '/');
+    throw new DescriptorResolveError('VALIDATION_FAILED', 'Descriptor must be a JSON object', {
+      path: '/',
+    });
   }
 
   const cloned = cloneJson(input) as Record<string, unknown>;
@@ -141,15 +145,20 @@ export async function mergeIncludes(
   }
 
   if (stack.length + refs.length > MAX_INCLUDE_DEPTH) {
-    throw new DescriptorResolveError(`Include depth exceeds ${MAX_INCLUDE_DEPTH}`, '/includes');
+    throw new DescriptorResolveError(
+      'INCLUDE_DEPTH',
+      `Include depth exceeds ${MAX_INCLUDE_DEPTH}`,
+      { path: '/includes' }
+    );
   }
 
   let merged: Record<string, unknown> = {};
   for (const ref of refs) {
     if (stack.includes(ref)) {
       throw new DescriptorResolveError(
+        'INCLUDE_CYCLE',
         `Circular include: ${[...stack, ref].join(' -> ')}`,
-        '/includes'
+        { path: '/includes' }
       );
     }
 
@@ -157,14 +166,25 @@ export async function mergeIncludes(
     try {
       loaded = await loader.load(ref, input);
     } catch (error) {
+      // A loader that already threw a coded error (for example a registry
+      // fetch failure) must keep that code. INCLUDE_NOT_FOUND is only for
+      // loaders that failed without one.
+      if (error instanceof Erc7730Error) {
+        throw error;
+      }
       const message = error instanceof Error ? error.message : String(error);
-      throw new DescriptorResolveError(`Failed to load include "${ref}": ${message}`, '/includes');
+      throw new DescriptorResolveError(
+        'INCLUDE_NOT_FOUND',
+        `Failed to load include "${ref}": ${message}`,
+        { path: '/includes', cause: error }
+      );
     }
 
     if (!isPlainObject(loaded)) {
       throw new DescriptorResolveError(
+        'VALIDATION_FAILED',
         `Include "${ref}" did not resolve to a JSON object`,
-        '/includes'
+        { path: '/includes' }
       );
     }
 
