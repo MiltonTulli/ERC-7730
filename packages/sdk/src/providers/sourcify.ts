@@ -17,6 +17,15 @@ export interface SourcifyClientOptions {
   baseUrl?: string;
 }
 
+/** Drop a trailing slash run. A quantified regex here is a CodeQL polynomial-ReDoS finding. */
+function withoutTrailingSlashes(value: string): string {
+  let end = value.length;
+  while (end > 0 && value[end - 1] === '/') {
+    end -= 1;
+  }
+  return value.slice(0, end);
+}
+
 function sourcifyClient(options?: SourcifyClientOptions): {
   fetch: typeof fetch;
   baseUrl: string;
@@ -24,7 +33,7 @@ function sourcifyClient(options?: SourcifyClientOptions): {
   const raw = options?.baseUrl ?? DEFAULT_SOURCIFY_BASE;
   return {
     fetch: options?.fetch ?? globalThis.fetch.bind(globalThis),
-    baseUrl: raw.replace(/\/+$/, ''),
+    baseUrl: withoutTrailingSlashes(raw),
   };
 }
 const ADDRESS_RE = /^0x[0-9a-fA-F]{40}$/;

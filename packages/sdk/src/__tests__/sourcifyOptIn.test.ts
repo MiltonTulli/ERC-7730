@@ -99,7 +99,7 @@ describe('Sourcify ABI loader opt-in', () => {
     vi.stubGlobal('fetch', vi.fn());
     const loader = sourcifyVerifiedAbiLoader({
       fetch: fetchMock,
-      baseUrl: 'https://sourcify.example/server/',
+      baseUrl: 'https://sourcify.example/server////',
     });
     const result = await loader(1, TO);
     expect(result).toBeNull();
