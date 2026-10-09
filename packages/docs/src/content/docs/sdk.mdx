@@ -17,8 +17,11 @@ npm install @erc7730/sdk
 
 | Import | What you get |
 | --- | --- |
-| `@erc7730/sdk` | Runtime. Sourcify is opt-in (`loadVerifiedAbi: sourcifyVerifiedAbiLoader` and `useSourcifyFallback: true`). Import does not fetch. `useSourcifyFallback` defaults to `false`. `decodeViemTypedData` lives here |
+| `@erc7730/sdk` | Runtime. Sourcify is not in this entry. `useSourcifyFallback` defaults to `false` and does nothing until the call passes a loader. `decodeViemTypedData` lives here |
 | `@erc7730/sdk/attest` | `attestedPolicy`. This entry can depend on `viem` |
+| `@erc7730/sdk/generate` | `generateDescriptor` and the infer helpers |
+| `@erc7730/sdk/sourcify` | Sourcify client. `loadVerifiedAbi: sourcifyVerifiedAbiLoader()` with `useSourcifyFallback: true` |
+| `@erc7730/sdk/known-data` | `knownDataProvider()`. The root entry does not apply the curated list |
 
 ## Quick start
 

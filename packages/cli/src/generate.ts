@@ -1,5 +1,6 @@
 import { parseArgs } from 'node:util';
-import { type ABI, generateDescriptor, validateDescriptor } from '@erc7730/sdk';
+import { validateDescriptor } from '@erc7730/sdk';
+import { type ABI, generateDescriptor } from '@erc7730/sdk/generate';
 import {
   parseAddress,
   parseChainId,

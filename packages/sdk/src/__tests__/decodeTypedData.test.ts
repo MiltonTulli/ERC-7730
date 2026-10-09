@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest';
 import { decodeTypedData } from '../decode/decodeTypedData';
 import { encodeType, hashEncodeType, normalizeTypedDataMessage } from '../decode/typedData';
 import type { DecodeRegistry } from '../decode/types';
+import { knownDataProvider } from '../known-data';
 import { createOfficialRegistry } from '../official-registry';
 import { createMemoryIncludeLoader, resolveDescriptor } from '../resolve';
 import type { TypedDataInput } from '../types';
@@ -238,6 +239,21 @@ describe('decodeTypedData', () => {
     });
 
     expect(result.fields.find((field) => field.label === 'Owner')?.value).toBe('0xd8da...6045');
+    expect(result.fields.find((field) => field.label === 'Spender')?.value).toBe('0x1111...0582');
+    expect(result.fields.find((field) => field.label === 'Amount')?.value).toBe('100 USDC');
+    expect(result.fields.find((field) => field.label === 'Deadline')?.value).toContain('2025');
+    expect(result.warnings.some((warning) => warning.type === 'expired_deadline')).toBe(false);
+  });
+
+  it('labels a curated spender only when knownDataProvider is passed', async () => {
+    const resolved = await resolveDescriptor(usdcPermitVisible, createMemoryIncludeLoader({}));
+    const result = await decodeTypedData(permitPayload(), {
+      registry: registryFrom({ ...resolved, source: 'official-registry' }),
+      provider: null,
+      externalDataProvider: knownDataProvider(),
+      now: DEADLINE - 1,
+    });
+
     expect(result.fields.find((field) => field.label === 'Spender')?.value).toBe('1inch Router V5');
     expect(result.fields.find((field) => field.label === 'Amount')?.value).toBe('100 USDC');
     expect(result.fields.find((field) => field.label === 'Deadline')?.value).toContain('2025');
@@ -287,7 +303,7 @@ describe('decodeTypedData', () => {
       'Valid until',
     ]);
     expect(result.fields.find((field) => field.label === 'Max spending amount')?.value).toBe(
-      '100 USDC'
+      '100000000 (raw)'
     );
   });
 

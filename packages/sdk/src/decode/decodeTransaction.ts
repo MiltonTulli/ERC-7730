@@ -1,7 +1,6 @@
 import { decodeCalldata, extractSelector } from '../core/decoder';
 import { computeSelector, getSignatureBySelector } from '../core/signatures';
 import { InvalidInputError } from '../errors';
-import { generateDescriptor } from '../generate/generate';
 import type { ABI } from '../generate/generate';
 import type { PathContext } from '../path/types';
 import { ERC20_DESCRIPTOR } from '../registry/erc20';
@@ -9,7 +8,7 @@ import { ERC721_DESCRIPTOR } from '../registry/erc721';
 import { WETH_DESCRIPTOR } from '../registry/weth';
 import { createMemoryIncludeLoader, resolveDescriptor } from '../resolve';
 import type { TransactionInput } from '../types';
-import type { Hex, InputDescriptor, ResolvedDescriptor } from '../types/descriptor';
+import type { Hex, ResolvedDescriptor } from '../types/descriptor';
 import { decodeNamedArgs, parseDeclaration, wellKnownAliases } from './abi';
 import {
   ZERO_ADDRESS,
@@ -237,21 +236,15 @@ async function tryVerifiedAbi(
   }
   try {
     const result = await loader(tx.chainId, asAddress(tx.to));
-    if (!result?.abi) {
+    if (!result?.abi && !result?.descriptor) {
       return { operation: null, selectorMismatch: false };
     }
-    const abi = result.abi as ABI;
-    const selectorMismatch = selector ? sourcifySelectorMismatch(abi, selector) : false;
-    const generated = generateDescriptor({
-      chainId: tx.chainId,
-      address: tx.to,
-      abi,
-      owner: result.name || undefined,
-    });
-    const resolved = await resolveDescriptor(
-      generated as InputDescriptor,
-      createMemoryIncludeLoader({})
-    );
+    const selectorMismatch =
+      selector && result.abi ? sourcifySelectorMismatch(result.abi as ABI, selector) : false;
+    if (!result.descriptor) {
+      return { operation: null, selectorMismatch };
+    }
+    const resolved = await resolveDescriptor(result.descriptor, createMemoryIncludeLoader({}));
     const operation = await renderFromDescriptor(tx, resolved, 'sourcify', selector, options);
     return { operation, selectorMismatch };
   } catch {

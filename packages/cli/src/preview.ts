@@ -1,10 +1,6 @@
 import { parseArgs } from 'node:util';
-import {
-  type Hex,
-  type TransactionInput,
-  decodeTransaction,
-  sourcifyVerifiedAbiLoader,
-} from '@erc7730/sdk';
+import { type Hex, type TransactionInput, decodeTransaction } from '@erc7730/sdk';
+import { sourcifyVerifiedAbiLoader } from '@erc7730/sdk/sourcify';
 import { parseAddress, parseChainId } from './fsjson';
 import { PREVIEW_HELP } from './help';
 import { openRegistry, pinOrigin, resolvePin } from './registry';
@@ -183,7 +179,7 @@ export async function runPreview(args: string[], ctx: CliContext): Promise<CliRe
     registry,
     provider: null,
     useSourcifyFallback: useSourcify,
-    ...(useSourcify ? { loadVerifiedAbi: sourcifyVerifiedAbiLoader } : {}),
+    ...(useSourcify ? { loadVerifiedAbi: sourcifyVerifiedAbiLoader() } : {}),
     now: ctx.io.now,
   });
 

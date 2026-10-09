@@ -1,20 +1,17 @@
 import {
-  type ABI,
   type ClearSignScreens,
   type DecodedOperation,
-  type GeneratedDescriptor,
   type InputDescriptor,
   InvalidInputError,
   VENDORED_REGISTRY_COMMIT,
   createClearSigner,
   createOfficialRegistry,
-  fetchFromSourcify,
-  generateDescriptor,
   officialOnlyPolicy,
   officialOrLocalPolicy,
-  sourcifyVerifiedAbiLoader,
   toScreens,
 } from '@erc7730/sdk';
+import { type ABI, type GeneratedDescriptor, generateDescriptor } from '@erc7730/sdk/generate';
+import { fetchFromSourcify, sourcifyVerifiedAbiLoader } from '@erc7730/sdk/sourcify';
 import { http, createPublicClient } from 'viem';
 import { PLAYGROUND_CHAINS, playgroundChain, playgroundChainExport, playgroundRpc } from './chains';
 
@@ -273,7 +270,7 @@ async function runDecode(): Promise<void> {
         ? {
             trust: officialOrLocalPolicy(),
             useSourcifyFallback: true,
-            loadVerifiedAbi: sourcifyVerifiedAbiLoader,
+            loadVerifiedAbi: sourcifyVerifiedAbiLoader(),
           }
         : {
             trust: officialOnlyPolicy(),
@@ -620,14 +617,14 @@ signer.extend([customDescriptor]);
 
   const chainExport = playgroundChainExport(currentInput.chainId);
   const exploration = currentInput.mode === 'exploration';
-  const trustImport = exploration
-    ? `officialOrLocalPolicy,
-  sourcifyVerifiedAbiLoader,`
-    : 'officialOnlyPolicy,';
+  const trustImport = exploration ? 'officialOrLocalPolicy,' : 'officialOnlyPolicy,';
+  const sourcifyImport = exploration
+    ? "import { sourcifyVerifiedAbiLoader } from '@erc7730/sdk/sourcify';\n"
+    : '';
   const trustOptions = exploration
     ? `trust: officialOrLocalPolicy(),
   useSourcifyFallback: true,
-  loadVerifiedAbi: sourcifyVerifiedAbiLoader,`
+  loadVerifiedAbi: sourcifyVerifiedAbiLoader(),`
     : `trust: officialOnlyPolicy(),
   useSourcifyFallback: false,`;
   const valueLine = currentInput.value ? `\n  value: '${currentInput.value}',` : '';
@@ -638,7 +635,7 @@ import {
   createOfficialRegistry,
   ${trustImport}
 } from '@erc7730/sdk';
-${rpcNote}
+${sourcifyImport}${rpcNote}
 const chain = ${chainExport};
 const rpcUrl = '${rpcUrl}';
 const provider = chain
@@ -1074,7 +1071,8 @@ function renderGenerateResult(descriptor: GeneratedDescriptor, fromSourcify = fa
 }
 
 function generateDescriptorUsageCode(descriptor: GeneratedDescriptor): string {
-  return `import { createClearSigner, generateDescriptor, officialOrLocalPolicy } from '@erc7730/sdk';
+  return `import { createClearSigner, officialOrLocalPolicy } from '@erc7730/sdk';
+import { generateDescriptor } from '@erc7730/sdk/generate';
 
 // Generated / Sourcify drafts are untrusted — never confidence: "high".
 // Option 1: local override (not a registry contribution)

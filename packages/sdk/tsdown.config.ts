@@ -4,6 +4,9 @@ export default defineConfig({
   entry: {
     index: 'src/index.ts',
     attest: 'src/attest.ts',
+    generate: 'src/generate/index.ts',
+    sourcify: 'src/sourcify.ts',
+    'known-data': 'src/known-data.ts',
   },
   format: 'esm',
   dts: true,

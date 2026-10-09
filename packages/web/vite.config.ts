@@ -9,8 +9,24 @@ export default defineConfig({
     sourcemap: false, // Disable sourcemaps for smaller build
   },
   resolve: {
-    alias: {
-      '@erc7730/sdk': resolve(__dirname, '../sdk/dist/index.js'),
-    },
+    alias: [
+      {
+        find: /^@erc7730\/sdk\/generate$/,
+        replacement: resolve(__dirname, '../sdk/dist/generate.js'),
+      },
+      {
+        find: /^@erc7730\/sdk\/sourcify$/,
+        replacement: resolve(__dirname, '../sdk/dist/sourcify.js'),
+      },
+      {
+        find: /^@erc7730\/sdk\/known-data$/,
+        replacement: resolve(__dirname, '../sdk/dist/known-data.js'),
+      },
+      {
+        find: /^@erc7730\/sdk\/attest$/,
+        replacement: resolve(__dirname, '../sdk/dist/attest.js'),
+      },
+      { find: /^@erc7730\/sdk$/, replacement: resolve(__dirname, '../sdk/dist/index.js') },
+    ],
   },
 });

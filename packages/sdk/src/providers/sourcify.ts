@@ -6,9 +6,36 @@
  */
 
 import type { VerifiedAbiLoader } from '../decode/abiLoader';
-import type { ABI } from '../generate/generate';
+import { type ABI, asInputDescriptor, generateDescriptor } from '../generate/generate';
 
-const SOURCIFY_API_V2_BASE = 'https://sourcify.dev/server';
+const DEFAULT_SOURCIFY_BASE = 'https://sourcify.dev/server';
+
+/** Inject the HTTP client and the Sourcify server prefix. */
+export interface SourcifyClientOptions {
+  fetch?: typeof fetch;
+  /** API prefix. Default `https://sourcify.dev/server`. */
+  baseUrl?: string;
+}
+
+/** Drop a trailing slash run. A quantified regex here is a CodeQL polynomial-ReDoS finding. */
+function withoutTrailingSlashes(value: string): string {
+  let end = value.length;
+  while (end > 0 && value[end - 1] === '/') {
+    end -= 1;
+  }
+  return value.slice(0, end);
+}
+
+function sourcifyClient(options?: SourcifyClientOptions): {
+  fetch: typeof fetch;
+  baseUrl: string;
+} {
+  const raw = options?.baseUrl ?? DEFAULT_SOURCIFY_BASE;
+  return {
+    fetch: options?.fetch ?? globalThis.fetch.bind(globalThis),
+    baseUrl: withoutTrailingSlashes(raw),
+  };
+}
 const ADDRESS_RE = /^0x[0-9a-fA-F]{40}$/;
 
 function isSourcifyTarget(chainId: number, address: string): boolean {
@@ -56,15 +83,20 @@ export interface SourcifyResult {
  * @param address - The contract address
  * @returns Contract details including ABI if verified
  */
-export async function fetchFromSourcify(chainId: number, address: string): Promise<SourcifyResult> {
+export async function fetchFromSourcify(
+  chainId: number,
+  address: string,
+  options?: SourcifyClientOptions
+): Promise<SourcifyResult> {
   if (!isSourcifyTarget(chainId, address)) {
     return { verified: false, abi: null, name: null, match: null };
   }
+  const client = sourcifyClient(options);
   try {
     // Only request the 'abi' field - 'name' is not a valid field in Sourcify API v2
-    const url = `${SOURCIFY_API_V2_BASE}/v2/contract/${chainId}/${address}?fields=abi`;
+    const url = `${client.baseUrl}/v2/contract/${chainId}/${address}?fields=abi`;
 
-    const response = await fetch(url);
+    const response = await client.fetch(url);
 
     if (!response.ok) {
       if (response.status === 404) {
@@ -141,26 +173,46 @@ function extractContractName(abi: ABI | undefined): string | null {
 }
 
 /**
- * Sourcify ABI fetch shaped as `DecodeOptions.loadVerifiedAbi`.
- * Pass it on the decode call together with `useSourcifyFallback: true`.
- * Importing the package does not install a loader.
+ * Verified-ABI loader for `DecodeOptions.loadVerifiedAbi`.
+ * Call it: `loadVerifiedAbi: sourcifyVerifiedAbiLoader({ fetch, baseUrl })`.
+ * The loader attaches a draft descriptor so the decode core does not author one.
+ * Importing `@erc7730/sdk` does not install a loader.
  */
-export const sourcifyVerifiedAbiLoader: VerifiedAbiLoader = async (chainId, address) => {
-  const result = await fetchFromSourcify(chainId, address);
-  if (!result.verified || !result.abi) {
-    return null;
-  }
-  return { abi: result.abi, name: result.name || undefined };
-};
+export function sourcifyVerifiedAbiLoader(options?: SourcifyClientOptions): VerifiedAbiLoader {
+  return async (chainId, address) => {
+    const result = await fetchFromSourcify(chainId, address, options);
+    if (!result.verified || !result.abi) {
+      return null;
+    }
+    return {
+      abi: result.abi,
+      name: result.name || undefined,
+      descriptor: asInputDescriptor(
+        generateDescriptor({
+          chainId,
+          address,
+          abi: result.abi,
+          owner: result.name || undefined,
+          contractName: result.name || undefined,
+        })
+      ),
+    };
+  };
+}
 
 /** Check if a contract is verified on Sourcify (quick check without fetching ABI). */
-export async function isVerifiedOnSourcify(chainId: number, address: string): Promise<boolean> {
+export async function isVerifiedOnSourcify(
+  chainId: number,
+  address: string,
+  options?: SourcifyClientOptions
+): Promise<boolean> {
   if (!isSourcifyTarget(chainId, address)) {
     return false;
   }
+  const client = sourcifyClient(options);
   try {
-    const url = `${SOURCIFY_API_V2_BASE}/v2/contract/${chainId}/${address}`;
-    const response = await fetch(url, { method: 'HEAD' });
+    const url = `${client.baseUrl}/v2/contract/${chainId}/${address}`;
+    const response = await client.fetch(url, { method: 'HEAD' });
     return response.ok;
   } catch {
     return false;

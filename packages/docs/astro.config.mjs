@@ -34,7 +34,13 @@ export default defineConfig({
       customCss: ['./src/styles/custom.css'],
       plugins: [
         starlightTypeDoc({
-          entryPoints: [`${sdkRoot}/src/index.ts`, `${sdkRoot}/src/attest.ts`],
+          entryPoints: [
+            `${sdkRoot}/src/index.ts`,
+            `${sdkRoot}/src/attest.ts`,
+            `${sdkRoot}/src/generate/index.ts`,
+            `${sdkRoot}/src/sourcify.ts`,
+            `${sdkRoot}/src/known-data.ts`,
+          ],
           tsconfig: `${sdkRoot}/tsconfig.json`,
           output: 'sdk/api',
           sidebar: {
