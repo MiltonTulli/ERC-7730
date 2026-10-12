@@ -40,6 +40,7 @@ EIP-712 descriptors that bind only via `domain` / `domainSeparator` are not pre-
 
 ## `extend()` is local
 
+<!-- snippet: continues -->
 ```ts
 registry.extend(myDescriptor); // local-override provenance — not an official-registry contribution
 ```

@@ -89,18 +89,48 @@ function splitTopLevel(src: string): string[] {
   return parts;
 }
 
+function isDigit(char: string): boolean {
+  return char >= '0' && char <= '9';
+}
+
+/** Leading `[` / `[N]` run. A quantified regex on this suffix is a CodeQL polynomial-ReDoS finding. */
 function parseArraySuffix(src: string): { type: string; rest: string } {
-  const match = src.match(/^((?:\[[\d]*\])+)\s*(.*)$/);
-  if (!match) {
+  const n = src.length;
+  let i = 0;
+  while (i < n && src[i] === '[') {
+    let j = i + 1;
+    while (j < n && isDigit(src[j] ?? '')) {
+      j += 1;
+    }
+    if (j >= n || src[j] !== ']') {
+      return { type: '', rest: src.trim() };
+    }
+    i = j + 1;
+  }
+  if (i === 0) {
     return { type: '', rest: src.trim() };
   }
-  return { type: match[1], rest: match[2].trim() };
+  return { type: src.slice(0, i), rest: src.slice(i).trim() };
+}
+
+/** Trailing `[` / `[N]` run, scanned from the end. */
+function splitTrailingArraySuffix(type: string): { base: string; suffix: string } {
+  let end = type.length;
+  while (end > 0 && type[end - 1] === ']') {
+    let i = end - 2;
+    while (i >= 0 && isDigit(type[i] ?? '')) {
+      i -= 1;
+    }
+    if (i < 0 || type[i] !== '[') {
+      break;
+    }
+    end = i;
+  }
+  return { base: type.slice(0, end), suffix: type.slice(end) };
 }
 
 function canonicalizeType(type: string): string {
-  const arrayMatch = type.match(/^(.*?)((?:\[\d*\])+)$/);
-  const base = arrayMatch ? arrayMatch[1] : type;
-  const suffix = arrayMatch ? arrayMatch[2] : '';
+  const { base, suffix } = splitTrailingArraySuffix(type);
   const mapped =
     base !== undefined && Object.hasOwn(TYPE_ALIASES, base) ? TYPE_ALIASES[base] : base;
   return `${mapped}${suffix}`;

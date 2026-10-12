@@ -5,7 +5,7 @@
 > Submit new protocol descriptors there. This package is a historical snapshot
 > used as test fixtures. It is not bundled into `@erc7730/sdk`.
 
-Do not open descriptor PRs against this repository. For app-local overrides, use `createOfficialRegistry({ pin }).extend()` in `@erc7730/sdk`.
+Do not open descriptor PRs against this repository. For app-local overrides, assign `createOfficialRegistry({ pin })`, then call `registry.extend(descriptors)`. `extend()` returns void.
 
 ## Fixture layout
 
