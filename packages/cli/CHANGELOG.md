@@ -1,5 +1,33 @@
 # @erc7730/cli
 
+## 0.4.1
+
+### Patch Changes
+
+- 34d438b: Move deprecated root values to `@erc7730/sdk/legacy`.
+  
+  `ClearSigner`, `getDefaultClearSignRegistry`, `format`, `formatTypedData`, `Registry`, `decodeCalldata`, `extractSelector`, the signature helpers, amount and address formatters, `resolveImplementation`, `EIP1967_IMPLEMENTATION_SLOT`, `createMemoryIncludeLoader`, `isCommitSha`, `toCaip10`, and the official registry URL constants are `@deprecated` and removed in 1.0.
+  
+  `calldataDepth` and `nestedDepth` are no longer public `DecodeOptions` fields. `BatchDecodeResult.warnings` lists the child warnings, deduped by `type` and `path`.
+  
+  Removed with no replacement: `isContract`, `intentFromFormat`, `Registry.getAll`, `Registry.getStats`, `Provider.getEnsAddress`, `Provider.chain`, `ExternalDataProvider.chainClient`, `RegistryConfig`, and `ChainName`. `attestedPolicy` stays on `@erc7730/sdk/attest`.
+  
+  The CLI imports `isCommitSha` from `@erc7730/sdk/legacy`.
+  
+  API Extractor reports for the root entry and for `legacy`, `attest`, `generate`, `sourcify`, and `known-data` are committed under `api/`.
+- 737c42c: Move authoring, Sourcify, and curated token and contract names off the root entry.
+  
+  `generateDescriptor`, `generateFunctionDescriptor`, `inferIntent`, `inferFormat`, `inferLabel`, `looksLikeErc20`, `V2_SCHEMA_URI`, and `GENERATED_DESCRIPTOR_COMMENT` are `@erc7730/sdk/generate`.
+  
+  `fetchFromSourcify`, `isVerifiedOnSourcify`, and `sourcifyVerifiedAbiLoader({ fetch, baseUrl })` are `@erc7730/sdk/sourcify`. The loader is a factory and attaches a draft descriptor. Pass `loadVerifiedAbi: sourcifyVerifiedAbiLoader()`.
+  
+  `knownDataProvider()` is `@erc7730/sdk/known-data`. The decode core no longer applies `KNOWN_TOKENS` or `KNOWN_ADDRESSES`. A loader that returns only an ABI no longer gets a generated descriptor. The CLI imports the new subpaths.
+- Updated dependencies [af3480d]
+- Updated dependencies [34d438b]
+- Updated dependencies [165ede7]
+- Updated dependencies [737c42c]
+  - @erc7730/sdk@0.12.0
+
 ## 0.4.0
 
 ### Minor Changes
