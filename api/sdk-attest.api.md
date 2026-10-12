@@ -6,6 +6,16 @@
 
 import { Hex } from 'viem';
 
+// @public (undocumented)
+export type AttestationVerdict = {
+    ok: true;
+    reason: 'attested';
+    attester: Address;
+} | {
+    ok: false;
+    reason: 'malformed' | 'schema' | 'verifying_contract' | 'chain_id' | 'descriptor_hash' | 'uid' | 'expired' | 'future' | 'signature' | 'attester' | 'signer_hint' | 'revoked' | 'revocation_unavailable';
+};
+
 // Warning: (ae-forgotten-export) The symbol "TrustPolicy" needs to be exported by the entry point attest.d.ts
 //
 // @public
@@ -13,8 +23,6 @@ export function attestedPolicy(config: AttestedPolicyConfig): TrustPolicy;
 
 // @public (undocumented)
 export interface AttestedPolicyConfig {
-    // Warning: (ae-forgotten-export) The symbol "Address" needs to be exported by the entry point attest.d.ts
-    //
     // (undocumented)
     attesters: Address[];
     eas?: {
@@ -45,6 +53,21 @@ export function offchainAttestationUid(params: {
     data: Hex;
     salt: Hex;
 }): Hex;
+
+// @public
+export function verifyAttestation(raw: unknown, ctx: VerifyAttestationContext, now: bigint): Promise<AttestationVerdict>;
+
+// @public (undocumented)
+export interface VerifyAttestationContext {
+    // (undocumented)
+    attesters: readonly Address[];
+    descriptorHash: Hex;
+    isRevoked(attester: Address, uid: Hex): Promise<boolean>;
+}
+
+// Warnings were encountered during analysis:
+//
+// dist/attest.d.ts:32:3 - (ae-forgotten-export) The symbol "Address" needs to be exported by the entry point attest.d.ts
 
 // (No @packageDocumentation comment for this package)
 

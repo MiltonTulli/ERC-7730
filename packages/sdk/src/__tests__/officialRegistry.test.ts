@@ -199,6 +199,59 @@ describe('toCaip10', () => {
   });
 });
 
+describe('invalid registry address', () => {
+  it('rejects before an override match or a registry fetch', async () => {
+    const calls: string[] = [];
+    const client = registry(calls);
+    client.extend([
+      {
+        $schema: '../../specs/erc7730-v2.schema.json',
+        context: {
+          eip712: {
+            deployments: [{ chainId: 1, address: USDC }],
+            domain: { name: 'USD Coin' },
+          },
+        },
+        metadata: { owner: 'Local USDC Permit' },
+        display: {
+          formats: {
+            'Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)': {
+              intent: 'Local permit',
+            },
+          },
+        },
+      } as InputDescriptor,
+    ]);
+    const typedData = {
+      domain: { name: 'USD Coin', version: '2', chainId: 1, verifyingContract: USDC },
+      types: {
+        Permit: [
+          { name: 'owner', type: 'address' },
+          { name: 'spender', type: 'address' },
+          { name: 'value', type: 'uint256' },
+          { name: 'nonce', type: 'uint256' },
+          { name: 'deadline', type: 'uint256' },
+        ],
+      },
+      primaryType: 'Permit',
+      message: {},
+    };
+
+    await expect(client.findCalldata({ chainId: 1, address: 'nope' })).rejects.toMatchObject({
+      code: 'INVALID_REF',
+    });
+    await expect(
+      client.findEip712({
+        chainId: 1,
+        address: 'nope',
+        signature: 'Permit',
+        typedData,
+      })
+    ).rejects.toMatchObject({ code: 'INVALID_REF' });
+    expect(calls).toEqual([]);
+  });
+});
+
 describe('findCalldata', () => {
   it('returns the official WETH descriptor for the Ethereum deployment', async () => {
     const found = await registry().findCalldata({ chainId: 1, address: WETH });

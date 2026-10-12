@@ -8,6 +8,7 @@
 import type { VerifiedAbiLoader } from '../decode/abiLoader';
 import { Erc7730Error } from '../errors';
 import { type ABI, asInputDescriptor, generateDescriptor } from '../generate/generate';
+import { ADDRESS_RE } from '../util';
 
 const DEFAULT_SOURCIFY_BASE = 'https://sourcify.dev/server';
 
@@ -37,8 +38,6 @@ function sourcifyClient(options?: SourcifyClientOptions): {
     baseUrl: withoutTrailingSlashes(raw),
   };
 }
-const ADDRESS_RE = /^0x[0-9a-fA-F]{40}$/;
-
 function isSourcifyTarget(chainId: number, address: string): boolean {
   return Number.isInteger(chainId) && chainId >= 0 && ADDRESS_RE.test(address);
 }

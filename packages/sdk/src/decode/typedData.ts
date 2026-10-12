@@ -1,6 +1,7 @@
 import { keccak256 } from '../keccak';
 import { isPlainObject } from '../resolve/util';
 import type { Hex } from '../types/descriptor';
+import { toBigInt } from '../util';
 
 export interface TypedDataField {
   name: string;
@@ -78,26 +79,6 @@ export function encodeType(primaryType: string, types: TypedDataTypes): string {
 /** keccak256 of `encodeType` — the value stored in `index.eip712.json`. */
 export function hashEncodeType(primaryType: string, types: TypedDataTypes): Hex {
   return keccak256(encodeType(primaryType, types));
-}
-
-function toBigInt(value: unknown): bigint | undefined {
-  if (typeof value === 'bigint') {
-    return value;
-  }
-  if (typeof value === 'number' && Number.isFinite(value)) {
-    return BigInt(Math.trunc(value));
-  }
-  if (typeof value === 'boolean') {
-    return value ? 1n : 0n;
-  }
-  if (typeof value === 'string' && value !== '') {
-    try {
-      return BigInt(value);
-    } catch {
-      return undefined;
-    }
-  }
-  return undefined;
 }
 
 function normalizeTypedValue(value: unknown, type: string, types: TypedDataTypes): unknown {

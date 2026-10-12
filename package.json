@@ -9,6 +9,7 @@
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "check:regex": "node scripts/check-nested-quantifiers.mjs",
+    "check:clones": "jscpd packages/sdk/src",
     "check:snippets": "node scripts/check-doc-snippets.mjs",
     "check:changeset": "node scripts/check-changeset-claims.mjs",
     "check:scripts": "node --test scripts/check-nested-quantifiers.test.mjs scripts/check-doc-snippets.test.mjs scripts/check-changeset-claims.test.mjs",
@@ -27,6 +28,7 @@
   "devDependencies": {
     "@biomejs/biome": "^1.9.0",
     "@changesets/cli": "^3.0.3",
+    "jscpd": "4.0.5",
     "simple-git-hooks": "^2.11.0",
     "tsx": "^4.7.0",
     "turbo": "^2.0.0",

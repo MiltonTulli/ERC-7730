@@ -8,9 +8,8 @@
 
 import { keccak256 } from '../keccak';
 import type { Hex, InputDescriptor } from '../types/descriptor';
+import { ADDRESS_RE } from '../util';
 import { isPlainObject } from './util';
-
-const ADDRESS_RE = /^0x[0-9a-fA-F]{40}$/;
 
 function canonicalize(value: unknown): unknown {
   if (typeof value === 'string') {
