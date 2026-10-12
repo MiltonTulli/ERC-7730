@@ -13,6 +13,19 @@ import {
 } from './paths';
 import { CALLDATA_INDEX, EIP712_INDEX, GITHUB_API, type OfficialRegistryRuntime } from './runtime';
 
+/**
+ * Bare call. `runtime.fetchImpl(url)` sets `this` to the runtime object, and
+ * Chromium rejects that as an illegal invocation of `window.fetch`.
+ */
+function callFetch(
+  runtime: OfficialRegistryRuntime,
+  input: Parameters<typeof fetch>[0],
+  init?: Parameters<typeof fetch>[1]
+): ReturnType<typeof fetch> {
+  const { fetchImpl } = runtime;
+  return fetchImpl(input, init);
+}
+
 function asInputDescriptor(value: unknown, path: string): InputDescriptor {
   if (!isPlainObject(value)) {
     throw new OfficialRegistryError(
@@ -53,7 +66,7 @@ export async function loadJson(
     const started = performance.now();
     let response: Response;
     try {
-      response = await runtime.fetchImpl(url);
+      response = await callFetch(runtime, url);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       throw new OfficialRegistryError(
@@ -142,7 +155,7 @@ export async function loadAttestations(
     const listUrl = `${GITHUB_API}/repos/${OFFICIAL_REGISTRY_REPO}/contents/${sigsDir}?ref=${encodeURIComponent(runtime.pin)}`;
     let response: Response;
     try {
-      response = await runtime.fetchImpl(listUrl, {
+      response = await callFetch(runtime, listUrl, {
         headers: { Accept: 'application/vnd.github+json' },
       });
     } catch (error) {

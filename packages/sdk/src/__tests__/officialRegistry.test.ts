@@ -253,6 +253,24 @@ describe('invalid registry address', () => {
 });
 
 describe('findCalldata', () => {
+  it('calls fetch as a function so window.fetch keeps a valid receiver', async () => {
+    const receivers: unknown[] = [];
+    const files = registryFiles();
+    const fetchImpl = function (this: unknown, input: RequestInfo | URL) {
+      receivers.push(this);
+      return mockFetch(files, [])(input);
+    };
+    const found = await createOfficialRegistry({ pin: PIN, fetch: fetchImpl }).findCalldata({
+      chainId: 1,
+      address: WETH,
+    });
+    expect(found?.merged.metadata).toMatchObject({ owner: 'WETH' });
+    expect(receivers.length).toBeGreaterThan(0);
+    expect(receivers.every((receiver) => receiver === undefined || receiver === globalThis)).toBe(
+      true
+    );
+  });
+
   it('returns the official WETH descriptor for the Ethereum deployment', async () => {
     const found = await registry().findCalldata({ chainId: 1, address: WETH });
     expect(found).not.toBeNull();
