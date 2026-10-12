@@ -43,6 +43,8 @@ pnpm changeset
 
 On 0.x, `minor` is the usual feature bump. Docs, workflows, the web demo, and the private registry package do not need a changeset. Do not hand-edit `packages/sdk/CHANGELOG.md` or `packages/cli/CHANGELOG.md`. The Version PR writes them.
 
+The prose of a changeset names only work that is in the diff. `node scripts/check-changeset-claims.mjs` fails when the summary names a dependency or an `@scope/name` path the diff does not touch. The frontmatter bump target is not a claim.
+
 ## Descriptor input types
 
 `InputDescriptor` is the sole TypeScript model for ERC-7730 documents the SDK accepts. It is generated from `packages/sdk/src/schema/official/erc7730-v2.schema.json` into `packages/sdk/src/types/generated/erc7730-v2.ts`.
@@ -68,3 +70,5 @@ pnpm docs:site
 ```
 
 That command typechecks the quick start against `packages/sdk/dist` and builds the Starlight site. Preview with `pnpm --filter @erc7730/docs preview`.
+
+`node scripts/check-doc-snippets.mjs` (also `pnpm check:snippets`, after the SDK build) typechecks pasteable `ts` fences in the READMEs, `docs/GUIDE.md`, and the registry page. A fence that uses a binding from an earlier fence is marked `<!-- snippet: continues -->` on the line above it. `createOfficialRegistry(...).extend(...)` fails the check: `extend()` returns void.

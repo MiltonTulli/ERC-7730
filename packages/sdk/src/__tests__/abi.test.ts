@@ -31,6 +31,11 @@ describe('parseDeclaration', () => {
     });
   });
 
+  it('keeps nested array suffixes on aliased types', () => {
+    expect(canonicalizeDeclaration('f(uint[][] amounts)')).toBe('f(uint256[][])');
+    expect(canonicalizeDeclaration('f(uint[2][3] amounts)')).toBe('f(uint256[2][3])');
+  });
+
   it('parses Solidity names on tuple fields', () => {
     const parsed = parseDeclaration(
       'exactInputSingle((address tokenIn, address tokenOut, uint24 fee, address recipient, uint256 amountIn, uint256 amountOutMinimum, uint160 sqrtPriceLimitX96) params)'

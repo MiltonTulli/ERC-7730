@@ -123,6 +123,7 @@ const trust = officialOrLocalPolicy();
 
 The decode core does **no** RPC, ENS, or token-list I/O of its own. Inject an `ExternalDataProvider` when you want resolved token amounts, ENS / local names, or NFT collection labels:
 
+<!-- snippet: continues -->
 ```ts
 const externalDataProvider = {
   resolveToken: async (chainId, address) => ({
@@ -155,6 +156,7 @@ Omit a method to fall back to raw formatting. The root entry has no curated toke
 
 ## 7. Decode calls (batch / UserOp)
 
+<!-- snippet: continues -->
 ```ts
 import {
   decodeTransaction,
@@ -230,6 +232,7 @@ Import `attestedPolicy` from `@erc7730/sdk/attest`. The other policies come from
 
 ## 8. Attestations
 
+<!-- snippet: continues -->
 ```ts
 import { attestedPolicy } from '@erc7730/sdk/attest';
 
@@ -260,6 +263,7 @@ Importing `@erc7730/sdk` does not contact Sourcify and does not install a defaul
 
 Opt in per call. `useSourcifyFallback: true` does nothing until that call passes a loader. There is no process-wide loader. The loader authors a draft descriptor. The decode core does not.
 
+<!-- snippet: continues -->
 ```ts
 import { decodeTransaction } from '@erc7730/sdk';
 import { sourcifyVerifiedAbiLoader } from '@erc7730/sdk/sourcify';
@@ -274,6 +278,7 @@ await decodeTransaction(tx, {
 
 Call-scoped signatures override the built-in selector table for that decode only. Pass them on `DecodeOptions` or `createClearSigner`. There is no process-wide signature map.
 
+<!-- snippet: continues -->
 ```ts
 await decodeTransaction(tx, {
   signatures: { '0xa9059cbb': 'send(address payee,uint256 coins)' },
