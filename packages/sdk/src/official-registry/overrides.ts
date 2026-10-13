@@ -29,13 +29,18 @@ function overrideKind(resolved: ResolvedDescriptor): 'calldata' | 'eip712' | nul
   return null;
 }
 
+type OverrideSlot = { ok: true; resolved: ResolvedDescriptor } | { ok: false; error: unknown };
+
 interface OverrideIndex {
+  /** Length of the `extend()` list this index was built from. */
   size: number;
-  resolved: ResolvedDescriptor[];
+  slots: OverrideSlot[];
   /** `${chainId}:${address}` → override positions, in `extend()` order. */
   byDeployment: Map<string, number[]>;
   /** Positions that can match without a listed deployment (factory or EIP-712 context). */
   contextual: Record<'calldata' | 'eip712', number[]>;
+  /** Positions whose resolve rejected. Their kind is unknown, so every lookup reaches them. */
+  failed: number[];
 }
 
 const indexes = new WeakMap<readonly InputDescriptor[], Promise<OverrideIndex>>();
@@ -54,14 +59,24 @@ async function buildIndex(
   overrides: readonly InputDescriptor[],
   resolveOverride: (input: InputDescriptor) => Promise<ResolvedDescriptor>
 ): Promise<OverrideIndex> {
-  const resolved = await Promise.all(overrides.map((input) => resolveOverride(input)));
+  // Snapshot first: an `extend()` during the await fails the size check and triggers a rebuild.
+  const snapshot = [...overrides];
+  const settled = await Promise.allSettled(snapshot.map((input) => resolveOverride(input)));
   const index: OverrideIndex = {
-    size: overrides.length,
-    resolved,
+    size: snapshot.length,
+    slots: [],
     byDeployment: new Map(),
     contextual: { calldata: [], eip712: [] },
+    failed: [],
   };
-  resolved.forEach((item, position) => {
+  settled.forEach((result, position) => {
+    if (result.status === 'rejected') {
+      index.slots.push({ ok: false, error: result.reason });
+      index.failed.push(position);
+      return;
+    }
+    const item = result.value;
+    index.slots.push({ ok: true, resolved: item });
     for (const deployment of item.deployments) {
       const key = deploymentKey(deployment.chainId, deployment.address);
       const list = index.byDeployment.get(key);
@@ -81,7 +96,10 @@ async function buildIndex(
   return index;
 }
 
-/** Index of `overrides`, rebuilt when `extend()` appends to the list. */
+/**
+ * Index of `overrides`, rebuilt when `extend()` appends to the list. An index
+ * with failed slots is not kept, so the next lookup retries those resolves.
+ */
 async function overrideIndex(
   overrides: readonly InputDescriptor[],
   resolveOverride: (input: InputDescriptor) => Promise<ResolvedDescriptor>
@@ -95,12 +113,11 @@ async function overrideIndex(
   }
   const pending = buildIndex(overrides, resolveOverride);
   indexes.set(overrides, pending);
-  pending.catch(() => {
-    if (indexes.get(overrides) === pending) {
-      indexes.delete(overrides);
-    }
-  });
-  return pending;
+  const index = await pending;
+  if (index.failed.length > 0 && indexes.get(overrides) === pending) {
+    indexes.delete(overrides);
+  }
+  return index;
 }
 
 function candidatePositions(
@@ -109,7 +126,7 @@ function candidatePositions(
   addresses: readonly string[],
   kind: 'calldata' | 'eip712'
 ): number[] {
-  const positions = new Set<number>(index.contextual[kind]);
+  const positions = new Set<number>([...index.contextual[kind], ...index.failed]);
   for (const address of addresses) {
     for (const position of index.byDeployment.get(deploymentKey(chainId, address)) ?? []) {
       positions.add(position);
@@ -128,7 +145,8 @@ function deploymentsHit(resolved: ResolvedDescriptor, chainId: number, address: 
 /**
  * First matching override wins. An implementation deployment hits before `matchContext`.
  * Only overrides listing the address (or its implementation), factory overrides,
- * and EIP-712 overrides are checked.
+ * EIP-712 overrides, and failed resolves are checked. A failed resolve throws only
+ * when no earlier override matched.
  */
 export async function findOverride(
   overrides: readonly InputDescriptor[],
@@ -144,7 +162,11 @@ export async function findOverride(
   const index = await overrideIndex(overrides, resolveOverride);
   const addresses = impl && impl !== address ? [address, impl] : [address];
   for (const position of candidatePositions(index, key.chainId, addresses, kind)) {
-    const resolved = index.resolved[position];
+    const slot = index.slots[position];
+    if (!slot.ok) {
+      throw slot.error;
+    }
+    const resolved = slot.resolved;
     if (overrideKind(resolved) !== kind) {
       continue;
     }

@@ -47,8 +47,15 @@ export function createOfficialRegistry(config: OfficialRegistryConfig = {}): Off
   function resolveOverride(input: InputDescriptor): Promise<ResolvedDescriptor> {
     let pending = runtime.resolvedOverrides.get(input);
     if (!pending) {
-      pending = resolveDescriptor(input, includeLoader(runtime, ''));
-      runtime.resolvedOverrides.set(input, pending);
+      const created = resolveDescriptor(input, includeLoader(runtime, ''));
+      runtime.resolvedOverrides.set(input, created);
+      // Drop failures so a later lookup retries the include fetch.
+      created.catch(() => {
+        if (runtime.resolvedOverrides.get(input) === created) {
+          runtime.resolvedOverrides.delete(input);
+        }
+      });
+      pending = created;
     }
     return pending;
   }
