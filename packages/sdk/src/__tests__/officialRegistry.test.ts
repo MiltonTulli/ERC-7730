@@ -672,19 +672,13 @@ describe('cache', () => {
   });
 });
 
-describe('live official registry (pinned GitHub)', () => {
+const liveRegistry = process.env.ERC7730_LIVE === '1';
+
+describe.skipIf(!liveRegistry)('live official registry (pinned GitHub)', () => {
   it('finds WETH on Ethereum from index.calldata.json', async () => {
     const client = createOfficialRegistry({ pin: VENDORED_REGISTRY_COMMIT });
-    try {
-      const found = await client.findCalldata({ chainId: 1, address: WETH });
-      expect(found).not.toBeNull();
-      expect(found?.merged.metadata).toMatchObject({ owner: 'WETH' });
-    } catch (error) {
-      if (error instanceof OfficialRegistryError && error.code === 'REGISTRY_FETCH_FAILED') {
-        console.warn('Skipping live registry test:', error.message);
-        return;
-      }
-      throw error;
-    }
+    const found = await client.findCalldata({ chainId: 1, address: WETH });
+    expect(found).not.toBeNull();
+    expect(found?.merged.metadata).toMatchObject({ owner: 'WETH' });
   });
 });

@@ -137,6 +137,48 @@ export function parsePath(path: string): ParsedPath {
   return { root, absolute, segments, raw: path };
 }
 
+function printBracket(segment: Exclude<PathSegment, { type: 'field' }>): string {
+  if (segment.type === 'index') {
+    return `[${segment.index}]`;
+  }
+  if (segment.type === 'all') {
+    return '[]';
+  }
+  const start = segment.start === undefined ? '' : String(segment.start);
+  const end = segment.end === undefined ? '' : String(segment.end);
+  return `[${start}:${end}]`;
+}
+
+/**
+ * Canonical dotted spelling of a parsed path (`pools.[-1]`, `#.amount`, `@.from`).
+ * Compact `tokens[0]` parses, and this printer always emits the dotted form.
+ */
+export function printPath(path: ParsedPath): string {
+  let body = '';
+  for (let index = 0; index < path.segments.length; index += 1) {
+    const segment = path.segments[index];
+    if (!segment) {
+      continue;
+    }
+    if (segment.type === 'field') {
+      body += index === 0 ? segment.name : `.${segment.name}`;
+      continue;
+    }
+    const bracket = printBracket(segment);
+    body += index === 0 ? bracket : `.${bracket}`;
+  }
+  if (path.root === 'container') {
+    return `@.${body}`;
+  }
+  if (path.root === 'descriptor') {
+    return `$.${body}`;
+  }
+  if (path.absolute) {
+    return `#.${body}`;
+  }
+  return body;
+}
+
 export function concatDataPath(base: ParsedPath, child: ParsedPath): ParsedPath {
   if (child.root !== 'data' || child.absolute) {
     return child;
