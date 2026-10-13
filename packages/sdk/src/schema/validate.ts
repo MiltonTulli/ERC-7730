@@ -5,67 +5,22 @@
  * `version: "1"`. Invalid input returns `{ ok: false, errors }` — never throws.
  */
 
-import type { ErrorObject, Options, ValidateFunction } from 'ajv';
-import * as addFormatsModule from 'ajv-formats';
-import * as Ajv2020Module from 'ajv/dist/2020.js';
+import type { ErrorObject, ValidateFunction } from 'ajv';
 import type {
   DescriptorVersion,
   InputDescriptor,
   ValidationIssue,
   ValidationResult,
 } from '../types/descriptor';
-import { ADDRESS_RE, isPlainObject } from '../util';
+import { isPlainObject } from '../util';
+import { lazyValidator } from './ajv';
 import v1Schema from './official/erc7730-v1.schema.json' with { type: 'json' };
 import v2Schema from './official/erc7730-v2.schema.json' with { type: 'json' };
 
-type Ajv2020Ctor = new (opts?: Options) => import('ajv').default;
-type AddFormatsFn = typeof import('ajv-formats').default;
-
-function cjsDefault<T>(mod: T): T extends { default: infer D } ? D : T {
-  if (typeof mod === 'object' && mod !== null && 'default' in mod) {
-    return (mod as { default: T extends { default: infer D } ? D : T }).default;
-  }
-  return mod as T extends { default: infer D } ? D : T;
-}
-
-const Ajv2020 = cjsDefault(Ajv2020Module) as unknown as Ajv2020Ctor;
-const addFormats = cjsDefault(addFormatsModule) as unknown as AddFormatsFn;
-
 const SCHEMA_VERSION_RE = /erc7730-v([12])(?=[.\-_]|\/|$|\.schema)/i;
 
-const ajv = new Ajv2020({
-  allErrors: true,
-  strict: false,
-  validateFormats: true,
-  unicodeRegExp: true,
-});
-
-addFormats(ajv);
-
-// Official files use mixed-case checksums and lowercase hex; both are accepted.
-ajv.addFormat('eip55', {
-  type: 'string',
-  validate: (value: string) => ADDRESS_RE.test(value),
-});
-
-ajv.addFormat('eip155', {
-  type: 'number',
-  validate: (value: number) => Number.isInteger(value) && value >= 0,
-});
-
-function compile(schema: object): ValidateFunction {
-  const copy: Record<string, unknown> = {};
-  for (const [key, value] of Object.entries(schema as Record<string, unknown>)) {
-    // v1 is published as draft-04; omit $schema so Ajv 2020 can compile it.
-    if (key !== '$schema') {
-      copy[key] = value;
-    }
-  }
-  return ajv.compile(copy);
-}
-
-const validateV2 = compile(v2Schema);
-const validateV1 = compile(v1Schema);
+const validateV2 = lazyValidator(v2Schema);
+const validateV1 = lazyValidator(v1Schema);
 
 function pointerToken(value: string): string {
   return value.replace(/~/g, '~0').replace(/\//g, '~1');
@@ -190,19 +145,19 @@ export function validateDescriptor(input: unknown): ValidationResult {
       }
 
       const errors =
-        declared === '2' ? schemaErrors(validateV2, input) : schemaErrors(validateV1, input);
+        declared === '2' ? schemaErrors(validateV2(), input) : schemaErrors(validateV1(), input);
       if (errors.length > 0) {
         return fail(errors);
       }
       return succeed(input, declared);
     }
 
-    const v2Errors = schemaErrors(validateV2, input);
+    const v2Errors = schemaErrors(validateV2(), input);
     if (v2Errors.length === 0) {
       return succeed(input, '2');
     }
 
-    const v1Errors = schemaErrors(validateV1, input);
+    const v1Errors = schemaErrors(validateV1(), input);
     if (v1Errors.length === 0) {
       return succeed(input, '1');
     }

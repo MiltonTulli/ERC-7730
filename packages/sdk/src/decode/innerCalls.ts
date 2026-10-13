@@ -271,10 +271,9 @@ export async function decodeInnerCalls(
     ...options,
     nestedDepth: depth + 1,
   };
-  const children: DecodedOperation[] = [];
-  for (const call of calls) {
-    children.push(
-      await decodeTransactionRun(
+  return Promise.all(
+    calls.map((call) =>
+      decodeTransactionRun(
         {
           chainId: outer.chainId,
           from: outer.from,
@@ -284,9 +283,8 @@ export async function decodeInnerCalls(
         },
         childOptions
       )
-    );
-  }
-  return children;
+    )
+  );
 }
 
 /**

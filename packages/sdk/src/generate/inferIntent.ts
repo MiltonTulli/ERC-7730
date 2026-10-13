@@ -74,6 +74,8 @@ const INTENT_PATTERNS: IntentPattern[] = [
   { keywords: ['renew'], intent: 'Renew', priority: 5 },
 ];
 
+const PATTERNS_BY_PRIORITY = [...INTENT_PATTERNS].sort((a, b) => b.priority - a.priority);
+
 /**
  * Infer intent from function name.
  */
@@ -83,9 +85,7 @@ export function inferIntent(functionName: string): string {
   }
 
   const lowerName = functionName.toLowerCase();
-  const sortedPatterns = [...INTENT_PATTERNS].sort((a, b) => b.priority - a.priority);
-
-  for (const pattern of sortedPatterns) {
+  for (const pattern of PATTERNS_BY_PRIORITY) {
     const allKeywordsMatch = pattern.keywords.every((kw) => lowerName.includes(kw.toLowerCase()));
     if (allKeywordsMatch) {
       return pattern.intent;

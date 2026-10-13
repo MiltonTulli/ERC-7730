@@ -34,7 +34,7 @@ Passing `indexes` means `index.calldata.json` and `index.eip712.json` are not fe
 | `index.calldata.json` | CAIP-10 `eip155:{chainId}:{address}` (deployments and EIP-1967 / EIP-1167 implementations) |
 | `index.eip712.json` | CAIP-10 of `context.eip712.deployments`, disambiguated with `encodeType` hash when needed |
 
-There is **no** factory-clone catalog in the official indexes. Factory-only files match via `extend()` plus `matchContext` (deploy event logs), not by scanning the tree on a miss.
+There is **no** factory-clone catalog in the official indexes. Factory-only files match via `extend()` plus `matchContext` (deploy event logs), not by scanning the tree on a miss. Deploy logs are read only when `fromBlock` is bounded (a block number or a tag other than `"earliest"`); otherwise the factory check is skipped, records `FACTORY_RANGE_UNBOUNDED` in diagnostics, and the clone does not match.
 
 EIP-712 descriptors that bind only via `domain` / `domainSeparator` are not pre-indexed on GitHub. Load them through `extend()` (or a local overlay) and let `matchContext` run.
 

@@ -309,6 +309,7 @@ describe('decodeTransaction context matchers', () => {
       {
         registry: registryFrom(resolved),
         provider,
+        fromBlock: 0n,
         useSourcifyFallback: false,
         trust: officialOrLocalPolicy(),
       }

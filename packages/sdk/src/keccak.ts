@@ -1,4 +1,5 @@
-import { Hash, Hex } from 'ox';
+import * as Hash from 'ox/Hash';
+import * as Hex from 'ox/Hex';
 
 const HEX_RE = /^0x(?:[0-9a-fA-F]{2})*$/;
 

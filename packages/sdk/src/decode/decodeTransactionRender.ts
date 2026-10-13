@@ -6,7 +6,7 @@ import { ERC721_DESCRIPTOR } from '../registry/erc721';
 import { WETH_DESCRIPTOR } from '../registry/weth';
 import { createMemoryIncludeLoader, resolveDescriptor } from '../resolve';
 import type { TransactionInput } from '../types';
-import type { Hex, ResolvedDescriptor } from '../types/descriptor';
+import type { Hex, InputDescriptor, ResolvedDescriptor } from '../types/descriptor';
 import { parseTxValue } from '../util';
 import { decodeNamedArgs, parseDeclaration, wellKnownAliases } from './abi';
 import {
@@ -312,12 +312,26 @@ export async function presentDescriptorResult(
   };
 }
 
-const builtinIncludeLoader = createMemoryIncludeLoader({});
-const builtinResolved = {
-  erc20: resolveDescriptor(ERC20_DESCRIPTOR, builtinIncludeLoader),
-  erc721: resolveDescriptor(ERC721_DESCRIPTOR, builtinIncludeLoader),
-  weth: resolveDescriptor(WETH_DESCRIPTOR, builtinIncludeLoader),
+type BuiltinName = 'erc20' | 'erc721' | 'weth';
+
+const BUILTIN_TEMPLATES: Record<BuiltinName, InputDescriptor> = {
+  erc20: ERC20_DESCRIPTOR,
+  erc721: ERC721_DESCRIPTOR,
+  weth: WETH_DESCRIPTOR,
 };
+
+const builtinResolved = new Map<BuiltinName, Promise<ResolvedDescriptor>>();
+
+/** Resolved on first use so importing the SDK does not compile the schemas. */
+function resolvedBuiltin(name: BuiltinName): Promise<ResolvedDescriptor> {
+  let pending = builtinResolved.get(name);
+  if (!pending) {
+    pending = resolveDescriptor(BUILTIN_TEMPLATES[name], createMemoryIncludeLoader({}));
+    pending.catch(() => builtinResolved.delete(name));
+    builtinResolved.set(name, pending);
+  }
+  return pending;
+}
 
 const ERC721_ONLY_SELECTORS = new Set([
   computeSelector('safeTransferFrom(address,address,uint256)'),
@@ -348,7 +362,7 @@ export async function tryBuiltin(
   if (isWethDeployment(tx.chainId, tx.to)) {
     const rendered = await renderFromDescriptor(
       tx,
-      await builtinResolved.weth,
+      await resolvedBuiltin('weth'),
       'builtin',
       selector,
       options
@@ -358,8 +372,8 @@ export async function tryBuiltin(
     }
   }
   const resolved = ERC721_ONLY_SELECTORS.has(selector.toLowerCase())
-    ? await builtinResolved.erc721
-    : await builtinResolved.erc20;
+    ? await resolvedBuiltin('erc721')
+    : await resolvedBuiltin('erc20');
   return renderFromDescriptor(tx, resolved, 'builtin', selector, options);
 }
 
@@ -375,8 +389,7 @@ export async function tryTrustedToken(
   if (!standard) {
     return null;
   }
-  const template = standard === 'erc721' ? ERC721_DESCRIPTOR : ERC20_DESCRIPTOR;
-  const resolved = await resolveDescriptor(template, createMemoryIncludeLoader({}));
+  const resolved = await resolvedBuiltin(standard === 'erc721' ? 'erc721' : 'erc20');
   const rendered = await renderFromDescriptor(tx, resolved, 'trusted-token', selector, options);
   return rendered;
 }

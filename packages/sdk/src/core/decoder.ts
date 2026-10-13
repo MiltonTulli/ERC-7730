@@ -2,7 +2,7 @@
  * Core calldata decoder
  */
 
-import { AbiParameters } from 'ox';
+import * as AbiParameters from 'ox/AbiParameters';
 import { InvalidInputError } from '../errors';
 import type { TransactionInput } from '../types';
 import { getSignatureBySelector, parseSignature } from './signatures';

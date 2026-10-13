@@ -86,6 +86,9 @@ jobs:
       - name: Check SDK bundle graph
         run: node scripts/check-sdk-bundles.mjs
 
+      - name: Check SDK performance budgets
+        run: node scripts/check-sdk-perf.mjs
+
       - name: Check SDK API report
         run: |
           pnpm --filter @erc7730/sdk api:report

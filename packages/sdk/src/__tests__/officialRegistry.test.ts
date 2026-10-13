@@ -14,7 +14,7 @@ import {
   toCaip10,
 } from '../official-registry';
 import { DescriptorResolveError } from '../resolve';
-import type { Provider } from '../types';
+import type { Address, Provider } from '../types';
 import type { InputDescriptor } from '../types/descriptor';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -75,6 +75,15 @@ function mockFetch(files: Record<string, unknown>, calls: string[]): typeof fetc
       headers: { 'content-type': 'application/json' },
     });
   };
+}
+
+function localOverride(address: Address, owner: string): InputDescriptor {
+  return {
+    $schema: '../../specs/erc7730-v2.schema.json',
+    context: { contract: { deployments: [{ chainId: 1, address }] } },
+    metadata: { owner },
+    display: { formats: { 'transfer(address to,uint256 value)': { intent: 'Send' } } },
+  } as InputDescriptor;
 }
 
 function registry(calls: string[] = []) {
@@ -437,7 +446,12 @@ describe('extend', () => {
       } as InputDescriptor,
     ]);
 
-    const found = await client.findCalldata({ chainId: 1, address: clone, provider });
+    const found = await client.findCalldata({
+      chainId: 1,
+      address: clone,
+      provider,
+      fromBlock: 0n,
+    });
     expect(found?.merged.metadata).toMatchObject({ owner: 'Safe clone' });
   });
 
@@ -471,6 +485,7 @@ describe('extend', () => {
       chainId: 1,
       address: clone,
       provider,
+      fromBlock: 0n,
       diagnosticLog: log,
     });
 
@@ -546,6 +561,57 @@ describe('extend', () => {
     const found = await client.findCalldata({ chainId: 1, address: WETH });
     expect(found?.merged.metadata).toMatchObject({ owner: 'Local WETH' });
     expect(found?.source).toBe('local-override');
+  });
+
+  it('returns an earlier override when a later include fails, then retries the include', async () => {
+    const files = registryFiles();
+    const client = createOfficialRegistry({ pin: PIN, fetch: mockFetch(files, []) });
+    client.extend([
+      localOverride(WETH, 'Local WETH'),
+      { ...localOverride(USDC, 'Late USDC'), includes: 'common-Late.json' },
+    ]);
+
+    const weth = await client.findCalldata({ chainId: 1, address: WETH });
+    expect(weth?.merged.metadata).toMatchObject({ owner: 'Local WETH' });
+    await expect(client.findCalldata({ chainId: 1, address: USDC })).rejects.toThrow();
+
+    files['common-Late.json'] = { metadata: { contractName: 'Late include' } };
+    const usdc = await client.findCalldata({ chainId: 1, address: USDC });
+    expect(usdc?.source).toBe('local-override');
+    expect(usdc?.merged.metadata).toMatchObject({
+      owner: 'Late USDC',
+      contractName: 'Late include',
+    });
+  });
+
+  it('matches an override appended while a lookup is resolving', async () => {
+    const files = registryFiles();
+    files['common-Slow.json'] = { metadata: { contractName: 'Slow include' } };
+    let release = () => {};
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const base = mockFetch(files, []);
+    const client = createOfficialRegistry({
+      pin: PIN,
+      fetch: async (input, init) => {
+        if (String(input).endsWith('common-Slow.json')) {
+          await gate;
+        }
+        return base(input, init);
+      },
+    });
+    client.extend([{ ...localOverride(WETH, 'Slow WETH'), includes: 'common-Slow.json' }]);
+
+    const first = client.findCalldata({ chainId: 1, address: WETH });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    client.extend([localOverride(USDC, 'Appended USDC')]);
+    release();
+    expect((await first)?.merged.metadata).toMatchObject({ owner: 'Slow WETH' });
+
+    const appended = await client.findCalldata({ chainId: 1, address: USDC });
+    expect(appended?.source).toBe('local-override');
+    expect(appended?.merged.metadata).toMatchObject({ owner: 'Appended USDC' });
   });
 
   it('throws DescriptorResolveError with every validation issue', () => {

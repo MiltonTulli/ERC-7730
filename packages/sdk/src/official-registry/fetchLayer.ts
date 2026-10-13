@@ -11,7 +11,13 @@ import {
   registryFileUrl,
   resolveRegistryPath,
 } from './paths';
-import { CALLDATA_INDEX, EIP712_INDEX, GITHUB_API, type OfficialRegistryRuntime } from './runtime';
+import {
+  CALLDATA_INDEX,
+  EIP712_INDEX,
+  GITHUB_API,
+  type OfficialRegistryRuntime,
+  RESOLVED_MEMO_SIZE,
+} from './runtime';
 
 /**
  * Bare call. `runtime.fetchImpl(url)` sets `this` to the runtime object, and
@@ -207,7 +213,43 @@ export async function loadAttestations(
   return out;
 }
 
-export async function resolveOfficial(
+/**
+ * Resolve a registry file once per commit pin. Floating refs resolve on every
+ * call, matching the file cache.
+ */
+export function resolveOfficial(
+  runtime: OfficialRegistryRuntime,
+  path: string,
+  observer?: RegistryCacheObserver
+): Promise<ResolvedDescriptor> {
+  if (!runtime.cacheable) {
+    return resolveOfficialUncached(runtime, path, observer);
+  }
+  const memo = runtime.resolved;
+  const hit = memo.get(path);
+  if (hit) {
+    memo.delete(path);
+    memo.set(path, hit);
+    observer?.hit(path);
+    return hit;
+  }
+  const pending = resolveOfficialUncached(runtime, path, observer);
+  memo.set(path, pending);
+  if (memo.size > RESOLVED_MEMO_SIZE) {
+    const oldest = memo.keys().next().value;
+    if (oldest !== undefined) {
+      memo.delete(oldest);
+    }
+  }
+  pending.catch(() => {
+    if (memo.get(path) === pending) {
+      memo.delete(path);
+    }
+  });
+  return pending;
+}
+
+async function resolveOfficialUncached(
   runtime: OfficialRegistryRuntime,
   path: string,
   observer?: RegistryCacheObserver
