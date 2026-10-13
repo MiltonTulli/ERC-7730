@@ -35,21 +35,22 @@ function asAddress(value: unknown): Address | undefined {
   return value as Address;
 }
 
+const UINT64_MAX = (1n << 64n) - 1n;
+
 function asUint(value: unknown): bigint | undefined {
+  let out: bigint | undefined;
   if (typeof value === 'bigint') {
-    return value;
-  }
-  if (typeof value === 'number' && Number.isFinite(value)) {
-    return BigInt(Math.trunc(value));
-  }
-  if (typeof value === 'string' && value !== '') {
+    out = value;
+  } else if (typeof value === 'number' && Number.isFinite(value)) {
+    out = BigInt(Math.trunc(value));
+  } else if (typeof value === 'string' && value !== '') {
     try {
-      return BigInt(value);
+      out = BigInt(value);
     } catch {
       return undefined;
     }
   }
-  return undefined;
+  return out !== undefined && out >= 0n && out <= UINT64_MAX ? out : undefined;
 }
 
 function signatureToHex(value: unknown): Hex | undefined {

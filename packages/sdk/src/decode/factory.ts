@@ -2,7 +2,6 @@ import { AbiEvent } from 'ox';
 import { keccak256 } from '../keccak';
 import type { Hex } from '../types/descriptor';
 import { canonicalizeType, findMatchingParen, parseArraySuffix, splitTopLevel } from './abi';
-import { asAddress } from './common';
 import type { MatchContextOptions } from './context';
 import { collectAddresses } from './logs';
 import { readDeployments } from './proxy';
@@ -161,11 +160,11 @@ export async function matchFactory(
   }
 
   const want = target.toLowerCase();
-  const factorySet = new Set(factories);
+  const factorySet = new Set<string>(factories);
 
   for (const log of logs ?? []) {
     const emitter = typeof log.address === 'string' ? log.address.toLowerCase() : '';
-    if (!factorySet.has(asAddress(emitter))) {
+    if (!factorySet.has(emitter)) {
       continue;
     }
     const topics = (log.topics ?? []).filter((topic): topic is Hex => typeof topic === 'string');

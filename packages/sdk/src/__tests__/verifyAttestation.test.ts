@@ -144,6 +144,20 @@ describe('verifyAttestation', () => {
     expect(verdict).toEqual({ ok: false, reason });
   });
 
+  it.each([
+    ['negative time', { time: -1n }],
+    ['time above uint64', { time: 1n << 64n }],
+    ['negative expiration string', { expirationTime: '-1' }],
+    ['hex expiration above uint64', { expirationTime: `0x1${'0'.repeat(20)}` }],
+  ])('treats %s as malformed instead of throwing', async (_label, patch) => {
+    const signed = await signAttestation({});
+    signed.sig.message = { ...signed.sig.message, ...patch };
+    await expect(verifyAttestation(signed, context(), SIGNED_TIME)).resolves.toEqual({
+      ok: false,
+      reason: 'malformed',
+    });
+  });
+
   it('rejects an attestation that has expired at the injected clock', async () => {
     const raw = await signAttestation({ expirationTime: SIGNED_TIME });
     const verdict = await verifyAttestation(raw, context(), SIGNED_TIME);
