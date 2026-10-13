@@ -35,7 +35,8 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       # Base is measured with the head config and size-limit, so a base without
-      # `.size-limit.json` still gets numbers.
+      # `.size-limit.json` still gets numbers. The binary runs directly because
+      # `pnpm exec` writes its failure banner to stdout and breaks the JSON.
       - name: Measure base
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
@@ -44,12 +45,12 @@ jobs:
           (cd "$RUNNER_TEMP/base" && pnpm install --frozen-lockfile && pnpm --filter @erc7730/sdk build)
           rm -rf packages/sdk/dist
           cp -R "$RUNNER_TEMP/base/packages/sdk/dist" packages/sdk/dist
-          pnpm --filter @erc7730/sdk exec size-limit --json > "$RUNNER_TEMP/base.json" || true
+          (cd packages/sdk && ./node_modules/.bin/size-limit --json) > "$RUNNER_TEMP/base.json" || true
 
       - name: Measure PR
         run: |
           pnpm --filter @erc7730/sdk build
-          pnpm --filter @erc7730/sdk exec size-limit --json > "$RUNNER_TEMP/head.json" || true
+          (cd packages/sdk && ./node_modules/.bin/size-limit --json) > "$RUNNER_TEMP/head.json" || true
 
       - name: Comment
         if: github.event.pull_request.head.repo.full_name == github.repository
