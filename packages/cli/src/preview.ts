@@ -1,5 +1,12 @@
 import { parseArgs } from 'node:util';
-import { type Hex, type TransactionInput, decodeTransaction } from '@erc7730/sdk';
+import {
+  type Hex,
+  type TransactionInput,
+  type TrustPolicy,
+  decodeTransaction,
+  officialOnlyPolicy,
+  officialOrLocalPolicy,
+} from '@erc7730/sdk';
 import { sourcifyVerifiedAbiLoader } from '@erc7730/sdk/sourcify';
 import { parseAddress, parseChainId } from './fsjson';
 import { PREVIEW_HELP } from './help';
@@ -35,6 +42,34 @@ function parseValue(value: string | undefined): TransactionInput['value'] {
     return value as Hex;
   }
   return parsed;
+}
+
+function nonePolicy(): TrustPolicy {
+  return {
+    id: 'none',
+    evaluate(ctx) {
+      return {
+        accepted: true,
+        policy: 'none',
+        descriptorHash: ctx.descriptor?.hash,
+        reasons: [],
+      };
+    },
+  };
+}
+
+function trustPolicy(flag: string | undefined): TrustPolicy {
+  const name = flag ?? 'official-only';
+  if (name === 'official-only') {
+    return officialOnlyPolicy();
+  }
+  if (name === 'official-or-local') {
+    return officialOrLocalPolicy();
+  }
+  if (name === 'none') {
+    return nonePolicy();
+  }
+  throw new UsageError('--policy must be official-only, official-or-local, or none', PREVIEW_HELP);
 }
 
 function pinLine(pin: string, origin: PinOrigin): string {
@@ -117,6 +152,7 @@ export async function runPreview(args: string[], ctx: CliContext): Promise<CliRe
     from?: string;
     value?: string;
     pin?: string;
+    policy?: string;
     'registry-path'?: string;
     json?: boolean;
     sourcify?: boolean;
@@ -133,6 +169,7 @@ export async function runPreview(args: string[], ctx: CliContext): Promise<CliRe
         from: { type: 'string' },
         value: { type: 'string' },
         pin: { type: 'string' },
+        policy: { type: 'string' },
         'registry-path': { type: 'string' },
         json: { type: 'boolean' },
         sourcify: { type: 'boolean' },
@@ -178,6 +215,7 @@ export async function runPreview(args: string[], ctx: CliContext): Promise<CliRe
   const decoded = await decodeTransaction(tx, {
     registry,
     provider: null,
+    trust: trustPolicy(values.policy),
     useSourcifyFallback: useSourcify,
     ...(useSourcify ? { loadVerifiedAbi: sourcifyVerifiedAbiLoader() } : {}),
     now: ctx.io.now,

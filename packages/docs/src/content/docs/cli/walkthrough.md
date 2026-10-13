@@ -71,7 +71,7 @@ erc7730 preview \
   --pin 9f37816afde954ff6617fb5baa346133e5af26c5
 ```
 
-Prints intent, `interpolatedIntent`, fields, and trust. Add `--json` for the full `DecodedOperation`. Add `--sourcify` only to explore the untrusted ABI fallback.
+Prints intent, `interpolatedIntent`, fields, and trust. Add `--json` for the full `DecodedOperation`. Add `--sourcify` only to explore the untrusted ABI fallback. Omit `--policy` for `official-only`. `official-or-local` also accepts a local override or a builtin. `none` accepts every source.
 
 Negative native value must be `--value=-1`.
 

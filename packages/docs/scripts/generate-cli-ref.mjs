@@ -37,6 +37,10 @@ const previewHasSourcify = /sourcify:\s*\{\s*type:\s*'boolean'\s*\}/.test(previe
 if (!previewHasSourcify) {
   throw new Error('preview.ts no longer declares --sourcify; update the docs generator');
 }
+const previewHasPolicy = /policy:\s*\{\s*type:\s*'string'\s*\}/.test(previewSource);
+if (!previewHasPolicy) {
+  throw new Error('preview.ts no longer declares --policy; update the docs generator');
+}
 
 /** Flags documented for anti-drift tests (help text + known parseArgs extras). */
 const documentedFlags = [
@@ -53,6 +57,7 @@ const documentedFlags = [
   '--from',
   '--value',
   '--pin',
+  '--policy',
   '--registry-path',
   '--sourcify',
   '--against',

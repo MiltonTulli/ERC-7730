@@ -22,9 +22,10 @@ pnpm test
 pnpm --filter @erc7730/sdk test
 pnpm --filter @erc7730/cli test
 pnpm --filter @erc7730/sdk test:coverage
+pnpm --filter @erc7730/cli test:coverage
 ```
 
-Coverage thresholds live in `packages/sdk/vitest.config.ts`. CI runs that command and uploads `lcov.info`. Do not lower the thresholds to make a change pass.
+Coverage thresholds live in `packages/sdk/vitest.config.ts` and `packages/cli/vitest.config.ts`. CI runs those commands. The SDK job also uploads `lcov.info`. Do not lower the thresholds to make a change pass.
 
 ## Changesets
 

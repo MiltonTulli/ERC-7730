@@ -17,7 +17,7 @@ function cjsDefault<T>(mod: T): T extends { default: infer D } ? D : T {
 let shared: Ajv | undefined;
 
 /** Ajv configured for ERC-7730 descriptors and tests files. */
-export function createAjv(): Ajv {
+export function createAjv(options?: { verbose?: boolean }): Ajv {
   const Ajv2020 = cjsDefault(Ajv2020Module) as unknown as Ajv2020Ctor;
   const addFormats = cjsDefault(addFormatsModule) as unknown as AddFormatsFn;
   const ajv = new Ajv2020({
@@ -25,6 +25,7 @@ export function createAjv(): Ajv {
     strict: false,
     validateFormats: true,
     unicodeRegExp: true,
+    verbose: options?.verbose === true,
   });
   addFormats(ajv);
   // Official files use mixed-case checksums and lowercase hex; both are accepted.
@@ -41,11 +42,12 @@ export function createAjv(): Ajv {
 
 /** One Ajv instance for descriptors and tests files, built on first use. */
 function sharedAjv(): Ajv {
-  shared ??= createAjv();
+  // verbose so a failed oneOf can be rechecked per branch and name the bad value.
+  shared ??= createAjv({ verbose: true });
   return shared;
 }
 
-function compile(schema: object): ValidateFunction {
+function compile(schema: object, id?: string): ValidateFunction {
   const copy: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(schema as Record<string, unknown>)) {
     // v1 is published as draft-04; omit $schema so Ajv 2020 can compile it.
@@ -53,14 +55,22 @@ function compile(schema: object): ValidateFunction {
       copy[key] = value;
     }
   }
+  if (id !== undefined && copy.$id === undefined) {
+    copy.$id = id;
+  }
   return sharedAjv().compile(copy);
 }
 
+/** Compile a branch schema on the Ajv instance that already holds the root schema. */
+export function compileSharedSchema(schema: object): ValidateFunction {
+  return sharedAjv().compile(schema);
+}
+
 /** Compile `schema` on the first call and reuse the validator after that. */
-export function lazyValidator(schema: object): () => ValidateFunction {
+export function lazyValidator(schema: object, id?: string): () => ValidateFunction {
   let validate: ValidateFunction | undefined;
   return () => {
-    validate ??= compile(schema);
+    validate ??= compile(schema, id);
     return validate;
   };
 }
