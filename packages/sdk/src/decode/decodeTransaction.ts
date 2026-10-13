@@ -270,9 +270,13 @@ export async function decodeTransactionRun(
 ): Promise<DecodedOperation> {
   validateTransactionInput(tx);
   const session = beginDecode('transaction', options);
+  const runOptions: DecodeOptions & DecodeRunState = {
+    ...session.options,
+    decodeRun: decodeTransactionRun,
+  };
   try {
-    const core = await decodeTransactionCore(tx, session.options);
-    const expanded = await expandNestedCalls(core, tx, session.options);
+    const core = await decodeTransactionCore(tx, runOptions);
+    const expanded = await expandNestedCalls(core, tx, runOptions, decodeTransactionRun);
     return endDecode('transaction', options, session, expanded);
   } catch (error) {
     failDecode('transaction', options, session.started);

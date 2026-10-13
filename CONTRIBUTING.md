@@ -45,6 +45,16 @@ On 0.x, `minor` is the usual feature bump. Docs, workflows, the web demo, and th
 
 The prose of a changeset names only work that is in the diff. `node scripts/check-changeset-claims.mjs` fails when the summary names a dependency or an `@scope/name` path the diff does not touch. The frontmatter bump target is not a claim.
 
+## Bundle size
+
+`packages/sdk/.size-limit.json` caps `.`, `/generate`, and `/sourcify`, minified and gzipped, with the runtime dependencies (`ox`, `ajv`, `ajv-formats`, `@noble/hashes`) and `viem` excluded. After `pnpm --filter @erc7730/sdk build`:
+
+```bash
+pnpm --filter @erc7730/sdk size
+```
+
+CI fails when an entry is over its limit, and the `SDK size` workflow comments the base-to-PR delta on the pull request. `node scripts/check-sdk-bundles.mjs` also fails when any file in `packages/sdk/dist` is over 100 KB raw. The build strips `title`, `description`, `$comment`, and `examples` from the vendored schemas; Ajv does not read them. Raise a limit only with a reason in the pull request.
+
 ## Descriptor input types
 
 `InputDescriptor` is the sole TypeScript model for ERC-7730 documents the SDK accepts. It is generated from `packages/sdk/src/schema/official/erc7730-v2.schema.json` into `packages/sdk/src/types/generated/erc7730-v2.ts`.

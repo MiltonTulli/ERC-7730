@@ -1,0 +1,69 @@
+name: SDK size
+
+permissions:
+  contents: read
+  pull-requests: write
+
+on:
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  size:
+    name: Size comment
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Base is measured with the head config and size-limit, so a base without
+      # `.size-limit.json` still gets numbers. The binary runs directly because
+      # `pnpm exec` writes its failure banner to stdout and breaks the JSON.
+      - name: Measure base
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          git worktree add "$RUNNER_TEMP/base" "$BASE_SHA"
+          (cd "$RUNNER_TEMP/base" && pnpm install --frozen-lockfile && pnpm --filter @erc7730/sdk build)
+          rm -rf packages/sdk/dist
+          cp -R "$RUNNER_TEMP/base/packages/sdk/dist" packages/sdk/dist
+          (cd packages/sdk && ./node_modules/.bin/size-limit --json) > "$RUNNER_TEMP/base.json" || true
+
+      - name: Measure PR
+        run: |
+          pnpm --filter @erc7730/sdk build
+          (cd packages/sdk && ./node_modules/.bin/size-limit --json) > "$RUNNER_TEMP/head.json" || true
+
+      - name: Comment
+        if: github.event.pull_request.head.repo.full_name == github.repository
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          node scripts/sdk-size-comment.mjs "$RUNNER_TEMP/base.json" "$RUNNER_TEMP/head.json" packages/sdk/.size-limit.json > "$RUNNER_TEMP/size.md"
+          cat "$RUNNER_TEMP/size.md" >> "$GITHUB_STEP_SUMMARY"
+          id=$(gh api "repos/$REPO/issues/$PR/comments" --paginate --jq '.[] | select(.body | startswith("<!-- erc7730-sdk-size -->")) | .id' | head -n 1)
+          if [ -n "$id" ]; then
+            gh api -X PATCH "repos/$REPO/issues/comments/$id" -F body=@"$RUNNER_TEMP/size.md" > /dev/null
+          else
+            gh api "repos/$REPO/issues/$PR/comments" -F body=@"$RUNNER_TEMP/size.md" > /dev/null
+          fi
