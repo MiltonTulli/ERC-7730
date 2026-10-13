@@ -1,0 +1,23 @@
+[
+  {
+    "name": ".",
+    "path": "dist/index.js",
+    "gzip": true,
+    "limit": "33 KB",
+    "ignore": ["ox", "ajv", "ajv-formats", "@noble/hashes", "viem"]
+  },
+  {
+    "name": "/generate",
+    "path": "dist/generate.js",
+    "gzip": true,
+    "limit": "15 KB",
+    "ignore": ["ox", "ajv", "ajv-formats", "@noble/hashes", "viem"]
+  },
+  {
+    "name": "/sourcify",
+    "path": "dist/sourcify.js",
+    "gzip": true,
+    "limit": "5 KB",
+    "ignore": ["ox", "ajv", "ajv-formats", "@noble/hashes", "viem"]
+  }
+]

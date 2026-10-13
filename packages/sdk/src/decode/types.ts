@@ -380,10 +380,17 @@ export interface DecodeOptions {
   cacheObserver?: RegistryCacheObserver;
 }
 
-/** Recursion counters. Not part of public {@link DecodeOptions}. */
+/** Decodes a nested transaction. Injected so render helpers do not import the decoder. */
+export type DecodeRun = (
+  tx: TransactionInput,
+  options?: DecodeOptions & DecodeRunState
+) => Promise<DecodedOperation>;
+
+/** Recursion state. Not part of public {@link DecodeOptions}. */
 export interface DecodeRunState {
   calldataDepth?: number;
   nestedDepth?: number;
+  decodeRun?: DecodeRun;
 }
 
 export type { TransactionInput, TypedDataInput };

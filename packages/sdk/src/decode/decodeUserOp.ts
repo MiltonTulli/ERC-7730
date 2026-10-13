@@ -1,5 +1,6 @@
 import type { Hex } from '../types/descriptor';
 import { asAddress, resolveTrust } from './common';
+import { decodeTransactionRun } from './decodeTransaction';
 import {
   SIMPLE_ACCOUNT_EXECUTE,
   SIMPLE_ACCOUNT_EXECUTE_BATCH,
@@ -77,7 +78,12 @@ async function decodeUserOpCore(
     };
   }
 
-  const children = await decodeInnerCalls(calls, { chainId: op.chainId, from: sender }, options);
+  const children = await decodeInnerCalls(
+    calls,
+    { chainId: op.chainId, from: sender },
+    options,
+    decodeTransactionRun
+  );
 
   const isSingleExecute = selector === SIMPLE_ACCOUNT_EXECUTE && children.length === 1;
   const joined = joinSentences(children);

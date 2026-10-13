@@ -16,11 +16,8 @@ function cjsDefault<T>(mod: T): T extends { default: infer D } ? D : T {
 
 let shared: Ajv | undefined;
 
-/** One Ajv instance for descriptors and tests files, built on first use. */
-function sharedAjv(): Ajv {
-  if (shared) {
-    return shared;
-  }
+/** Ajv configured for ERC-7730 descriptors and tests files. */
+export function createAjv(): Ajv {
   const Ajv2020 = cjsDefault(Ajv2020Module) as unknown as Ajv2020Ctor;
   const addFormats = cjsDefault(addFormatsModule) as unknown as AddFormatsFn;
   const ajv = new Ajv2020({
@@ -39,8 +36,13 @@ function sharedAjv(): Ajv {
     type: 'number',
     validate: (value: number) => Number.isInteger(value) && value >= 0,
   });
-  shared = ajv;
   return ajv;
+}
+
+/** One Ajv instance for descriptors and tests files, built on first use. */
+function sharedAjv(): Ajv {
+  shared ??= createAjv();
+  return shared;
 }
 
 function compile(schema: object): ValidateFunction {

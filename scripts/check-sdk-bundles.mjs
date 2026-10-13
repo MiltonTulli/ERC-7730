@@ -63,6 +63,17 @@ for (const name of required) {
   }
 }
 
+const MAX_CHUNK_BYTES = 100_000;
+for (const entry of readdirSync(dist)) {
+  if (!entry.endsWith('.js')) {
+    continue;
+  }
+  const size = statSync(join(dist, entry)).size;
+  if (size > MAX_CHUNK_BYTES) {
+    fail(`dist/${entry} is ${size} bytes; no SDK chunk may exceed 100 KB raw`);
+  }
+}
+
 const maps = listMaps(dist);
 if (maps.length > 0) {
   fail(`SDK dist still contains sourcemaps:\n${maps.join('\n')}`);

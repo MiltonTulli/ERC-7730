@@ -6,6 +6,7 @@ import type {
   Address,
   Confidence,
   DecodeOptions,
+  DecodeRun,
   DecodeRunState,
   DecodedOperation,
   TrustReport,
@@ -262,10 +263,9 @@ export function attachChildren(
 export async function decodeInnerCalls(
   calls: InnerCall[],
   outer: { chainId: number; from?: Address },
-  options: (DecodeOptions & DecodeRunState) | undefined
+  options: (DecodeOptions & DecodeRunState) | undefined,
+  decodeRun: DecodeRun
 ): Promise<DecodedOperation[]> {
-  // Dynamic import breaks the decodeTransaction ↔ innerCalls cycle.
-  const { decodeTransactionRun } = await import('./decodeTransaction');
   const depth = options?.nestedDepth ?? 0;
   const childOptions: DecodeOptions & DecodeRunState = {
     ...options,
@@ -273,7 +273,7 @@ export async function decodeInnerCalls(
   };
   return Promise.all(
     calls.map((call) =>
-      decodeTransactionRun(
+      decodeRun(
         {
           chainId: outer.chainId,
           from: outer.from,
@@ -293,7 +293,8 @@ export async function decodeInnerCalls(
 export async function expandNestedCalls(
   operation: DecodedOperation,
   tx: TransactionInput,
-  options: (DecodeOptions & DecodeRunState) | undefined
+  options: (DecodeOptions & DecodeRunState) | undefined,
+  decodeRun: DecodeRun
 ): Promise<DecodedOperation> {
   const depth = options?.nestedDepth ?? 0;
   if (depth >= MAX_NESTED_DEPTH) {
@@ -306,7 +307,8 @@ export async function expandNestedCalls(
   const children = await decodeInnerCalls(
     calls,
     { chainId: tx.chainId, from: tx.to ? asAddress(tx.to) : undefined },
-    options
+    options,
+    decodeRun
   );
   return attachChildren(operation, children);
 }

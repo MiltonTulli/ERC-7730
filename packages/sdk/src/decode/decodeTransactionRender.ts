@@ -124,20 +124,15 @@ export async function renderFromDescriptor(
     envelope,
   };
   const depth = options?.calldataDepth ?? 0;
+  const decodeRun = options?.decodeRun;
   const formatOptions: FormatOptions = {
     provider: options?.provider ?? null,
     locale: options?.locale ?? 'en',
     externalDataProvider: options?.externalDataProvider,
     calldataDepth: depth,
     onCalldata:
-      depth < 2
-        ? async (inner) => {
-            const { decodeTransactionRun } = await import('./decodeTransaction');
-            return decodeTransactionRun(inner, {
-              ...options,
-              calldataDepth: depth + 1,
-            });
-          }
+      depth < 2 && decodeRun
+        ? (inner) => decodeRun(inner, { ...options, calldataDepth: depth + 1 })
         : undefined,
   };
 
