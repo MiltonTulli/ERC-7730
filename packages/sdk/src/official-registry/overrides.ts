@@ -29,6 +29,95 @@ function overrideKind(resolved: ResolvedDescriptor): 'calldata' | 'eip712' | nul
   return null;
 }
 
+interface OverrideIndex {
+  size: number;
+  resolved: ResolvedDescriptor[];
+  /** `${chainId}:${address}` → override positions, in `extend()` order. */
+  byDeployment: Map<string, number[]>;
+  /** Positions that can match without a listed deployment (factory or EIP-712 context). */
+  contextual: Record<'calldata' | 'eip712', number[]>;
+}
+
+const indexes = new WeakMap<readonly InputDescriptor[], Promise<OverrideIndex>>();
+
+function deploymentKey(chainId: number, address: string): string {
+  return `${chainId}:${address.toLowerCase()}`;
+}
+
+function hasFactory(resolved: ResolvedDescriptor): boolean {
+  const context = isPlainObject(resolved.merged.context) ? resolved.merged.context : undefined;
+  const contract = context && isPlainObject(context.contract) ? context.contract : undefined;
+  return contract !== undefined && isPlainObject(contract.factory);
+}
+
+async function buildIndex(
+  overrides: readonly InputDescriptor[],
+  resolveOverride: (input: InputDescriptor) => Promise<ResolvedDescriptor>
+): Promise<OverrideIndex> {
+  const resolved = await Promise.all(overrides.map((input) => resolveOverride(input)));
+  const index: OverrideIndex = {
+    size: overrides.length,
+    resolved,
+    byDeployment: new Map(),
+    contextual: { calldata: [], eip712: [] },
+  };
+  resolved.forEach((item, position) => {
+    for (const deployment of item.deployments) {
+      const key = deploymentKey(deployment.chainId, deployment.address);
+      const list = index.byDeployment.get(key);
+      if (list) {
+        list.push(position);
+      } else {
+        index.byDeployment.set(key, [position]);
+      }
+    }
+    const kind = overrideKind(item);
+    if (kind === 'eip712') {
+      index.contextual.eip712.push(position);
+    } else if (kind === 'calldata' && hasFactory(item)) {
+      index.contextual.calldata.push(position);
+    }
+  });
+  return index;
+}
+
+/** Index of `overrides`, rebuilt when `extend()` appends to the list. */
+async function overrideIndex(
+  overrides: readonly InputDescriptor[],
+  resolveOverride: (input: InputDescriptor) => Promise<ResolvedDescriptor>
+): Promise<OverrideIndex> {
+  const cached = indexes.get(overrides);
+  if (cached) {
+    const index = await cached;
+    if (index.size === overrides.length) {
+      return index;
+    }
+  }
+  const pending = buildIndex(overrides, resolveOverride);
+  indexes.set(overrides, pending);
+  pending.catch(() => {
+    if (indexes.get(overrides) === pending) {
+      indexes.delete(overrides);
+    }
+  });
+  return pending;
+}
+
+function candidatePositions(
+  index: OverrideIndex,
+  chainId: number,
+  addresses: readonly string[],
+  kind: 'calldata' | 'eip712'
+): number[] {
+  const positions = new Set<number>(index.contextual[kind]);
+  for (const address of addresses) {
+    for (const position of index.byDeployment.get(deploymentKey(chainId, address)) ?? []) {
+      positions.add(position);
+    }
+  }
+  return [...positions].sort((a, b) => a - b);
+}
+
 function deploymentsHit(resolved: ResolvedDescriptor, chainId: number, address: string): boolean {
   const want = address.toLowerCase();
   return resolved.deployments.some(
@@ -36,17 +125,26 @@ function deploymentsHit(resolved: ResolvedDescriptor, chainId: number, address: 
   );
 }
 
-/** First matching override wins. An implementation deployment hits before `matchContext`. */
+/**
+ * First matching override wins. An implementation deployment hits before `matchContext`.
+ * Only overrides listing the address (or its implementation), factory overrides,
+ * and EIP-712 overrides are checked.
+ */
 export async function findOverride(
   overrides: readonly InputDescriptor[],
   resolveOverride: (input: InputDescriptor) => Promise<ResolvedDescriptor>,
   key: OverrideLookupKey,
   kind: 'calldata' | 'eip712'
 ): Promise<ResolvedDescriptor | null> {
+  if (overrides.length === 0) {
+    return null;
+  }
   const address = key.address.toLowerCase();
   const impl = await resolveImplementation(address as `0x${string}`, key.provider);
-  for (const input of overrides) {
-    const resolved = await resolveOverride(input);
+  const index = await overrideIndex(overrides, resolveOverride);
+  const addresses = impl && impl !== address ? [address, impl] : [address];
+  for (const position of candidatePositions(index, key.chainId, addresses, kind)) {
+    const resolved = index.resolved[position];
     if (overrideKind(resolved) !== kind) {
       continue;
     }

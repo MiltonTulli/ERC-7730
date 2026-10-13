@@ -18,4 +18,9 @@ export interface OfficialRegistryRuntime {
   inflight: Map<string, Promise<unknown>>;
   overrides: InputDescriptor[];
   resolvedOverrides: Map<InputDescriptor, Promise<ResolvedDescriptor>>;
+  /** Resolved descriptors by registry path, least recently used first. Commit pins only. */
+  resolved: Map<string, Promise<ResolvedDescriptor>>;
 }
+
+/** Entries kept in {@link OfficialRegistryRuntime.resolved}. */
+export const RESOLVED_MEMO_SIZE = 256;

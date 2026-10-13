@@ -30,10 +30,9 @@ export async function decodeBatch(
   if (!Array.isArray(batch.calls)) {
     throw new InvalidInputError('INVALID_CALLDATA', 'Batch calls must be an array');
   }
-  const calls: DecodedOperation[] = [];
-  for (const call of batch.calls) {
-    calls.push(
-      await decodeTransaction(
+  const calls = await Promise.all(
+    batch.calls.map((call) =>
+      decodeTransaction(
         {
           ...call,
           chainId: call.chainId ?? batch.chainId,
@@ -41,8 +40,8 @@ export async function decodeBatch(
         },
         options
       )
-    );
-  }
+    )
+  );
 
   const sentences = calls
     .map((call) => call.interpolatedIntent ?? call.intent)

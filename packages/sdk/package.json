@@ -43,6 +43,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
+    "bench": "vitest bench --run",
     "schema:types": "node scripts/generate-schema-types.mjs",
     "api:report": "node scripts/api-report.mjs",
     "typecheck": "tsc --noEmit",

@@ -363,8 +363,9 @@ export interface DecodeOptions {
    */
   now?: number | (() => number);
   /**
-   * Factory `getLogs` range forwarded to `matchContext`.
-   * Defaults: `earliest` → `latest`. Bound this on public RPCs.
+   * Factory `getLogs` range forwarded to `matchContext`. Factory matching is
+   * skipped (`FACTORY_RANGE_UNBOUNDED`) unless `fromBlock` is a block number or
+   * a tag other than `earliest`. An unset `toBlock` becomes `latest`.
    */
   fromBlock?: bigint | LogBlockTag;
   toBlock?: bigint | LogBlockTag;

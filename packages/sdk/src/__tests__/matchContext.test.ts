@@ -161,7 +161,7 @@ describe('matchContext factory', () => {
     const result = await matchContext(
       factoryDescriptor,
       { to: CLONE, data: '0xd4d9bdcd', chainId: 1 },
-      { provider }
+      { provider, fromBlock: 0n }
     );
     expect(result).toEqual({ matched: true, via: 'factory' });
   });
@@ -188,7 +188,7 @@ describe('matchContext factory', () => {
     const result = await matchContext(
       unnamed,
       { to: CLONE, data: '0xd4d9bdcd', chainId: 1 },
-      { provider }
+      { provider, fromBlock: 0n }
     );
     expect(result).toEqual({ matched: true, via: 'factory' });
   });
@@ -204,7 +204,7 @@ describe('matchContext factory', () => {
     const result = await matchContext(
       factoryDescriptor,
       { to: CLONE, data: '0xd4d9bdcd', chainId: 1 },
-      { provider }
+      { provider, fromBlock: 0n }
     );
     expect(result.matched).toBe(false);
   });
@@ -226,7 +226,11 @@ describe('matchContext factory', () => {
       },
     };
     await expect(
-      matchContext(factoryDescriptor, { to: CLONE, data: '0xd4d9bdcd', chainId: 1 }, { provider })
+      matchContext(
+        factoryDescriptor,
+        { to: CLONE, data: '0xd4d9bdcd', chainId: 1 },
+        { provider, fromBlock: 0n }
+      )
     ).resolves.toMatchObject({ matched: false });
   });
 
@@ -239,7 +243,30 @@ describe('matchContext factory', () => {
     expect(result.matched).toBe(false);
   });
 
-  it('queries from earliest so a historical deploy event matches', async () => {
+  it('skips factory matching without a bounded fromBlock', async () => {
+    for (const fromBlock of [undefined, 'earliest' as const]) {
+      let queried = false;
+      const provider: Provider = {
+        async getLogs() {
+          queried = true;
+          return [];
+        },
+      };
+      const log = createDiagnosticLog();
+      const result = await matchContext(
+        factoryDescriptor,
+        { to: CLONE, data: '0xd4d9bdcd', chainId: 1 },
+        { provider, fromBlock, diagnosticLog: log }
+      );
+      expect(result.matched).toBe(false);
+      expect(queried).toBe(false);
+      expect(log.entries).toContainEqual(
+        expect.objectContaining({ code: 'FACTORY_RANGE_UNBOUNDED', outcome: 'skipped' })
+      );
+    }
+  });
+
+  it('defaults toBlock to latest', async () => {
     const calls: Array<{ fromBlock?: unknown; toBlock?: unknown }> = [];
     const provider: Provider = {
       async getLogs(args) {
@@ -256,10 +283,10 @@ describe('matchContext factory', () => {
     const result = await matchContext(
       factoryDescriptor,
       { to: CLONE, data: '0xd4d9bdcd', chainId: 1 },
-      { provider }
+      { provider, fromBlock: 0n }
     );
     expect(result).toEqual({ matched: true, via: 'factory' });
-    expect(calls[0]).toMatchObject({ fromBlock: 'earliest', toBlock: 'latest' });
+    expect(calls[0]).toMatchObject({ fromBlock: 0n, toBlock: 'latest' });
   });
 
   it('forwards a configured log range', async () => {
@@ -351,7 +378,7 @@ describe('context lookup diagnostics', () => {
     const result = await matchContext(
       factoryDescriptor,
       { to: CLONE, data: '0xd4d9bdcd', chainId: 1 },
-      { provider, diagnosticLog: log }
+      { provider, fromBlock: 0n, diagnosticLog: log }
     );
     expect(result.matched).toBe(false);
     expect(log.entries.some((entry) => entry.code === 'FACTORY_LOGS_FAILED')).toBe(true);

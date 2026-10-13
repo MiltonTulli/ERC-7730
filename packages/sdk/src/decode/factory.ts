@@ -1,4 +1,4 @@
-import { AbiEvent } from 'ox';
+import * as AbiEvent from 'ox/AbiEvent';
 import { keccak256 } from '../keccak';
 import type { Hex } from '../types/descriptor';
 import { canonicalizeType, findMatchingParen, parseArraySuffix, splitTopLevel } from './abi';
@@ -134,6 +134,16 @@ export async function matchFactory(
   if (!provider || typeof provider.getLogs !== 'function') {
     return false;
   }
+  const fromBlock = options?.fromBlock;
+  if (fromBlock === undefined || fromBlock === 'earliest') {
+    options?.diagnosticLog?.push({
+      stage: 'context-match',
+      outcome: 'skipped',
+      code: 'FACTORY_RANGE_UNBOUNDED',
+      message: 'Factory match needs a bounded fromBlock; pass fromBlock to scan deploy logs',
+    });
+    return false;
+  }
 
   const topic0 = eventTopic0(event);
   const factories = deployments.map((item) => item.address);
@@ -146,7 +156,7 @@ export async function matchFactory(
     logs = await provider.getLogs({
       address: [...factories],
       topics: [topic0],
-      fromBlock: options?.fromBlock ?? 'earliest',
+      fromBlock,
       toBlock: options?.toBlock ?? 'latest',
     });
   } catch (error) {

@@ -30,7 +30,7 @@ function addressOf(value: unknown): Address | undefined {
   return asAddress(value.toLowerCase());
 }
 
-interface NamedValue {
+export interface NamedValue {
   path: string;
   value: unknown;
 }
@@ -98,9 +98,9 @@ export function expiredDeadlineWarning(
 
 function spenderFromScan(
   scan: WarningScan,
-  functionName?: string
+  functionName: string | undefined,
+  values: readonly NamedValue[]
 ): { address: Address; path: string } | undefined {
-  const values = collectNamedValues(scan);
   for (const item of values) {
     if (SPENDER_PATH.test(item.path)) {
       const address = addressOf(item.value);
@@ -209,9 +209,10 @@ export async function untrustedSpenderWarning(
   scan: WarningScan,
   functionName: string | undefined,
   chainId: number,
-  options: DecodeOptions | undefined
+  options: DecodeOptions | undefined,
+  values: readonly NamedValue[] = collectNamedValues(scan)
 ): Promise<SecurityWarning | undefined> {
-  const spender = spenderFromScan(scan, functionName);
+  const spender = spenderFromScan(scan, functionName, values);
   if (!spender) {
     return undefined;
   }

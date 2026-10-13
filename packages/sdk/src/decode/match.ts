@@ -37,6 +37,33 @@ function selectorOfKey(key: string): string | null {
   }
 }
 
+interface FormatEntry {
+  key: string;
+  format: MatchedFormat['format'];
+}
+
+/** Selector → first format key with that selector, built once per `display.formats` object. */
+const selectorIndexes = new WeakMap<object, Map<string, FormatEntry>>();
+
+function selectorIndex(formats: Record<string, unknown>): Map<string, FormatEntry> {
+  let index = selectorIndexes.get(formats);
+  if (index) {
+    return index;
+  }
+  index = new Map();
+  for (const [key, value] of Object.entries(formats)) {
+    if (!isPlainObject(value)) {
+      continue;
+    }
+    const keySelector = selectorOfKey(key);
+    if (keySelector && !index.has(keySelector)) {
+      index.set(keySelector, { key, format: value as MatchedFormat['format'] });
+    }
+  }
+  selectorIndexes.set(formats, index);
+  return index;
+}
+
 /**
  * Match a descriptor format key by 4-byte selector, canonical signature, or
  * Solidity declaration — whichever the descriptor uses.
@@ -52,21 +79,25 @@ export function matchFormat(merged: unknown, selector: string): MatchedFormat | 
 
   const want = selector.toLowerCase();
   const known = getSignatureBySelector(want);
+  const indexed = selectorIndex(formats).get(want);
+  if (indexed) {
+    return {
+      key: indexed.key,
+      format: indexed.format,
+      declaration:
+        parseDeclaration(indexed.key) ?? (known ? parseDeclaration(known.signature) : null),
+    };
+  }
+  if (!known) {
+    return null;
+  }
 
   for (const [key, value] of Object.entries(formats)) {
     if (!isPlainObject(value)) {
       continue;
     }
-    const keySelector = selectorOfKey(key);
-    if (keySelector === want) {
-      return {
-        key,
-        format: value as MatchedFormat['format'],
-        declaration: parseDeclaration(key) ?? (known ? parseDeclaration(known.signature) : null),
-      };
-    }
     const canonical = canonicalizeDeclaration(key);
-    if (known && canonical === known.signature) {
+    if (canonical === known.signature) {
       return {
         key,
         format: value as MatchedFormat['format'],

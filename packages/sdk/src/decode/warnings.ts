@@ -153,7 +153,8 @@ export async function appendSecurityWarnings(
       encodingByPath.set(field.path, field.params.encoding);
     }
   }
-  const deadlineValues = collectNamedValues(scan);
+  const namedValues = collectNamedValues(scan);
+  const deadlineValues = [...namedValues];
   const deadlineIndex = name ? DEADLINE_ARG_INDEX[name.toLowerCase()] : undefined;
   if (
     deadlineIndex !== undefined &&
@@ -175,7 +176,7 @@ export async function appendSecurityWarnings(
   }
 
   if (!hasWarning(warnings, 'untrusted_spender') && scan.chainId !== undefined) {
-    const spender = await untrustedSpenderWarning(scan, name, scan.chainId, options);
+    const spender = await untrustedSpenderWarning(scan, name, scan.chainId, options, namedValues);
     if (spender) {
       warnings.push(spender);
     }

@@ -437,7 +437,12 @@ describe('extend', () => {
       } as InputDescriptor,
     ]);
 
-    const found = await client.findCalldata({ chainId: 1, address: clone, provider });
+    const found = await client.findCalldata({
+      chainId: 1,
+      address: clone,
+      provider,
+      fromBlock: 0n,
+    });
     expect(found?.merged.metadata).toMatchObject({ owner: 'Safe clone' });
   });
 
@@ -471,6 +476,7 @@ describe('extend', () => {
       chainId: 1,
       address: clone,
       provider,
+      fromBlock: 0n,
       diagnosticLog: log,
     });
 

@@ -1,7 +1,7 @@
 import { Erc7730Error } from '../errors';
 import type { IncludeLoader, InputDescriptor } from '../types/descriptor';
 import { DescriptorResolveError } from './error';
-import { FORBIDDEN_KEYS, cloneJson, isPlainObject } from './util';
+import { FORBIDDEN_KEYS, isPlainObject } from './util';
 
 const MAX_INCLUDE_DEPTH = 32;
 
@@ -26,7 +26,7 @@ function copySanitized(value: unknown): unknown {
     return value.map((item) => copySanitized(item));
   }
   if (!isPlainObject(value)) {
-    return cloneJson(value);
+    return value;
   }
   const out: Record<string, unknown> = {};
   for (const key of Object.keys(value)) {
@@ -131,17 +131,17 @@ export async function mergeIncludes(
     });
   }
 
-  const cloned = cloneJson(input) as Record<string, unknown>;
-  const refs = includeRefs(cloned.includes);
+  // Inputs are read-only. The merge copies each value once into the result.
+  const refs = includeRefs(input.includes);
   const current: Record<string, unknown> = {};
-  for (const [key, value] of Object.entries(cloned)) {
+  for (const [key, value] of Object.entries(input)) {
     if (key !== 'includes') {
       current[key] = value;
     }
   }
 
   if (refs.length === 0) {
-    return current;
+    return copySanitized(current) as Record<string, unknown>;
   }
 
   if (stack.length + refs.length > MAX_INCLUDE_DEPTH) {

@@ -1,4 +1,4 @@
-import { AbiParameters } from 'ox';
+import * as AbiParameters from 'ox/AbiParameters';
 import { keccak256 } from '../keccak';
 import type { TypedDataInput } from '../types';
 import type { Hex } from '../types/descriptor';

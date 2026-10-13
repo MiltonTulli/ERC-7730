@@ -39,7 +39,7 @@ Before a descriptor is applied, `matchContext` must succeed: deployments, EIP-19
 
 ## Factory log range
 
-`Provider.getLogs` defaults to `fromBlock: "earliest"` / `toBlock: "latest"`. Pass bounded ranges on public RPCs via `DecodeOptions` / `MatchContextOptions`.
+Factory matching calls `Provider.getLogs` only when `fromBlock` is a block number or a tag other than `"earliest"`; otherwise it is skipped with a `FACTORY_RANGE_UNBOUNDED` diagnostic. `toBlock` defaults to `"latest"`. Pass the range via `DecodeOptions` / `MatchContextOptions`.
 
 ## ClearSigner
 

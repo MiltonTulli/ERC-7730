@@ -44,9 +44,9 @@ export interface ContextMatch {
 export interface MatchContextOptions {
   provider?: Provider | null;
   /**
-   * Factory log range. `eth_getLogs` defaults omitted bounds to `latest`,
-   * which would miss historical deploy events. Unset values become
-   * `earliest` / `latest`. Pass a bounded range on public RPCs.
+   * Factory log range. Factory matching is skipped with a
+   * `FACTORY_RANGE_UNBOUNDED` diagnostic unless `fromBlock` is a block number
+   * or a tag other than `earliest`. An unset `toBlock` becomes `latest`.
    */
   fromBlock?: bigint | LogBlockTag;
   toBlock?: bigint | LogBlockTag;

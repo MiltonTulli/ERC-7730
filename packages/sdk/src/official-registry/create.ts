@@ -41,6 +41,7 @@ export function createOfficialRegistry(config: OfficialRegistryConfig = {}): Off
     inflight: new Map(),
     overrides: [],
     resolvedOverrides: new Map(),
+    resolved: new Map(),
   };
 
   function resolveOverride(input: InputDescriptor): Promise<ResolvedDescriptor> {
