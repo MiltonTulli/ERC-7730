@@ -1,7 +1,7 @@
 import { InvalidInputError } from '../errors';
 import type { TransactionInput, TypedDataInput } from '../types';
+import { ADDRESS_RE } from '../util';
 
-const ADDRESS_RE = /^0x[0-9a-fA-F]{40}$/;
 const HEX_RE = /^0x[0-9a-fA-F]*$/;
 
 function assertAddress(value: string, label: string): void {

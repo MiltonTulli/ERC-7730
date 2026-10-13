@@ -24,13 +24,12 @@ import type {
   ResolvedDeployment,
   ResolvedDescriptor,
 } from '../types/descriptor';
+import { ADDRESS_RE } from '../util';
 import { DescriptorResolveError } from './error';
 import { descriptorHash } from './hash';
 import { mergeIncludes } from './merge';
 import { inlineFieldRefs } from './refs';
 import { FORBIDDEN_KEYS, cloneJson, isPlainObject } from './util';
-
-const ADDRESS_RE = /^0x[0-9a-fA-F]{40}$/;
 
 const ADDRESS_KEYS = new Set(['address', 'verifyingContract']);
 

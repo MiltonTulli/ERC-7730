@@ -58,6 +58,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Duplicate code
+        run: pnpm check:clones
+
       - name: Build all packages
         run: pnpm build
 

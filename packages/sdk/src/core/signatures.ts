@@ -3,6 +3,7 @@
  * This allows decoding without network calls for common functions
  */
 
+import { parseDeclaration } from '../decode/abi';
 import { Erc7730Error } from '../errors';
 import { keccak256 } from '../keccak';
 
@@ -247,36 +248,12 @@ export function parseSignature(signature: string): {
   name: string;
   inputs: string[];
 } {
-  const match = signature.match(/^(\w+)\((.*)?\)$/);
-  if (!match) {
+  const parsed = parseDeclaration(signature);
+  if (!parsed) {
     throw new Erc7730Error('INVALID_SIGNATURE', `Invalid function signature: ${signature}`);
   }
-
-  const name = match[1];
-  const paramsStr = match[2] || '';
-
-  // Handle nested tuples
-  const inputs: string[] = [];
-  if (paramsStr) {
-    let depth = 0;
-    let current = '';
-
-    for (const char of paramsStr) {
-      if (char === '(') depth++;
-      else if (char === ')') depth--;
-
-      if (char === ',' && depth === 0) {
-        inputs.push(current.trim());
-        current = '';
-      } else {
-        current += char;
-      }
-    }
-
-    if (current.trim()) {
-      inputs.push(current.trim());
-    }
-  }
-
-  return { name, inputs };
+  return {
+    name: parsed.name,
+    inputs: parsed.params.map((param) => param.type),
+  };
 }

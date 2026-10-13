@@ -1,16 +1,15 @@
-import { type Hex, zeroAddress, zeroHash } from 'viem';
+import { type Hex, zeroAddress } from 'viem';
 import {
   encodeFunctionData,
   encodePacked,
   hexToBigInt,
-  isAddress,
   isHex,
   keccak256,
   recoverTypedDataAddress,
   stringToHex,
 } from 'viem/utils';
+import { parseAttestation } from './attestParse';
 import type { Address, TrustContext, TrustPolicy, TrustReport } from './decode/types';
-import { isPlainObject } from './resolve/util';
 
 /** ERC-8176 schema UID on Ethereum mainnet (`bytes32 descriptorHash`). */
 export const ERC8176_SCHEMA_UID =
@@ -59,149 +58,33 @@ export interface AttestedPolicyConfig {
   };
 }
 
-interface ParsedAttestation {
-  uid: Hex;
-  schema: Hex;
-  recipient: Address;
-  time: bigint;
-  expirationTime: bigint;
-  revocable: boolean;
-  refUID: Hex;
-  data: Hex;
-  salt: Hex;
-  version: number;
-  domainVersion: string;
-  verifyingContract: Address;
-  chainId: number;
-  signature: Hex;
-  signerHint?: Address;
+export interface VerifyAttestationContext {
+  /** Descriptor hash the attestation data must commit to. */
+  descriptorHash: Hex;
+  attesters: readonly Address[];
+  /** Reads EAS `getRevokeOffchain`. A throw is `revocation_unavailable`. */
+  isRevoked(attester: Address, uid: Hex): Promise<boolean>;
 }
 
-function asHex32(value: unknown): Hex | undefined {
-  if (typeof value !== 'string' || !isHex(value) || value.length !== 66) {
-    return undefined;
-  }
-  return value.toLowerCase() as Hex;
-}
-
-function asAddress(value: unknown): Address | undefined {
-  if (typeof value !== 'string' || !isAddress(value)) {
-    return undefined;
-  }
-  return value as Address;
-}
-
-function asUint(value: unknown): bigint | undefined {
-  if (typeof value === 'bigint') {
-    return value;
-  }
-  if (typeof value === 'number' && Number.isFinite(value)) {
-    return BigInt(Math.trunc(value));
-  }
-  if (typeof value === 'string' && value !== '') {
-    try {
-      return BigInt(value);
-    } catch {
-      return undefined;
-    }
-  }
-  return undefined;
-}
-
-function signatureToHex(value: unknown): Hex | undefined {
-  if (typeof value === 'string' && isHex(value) && value.length === 132) {
-    return value;
-  }
-  if (!isPlainObject(value)) {
-    return undefined;
-  }
-  const r = typeof value.r === 'string' ? value.r : undefined;
-  const s = typeof value.s === 'string' ? value.s : undefined;
-  const vRaw = value.v;
-  if (!r || !s || !isHex(r) || !isHex(s)) {
-    return undefined;
-  }
-  let v = typeof vRaw === 'number' ? vRaw : typeof vRaw === 'bigint' ? Number(vRaw) : undefined;
-  if (v === undefined && typeof vRaw === 'string') {
-    try {
-      v = Number(BigInt(vRaw));
-    } catch {
-      return undefined;
-    }
-  }
-  if (v === undefined) {
-    return undefined;
-  }
-  if (v < 27) {
-    v += 27;
-  }
-  const vHex = v.toString(16).padStart(2, '0');
-  return `${r}${s.slice(2)}${vHex}` as Hex;
-}
-
-function parseAttestation(raw: unknown): ParsedAttestation | null {
-  if (!isPlainObject(raw)) {
-    return null;
-  }
-  const sig = isPlainObject(raw.sig) ? raw.sig : raw;
-  if (!isPlainObject(sig)) {
-    return null;
-  }
-  const message = isPlainObject(sig.message) ? sig.message : null;
-  const domain = isPlainObject(sig.domain) ? sig.domain : null;
-  if (!message || !domain) {
-    return null;
-  }
-
-  const uid = asHex32(sig.uid);
-  const schema = asHex32(message.schema);
-  const recipient = asAddress(message.recipient) ?? (zeroAddress as Address);
-  const time = asUint(message.time);
-  const expirationTime = asUint(message.expirationTime);
-  const refUID = asHex32(message.refUID) ?? (zeroHash as Hex);
-  const salt = asHex32(message.salt) ?? (zeroHash as Hex);
-  const data =
-    typeof message.data === 'string' && isHex(message.data) ? (message.data as Hex) : undefined;
-  const version = Number(message.version ?? 2);
-  const signature = signatureToHex(sig.signature);
-  const verifyingContract = asAddress(domain.verifyingContract);
-  const chainId = asUint(domain.chainId);
-  const domainVersion = typeof domain.version === 'string' ? domain.version : undefined;
-  const signerHint = asAddress(raw.signer) ?? asAddress(sig.attester);
-
-  if (
-    !uid ||
-    !schema ||
-    time === undefined ||
-    expirationTime === undefined ||
-    !data ||
-    !signature ||
-    !verifyingContract ||
-    chainId === undefined ||
-    !domainVersion ||
-    version !== 2
-  ) {
-    return null;
-  }
-
-  return {
-    uid,
-    schema,
-    recipient,
-    time,
-    expirationTime,
-    revocable: Boolean(message.revocable),
-    refUID,
-    data,
-    salt,
-    version,
-    domainVersion,
-    verifyingContract,
-    chainId: Number(chainId),
-    signature,
-    signerHint,
-  };
-}
+export type AttestationVerdict =
+  | { ok: true; reason: 'attested'; attester: Address }
+  | {
+      ok: false;
+      reason:
+        | 'malformed'
+        | 'schema'
+        | 'verifying_contract'
+        | 'chain_id'
+        | 'descriptor_hash'
+        | 'uid'
+        | 'expired'
+        | 'future'
+        | 'signature'
+        | 'attester'
+        | 'signer_hint'
+        | 'revoked'
+        | 'revocation_unavailable';
+    };
 
 /**
  * EAS offchain UID for version 2. Schema is hashed as UTF-8 of the hex string,
@@ -296,6 +179,99 @@ async function isRevoked(
 }
 
 /**
+ * Check one raw ERC-8176 offchain attestation.
+ * `now` is unix seconds. The caller supplies the clock; this does not read `Date`.
+ */
+export async function verifyAttestation(
+  raw: unknown,
+  ctx: VerifyAttestationContext,
+  now: bigint
+): Promise<AttestationVerdict> {
+  const attestation = parseAttestation(raw);
+  if (!attestation) {
+    return { ok: false, reason: 'malformed' };
+  }
+  if (attestation.schema.toLowerCase() !== ERC8176_SCHEMA_UID.toLowerCase()) {
+    return { ok: false, reason: 'schema' };
+  }
+  if (attestation.verifyingContract.toLowerCase() !== EAS_CONTRACT.toLowerCase()) {
+    return { ok: false, reason: 'verifying_contract' };
+  }
+  if (attestation.chainId !== EAS_CHAIN_ID) {
+    return { ok: false, reason: 'chain_id' };
+  }
+  const hashInData = descriptorHashFromData(attestation.data);
+  if (!hashInData || hashInData !== ctx.descriptorHash.toLowerCase()) {
+    return { ok: false, reason: 'descriptor_hash' };
+  }
+  const expectedUid = offchainAttestationUid({
+    schema: attestation.schema,
+    recipient: attestation.recipient,
+    time: attestation.time,
+    expirationTime: attestation.expirationTime,
+    revocable: attestation.revocable,
+    refUID: attestation.refUID,
+    data: attestation.data,
+    salt: attestation.salt,
+  });
+  if (expectedUid.toLowerCase() !== attestation.uid.toLowerCase()) {
+    return { ok: false, reason: 'uid' };
+  }
+  if (attestation.expirationTime !== 0n && attestation.expirationTime <= now) {
+    return { ok: false, reason: 'expired' };
+  }
+  if (attestation.time > now + 60n) {
+    return { ok: false, reason: 'future' };
+  }
+
+  let signer: Address;
+  try {
+    signer = (await recoverTypedDataAddress({
+      domain: {
+        name: 'EAS Attestation',
+        version: attestation.domainVersion,
+        chainId: attestation.chainId,
+        verifyingContract: attestation.verifyingContract,
+      },
+      types: ATTEST_TYPES,
+      primaryType: 'Attest',
+      message: {
+        version: attestation.version,
+        schema: attestation.schema,
+        recipient: attestation.recipient,
+        time: attestation.time,
+        expirationTime: attestation.expirationTime,
+        revocable: attestation.revocable,
+        refUID: attestation.refUID,
+        data: attestation.data,
+        salt: attestation.salt,
+      },
+      signature: attestation.signature,
+    })) as Address;
+  } catch {
+    return { ok: false, reason: 'signature' };
+  }
+
+  const allowed = new Set(ctx.attesters.map((item) => item.toLowerCase()));
+  if (!allowed.has(signer.toLowerCase())) {
+    return { ok: false, reason: 'attester' };
+  }
+  if (attestation.signerHint && attestation.signerHint.toLowerCase() !== signer.toLowerCase()) {
+    return { ok: false, reason: 'signer_hint' };
+  }
+
+  try {
+    if (await ctx.isRevoked(signer, attestation.uid)) {
+      return { ok: false, reason: 'revoked' };
+    }
+  } catch {
+    return { ok: false, reason: 'revocation_unavailable' };
+  }
+
+  return { ok: true, reason: 'attested', attester: signer };
+}
+
+/**
  * Accept a descriptor only when a trusted attester has a valid ERC-8176
  * offchain EAS v2 attestation for `descriptor.hash`. Does not issue attestations.
  */
@@ -327,7 +303,6 @@ export function attestedPolicy(config: AttestedPolicyConfig): TrustPolicy {
         };
       }
 
-      const allowed = new Set(attesters.map((item) => item.toLowerCase()));
       const rawList = ctx.descriptor.attestations ?? [];
       const clock =
         typeof ctx.now === 'number' && Number.isFinite(ctx.now)
@@ -336,98 +311,30 @@ export function attestedPolicy(config: AttestedPolicyConfig): TrustPolicy {
       const now = BigInt(clock);
 
       for (const raw of rawList) {
-        const attestation = parseAttestation(raw);
-        if (!attestation) {
-          continue;
-        }
-        if (attestation.schema.toLowerCase() !== ERC8176_SCHEMA_UID.toLowerCase()) {
-          continue;
-        }
-        if (attestation.verifyingContract.toLowerCase() !== EAS_CONTRACT.toLowerCase()) {
-          continue;
-        }
-        if (attestation.chainId !== EAS_CHAIN_ID) {
-          continue;
-        }
-        const hashInData = descriptorHashFromData(attestation.data);
-        if (!hashInData || hashInData !== descriptorHash.toLowerCase()) {
-          continue;
-        }
-        const expectedUid = offchainAttestationUid({
-          schema: attestation.schema,
-          recipient: attestation.recipient,
-          time: attestation.time,
-          expirationTime: attestation.expirationTime,
-          revocable: attestation.revocable,
-          refUID: attestation.refUID,
-          data: attestation.data,
-          salt: attestation.salt,
-        });
-        if (expectedUid.toLowerCase() !== attestation.uid.toLowerCase()) {
-          continue;
-        }
-        if (attestation.expirationTime !== 0n && attestation.expirationTime <= now) {
-          continue;
-        }
-        if (attestation.time > now + 60n) {
-          continue;
-        }
-
-        let signer: Address;
-        try {
-          signer = (await recoverTypedDataAddress({
-            domain: {
-              name: 'EAS Attestation',
-              version: attestation.domainVersion,
-              chainId: attestation.chainId,
-              verifyingContract: attestation.verifyingContract,
-            },
-            types: ATTEST_TYPES,
-            primaryType: 'Attest',
-            message: {
-              version: attestation.version,
-              schema: attestation.schema,
-              recipient: attestation.recipient,
-              time: attestation.time,
-              expirationTime: attestation.expirationTime,
-              revocable: attestation.revocable,
-              refUID: attestation.refUID,
-              data: attestation.data,
-              salt: attestation.salt,
-            },
-            signature: attestation.signature,
-          })) as Address;
-        } catch {
-          continue;
-        }
-
-        if (!allowed.has(signer.toLowerCase())) {
-          continue;
-        }
-        if (
-          attestation.signerHint &&
-          attestation.signerHint.toLowerCase() !== signer.toLowerCase()
-        ) {
-          continue;
-        }
-
-        try {
-          if (await isRevoked(easCall, signer, attestation.uid)) {
-            continue;
-          }
-        } catch {
+        const verdict = await verifyAttestation(
+          raw,
+          {
+            descriptorHash,
+            attesters,
+            isRevoked: (signer, uid) => isRevoked(easCall, signer, uid),
+          },
+          now
+        );
+        if (verdict.reason === 'revocation_unavailable') {
           return {
             ...base,
             accepted: false,
             reasons: ['attestation_options_incomplete', 'no_trusted_attestation'],
           };
         }
-
+        if (!verdict.ok) {
+          continue;
+        }
         return {
           accepted: true,
           policy: 'attested',
           descriptorHash,
-          attesters: [signer],
+          attesters: [verdict.attester],
           reasons: ['attested'],
         };
       }

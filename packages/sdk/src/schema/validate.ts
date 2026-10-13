@@ -14,6 +14,7 @@ import type {
   ValidationIssue,
   ValidationResult,
 } from '../types/descriptor';
+import { ADDRESS_RE, isPlainObject } from '../util';
 import v1Schema from './official/erc7730-v1.schema.json' with { type: 'json' };
 import v2Schema from './official/erc7730-v2.schema.json' with { type: 'json' };
 
@@ -30,7 +31,6 @@ function cjsDefault<T>(mod: T): T extends { default: infer D } ? D : T {
 const Ajv2020 = cjsDefault(Ajv2020Module) as unknown as Ajv2020Ctor;
 const addFormats = cjsDefault(addFormatsModule) as unknown as AddFormatsFn;
 
-const ADDRESS_RE = /^0x[0-9a-fA-F]{40}$/;
 const SCHEMA_VERSION_RE = /erc7730-v([12])(?=[.\-_]|\/|$|\.schema)/i;
 
 const ajv = new Ajv2020({
@@ -66,10 +66,6 @@ function compile(schema: object): ValidateFunction {
 
 const validateV2 = compile(v2Schema);
 const validateV1 = compile(v1Schema);
-
-function isPlainObject(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
 
 function pointerToken(value: string): string {
   return value.replace(/~/g, '~0').replace(/\//g, '~1');

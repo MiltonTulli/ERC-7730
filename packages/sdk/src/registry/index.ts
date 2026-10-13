@@ -6,6 +6,7 @@
  */
 
 import { computeSelector } from '../core/signatures';
+import { canonicalizeDeclaration } from '../decode/abi';
 import { Erc7730Error } from '../errors';
 import { type ValidationResult, validateDescriptor } from '../schema';
 import type { InputDescriptor } from '../types/descriptor';
@@ -58,7 +59,7 @@ function buildSignatureIndex(): SignatureIndex {
       continue;
     }
     for (const [signature, format] of Object.entries(formats)) {
-      const normalized = normalizeSignature(signature);
+      const normalized = canonicalizeDeclaration(signature);
       // First match wins - don't overwrite if already exists
       if (!index.has(normalized)) {
         index.set(normalized, {
@@ -70,87 +71,6 @@ function buildSignatureIndex(): SignatureIndex {
   }
 
   return index;
-}
-
-/**
- * Normalize function signature to canonical form
- * "transfer(address to, uint256 amount)" -> "transfer(address,uint256)"
- */
-function normalizeSignature(signature: string): string {
-  // Handle selector format (0x...)
-  if (signature.startsWith('0x')) {
-    return signature.toLowerCase();
-  }
-
-  const match = signature.match(/^(\w+)\((.*)\)$/);
-  if (!match) return signature;
-
-  const [, name, params] = match;
-
-  // Parse params and extract only types
-  const types = parseParamTypes(params);
-
-  return `${name}(${types.join(',')})`;
-}
-
-/**
- * Parse parameter string and extract types only
- */
-function parseParamTypes(params: string): string[] {
-  if (!params.trim()) return [];
-
-  const types: string[] = [];
-  let depth = 0;
-  let current = '';
-
-  for (const char of params) {
-    if (char === '(') depth++;
-    else if (char === ')') depth--;
-
-    if (char === ',' && depth === 0) {
-      types.push(extractType(current.trim()));
-      current = '';
-    } else {
-      current += char;
-    }
-  }
-
-  if (current.trim()) {
-    types.push(extractType(current.trim()));
-  }
-
-  return types;
-}
-
-/**
- * Extract type from "type name" or just "type"
- */
-function extractType(param: string): string {
-  // Handle tuples
-  if (param.startsWith('(')) {
-    const tupleEnd = findMatchingParen(param);
-    const tupleContent = param.slice(1, tupleEnd);
-    const suffix = param.slice(tupleEnd + 1).trim();
-
-    const innerTypes = parseParamTypes(tupleContent);
-    return `(${innerTypes.join(',')})${suffix}`;
-  }
-
-  // Regular param: "uint256 amount" -> "uint256"
-  const parts = param.split(/\s+/);
-  return parts[0];
-}
-
-function findMatchingParen(str: string): number {
-  let depth = 0;
-  for (let i = 0; i < str.length; i++) {
-    if (str[i] === '(') depth++;
-    else if (str[i] === ')') {
-      depth--;
-      if (depth === 0) return i;
-    }
-  }
-  return str.length;
 }
 
 export interface RegistryMatch {
@@ -178,7 +98,7 @@ export class Registry {
    * Find descriptor for a function signature or selector
    */
   find(signature: string): RegistryMatch | null {
-    const normalized = normalizeSignature(signature);
+    const normalized = canonicalizeDeclaration(signature);
 
     const custom = this.customIndex.get(normalized);
     if (custom) {
@@ -251,7 +171,7 @@ export class Registry {
       // Index by signature and register with decoder
       for (const [signature, rawFormat] of Object.entries(formats)) {
         const format = rawFormat as FunctionFormat;
-        const normalized = normalizeSignature(signature);
+        const normalized = canonicalizeDeclaration(signature);
         this.customIndex.set(normalized, { descriptor, format });
 
         // Index by selector so lookup does not depend on a process-wide signature map.

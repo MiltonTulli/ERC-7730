@@ -1,5 +1,6 @@
 import { decodeCalldata } from '../core/decoder';
 import type { Hex, TransactionInput } from '../types';
+import { CONFIDENCE_RANK } from '../util';
 import { asAddress } from './common';
 import type {
   Address,
@@ -191,8 +192,6 @@ export function extractUserOpCalls(callData: Hex): InnerCall[] | null {
 
   return null;
 }
-
-const CONFIDENCE_RANK: Record<Confidence, number> = { low: 0, medium: 1, high: 2 };
 
 function minConfidence(values: Confidence[]): Confidence {
   let next: Confidence = 'high';

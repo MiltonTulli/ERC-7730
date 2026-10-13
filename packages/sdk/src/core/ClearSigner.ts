@@ -10,18 +10,16 @@ import {
   clearSign,
   sharedClearSignRegistry,
 } from '../clearSign';
-import { matchContext, resolveImplementation } from '../decode/context';
 import type { BatchInput } from '../decode/decodeBatch';
 import { decodeTransaction } from '../decode/decodeTransaction';
 import { decodeTypedData } from '../decode/decodeTypedData';
-import { eip712FormatMatchesLookup } from '../decode/match';
 import type { DecodeOptions, DecodeRegistry, DecodedOperation } from '../decode/types';
+import { findOverride } from '../official-registry/overrides';
 import type { OfficialRegistry } from '../official-registry/types';
 import { createMemoryIncludeLoader, resolveDescriptor } from '../resolve';
 import { DescriptorResolveError, invalidDescriptors } from '../resolve/error';
-import { isPlainObject } from '../resolve/util';
 import { validateDescriptor } from '../schema';
-import type { Provider, TransactionInput, TypedDataInput } from '../types';
+import type { TransactionInput, TypedDataInput } from '../types';
 import type { InputDescriptor, ResolvedDescriptor } from '../types/descriptor';
 
 type BoundRegistry = DecodeRegistry & {
@@ -30,27 +28,6 @@ type BoundRegistry = DecodeRegistry & {
 
 function hasExtend(registry: DecodeRegistry | OfficialRegistry): registry is BoundRegistry {
   return 'extend' in registry && typeof registry.extend === 'function';
-}
-
-function overrideKind(resolved: ResolvedDescriptor): 'calldata' | 'eip712' | null {
-  const context = isPlainObject(resolved.merged.context) ? resolved.merged.context : undefined;
-  if (!context) {
-    return null;
-  }
-  if (isPlainObject(context.contract)) {
-    return 'calldata';
-  }
-  if (isPlainObject(context.eip712)) {
-    return 'eip712';
-  }
-  return null;
-}
-
-function deploymentsHit(resolved: ResolvedDescriptor, chainId: number, address: string): boolean {
-  const want = address.toLowerCase();
-  return resolved.deployments.some(
-    (item) => item.chainId === chainId && item.address.toLowerCase() === want
-  );
 }
 
 /**
@@ -77,69 +54,16 @@ function createBoundRegistry(base?: DecodeRegistry | OfficialRegistry): BoundReg
     return pending;
   }
 
-  async function findOverride(
-    key: {
-      chainId: number;
-      address: `0x${string}`;
-      typedData?: import('../types').TypedDataInput;
-      provider?: Provider | null;
-      fromBlock?: DecodeOptions['fromBlock'];
-      toBlock?: DecodeOptions['toBlock'];
-    },
-    kind: 'calldata' | 'eip712'
-  ): Promise<ResolvedDescriptor | null> {
-    const address = key.address.toLowerCase() as `0x${string}`;
-    const impl = await resolveImplementation(address, key.provider);
-    for (const input of overrides) {
-      const resolved = await resolveOverride(input);
-      if (overrideKind(resolved) !== kind) {
-        continue;
-      }
-      if (kind === 'eip712' && !eip712FormatMatchesLookup(resolved.merged, key)) {
-        continue;
-      }
-      if (deploymentsHit(resolved, key.chainId, address)) {
-        return resolved;
-      }
-      if (impl && impl !== address && deploymentsHit(resolved, key.chainId, impl)) {
-        return resolved;
-      }
-      if (kind === 'eip712') {
-        if (!key.typedData) {
-          continue;
-        }
-        const bound = await matchContext(resolved, key.typedData, {
-          provider: key.provider,
-          fromBlock: key.fromBlock,
-          toBlock: key.toBlock,
-        });
-        if (bound.matched) {
-          return resolved;
-        }
-        continue;
-      }
-      const bound = await matchContext(
-        resolved,
-        { to: address, data: '0x', chainId: key.chainId },
-        { provider: key.provider, fromBlock: key.fromBlock, toBlock: key.toBlock }
-      );
-      if (bound.matched) {
-        return resolved;
-      }
-    }
-    return null;
-  }
-
   return {
     async findCalldata(key) {
-      const local = await findOverride(key, 'calldata');
+      const local = await findOverride(overrides, resolveOverride, key, 'calldata');
       if (local) {
         return local;
       }
       return base?.findCalldata(key) ?? null;
     },
     async findEip712(key) {
-      const local = await findOverride(key, 'eip712');
+      const local = await findOverride(overrides, resolveOverride, key, 'eip712');
       if (local) {
         return local;
       }

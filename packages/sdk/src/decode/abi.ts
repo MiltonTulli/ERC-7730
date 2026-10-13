@@ -46,7 +46,7 @@ const WELL_KNOWN_NAMES: Record<string, string[]> = {
   'deposit()': [],
 };
 
-function findMatchingParen(src: string, openIndex: number): number {
+export function findMatchingParen(src: string, openIndex: number): number {
   let depth = 0;
   for (let i = openIndex; i < src.length; i++) {
     if (src[i] === '(') {
@@ -61,7 +61,7 @@ function findMatchingParen(src: string, openIndex: number): number {
   return -1;
 }
 
-function splitTopLevel(src: string): string[] {
+export function splitTopLevel(src: string): string[] {
   if (!src.trim()) {
     return [];
   }
@@ -94,7 +94,7 @@ function isDigit(char: string): boolean {
 }
 
 /** Leading `[` / `[N]` run. A quantified regex on this suffix is a CodeQL polynomial-ReDoS finding. */
-function parseArraySuffix(src: string): { type: string; rest: string } {
+export function parseArraySuffix(src: string): { type: string; rest: string } {
   const n = src.length;
   let i = 0;
   while (i < n && src[i] === '[') {
@@ -129,7 +129,7 @@ function splitTrailingArraySuffix(type: string): { base: string; suffix: string 
   return { base: type.slice(0, end), suffix: type.slice(end) };
 }
 
-function canonicalizeType(type: string): string {
+export function canonicalizeType(type: string): string {
   const { base, suffix } = splitTrailingArraySuffix(type);
   const mapped =
     base !== undefined && Object.hasOwn(TYPE_ALIASES, base) ? TYPE_ALIASES[base] : base;

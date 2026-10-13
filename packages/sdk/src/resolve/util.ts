@@ -1,6 +1,4 @@
-export function isPlainObject(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
+export { isPlainObject } from '../util';
 
 /** Own keys that assign through `Object.prototype` or hide it. */
 export const FORBIDDEN_KEYS: ReadonlySet<string> = new Set([

@@ -209,6 +209,27 @@ describe('matchContext factory', () => {
     expect(result.matched).toBe(false);
   });
 
+  it('skips a log whose address is missing or not an address', async () => {
+    const provider: Provider = {
+      async getLogs() {
+        return [
+          {
+            topics: [indexedTopic, padAddress(CLONE)],
+            data: padAddress(SAFE),
+          },
+          {
+            address: 'not-an-address' as Address,
+            topics: [indexedTopic, padAddress(CLONE)],
+            data: padAddress(SAFE),
+          },
+        ];
+      },
+    };
+    await expect(
+      matchContext(factoryDescriptor, { to: CLONE, data: '0xd4d9bdcd', chainId: 1 }, { provider })
+    ).resolves.toMatchObject({ matched: false });
+  });
+
   it('fails closed without getLogs', async () => {
     const result = await matchContext(
       factoryDescriptor,

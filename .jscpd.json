@@ -1,0 +1,9 @@
+{
+  "threshold": 2,
+  "minLines": 5,
+  "minTokens": 50,
+  "reporters": ["console"],
+  "format": ["typescript"],
+  "absolute": true,
+  "ignore": ["**/__tests__/**", "**/*.test.ts", "**/types/generated/**"]
+}

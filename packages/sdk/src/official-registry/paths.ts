@@ -1,7 +1,6 @@
+import { ADDRESS_RE } from '../util';
 import { OfficialRegistryError } from './error';
 import type { Address, Caip10 } from './types';
-
-const ADDRESS_RE = /^0x[0-9a-fA-F]{40}$/;
 
 export const DEFAULT_OFFICIAL_REGISTRY_BASE_URL =
   'https://raw.githubusercontent.com/ethereum/clear-signing-erc7730-registry';

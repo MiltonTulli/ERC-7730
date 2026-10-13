@@ -12,16 +12,13 @@
  * `PathResolveError` — they do not return `undefined`.
  */
 
+import { isPlainObject } from '../util';
 import { PathResolveError } from './error';
 import { concatDataPath, parsePath } from './parse';
 import type { ParsedPath, PathContext, PathEnvelope, PathSegment } from './types';
 
 const HEX_RE = /^0x[0-9a-fA-F]*$/;
 const WORD_BYTES = 32;
-
-function isPlainObject(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
 
 function hexToBytes(hex: string): Uint8Array {
   const body = hex.length % 2 === 0 ? hex : `0${hex}`;

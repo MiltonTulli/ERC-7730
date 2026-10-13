@@ -250,7 +250,7 @@ export type RegistryFieldFormat = 'raw' | 'addressName' | 'tokenAmount' | 'nftNa
 // @public
 export function resolveAddress(address: string, chainId: number, provider?: Provider | null): Promise<ResolvedAddress>;
 
-// @public (undocumented)
+// @public
 export function resolveImplementation(address: Address, provider: Provider | null | undefined, log?: DiagnosticLog): Promise<Address | undefined>;
 
 // Warning: (ae-forgotten-export) The symbol "Caip10" needs to be exported by the entry point legacy.d.ts

@@ -1,8 +1,8 @@
 import { InvalidInputError } from '../errors';
-import { isPlainObject } from '../resolve/util';
 import { officialOnlyPolicy } from '../trust/policy';
 import { sourceAcceptedReason, sourceRejectedReason } from '../trust/reasons';
 import type { ResolvedDescriptor } from '../types/descriptor';
+import { ADDRESS_RE, CONFIDENCE_RANK, asRecord, isPlainObject } from '../util';
 import type {
   Address,
   Confidence,
@@ -14,8 +14,7 @@ import type {
   TrustReport,
 } from './types';
 
-const CONFIDENCE_RANK: Record<Confidence, number> = { low: 0, medium: 1, high: 2 };
-const ADDRESS_RE = /^0x[0-9a-fA-F]{40}$/;
+export { asRecord };
 
 export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000' as Address;
 
@@ -24,10 +23,6 @@ export function asAddress(value: string): Address {
     throw new InvalidInputError('INVALID_ADDRESS', `Invalid address: ${value}`);
   }
   return value as Address;
-}
-
-export function asRecord(value: unknown): Record<string, unknown> | undefined {
-  return isPlainObject(value) ? value : undefined;
 }
 
 /**
