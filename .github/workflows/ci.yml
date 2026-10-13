@@ -58,6 +58,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Schema types match the committed file
+        run: pnpm schema:types && git diff --exit-code
+
       - name: Duplicate code
         run: pnpm check:clones
 
@@ -70,7 +73,7 @@ jobs:
       - name: Type check (after build)
         run: pnpm typecheck
 
-      - name: Run tests
+      - name: Run tests offline
         run: pnpm test
 
       - name: SDK coverage
@@ -227,6 +230,9 @@ jobs:
 
       - name: Playground end to end
         run: pnpm --filter @erc7730/web test:e2e
+
+      - name: SDK browser goldens
+        run: pnpm --filter @erc7730/sdk test:browser
 
   changeset:
     name: Changeset (when SDK or CLI source changes)
