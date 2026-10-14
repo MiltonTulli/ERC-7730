@@ -703,6 +703,7 @@ describe('erc7730 help', () => {
     expect(result.stdout).toMatch(/generate/);
     expect(result.stdout).toMatch(/lint/);
     expect(result.stdout).toMatch(/preview/);
+    expect(result.stdout).toMatch(/test/);
     expect(result.stdout).toMatch(/diff/);
   });
 

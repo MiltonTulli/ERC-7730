@@ -305,7 +305,7 @@ Result `source` is `"sourcify"` and confidence is never high. That path verifies
 - [trust-table.md](./trust-table.md) — source × policy × confidence
 - Root [README.md](../README.md) — install + short start
 - [interop.md](./interop.md) — vs python-erc7730 / Sourcify TS
-- [github-action.md](./github-action.md) — protocol ABI-vs-descriptor CI snippet
+- [github-action.md](./github-action.md) — protocol CI: ABI fingerprint, and `erc7730 test --reporter github`
 - [ROADMAP.md](../ROADMAP.md) — shipped scope
 - Official registry — https://github.com/ethereum/clear-signing-erc7730-registry
 - ERC-7730 — https://eips.ethereum.org/EIPS/eip-7730

@@ -25,7 +25,10 @@ async function getAllFiles(dir, files = []) {
   for (const entry of entries) {
     const path = join(dir, entry.name);
     if (entry.isDirectory()) {
-      await getAllFiles(path, files);
+      // testsv2 holds companion cases, not descriptors.
+      if (entry.name !== 'testsv2') {
+        await getAllFiles(path, files);
+      }
     } else if (entry.name.endsWith('.json') && !entry.name.startsWith('.')) {
       files.push(path);
     }

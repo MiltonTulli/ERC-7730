@@ -24,6 +24,7 @@ The published public surface is the `erc7730` binary. The manifest does **not** 
 erc7730 generate --chain-id 1 --address 0x... --abi ./abi.json --owner "My Protocol"
 erc7730 lint ./calldata-Foo.json
 erc7730 lint --tests ./testsv2/
+erc7730 test ./calldata-Foo.json --tests ./testsv2/calldata-Foo.tests.json
 erc7730 preview --data 0x... --to 0x... --chain-id 1 --pin <sha>
 erc7730 scaffold --chain-id 1 --address 0x... --abi ./abi.json --owner "My Protocol" --out ./draft
 erc7730 diff ./calldata-Foo.json --against official --pin <sha>
@@ -35,5 +36,5 @@ Generated drafts are never `confidence: "high"`. The CLI does **not** open PRs a
 ## Next
 
 - [Command reference](/ERC-7730/cli/generate/) — generated from `help.ts`
-- [Walkthrough](/ERC-7730/cli/walkthrough/) — generate → lint → preview → scaffold
-- [Protocol CI](/ERC-7730/action/) — ABI vs descriptor stale check
+- [Walkthrough](/ERC-7730/cli/walkthrough/) — generate → lint → test → preview → scaffold
+- [Protocol CI](/ERC-7730/action/) — ABI fingerprint, and test screens in the job summary

@@ -68,6 +68,7 @@ What this toolkit is not: [not this](https://miltontulli.github.io/ERC-7730/not-
 ```bash
 erc7730 generate --chain-id 1 --address 0x... --abi ./abi.json --owner "My Protocol"
 erc7730 lint ./calldata.json
+erc7730 test ./calldata.json --tests ./testsv2/calldata.tests.json
 erc7730 preview --data 0x... --to 0x... --chain-id 1 --pin <sha>
 ```
 

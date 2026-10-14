@@ -27,6 +27,7 @@ const helps = {
   ROOT: extractHelp('ROOT_HELP', helpSource),
   GENERATE: extractHelp('GENERATE_HELP', helpSource),
   LINT: extractHelp('LINT_HELP', helpSource),
+  TEST: extractHelp('TEST_HELP', helpSource),
   PREVIEW: extractHelp('PREVIEW_HELP', helpSource),
   SCAFFOLD: extractHelp('SCAFFOLD_HELP', helpSource),
   DIFF: extractHelp('DIFF_HELP', helpSource),
@@ -52,6 +53,7 @@ const documentedFlags = [
   '--out',
   '--json',
   '--tests',
+  '--reporter',
   '--data',
   '--to',
   '--from',
@@ -97,6 +99,12 @@ ${helps.GENERATE}
 
 \`\`\`text
 ${helps.LINT}
+\`\`\`
+
+## test
+
+\`\`\`text
+${helps.TEST}
 \`\`\`
 
 ## preview
@@ -149,7 +157,7 @@ Floating branch names (\`master\`, \`main\`) are not pins.
 | Code | When |
 | --- | --- |
 | 0 | Success. Also \`--help\` and \`--version\` |
-| 1 | Usage error, unknown command, \`lint\` error-level issue, \`generate\` draft that fails v2 validation, \`diff\` mismatch / miss, \`registry\` without \`update\` |
+| 1 | Usage error, unknown command, \`lint\` error-level issue, \`test\` case failure or invalid tests file, \`generate\` draft that fails v2 validation, \`diff\` mismatch / miss, \`registry\` without \`update\` |
 
 \`lint\` warnings do not fail the process. With no arguments, \`erc7730\` prints help and exits \`1\`.
 
