@@ -59,6 +59,25 @@ Exit `1` on error-level issues. Warnings (empty formats, missing intent) do not 
 
 ## 3. Run the confirmation tests
 
+Write `./testsv2/calldata-usdc-draft.tests.json` before the command. `descriptor` is relative to that file. `rawTx` is a serialized transaction, and `expected` is the intent, owner, and fields the screen should show.
+
+```json
+{
+  "descriptor": "../calldata-usdc-draft.json",
+  "tests": [
+    {
+      "description": "Transfer 100 USDC",
+      "rawTx": "0x02…",
+      "expected": {
+        "intent": "Send",
+        "owner": "USD Coin",
+        "fields": []
+      }
+    }
+  ]
+}
+```
+
 ```bash
 erc7730 test ./calldata-usdc-draft.json --tests ./testsv2/calldata-usdc-draft.tests.json
 ```
