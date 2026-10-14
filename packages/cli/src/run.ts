@@ -7,6 +7,7 @@ import { runLint } from './lint';
 import { runPreview } from './preview';
 import { runRegistry } from './registry';
 import { runScaffold } from './scaffold';
+import { runTest } from './test';
 import type { CliIo, CliResult } from './types';
 import { Output, UsageError } from './types';
 
@@ -50,6 +51,8 @@ export async function runCli(argv: string[], io?: Partial<CliIo>): Promise<CliRe
         return await runLint(rest, ctx);
       case 'preview':
         return await runPreview(rest, ctx);
+      case 'test':
+        return await runTest(rest, ctx);
       case 'diff':
         return await runDiff(rest, ctx);
       case 'scaffold':

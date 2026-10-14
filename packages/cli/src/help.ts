@@ -4,6 +4,7 @@ Commands:
   generate   Bootstrap a v2 descriptor from an ABI
   lint       Validate descriptor files (exit 1 on errors)
   preview    Decode a transaction and print intent + fields
+  test       Run testsv2 cases and print the confirmation screen
   diff       Compare a local descriptor to the official registry
   scaffold   Lay out calldata-*.json (+ testsv2) for an official-registry PR
   registry   Refresh a pinned official registry cache
@@ -39,6 +40,21 @@ specs/erc7730-tests-v2.schema.json instead of descriptor schema.
 
 Exit 1 if any error-level issue is reported. A clean file prints the schema, how many
 formats were checked, and how many includes resolved.
+`;
+
+export const TEST_HELP = `Usage: erc7730 test <descriptor.json> [--tests <tests.json>] [--reporter text|github]
+
+Run each case in a registry testsv2 file against the descriptor. Prints the
+confirmation screen from toScreens. When a case includes expected, compares
+intent, owner, and fields and prints a diff on mismatch.
+
+  --tests      testsv2 file. Default: testsv2/<descriptor-name>.tests.json
+               next to the descriptor
+  --reporter   text (default) or github. github prints ::error annotations and,
+               when GITHUB_STEP_SUMMARY is set, appends a Markdown summary of
+               the screens to that file
+
+Exit 1 when any case fails or the tests file is not valid.
 `;
 
 export const PREVIEW_HELP = `Usage: erc7730 preview --data <hex> --to <addr> --chain-id <id> [--from <addr>] [--value <n>] [--pin <sha>] [--registry-path <dir>] [--policy <name>] [--json] [--sourcify] [--explain]

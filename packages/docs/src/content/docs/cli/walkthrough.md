@@ -1,6 +1,6 @@
 ---
 title: Authoring walkthrough
-description: generate → lint → preview → scaffold for an official-registry PR.
+description: generate → lint → test → preview → scaffold for an official-registry PR.
 ---
 
 Concrete flow for a protocol team next to a JS stack. Flags below exist on the published `erc7730` binary — see the [command reference](/ERC-7730/cli/generate/).
@@ -57,7 +57,15 @@ erc7730 lint --tests ./testsv2/   # if you maintain registry testsv2 files
 
 Exit `1` on error-level issues. Warnings (empty formats, missing intent) do not fail the process. Lint does not call Etherscan / Sourcify.
 
-## 3. Preview a call
+## 3. Run the confirmation tests
+
+```bash
+erc7730 test ./calldata-usdc-draft.json --tests ./testsv2/calldata-usdc-draft.tests.json
+```
+
+Prints each confirmation screen. Exit `1` when a case does not match `expected`, or the tests file is invalid. A descriptor loaded from the working tree is a local override, so the screen title is prefixed with `Unverified`. In GitHub Actions, add `--reporter github` so a failure becomes an annotation and the screens land in the job summary. See [Protocol CI](/ERC-7730/action/).
+
+## 4. Preview a call
 
 `--pin` is optional. Omitted, preview uses the vendored commit and prints `Pin: <sha> (vendored default)`. With `--pin`, the line is `Pin: <sha> (--pin)`. `ERC7730_REGISTRY_PIN` prints `Pin: <sha> (ERC7730_REGISTRY_PIN)`. A local `ERC7730_REGISTRY_PATH`, or a prior `registry update`, still supplies the descriptor files.
 
@@ -75,7 +83,7 @@ Prints intent, `interpolatedIntent`, fields, and trust. Add `--json` for the ful
 
 Negative native value must be `--value=-1`.
 
-## 4. Scaffold a registry-shaped tree
+## 5. Scaffold a registry-shaped tree
 
 ```bash
 erc7730 scaffold \
@@ -88,7 +96,7 @@ erc7730 scaffold \
 
 Writes `calldata-<slug>.json` and `testsv2/calldata-<slug>.tests.json`. Does **not** open a GitHub PR. Copy into a fork of [`ethereum/clear-signing-erc7730-registry`](https://github.com/ethereum/clear-signing-erc7730-registry) and submit there. Use `--force` only when you intend to overwrite.
 
-## 5. Diff against official (optional)
+## 6. Diff against official (optional)
 
 ```bash
 erc7730 diff ./calldata-usdc-draft.json --against official --pin 9f37816afde954ff6617fb5baa346133e5af26c5
@@ -98,4 +106,4 @@ Exit `1` when the comparable slice differs or no official file matches the deplo
 
 ## Keep descriptors fresh in CI
 
-See the [ABI vs descriptor](/ERC-7730/action/) snippet so an ABI change fails until the descriptor is updated.
+See [Protocol CI](/ERC-7730/action/) for the ABI fingerprint check and for `erc7730 test --reporter github`.

@@ -79,9 +79,9 @@ const pages = [
   {
     source: 'docs/github-action.md',
     dest: 'action.md',
-    title: 'Protocol CI: ABI vs descriptor',
+    title: 'Protocol CI',
     description:
-      'Optional CI snippet so an ABI change fails until the ERC-7730 descriptor is updated.',
+      'ABI fingerprint check, and erc7730 test with screens in the GitHub Actions job summary.',
   },
   {
     source: 'docs/divergences.md',
