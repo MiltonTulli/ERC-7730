@@ -37,14 +37,16 @@ local semantic checks. Does not call Etherscan / Sourcify.
 With --tests, validate registry testsv2 files against
 specs/erc7730-tests-v2.schema.json instead of descriptor schema.
 
-Exit 1 if any error-level issue is reported.
+Exit 1 if any error-level issue is reported. A clean file prints the schema, how many
+formats were checked, and how many includes resolved.
 `;
 
-export const PREVIEW_HELP = `Usage: erc7730 preview --data <hex> --to <addr> --chain-id <id> [--from <addr>] [--value <n>] [--pin <sha>] [--registry-path <dir>] [--json] [--sourcify] [--explain]
+export const PREVIEW_HELP = `Usage: erc7730 preview --data <hex> --to <addr> --chain-id <id> [--from <addr>] [--value <n>] [--pin <sha>] [--registry-path <dir>] [--policy <name>] [--json] [--sourcify] [--explain]
 
 Decode a transaction with the official registry (or ERC7730_REGISTRY_PATH) and
 print intent, interpolatedIntent, fields, and trust to stdout.
 
+  --policy     official-only (default), official-or-local, or none
   --sourcify   Opt in to the untrusted Sourcify / generated ABI fallback
   --explain    Print the diagnostic chain (why the call matched or missed)
 `;

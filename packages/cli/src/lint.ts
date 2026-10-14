@@ -1,6 +1,7 @@
 import { relative } from 'node:path';
 import { parseArgs } from 'node:util';
 import {
+  type IncludeLoader,
   type InputDescriptor,
   type ValidationIssue,
   resolveDescriptor,
@@ -84,21 +85,58 @@ function walkFormats(descriptor: InputDescriptor, issues: LintIssue[]): void {
   }
 }
 
+export interface DescriptorLint {
+  issues: LintIssue[];
+  /** Present when the file has no error-level issues. */
+  summary?: string;
+}
+
+function countFormats(descriptor: InputDescriptor): number {
+  const display = descriptor.display;
+  if (!display || typeof display !== 'object') {
+    return 0;
+  }
+  const formats = (display as { formats?: unknown }).formats;
+  if (!formats || typeof formats !== 'object' || Array.isArray(formats)) {
+    return 0;
+  }
+  return Object.keys(formats).length;
+}
+
+function schemaSummary(version: '1' | '2', formats: number, includes: number): string {
+  const noun = formats === 1 ? 'format' : 'formats';
+  return `schema erc7730-v${version} · ${formats} ${noun} · includes: ${includes} resolved`;
+}
+
+function countingLoader(loader: IncludeLoader, count: { resolved: number }): IncludeLoader {
+  return {
+    async load(ref, from) {
+      const loaded = await loader.load(ref, from);
+      count.resolved += 1;
+      return loaded;
+    },
+  };
+}
+
 export async function lintDescriptor(
   input: unknown,
   options?: { fromPath?: string }
-): Promise<LintIssue[]> {
+): Promise<DescriptorLint> {
   const issues: LintIssue[] = [];
   const validated = validateDescriptor(input);
   if (!validated.ok) {
-    return schemaIssues(validated.errors);
+    return { issues: schemaIssues(validated.errors) };
   }
 
   const descriptor = validated.descriptor;
   let toWalk = descriptor;
+  const includes = { resolved: 0 };
   if (typeof descriptor.includes === 'string' && options?.fromPath) {
     try {
-      const resolved = await resolveDescriptor(descriptor, createFsIncludeLoader(options.fromPath));
+      const resolved = await resolveDescriptor(
+        descriptor,
+        countingLoader(createFsIncludeLoader(options.fromPath), includes)
+      );
       toWalk = resolved.merged;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
@@ -112,17 +150,41 @@ export async function lintDescriptor(
   }
 
   walkFormats(toWalk, issues);
-  return issues;
+  if (issues.some((issue) => issue.level === 'error')) {
+    return { issues };
+  }
+  return {
+    issues,
+    summary: schemaSummary(validated.version, countFormats(toWalk), includes.resolved),
+  };
 }
 
-function formatIssues(file: string, issues: LintIssue[]): string[] {
+function missingContextAndDisplay(value: unknown): boolean {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return true;
+  }
+  const record = value as Record<string, unknown>;
+  return record.context === undefined && record.display === undefined;
+}
+
+function formatIssues(
+  file: string,
+  issues: LintIssue[],
+  options?: { summary?: string; unlike?: boolean }
+): string[] {
   const lines: string[] = [];
   const errors = issues.filter((issue) => issue.level === 'error').length;
   const warnings = issues.filter((issue) => issue.level === 'warning').length;
   const notes = issues.filter((issue) => issue.level === 'note').length;
+  if (options?.unlike && errors > 0) {
+    lines.push('this does not look like an ERC-7730 descriptor');
+  }
   lines.push(`${file}: ${errors} error(s), ${warnings} warning(s), ${notes} note(s)`);
   for (const issue of issues) {
     lines.push(`  ${issue.level.padEnd(7)} ${issue.path}  ${issue.message}  [${issue.rule}]`);
+  }
+  if (options?.summary && errors === 0) {
+    lines.push(options.summary);
   }
   return lines;
 }
@@ -154,7 +216,12 @@ export async function runLint(args: string[], ctx: CliContext): Promise<CliResul
     throw new UsageError('lint requires a file or directory path', LINT_HELP);
   }
 
-  const reports: Array<{ file: string; issues: LintIssue[] }> = [];
+  const reports: Array<{
+    file: string;
+    issues: LintIssue[];
+    summary?: string;
+    unlike?: boolean;
+  }> = [];
   let hadError = false;
 
   for (const raw of positionals) {
@@ -234,16 +301,22 @@ export async function runLint(args: string[], ctx: CliContext): Promise<CliResul
         const message = error instanceof Error ? error.message : String(error);
         reports.push({
           file: label,
+          unlike: missingContextAndDisplay(json),
           issues: [{ level: 'error', path: '/', message, rule: 'json' }],
         });
         hadError = true;
         continue;
       }
-      const issues = await lintDescriptor(descriptor, { fromPath: file });
-      if (issues.some((issue) => issue.level === 'error')) {
+      const linted = await lintDescriptor(descriptor, { fromPath: file });
+      if (linted.issues.some((issue) => issue.level === 'error')) {
         hadError = true;
       }
-      reports.push({ file: label, issues });
+      reports.push({
+        file: label,
+        issues: linted.issues,
+        summary: linted.summary,
+        unlike: missingContextAndDisplay(json),
+      });
     }
   }
 
@@ -251,7 +324,10 @@ export async function runLint(args: string[], ctx: CliContext): Promise<CliResul
     ctx.out.writeOut(`${JSON.stringify(reports, null, 2)}\n`);
   } else {
     for (const report of reports) {
-      for (const line of formatIssues(report.file, report.issues)) {
+      for (const line of formatIssues(report.file, report.issues, {
+        summary: report.summary,
+        unlike: report.unlike,
+      })) {
         ctx.out.println(line);
       }
     }

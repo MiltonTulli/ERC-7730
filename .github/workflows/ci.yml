@@ -79,6 +79,9 @@ jobs:
       - name: SDK coverage
         run: pnpm --filter @erc7730/sdk test:coverage
 
+      - name: CLI coverage
+        run: pnpm --filter @erc7730/cli test:coverage
+
       - name: Upload SDK coverage
         uses: actions/upload-artifact@v4
         with:

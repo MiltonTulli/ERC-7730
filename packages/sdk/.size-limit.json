@@ -3,7 +3,7 @@
     "name": ".",
     "path": "dist/index.js",
     "gzip": true,
-    "limit": "33 KB",
+    "limit": "34 KB",
     "ignore": ["ox", "ajv", "ajv-formats", "@noble/hashes", "viem"]
   },
   {

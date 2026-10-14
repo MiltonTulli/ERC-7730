@@ -18,7 +18,14 @@ descriptors/
 ├── weth/
 │   └── calldata-weth.json
 └── …
+ercs/
+├── calldata-erc20-tokens.json
+├── calldata-erc4626-vaults.json
+├── eip712-erc2612-permit.json
+└── …
 ```
+
+`ercs/` is the shared include tree from the pinned registry commit, copied as published. Descriptor files refer to it as `../../ercs/…`.
 
 Naming (fixtures only):
 
