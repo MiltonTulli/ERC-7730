@@ -3,6 +3,7 @@ import { DEFAULT_OFFICIAL_REGISTRY_BASE_URL, registryFileUrl } from './paths';
 import { assertRegistryPin } from './pin';
 import type { CalldataIndex, Eip712Index } from './types';
 
+/** Arguments for {@link fetchPrebuiltRegistryIndex}. `pin` is a full commit SHA. */
 export interface PrefetchRegistryIndexOptions {
   /** Full 40-character git commit SHA. */
   pin: string;
@@ -10,6 +11,7 @@ export interface PrefetchRegistryIndexOptions {
   baseUrl?: string;
 }
 
+/** Both official index files, owned by the caller. */
 export interface PrefetchedRegistryIndexes {
   calldata: CalldataIndex;
   eip712: Eip712Index;
@@ -18,6 +20,11 @@ export interface PrefetchedRegistryIndexes {
 /**
  * Fetch `index.calldata.json` and `index.eip712.json` once at the pinned SHA.
  * The caller owns the returned object (pass it to `createOfficialRegistry({ indexes })`).
+ *
+ * @throws {@link OfficialRegistryError} `INVALID_PIN` when `pin` is not a
+ * 40-character SHA, `REGISTRY_FETCH_FAILED` or `REGISTRY_NOT_FOUND` when a
+ * file cannot be downloaded, and `INDEX_MALFORMED` when a file is not the
+ * expected JSON object.
  */
 export async function fetchPrebuiltRegistryIndex(
   options: PrefetchRegistryIndexOptions

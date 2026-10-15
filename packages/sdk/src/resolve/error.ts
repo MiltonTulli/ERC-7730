@@ -1,6 +1,7 @@
 import { Erc7730Error } from '../errors';
 import type { ValidationIssue } from '../types/descriptor';
 
+/** `DescriptorResolveError.code`. */
 export type DescriptorResolveErrorCode =
   | 'VALIDATION_FAILED'
   | 'INCLUDE_NOT_FOUND'
@@ -8,6 +9,10 @@ export type DescriptorResolveErrorCode =
   | 'INCLUDE_DEPTH'
   | 'REF_NOT_FOUND';
 
+/**
+ * `resolveDescriptor` could not merge or validate the document.
+ * `issues` is empty when the failure is not a schema error.
+ */
 export class DescriptorResolveError extends Erc7730Error {
   readonly path?: string;
   readonly issues: readonly ValidationIssue[];

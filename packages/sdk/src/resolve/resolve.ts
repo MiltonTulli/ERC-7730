@@ -95,6 +95,11 @@ function asInputDescriptor(value: Record<string, unknown>): InputDescriptor {
  *
  * `loader` is invoked for each `includes` URI. Filesystem vs fetch is the
  * caller's concern (CLI later, runtime later). Missing includes throw.
+ *
+ * @throws {@link DescriptorResolveError} `VALIDATION_FAILED` when the document
+ * or the merge is not a valid descriptor, `INCLUDE_NOT_FOUND` or `INCLUDE_CYCLE`
+ * or `INCLUDE_DEPTH` when an include cannot be loaded, and `REF_NOT_FOUND`
+ * when a field `$ref` does not name a display definition.
  */
 export async function resolveDescriptor(
   input: InputDescriptor,
@@ -141,6 +146,12 @@ export async function resolveDescriptor(
   };
 }
 
+/**
+ * Include loader backed by an in-memory map of URI to document.
+ * A missing key fails the merge.
+ *
+ * @throws {@link DescriptorResolveError} `INCLUDE_NOT_FOUND` from `load` when `ref` is not in `files`.
+ */
 export function createMemoryIncludeLoader(files: Record<string, unknown>): IncludeLoader {
   return {
     async load(ref) {

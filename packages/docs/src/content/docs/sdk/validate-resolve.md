@@ -40,5 +40,7 @@ Rootless paths are `#.` unless `ctx.base` is set for nested `tokenPath` / `colle
 
 ## See also
 
-- [Generated API](/ERC-7730/sdk/api/)
+- [`validateDescriptor`](/ERC-7730/sdk/api/functions/validatedescriptor/)
+- [`resolveDescriptor`](/ERC-7730/sdk/api/functions/resolvedescriptor/)
+- [`resolvePath`](/ERC-7730/sdk/api/functions/resolvepath/)
 - [Golden / divergences](/ERC-7730/divergences/)

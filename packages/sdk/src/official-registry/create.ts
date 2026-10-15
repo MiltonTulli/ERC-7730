@@ -12,6 +12,23 @@ import { isCommitSha, resolveRegistryTreeRef } from './pin';
 import type { OfficialRegistryRuntime } from './runtime';
 import type { OfficialRegistry, OfficialRegistryConfig, RegistryLookupKey } from './types';
 
+/**
+ * Registry client for the Ethereum clear-signing catalog.
+ *
+ * Omit `pin` and `ref` to use {@link VENDORED_REGISTRY_COMMIT}. Pass `pin` for
+ * a commit SHA. Pass `ref` only for a local floating branch or tag.
+ *
+ * @example
+ * ```ts
+ * import { createOfficialRegistry } from '@erc7730/sdk';
+ *
+ * const registry = createOfficialRegistry();
+ * ```
+ *
+ * @throws {@link OfficialRegistryError} `INVALID_PIN` or `INVALID_REF` when
+ * `pin` and `ref` are both set or not usable, and `REGISTRY_FETCH_FAILED`
+ * when this runtime has no `fetch`.
+ */
 export function createOfficialRegistry(config: OfficialRegistryConfig = {}): OfficialRegistry {
   const options = config ?? {};
   const pin = resolveRegistryTreeRef(options);

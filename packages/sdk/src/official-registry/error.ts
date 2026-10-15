@@ -1,5 +1,6 @@
 import { Erc7730Error } from '../errors';
 
+/** `OfficialRegistryError.code`. */
 export type OfficialRegistryErrorCode =
   | 'REGISTRY_FETCH_FAILED'
   | 'REGISTRY_NOT_FOUND'
@@ -7,6 +8,7 @@ export type OfficialRegistryErrorCode =
   | 'INVALID_REF'
   | 'INDEX_MALFORMED';
 
+/** The official registry refused a pin, a ref, or a file fetch. */
 export class OfficialRegistryError extends Erc7730Error {
   override readonly code: OfficialRegistryErrorCode;
 

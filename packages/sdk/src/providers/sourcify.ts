@@ -42,6 +42,7 @@ function isSourcifyTarget(chainId: number, address: string): boolean {
   return Number.isInteger(chainId) && chainId >= 0 && ADDRESS_RE.test(address);
 }
 
+/** Chain, address, and match level returned by a Sourcify lookup. */
 export interface SourcifyMatch {
   match: 'exact_match' | 'match' | null;
   chainId: string;
@@ -69,6 +70,7 @@ export interface SourcifyContractDetails {
   sources?: Record<string, { content: string }>;
 }
 
+/** Whether Sourcify verified the contract, plus the ABI, name, and match level. */
 export interface SourcifyResult {
   verified: boolean;
   abi: ABI | null;

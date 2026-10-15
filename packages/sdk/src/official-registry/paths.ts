@@ -2,9 +2,11 @@ import { ADDRESS_RE } from '../util';
 import { OfficialRegistryError } from './error';
 import type { Address, Caip10 } from './types';
 
+/** GitHub raw prefix for `ethereum/clear-signing-erc7730-registry`. No trailing slash. */
 export const DEFAULT_OFFICIAL_REGISTRY_BASE_URL =
   'https://raw.githubusercontent.com/ethereum/clear-signing-erc7730-registry';
 
+/** `owner/name` of the official clear-signing registry. */
 export const OFFICIAL_REGISTRY_REPO = 'ethereum/clear-signing-erc7730-registry';
 
 export function normalizeAddress(address: string): Address {
@@ -14,6 +16,12 @@ export function normalizeAddress(address: string): Address {
   return address.toLowerCase() as Address;
 }
 
+/**
+ * Build a CAIP-10 id. The address is lowercased.
+ *
+ * @throws {@link OfficialRegistryError} `INVALID_REF` when `chainId` is not a
+ * non-negative integer or `address` is not 20 bytes of hex.
+ */
 export function toCaip10(chainId: number, address: string): Caip10 {
   if (!Number.isInteger(chainId) || chainId < 0) {
     throw new OfficialRegistryError('INVALID_REF', `Invalid chainId: ${chainId}`);

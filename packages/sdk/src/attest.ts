@@ -18,6 +18,7 @@ export const ERC8176_SCHEMA_UID =
 /** EAS contract on Ethereum mainnet. */
 export const EAS_CONTRACT = '0xA1207F3BBa224E2c9c3c6D5aF63D0eb1582Ce587' as const;
 
+/** Ethereum mainnet. ERC-8176 attestations are checked on this chain. */
 export const EAS_CHAIN_ID = 1;
 
 const ATTEST_TYPES = {
@@ -47,6 +48,7 @@ const REVOKE_ABI = [
   },
 ] as const;
 
+/** Trusted attesters and the `eth_call` used to read EAS revocations. */
 export interface AttestedPolicyConfig {
   attesters: Address[];
   /**
@@ -58,6 +60,7 @@ export interface AttestedPolicyConfig {
   };
 }
 
+/** Descriptor hash, allowed attesters, and revocation read for one check. */
 export interface VerifyAttestationContext {
   /** Descriptor hash the attestation data must commit to. */
   descriptorHash: Hex;
@@ -66,6 +69,7 @@ export interface VerifyAttestationContext {
   isRevoked(attester: Address, uid: Hex): Promise<boolean>;
 }
 
+/** Accepted attester, or the reason this attestation was refused. */
 export type AttestationVerdict =
   | { ok: true; reason: 'attested'; attester: Address }
   | {
@@ -274,6 +278,18 @@ export async function verifyAttestation(
 /**
  * Accept a descriptor only when a trusted attester has a valid ERC-8176
  * offchain EAS v2 attestation for `descriptor.hash`. Does not issue attestations.
+ *
+ * @example
+ * ```typescript
+ * import { attestedPolicy } from '@erc7730/sdk/attest';
+ *
+ * const trust = attestedPolicy({
+ *   attesters: ['0x0000000000000000000000000000000000000001'],
+ *   eas: {
+ *     call: async () => '0x0000000000000000000000000000000000000000000000000000000000000000',
+ *   },
+ * });
+ * ```
  */
 export function attestedPolicy(config: AttestedPolicyConfig): TrustPolicy {
   const attesters = uniqueLower(config.attesters ?? []);

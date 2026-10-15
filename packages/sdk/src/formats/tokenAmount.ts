@@ -5,7 +5,7 @@
 
 import type { Provider } from '../types';
 
-// Native currency info by chainId
+/** Native currency symbol and decimals by chain id. */
 export const NATIVE_CURRENCY: Record<number, { symbol: string; decimals: number }> = {
   1: { symbol: 'ETH', decimals: 18 },
   10: { symbol: 'ETH', decimals: 18 },

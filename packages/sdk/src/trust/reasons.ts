@@ -29,6 +29,7 @@ export type TrustReasonCode =
   | 'no_trusted_attestation'
   | 'attestation_options_incomplete';
 
+/** Every {@link TrustReasonCode}, in the same order as the union. */
 export const TRUST_REASON_CODES = [
   'source_official_registry_accepted',
   'source_official_registry_rejected',

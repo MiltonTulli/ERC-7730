@@ -12,6 +12,7 @@ export interface PathEnvelope {
   from?: string;
 }
 
+/** Arguments for {@link resolvePath}. */
 export interface PathContext {
   /** Decoded calldata arguments (named object or positional array). */
   args?: unknown;

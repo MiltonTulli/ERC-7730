@@ -3,12 +3,14 @@ import type { TransactionInput } from '../types';
 import { decodeTransaction } from './decodeTransaction';
 import type { Address, DecodeOptions, DecodedOperation, SecurityWarning } from './types';
 
+/** EIP-5792 `wallet_sendCalls` batch. */
 export interface BatchInput {
   chainId: number;
   from?: Address;
   calls: TransactionInput[];
 }
 
+/** One decoded operation per call, plus a sentence joined with `" and "`. */
 export interface BatchDecodeResult {
   interpolatedIntent?: string;
   calls: DecodedOperation[];
@@ -19,6 +21,10 @@ export interface BatchDecodeResult {
 /**
  * Decode an EIP-5792 `wallet_sendCalls` batch. Each call is rendered with
  * `decodeTransaction`. The batch sentence joins per-call sentences with `" and "`.
+ *
+ * @throws {@link InvalidInputError} `INVALID_CHAIN_ID` or `INVALID_CALLDATA`
+ * when the batch itself is not usable, and the same codes as
+ * {@link decodeTransaction} for each call.
  */
 export async function decodeBatch(
   batch: BatchInput,

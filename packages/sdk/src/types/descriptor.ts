@@ -9,8 +9,10 @@
 
 import type { InputDescriptor as SchemaInputDescriptor } from './generated/erc7730-v2';
 
+/** Schema generation a document matched: official v1 or v2. */
 export type DescriptorVersion = '1' | '2';
 
+/** `0x`-prefixed hex string. Descriptor hashes use this shape. */
 export type Hex = `0x${string}`;
 
 /**
@@ -21,6 +23,7 @@ export type Hex = `0x${string}`;
  */
 export type InputDescriptor = SchemaInputDescriptor;
 
+/** Loads documents named by `includes` while {@link resolveDescriptor} merges them. */
 export interface IncludeLoader {
   /**
    * Load the document referenced by `includes`.
@@ -31,6 +34,7 @@ export interface IncludeLoader {
   load(ref: string, from: InputDescriptor): Promise<unknown>;
 }
 
+/** One chain id and address taken from the merged descriptor. */
 export interface ResolvedDeployment {
   chainId: number;
   address: `0x${string}`;
@@ -62,12 +66,14 @@ export interface ResolvedDescriptor {
   attestations?: readonly unknown[];
 }
 
+/** One schema or structural error. `path` is a JSON pointer. */
 export interface ValidationIssue {
   path: string;
   message: string;
   rule?: string;
 }
 
+/** A typed document, or the list of issues that rejected it. */
 export type ValidationResult =
   | { ok: true; descriptor: InputDescriptor; version: DescriptorVersion }
   | { ok: false; errors: ValidationIssue[] };

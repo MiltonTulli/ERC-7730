@@ -9,10 +9,12 @@ import type { OfficialRegistry } from './official-registry/types';
 import { type ClearSignScreens, type ScreenVerification, toScreens } from './screens';
 import type { TransactionInput, TypedDataInput } from './types';
 
+/** One decoded call plus the confirmation screen built from it. */
 export interface ClearSignedOperation extends DecodedOperation {
   screens: ClearSignScreens;
 }
 
+/** A decoded batch plus one screen. `screens.children` are the per-call screens. */
 export interface ClearSignedBatch extends BatchDecodeResult {
   screens: ClearSignScreens;
 }
@@ -84,6 +86,7 @@ function batchScreens(batch: BatchDecodeResult): ClearSignScreens {
   };
 }
 
+/** Transaction, EIP-712 typed data, EIP-5792 batch, or Simple Account UserOp. */
 export type ClearSignInput = TransactionInput | TypedDataInput | BatchInput | UserOpInput;
 
 /**
@@ -91,11 +94,32 @@ export type ClearSignInput = TransactionInput | TypedDataInput | BatchInput | Us
  *
  * With no options this uses the pinned official registry, `officialOnlyPolicy()`,
  * and the ERC-20 / ERC-721 / WETH builtins.
+ *
+ * @example
+ * ```ts
+ * import { clearSign } from '@erc7730/sdk';
+ *
+ * const signed = await clearSign({
+ *   to: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+ *   data: '0xd0e30db0',
+ *   value: 10n ** 18n,
+ *   chainId: 1,
+ * });
+ * signed.screens.headline;
+ * ```
+ *
+ * @throws {@link InvalidInputError} `INVALID_ADDRESS`, `INVALID_HEX`,
+ * `INVALID_CALLDATA`, `INVALID_CHAIN_ID`, or `INVALID_TYPED_DATA` when the
+ * payload is not a usable call.
  */
 export async function clearSign(
   input: BatchInput,
   options?: DecodeOptions
 ): Promise<ClearSignedBatch>;
+/**
+ * Decode a transaction, EIP-712 typed data, or Simple Account UserOp.
+ * Uses the same registry, policy, and thrown codes as the batch overload.
+ */
 export async function clearSign(
   input: TransactionInput | TypedDataInput | UserOpInput,
   options?: DecodeOptions

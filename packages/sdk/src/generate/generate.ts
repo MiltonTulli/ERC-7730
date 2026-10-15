@@ -16,11 +16,14 @@ import type {
 import { inferFormat, inferLabel } from './inferFormat';
 import { inferIntent } from './inferIntent';
 
+/** Official ERC-7730 v2 JSON Schema URL written into `$schema`. */
 export const V2_SCHEMA_URI = 'https://eips.ethereum.org/assets/eip-7730/erc7730-v2.schema.json';
 
+/** `$comment` on a generated draft. Authors review it before registry submission. */
 export const GENERATED_DESCRIPTOR_COMMENT =
   'TODO: generated draft — review intents and formats before submitting to the official registry. Never a high-confidence runtime source.';
 
+/** One ABI input, output, or tuple component. */
 export interface ABIParameter {
   name: string;
   type: string;
@@ -29,6 +32,7 @@ export interface ABIParameter {
   indexed?: boolean;
 }
 
+/** One ABI item. Only named `function` items become display formats. */
 export interface ABIFunction {
   type: 'function' | 'constructor' | 'event' | 'fallback' | 'receive';
   name?: string;
@@ -37,8 +41,10 @@ export interface ABIFunction {
   stateMutability?: 'pure' | 'view' | 'nonpayable' | 'payable';
 }
 
+/** ABI JSON array passed to {@link generateDescriptor}. */
 export type ABI = ABIFunction[];
 
+/** Chain, address, and ABI for one draft descriptor. */
 export interface GenerateOptions {
   chainId: number;
   address: string;
@@ -55,6 +61,7 @@ export interface GenerateOptions {
 /** ROADMAP name for {@link GenerateOptions}. */
 export type GenerateInput = GenerateOptions;
 
+/** v2 draft with `$schema`, `$comment`, a contract context, and display formats. */
 export type GeneratedDescriptor = ERC7730V2Descriptor & {
   $schema: string;
   $comment: string;
@@ -219,6 +226,17 @@ function buildMetadata(
  * Heuristics pick formats (`tokenAmount`, `date`, `addressName`, `enum`).
  * Authors must edit intents before submitting to the official registry.
  * Runtime use of this output is never `confidence: "high"`.
+ *
+ * @example
+ * ```typescript
+ * import { generateDescriptor } from '@erc7730/sdk/generate';
+ *
+ * const draft = generateDescriptor({
+ *   chainId: 1,
+ *   address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+ *   abi: [{ type: 'function', name: 'deposit', stateMutability: 'payable', inputs: [] }],
+ * });
+ * ```
  */
 export function generateDescriptor(options: GenerateOptions): GeneratedDescriptor {
   const writeFunctions = selectFunctions(options);

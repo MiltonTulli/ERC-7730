@@ -1,5 +1,6 @@
 import type { DescriptorCache } from './types';
 
+/** Process-local {@link DescriptorCache}. Not shared across registry instances. */
 export function createMemoryDescriptorCache(): DescriptorCache {
   const store = new Map<string, unknown>();
   return {

@@ -255,6 +255,24 @@ async function decodeTransactionCore(
  * `display.formats`. Without a match, falls back to trusted-token templates,
  * optional Sourcify, then inferred / basic — never `confidence: "high"` for
  * those sources. Multicall3 / Safe CALL expand into `children`.
+ *
+ * @example
+ * ```ts
+ * import { decodeTransaction, officialOnlyPolicy } from '@erc7730/sdk';
+ *
+ * const operation = await decodeTransaction(
+ *   {
+ *     to: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+ *     data: '0xd0e30db0',
+ *     value: 10n ** 18n,
+ *     chainId: 1,
+ *   },
+ *   { trust: officialOnlyPolicy() },
+ * );
+ * ```
+ *
+ * @throws {@link InvalidInputError} `INVALID_ADDRESS`, `INVALID_HEX`,
+ * `INVALID_CALLDATA`, or `INVALID_CHAIN_ID` when `tx` is not a usable transaction.
  */
 export async function decodeTransaction(
   tx: TransactionInput,

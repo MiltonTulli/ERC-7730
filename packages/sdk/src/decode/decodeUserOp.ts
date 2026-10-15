@@ -15,22 +15,15 @@ import { beginDecode, endDecode, failDecode } from './session';
 import type { Address, DecodeOptions, DecodedOperation } from './types';
 import { validateTransactionInput } from './validate';
 
+/** ERC-4337 UserOperation fields this decoder reads. Simple Account only. */
 export interface UserOpInput {
   chainId: number;
+  /** Simple Account address. This is the transaction `to`, not EntryPoint. */
   sender: Address;
   callData: Hex;
   nonce?: bigint;
 }
 
-/**
- * Decode an ERC-4337 UserOperation for eth-infinitism Simple Account only.
- *
- * - `execute(dest, value, data)` → one child; root mirrors the child's
- *   source / confidence / trust / intent (inner contract, not EntryPoint).
- * - `executeBatch` → N children; root joins intents with `" and "`.
- *
- * Other account factories are out of scope.
- */
 async function decodeUserOpCore(
   op: UserOpInput,
   options?: DecodeOptions
@@ -122,6 +115,18 @@ async function decodeUserOpCore(
   return attachChildren(base, children);
 }
 
+/**
+ * Decode an ERC-4337 UserOperation for eth-infinitism Simple Account only.
+ *
+ * - `execute(dest, value, data)` → one child; root mirrors the child's
+ *   source / confidence / trust / intent (inner contract, not EntryPoint).
+ * - `executeBatch` → N children; root joins intents with `" and "`.
+ *
+ * Other account factories are out of scope.
+ *
+ * @throws {@link InvalidInputError} `INVALID_ADDRESS`, `INVALID_HEX`,
+ * `INVALID_CALLDATA`, or `INVALID_CHAIN_ID` when `sender` or `callData` is not usable.
+ */
 export async function decodeUserOp(
   op: UserOpInput,
   options?: DecodeOptions

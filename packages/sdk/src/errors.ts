@@ -1,3 +1,4 @@
+/** Base error. Match `code`, not `message`. Subclasses narrow `code`. */
 export class Erc7730Error extends Error {
   readonly code: string;
 
@@ -8,6 +9,7 @@ export class Erc7730Error extends Error {
   }
 }
 
+/** `InvalidInputError.code` for a transaction, batch, UserOp, or typed-data payload. */
 export type InvalidInputCode =
   | 'INVALID_ADDRESS'
   | 'INVALID_HEX'
@@ -15,6 +17,7 @@ export type InvalidInputCode =
   | 'INVALID_CALLDATA'
   | 'INVALID_TYPED_DATA';
 
+/** The call payload is not usable. `code` is an {@link InvalidInputCode}. */
 export class InvalidInputError extends Erc7730Error {
   override readonly code: InvalidInputCode;
 

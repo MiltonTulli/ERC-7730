@@ -168,6 +168,16 @@ function succeed(input: Record<string, unknown>, version: DescriptorVersion): Va
  *
  * Version is taken from `$schema` when present. If `$schema` is omitted, v2 is
  * tried first and a valid v1 document is accepted as `version: "1"`.
+ * Returns `{ ok: false, errors }` for a rejected document. Does not throw.
+ *
+ * @example
+ * ```typescript
+ * import { validateDescriptor } from '@erc7730/sdk';
+ *
+ * const result = validateDescriptor({
+ *   $schema: 'https://eips.ethereum.org/assets/eip-7730/erc7730-v2.schema.json',
+ * });
+ * ```
  */
 export function validateDescriptor(input: unknown): ValidationResult {
   try {
