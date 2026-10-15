@@ -7,6 +7,7 @@ const repoRoot = join(here, '../../..');
 const outDir = join(here, '../src/content/docs');
 
 const GITHUB_BLOB = 'https://github.com/MiltonTulli/ERC-7730/blob/main';
+const GITHUB_TREE = 'https://github.com/MiltonTulli/ERC-7730/tree/main';
 
 /** HTML comments break MDX. JSX comments would show on GitHub-flavored READMEs. */
 const quickstartTargets = [
@@ -128,8 +129,8 @@ function rewriteLinks(body) {
     .replaceAll('](./migrating-to-1.0.md)', '](/ERC-7730/sdk/migrating-to-1-0/)')
     .replaceAll('](./GUIDE.md#11-migrating-to-010)', '](/ERC-7730/guide/#11-migrating-to-010)')
     .replaceAll('](../packages/sdk/CHANGELOG.md)', `](${GITHUB_BLOB}/packages/sdk/CHANGELOG.md)`)
-    .replaceAll('](../api/baselines/0.12.0)', `](${GITHUB_BLOB}/api/baselines/0.12.0)`)
-    .replaceAll('](../api)', `](${GITHUB_BLOB}/api)`)
+    .replaceAll('](../api/baselines/0.12.0)', `](${GITHUB_TREE}/api/baselines/0.12.0)`)
+    .replaceAll('](../api)', `](${GITHUB_TREE}/api)`)
     .replaceAll('](./interop.md)', '](/ERC-7730/interop/)')
     .replaceAll('](./github-action.md)', '](/ERC-7730/action/)')
     .replaceAll('](./divergences.md)', '](/ERC-7730/divergences/)')
