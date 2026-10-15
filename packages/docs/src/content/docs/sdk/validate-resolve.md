@@ -12,8 +12,25 @@ Validates against the official ERC-7730 JSON Schema (v1 and v2). Returns `{ ok, 
 ## `resolveDescriptor`
 
 ```ts
-import { resolveDescriptor } from '@erc7730/sdk';
-import { createMemoryIncludeLoader } from '@erc7730/sdk/legacy';
+import { type IncludeLoader, type InputDescriptor, resolveDescriptor } from '@erc7730/sdk';
+
+const input: InputDescriptor = {
+  context: {
+    contract: {
+      deployments: [{ chainId: 1, address: '0x1111111111111111111111111111111111111111' }],
+    },
+  },
+  metadata: { owner: 'Example' },
+  display: { formats: {} },
+};
+const documents = new Map<string, InputDescriptor>();
+const loader: IncludeLoader = {
+  async load(ref) {
+    const document = documents.get(ref);
+    if (!document) throw new Error(`Include not found: ${ref}`);
+    return document;
+  },
+};
 
 const resolved = await resolveDescriptor(input, loader);
 // { version, hash, input, merged, deployments }
@@ -22,7 +39,7 @@ const resolved = await resolveDescriptor(input, loader);
 - Merges `includes`, inlines field `$ref` under `$.display.definitions`, lowercases binding addresses.
 - `descriptorHash` is keccak256 of sorted-key JSON with checksum addresses lowercased.
 - Enum `params.$ref` is kept; format keys stay ABI fragments / EIP-712 `encodeType` strings (not converted to 4-byte selectors at resolve time).
-- Fields merge by `path` (EIP overlay). Inject an `IncludeLoader`. `createMemoryIncludeLoader` is `@erc7730/sdk/legacy`.
+- Fields merge by `path` (EIP overlay). Inject an `IncludeLoader` to load included documents.
 
 Known differences vs Ledger `python-erc7730 resolve`: [divergences](/ERC-7730/divergences/).
 

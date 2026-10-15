@@ -4,7 +4,6 @@ import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { validateDescriptor } from '../schema/validate';
 import type { InputDescriptor } from '../types/descriptor';
-import type { ERC7730V2Descriptor } from '../types/v2';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const officialDir = join(here, 'fixtures/official');
@@ -24,10 +23,6 @@ function asInput(descriptor: InputDescriptor): InputDescriptor {
   return descriptor;
 }
 
-function asV2(descriptor: ERC7730V2Descriptor): ERC7730V2Descriptor {
-  return descriptor;
-}
-
 describe('validateDescriptor', () => {
   describe('official v2 registry fixtures', () => {
     const files = officialFiles();
@@ -42,7 +37,6 @@ describe('validateDescriptor', () => {
       expect(result, JSON.stringify(result)).toMatchObject({ ok: true, version: '2' });
       if (result.ok) {
         asInput(result.descriptor);
-        asV2(result.descriptor as ERC7730V2Descriptor);
         expect(
           result.descriptor.context !== undefined || result.descriptor.includes !== undefined
         ).toBe(true);

@@ -2,7 +2,6 @@ export { decodeTransaction } from './decodeTransaction';
 export { decodeTypedData } from './decodeTypedData';
 export { decodeBatch } from './decodeBatch';
 export { decodeUserOp } from './decodeUserOp';
-export { format, formatTypedData } from './compat';
 export { matchFormat } from './match';
 export { matchContext, resolveImplementation, EIP1967_IMPLEMENTATION_SLOT } from './context';
 export { canonicalizeDeclaration, parseDeclaration } from './abi';

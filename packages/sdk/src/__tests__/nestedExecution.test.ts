@@ -1,6 +1,5 @@
 import { type Hex, encodeFunctionData, parseAbi } from 'viem';
 import { describe, expect, it } from 'vitest';
-import { format } from '../decode/compat';
 import { decodeTransaction } from '../decode/decodeTransaction';
 import type { DecodeRegistry } from '../decode/types';
 import { createMemoryIncludeLoader, resolveDescriptor } from '../resolve';
@@ -290,15 +289,18 @@ describe('nested Multicall3 / Safe', () => {
   });
 });
 
-describe('format compat + spender allowlist', () => {
-  it('format() returns intent and interpolatedIntent on an official fixture', async () => {
+describe('spender allowlist', () => {
+  it('decodeTransaction() returns intent and interpolatedIntent on an official fixture', async () => {
     const usdc = await resolved(tokenDescriptor(USDC, 'USDC', 6));
     const data = encodeFunctionData({
       abi: erc20Abi,
       functionName: 'transfer',
       args: [VITALIK, 100_000000n],
     });
-    const result = await format({ chainId: 1, to: USDC, data }, { registry: registryFrom([usdc]) });
+    const result = await decodeTransaction(
+      { chainId: 1, to: USDC, data },
+      { registry: registryFrom([usdc]) }
+    );
     expect(result.intent).toMatch(/Send/);
     expect(result.interpolatedIntent).toBeDefined();
     expect(result.trust.policy).toBe('official-only');

@@ -109,6 +109,9 @@ jobs:
           pnpm --filter @erc7730/sdk api:report
           git diff --exit-code -- api
 
+      - name: Check migration guide
+        run: node --test scripts/generate-migration-guide.test.mjs && node scripts/generate-migration-guide.mjs --check
+
       - name: CLI pack smoke
         run: node scripts/cli-pack-smoke.mjs
 

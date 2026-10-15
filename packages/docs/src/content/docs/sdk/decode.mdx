@@ -1,6 +1,6 @@
 ---
 title: Decode
-description: decodeTransaction, decodeTypedData, decodeBatch, decodeUserOp, and format aliases.
+description: decodeTransaction, decodeTypedData, decodeBatch, and decodeUserOp.
 ---
 
 import sdkPkg from '../../../../../sdk/package.json';
@@ -15,7 +15,6 @@ Primary wallet surface:
 | `decodeTypedData` | `eth_signTypedData` |
 | `decodeBatch` | EIP-5792 `wallet_sendCalls` |
 | `decodeUserOp` | ERC-4337 Simple Account `execute` / `executeBatch` |
-| `format` / `formatTypedData` | Compat aliases of `decode*` on `@erc7730/sdk/legacy` |
 
 Signatures: [`decodeTransaction`](/ERC-7730/sdk/api/functions/decodetransaction/), [`decodeTypedData`](/ERC-7730/sdk/api/functions/decodetypeddata/), [`decodeBatch`](/ERC-7730/sdk/api/functions/decodebatch/), [`decodeUserOp`](/ERC-7730/sdk/api/functions/decodeuserop/).
 
@@ -27,9 +26,9 @@ Signatures: [`decodeTransaction`](/ERC-7730/sdk/api/functions/decodetransaction/
 - Nested `format: "calldata"` fields expose `field.embedded`. Multicall3 / Safe CALL / UserOp expose `children: DecodedOperation[]` with per-child `source` and `trust`.
 - `locale` only formats numbers and dates. Descriptor intent strings are never translated.
 
-## `format` aliases
+## Trust policy
 
-`format` / `formatTypedData` on `@erc7730/sdk/legacy` are deprecated aliases of `decodeTransaction` / `decodeTypedData`. When `trust` is omitted, both use `officialOnlyPolicy()`. `DecodedOperation` remains the source of truth — not Sourcify’s `DisplayModel`.
+When `trust` is omitted, decode uses `officialOnlyPolicy()`. `DecodedOperation` remains the source of truth. The old `format` / `formatTypedData` aliases are removed; see [Migrating to 1.0](/ERC-7730/sdk/migrating-to-1-0/).
 
 Pass `trust: officialOrLocalPolicy()` to accept an app `extend()` override. Import `attestedPolicy` from `@erc7730/sdk/attest` when the wallet verifies ERC-8176 attestations.
 
@@ -43,7 +42,7 @@ Factory matching calls `Provider.getLogs` only when `fromBlock` is a block numbe
 
 ## ClearSigner
 
-`createClearSigner(options?)` binds `DecodeOptions` for repeated calls. `ClearSigner.decode` is a **deprecated** alias of `decodeTransaction` and returns `DecodedOperation`.
+`createClearSigner(options?)` binds `DecodeOptions` for repeated calls. Use its `decodeTransaction`, `decodeTypedData`, `clearSign`, and `extend` methods. The old `decode` alias is removed.
 
 ## See also
 

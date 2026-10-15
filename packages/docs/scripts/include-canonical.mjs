@@ -64,6 +64,12 @@ if (quickstartDrift) {
 /** @type {Array<{ source: string; dest: string; title: string; description: string }>} */
 const pages = [
   {
+    source: 'docs/migrating-to-1.0.md',
+    dest: 'sdk/migrating-to-1-0.md',
+    title: 'Migrating to 1.0',
+    description: 'Removed 0.12 symbols and their 1.0 replacements, generated from API reports.',
+  },
+  {
     source: 'docs/GUIDE.md',
     dest: 'guide.md',
     title: 'Wallet integration guide',
@@ -119,6 +125,11 @@ const pages = [
 /** @param {string} body */
 function rewriteLinks(body) {
   return body
+    .replaceAll('](./migrating-to-1.0.md)', '](/ERC-7730/sdk/migrating-to-1-0/)')
+    .replaceAll('](./GUIDE.md#11-migrating-to-010)', '](/ERC-7730/guide/#11-migrating-to-010)')
+    .replaceAll('](../packages/sdk/CHANGELOG.md)', `](${GITHUB_BLOB}/packages/sdk/CHANGELOG.md)`)
+    .replaceAll('](../api/baselines/0.12.0)', `](${GITHUB_BLOB}/api/baselines/0.12.0)`)
+    .replaceAll('](../api)', `](${GITHUB_BLOB}/api)`)
     .replaceAll('](./interop.md)', '](/ERC-7730/interop/)')
     .replaceAll('](./github-action.md)', '](/ERC-7730/action/)')
     .replaceAll('](./divergences.md)', '](/ERC-7730/divergences/)')

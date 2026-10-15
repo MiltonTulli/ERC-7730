@@ -13,6 +13,8 @@ export const snippetFiles = [
   'packages/cli/README.md',
   'packages/registry/README.md',
   'docs/GUIDE.md',
+  'docs/migrating-to-1.0.md',
+  'packages/docs/src/content/docs/sdk/validate-resolve.md',
   'packages/docs/src/content/docs/index.mdx',
   'packages/docs/src/content/docs/sdk.mdx',
   'packages/docs/src/content/docs/registry.md',

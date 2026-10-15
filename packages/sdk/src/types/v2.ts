@@ -31,16 +31,12 @@ export type {
   DisplayFieldItemList,
 } from './generated/erc7730-v2';
 
-import type { InputDescriptor } from './descriptor';
 import type {
   AStructuredDataFormatSpecification,
   DisplayFieldItemList,
   DisplayIntent,
   Enumeration,
 } from './generated/erc7730-v2';
-
-/** @deprecated Use {@link InputDescriptor}. */
-export type ERC7730V2Descriptor = InputDescriptor;
 
 /** Display format entry under `display.formats`. */
 export type DisplayFormat = AStructuredDataFormatSpecification;

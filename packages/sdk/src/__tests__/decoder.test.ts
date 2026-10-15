@@ -73,7 +73,7 @@ describe('ClearSigner.decode (deprecated alias)', () => {
   it('returns DecodedOperation from decodeTransaction', async () => {
     const signer = createClearSigner({ provider: null, useSourcifyFallback: false });
 
-    const result = await signer.decode({
+    const result = await signer.decodeTransaction({
       to: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
       data: '0xa9059cbb000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa960450000000000000000000000000000000000000000000000000000000005f5e100',
       chainId: 1,

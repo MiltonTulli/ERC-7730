@@ -156,13 +156,6 @@ export class ClearSigner {
       this.clearSignRegistry.extend(list);
     }
   }
-
-  /**
-   * @deprecated Use {@link ClearSigner.decodeTransaction}. Alias for one minor (`0.3.x`).
-   */
-  decode(tx: TransactionInput): Promise<DecodedOperation> {
-    return this.decodeTransaction(tx);
-  }
 }
 
 /**
