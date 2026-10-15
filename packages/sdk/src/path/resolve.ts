@@ -203,7 +203,9 @@ function bindRelative(parsed: ParsedPath, ctx: PathContext): ParsedPath {
  *
  * Missing keys, out-of-range indexes, and unknown envelope fields throw
  * `PathResolveError` with `code: "not_found"`. Invalid syntax throws
- * `code: "invalid"`.
+ * `code: "invalid"`. `#.` with neither args nor a message throws `missing_data`.
+ *
+ * @throws {@link PathResolveError} `invalid`, `not_found`, or `missing_data`.
  */
 export function resolvePath(path: string, ctx: PathContext): unknown {
   const parsed = bindRelative(parsePath(path), ctx);

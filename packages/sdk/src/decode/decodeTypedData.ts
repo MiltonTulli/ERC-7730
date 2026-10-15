@@ -208,6 +208,14 @@ async function decodeTypedDataCore(
   return finalizeDecodedWarnings(fallback, options);
 }
 
+/**
+ * Decode EIP-712 typed data. Domain and `domainSeparator` bindings go through
+ * {@link matchContext}. With no descriptor, fields come from the message.
+ *
+ * @throws {@link InvalidInputError} `INVALID_TYPED_DATA` when `domain`, `types`,
+ * `primaryType`, or `message` is missing, and `INVALID_CHAIN_ID` or
+ * `INVALID_ADDRESS` when those fields are present but not usable.
+ */
 export async function decodeTypedData(
   data: TypedDataInput,
   options?: DecodeOptions

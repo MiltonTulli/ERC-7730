@@ -18,6 +18,11 @@ const required = [
   'sdk/validate-resolve/index.html',
   'sdk/viem/index.html',
   'sdk/api/index.html',
+  'sdk/api/functions/clearsign/index.html',
+  'sdk/api/functions/decodetransaction/index.html',
+  'sdk/api/functions/decodeviemtypeddata/index.html',
+  'sdk/api/functions/validatedescriptor/index.html',
+  'sdk/api/functions/resolvedescriptor/index.html',
   'cli/index.html',
   'cli/generate/index.html',
   'cli/walkthrough/index.html',
@@ -81,7 +86,33 @@ if (!(await exists(apiDir))) {
   process.exit(1);
 }
 
+/**
+ * Astro writes each page as `.../index.html`. That filename is not the TypeDoc
+ * module segment the public URL must not contain.
+ *
+ * @param {string} file
+ */
+function functionRouteHasIndexSegment(file) {
+  const rel = file.split('\\').join('/');
+  if (!rel.endsWith('.html')) {
+    return false;
+  }
+  if (!rel.includes('/functions/') && !rel.startsWith('functions/')) {
+    return false;
+  }
+  const route = rel.replace(/\/index\.html$/, '').replace(/\.html$/, '');
+  return route.split('/').includes('index');
+}
+
 const apiListing = await readdir(apiDir, { recursive: true });
+const indexSegmentRoutes = apiListing.filter((file) => functionRouteHasIndexSegment(String(file)));
+if (indexSegmentRoutes.length > 0) {
+  console.error('docs smoke: /sdk/api/functions routes contain an index segment:');
+  for (const rel of indexSegmentRoutes) {
+    console.error(`  - ${rel}`);
+  }
+  process.exit(1);
+}
 const apiJoined = apiListing.join('\n');
 for (const symbol of ['decodeTransaction', 'decodeViemTypedData']) {
   if (!apiJoined.toLowerCase().includes(symbol.toLowerCase())) {

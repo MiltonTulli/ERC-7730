@@ -43,7 +43,7 @@ export interface SourcifyContractDetails {
     verifiedAt?: string;
 }
 
-// @public (undocumented)
+// @public
 export interface SourcifyMatch {
     // (undocumented)
     address: string;
@@ -55,7 +55,7 @@ export interface SourcifyMatch {
     verifiedAt?: string;
 }
 
-// @public (undocumented)
+// @public
 export interface SourcifyResult {
     // (undocumented)
     abi: ABI | null;

@@ -4,10 +4,10 @@
 
 ```ts
 
-// @public (undocumented)
+// @public
 export type ABI = ABIFunction[];
 
-// @public (undocumented)
+// @public
 export interface ABIFunction {
     // (undocumented)
     inputs?: ABIParameter[];
@@ -21,7 +21,7 @@ export interface ABIFunction {
     type: 'function' | 'constructor' | 'event' | 'fallback' | 'receive';
 }
 
-// @public (undocumented)
+// @public
 export interface ABIParameter {
     // (undocumented)
     components?: ABIParameter[];
@@ -40,12 +40,12 @@ export interface ABIParameter {
 // @public
 export function asInputDescriptor(descriptor: GeneratedDescriptor): InputDescriptor;
 
-// @public (undocumented)
+// @public
 export const GENERATED_DESCRIPTOR_COMMENT = "TODO: generated draft — review intents and formats before submitting to the official registry. Never a high-confidence runtime source.";
 
 // Warning: (ae-forgotten-export) The symbol "ERC7730V2Descriptor" needs to be exported by the entry point generate.d.ts
 //
-// @public (undocumented)
+// @public
 export type GeneratedDescriptor = ERC7730V2Descriptor & {
     $schema: string;
     $comment: string;
@@ -72,7 +72,7 @@ export function generateFunctionDescriptor(func: NamedFunction, chainId: number,
 // @public
 export type GenerateInput = GenerateOptions;
 
-// @public (undocumented)
+// @public
 export interface GenerateOptions {
     // (undocumented)
     abi: ABI;
@@ -93,7 +93,7 @@ export interface GenerateOptions {
 // @public
 export function inferFormat(name: string, type: string, ctx?: InferFormatContext): InferredFormat;
 
-// @public (undocumented)
+// @public
 export interface InferFormatContext {
     internalType?: string;
     looksLikeErc20?: boolean;
@@ -105,7 +105,7 @@ export function inferIntent(functionName: string): string;
 // @public
 export function inferLabel(name: string): string;
 
-// @public (undocumented)
+// @public
 export interface InferredFormat {
     enumName?: string;
     // Warning: (ae-forgotten-export) The symbol "ERC7730V2FieldFormat" needs to be exported by the entry point generate.d.ts
@@ -127,13 +127,13 @@ export function nameTokens(name: string): string[];
 // @public
 export function solidityEnumName(internalType: string | undefined): string | undefined;
 
-// @public (undocumented)
+// @public
 export const V2_SCHEMA_URI = "https://eips.ethereum.org/assets/eip-7730/erc7730-v2.schema.json";
 
 // @public
 export function validateDescriptor(input: unknown): ValidationResult;
 
-// @public (undocumented)
+// @public
 interface ValidationIssue {
     // (undocumented)
     message: string;
@@ -145,7 +145,7 @@ interface ValidationIssue {
 export { ValidationIssue as ValidationError }
 export { ValidationIssue }
 
-// @public (undocumented)
+// @public
 export type ValidationResult = {
     ok: true;
     descriptor: InputDescriptor;
@@ -157,8 +157,8 @@ export type ValidationResult = {
 
 // Warnings were encountered during analysis:
 //
-// dist/<chunk>.d.ts:652:3 - (ae-forgotten-export) The symbol "DescriptorVersion" needs to be exported by the entry point generate.d.ts
-// dist/<chunk>.d.ts:50:3 - (ae-forgotten-export) The symbol "ERC7730V2Display" needs to be exported by the entry point generate.d.ts
+// dist/<chunk>.d.ts:658:3 - (ae-forgotten-export) The symbol "DescriptorVersion" needs to be exported by the entry point generate.d.ts
+// dist/<chunk>.d.ts:57:3 - (ae-forgotten-export) The symbol "ERC7730V2Display" needs to be exported by the entry point generate.d.ts
 
 // (No @packageDocumentation comment for this package)
 

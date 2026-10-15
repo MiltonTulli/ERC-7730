@@ -76,6 +76,8 @@ function uniqueAddresses(values: Address[]): Address[] {
 /**
  * Combine policies. `all` requires every child to accept; `any` accepts if one does.
  * Children are always evaluated so `reasons` stay complete.
+ *
+ * @throws {@link TypeError} When `mode` is not `"all"` or `"any"`.
  */
 export function composePolicies(policies: TrustPolicy[], mode: 'all' | 'any'): TrustPolicy {
   if (mode !== 'all' && mode !== 'any') {

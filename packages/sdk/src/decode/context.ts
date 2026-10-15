@@ -30,10 +30,12 @@ import type { Address, DiagnosticLog } from './types';
 
 export { EIP1967_IMPLEMENTATION_SLOT, resolveImplementation } from './proxy';
 
+/** How {@link matchContext} bound the descriptor to this call. */
 export type ContextMatchVia = 'deployment' | 'factory' | 'proxy' | 'eip712';
 
 export type ContextMismatchReason = 'chain_id' | 'address' | 'unmatched';
 
+/** Whether a descriptor may be applied. A familiar selector on an unbound address is not a match. */
 export interface ContextMatch {
   matched: boolean;
   via?: ContextMatchVia;
@@ -41,6 +43,7 @@ export interface ContextMatch {
   reason?: ContextMismatchReason;
 }
 
+/** Provider and log range for {@link matchContext}. Factory matching is skipped when `fromBlock` is unbounded. */
 export interface MatchContextOptions {
   provider?: Provider | null;
   /**

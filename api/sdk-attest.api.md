@@ -6,7 +6,7 @@
 
 import { Hex } from 'viem';
 
-// @public (undocumented)
+// @public
 export type AttestationVerdict = {
     ok: true;
     reason: 'attested';
@@ -21,7 +21,7 @@ export type AttestationVerdict = {
 // @public
 export function attestedPolicy(config: AttestedPolicyConfig): TrustPolicy;
 
-// @public (undocumented)
+// @public
 export interface AttestedPolicyConfig {
     // (undocumented)
     attesters: Address[];
@@ -33,7 +33,7 @@ export interface AttestedPolicyConfig {
     };
 }
 
-// @public (undocumented)
+// @public
 export const EAS_CHAIN_ID = 1;
 
 // @public
@@ -57,7 +57,7 @@ export function offchainAttestationUid(params: {
 // @public
 export function verifyAttestation(raw: unknown, ctx: VerifyAttestationContext, now: bigint): Promise<AttestationVerdict>;
 
-// @public (undocumented)
+// @public
 export interface VerifyAttestationContext {
     // (undocumented)
     attesters: readonly Address[];
@@ -67,7 +67,7 @@ export interface VerifyAttestationContext {
 
 // Warnings were encountered during analysis:
 //
-// dist/attest.d.ts:32:3 - (ae-forgotten-export) The symbol "Address" needs to be exported by the entry point attest.d.ts
+// dist/attest.d.ts:36:3 - (ae-forgotten-export) The symbol "Address" needs to be exported by the entry point attest.d.ts
 
 // (No @packageDocumentation comment for this package)
 

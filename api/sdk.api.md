@@ -4,7 +4,7 @@
 
 ```ts
 
-// @public (undocumented)
+// @public
 export interface AddressNameDetails {
     // Warning: (ae-forgotten-export) The symbol "Address" needs to be exported by the entry point index.d.ts
     //
@@ -12,13 +12,12 @@ export interface AddressNameDetails {
     address: Address;
     // (undocumented)
     name?: string;
-    // (undocumented)
     nameSource?: 'descriptor' | 'provider' | 'none';
     // (undocumented)
     types?: string[];
 }
 
-// @public (undocumented)
+// @public
 export interface BatchDecodeResult {
     // (undocumented)
     calls: DecodedOperation[];
@@ -27,7 +26,7 @@ export interface BatchDecodeResult {
     warnings: SecurityWarning[];
 }
 
-// @public (undocumented)
+// @public
 export interface BatchInput {
     // (undocumented)
     calls: TransactionInput[];
@@ -37,15 +36,15 @@ export interface BatchInput {
     from?: Address;
 }
 
-// @public (undocumented)
+// @public
 export type Caip10 = `eip155:${number}:${string}`;
 
-// @public (undocumented)
+// @public
 export interface CalldataDetails {
     embedded: DecodedOperation;
 }
 
-// @public (undocumented)
+// @public
 export interface ChainInfo {
     // (undocumented)
     decimals?: number;
@@ -58,22 +57,22 @@ export interface ChainInfo {
 // @public
 export function clearSign(input: BatchInput, options?: DecodeOptions): Promise<ClearSignedBatch>;
 
-// @public (undocumented)
+// @public
 export function clearSign(input: TransactionInput | TypedDataInput | UserOpInput, options?: DecodeOptions): Promise<ClearSignedOperation>;
 
-// @public (undocumented)
+// @public
 export interface ClearSignedBatch extends BatchDecodeResult {
     // (undocumented)
     screens: ClearSignScreens;
 }
 
-// @public (undocumented)
+// @public
 export interface ClearSignedOperation extends DecodedOperation {
     // (undocumented)
     screens: ClearSignScreens;
 }
 
-// @public (undocumented)
+// @public
 export type ClearSignEvent = {
     type: 'decode:start';
     kind: ClearSignKind;
@@ -105,16 +104,14 @@ export type ClearSignEvent = {
     warningType: SecurityWarningType;
 };
 
-// @public (undocumented)
+// @public
 export type ClearSignInput = TransactionInput | TypedDataInput | BatchInput | UserOpInput;
 
-// @public (undocumented)
+// @public
 export interface ClearSignScreens {
-    // (undocumented)
     children?: ClearSignScreens[];
     // (undocumented)
     headline: string;
-    // (undocumented)
     primary: ScreenField[];
     // (undocumented)
     risks: ScreenRisk[];
@@ -129,10 +126,10 @@ export interface ClearSignScreens {
 // @public
 export function composePolicies(policies: TrustPolicy[], mode: 'all' | 'any'): TrustPolicy;
 
-// @public (undocumented)
+// @public
 export type Confidence = 'high' | 'medium' | 'low';
 
-// @public (undocumented)
+// @public
 export interface ContextMatch {
     // (undocumented)
     matched: boolean;
@@ -142,7 +139,7 @@ export interface ContextMatch {
     via?: ContextMatchVia;
 }
 
-// @public (undocumented)
+// @public
 export type ContextMatchVia = 'deployment' | 'factory' | 'proxy' | 'eip712';
 
 // Warning: (ae-forgotten-export) The symbol "ClearSigner" needs to be exported by the entry point index.d.ts
@@ -150,13 +147,13 @@ export type ContextMatchVia = 'deployment' | 'factory' | 'proxy' | 'eip712';
 // @public
 export function createClearSigner(options?: DecodeOptions): ClearSigner;
 
-// @public (undocumented)
+// @public
 export function createMemoryDescriptorCache(): DescriptorCache;
 
-// @public (undocumented)
+// @public
 export function createOfficialRegistry(config?: OfficialRegistryConfig): OfficialRegistry;
 
-// @public (undocumented)
+// @public
 export interface DateDetails {
     // (undocumented)
     encoding: 'timestamp' | 'blockheight';
@@ -169,7 +166,7 @@ export function decodeBatch(batch: BatchInput, options?: DecodeOptions): Promise
 
 // Warning: (ae-forgotten-export) The symbol "DecodedFieldBase" needs to be exported by the entry point index.d.ts
 //
-// @public (undocumented)
+// @public
 export type DecodedField = (DecodedFieldBase & {
     format: 'tokenAmount';
     details: TokenAmountDetails;
@@ -193,7 +190,7 @@ export type DecodedField = (DecodedFieldBase & {
     details: RawDetails;
 });
 
-// @public (undocumented)
+// @public
 export interface DecodeDiagnostic {
     // (undocumented)
     code: string;
@@ -211,22 +208,19 @@ export interface DecodeDiagnostic {
     stage: DecodeDiagnosticStage;
 }
 
-// @public (undocumented)
+// @public
 export interface DecodedOperation {
     children?: DecodedOperation[];
     // (undocumented)
     confidence: Confidence;
     diagnostics: DecodeDiagnostic[];
-    // (undocumented)
     excluded: string[];
     // (undocumented)
     fields: DecodedField[];
     // (undocumented)
     functionName?: string;
-    // (undocumented)
     intent: string;
     interpolatedIntent?: string;
-    // (undocumented)
     metadata: {
         owner?: string;
         contractName?: string;
@@ -236,7 +230,6 @@ export interface DecodedOperation {
         descriptorId?: string;
         registryPath?: string;
     };
-    // (undocumented)
     raw: {
         selector?: Hex;
         args?: readonly unknown[];
@@ -244,7 +237,6 @@ export interface DecodedOperation {
     };
     // (undocumented)
     selector?: Hex;
-    // (undocumented)
     signature?: string;
     // (undocumented)
     source: DecodeSource;
@@ -254,7 +246,7 @@ export interface DecodedOperation {
     warnings: SecurityWarning[];
 }
 
-// @public (undocumented)
+// @public
 export interface DecodeOptions {
     builtins?: boolean;
     // Warning: (ae-forgotten-export) The symbol "RegistryCacheObserver" needs to be exported by the entry point index.d.ts
@@ -282,7 +274,7 @@ export interface DecodeOptions {
     useSourcifyFallback?: boolean;
 }
 
-// @public (undocumented)
+// @public
 export interface DecodeRegistry {
     // (undocumented)
     findCalldata(key: {
@@ -311,16 +303,16 @@ export interface DecodeRegistry {
     }): Promise<ResolvedDescriptor | null>;
 }
 
-// @public (undocumented)
+// @public
 export type DecodeSource = 'official-registry' | 'attested' | 'local-override' | 'trusted-token' | 'builtin' | 'sourcify' | 'generated' | 'inferred' | 'basic';
 
 // @public
 export function decodeTransaction(tx: TransactionInput, options?: DecodeOptions): Promise<DecodedOperation>;
 
-// @public (undocumented)
+// @public
 export function decodeTypedData(data: TypedDataInput, options?: DecodeOptions): Promise<DecodedOperation>;
 
-// @public (undocumented)
+// @public
 export function decodeUserOp(op: UserOpInput, options?: DecodeOptions): Promise<DecodedOperation>;
 
 // Warning: (ae-forgotten-export) The symbol "ViemTypedDataDefinition" needs to be exported by the entry point index.d.ts
@@ -328,7 +320,7 @@ export function decodeUserOp(op: UserOpInput, options?: DecodeOptions): Promise<
 // @public
 export function decodeViemTypedData(typedData: ViemTypedDataDefinition, options?: DecodeOptions): Promise<DecodedOperation>;
 
-// @public (undocumented)
+// @public
 export interface DescriptorCache {
     // (undocumented)
     get(key: string): Promise<unknown | undefined> | unknown | undefined;
@@ -339,7 +331,7 @@ export interface DescriptorCache {
 // @public
 export function descriptorHash(input: InputDescriptor): Hex;
 
-// @public (undocumented)
+// @public
 export class DescriptorResolveError extends Erc7730Error {
     constructor(code: DescriptorResolveErrorCode, message: string, options?: {
         path?: string;
@@ -354,13 +346,13 @@ export class DescriptorResolveError extends Erc7730Error {
     readonly path?: string;
 }
 
-// @public (undocumented)
+// @public
 export type DescriptorResolveErrorCode = 'VALIDATION_FAILED' | 'INCLUDE_NOT_FOUND' | 'INCLUDE_CYCLE' | 'INCLUDE_DEPTH' | 'REF_NOT_FOUND';
 
-// @public (undocumented)
+// @public
 export type DescriptorVersion = '1' | '2';
 
-// @public (undocumented)
+// @public
 export interface DiagnosticLog {
     // (undocumented)
     readonly entries: DecodeDiagnostic[];
@@ -368,7 +360,7 @@ export interface DiagnosticLog {
     push(entry: DecodeDiagnostic): void;
 }
 
-// @public (undocumented)
+// @public
 export interface EnumDetails {
     // (undocumented)
     raw: string;
@@ -376,7 +368,7 @@ export interface EnumDetails {
     resolved?: string;
 }
 
-// @public (undocumented)
+// @public
 export class Erc7730Error extends Error {
     constructor(code: string, message: string, options?: {
         cause?: unknown;
@@ -470,10 +462,10 @@ export function fetchPrebuiltRegistryIndex(options: PrefetchRegistryIndexOptions
 // @public
 export type FieldFormat = 'raw' | 'amount' | 'tokenAmount' | 'nftName' | 'date' | 'duration' | 'addressOrName' | 'addressName' | 'enum' | 'unit' | 'tokenTicker' | 'calldata' | 'chainId' | 'interoperableAddressName';
 
-// @public (undocumented)
+// @public
 export type Hex = `0x${string}`;
 
-// @public (undocumented)
+// @public
 export interface IncludeLoader {
     load(ref: string, from: InputDescriptor): Promise<unknown>;
 }
@@ -483,10 +475,10 @@ export interface IncludeLoader {
 // @public
 export type InputDescriptor = InputDescriptor$1;
 
-// @public (undocumented)
+// @public
 export type InvalidInputCode = 'INVALID_ADDRESS' | 'INVALID_HEX' | 'INVALID_CHAIN_ID' | 'INVALID_CALLDATA' | 'INVALID_TYPED_DATA';
 
-// @public (undocumented)
+// @public
 export class InvalidInputError extends Erc7730Error {
     constructor(code: InvalidInputCode, message: string, options?: {
         cause?: unknown;
@@ -503,7 +495,7 @@ export type LogBlockTag = 'latest' | 'earliest' | 'pending' | 'safe' | 'finalize
 // @public
 export function matchContext(descriptor: DescriptorLike, target: TransactionInput | TypedDataInput, options?: MatchContextOptions): Promise<ContextMatch>;
 
-// @public (undocumented)
+// @public
 export interface MatchContextOptions {
     diagnosticLog?: DiagnosticLog;
     fromBlock?: bigint | LogBlockTag;
@@ -513,7 +505,7 @@ export interface MatchContextOptions {
     toBlock?: bigint | LogBlockTag;
 }
 
-// @public (undocumented)
+// @public
 export interface NftNameDetails {
     // (undocumented)
     collection: Address;
@@ -527,7 +519,7 @@ export function officialOnlyPolicy(): TrustPolicy;
 // @public
 export function officialOrLocalPolicy(): TrustPolicy;
 
-// @public (undocumented)
+// @public
 export interface OfficialRegistry {
     // (undocumented)
     extend(descriptors: InputDescriptor[]): void;
@@ -537,7 +529,7 @@ export interface OfficialRegistry {
     findEip712(key: RegistryLookupKey): Promise<ResolvedDescriptor | null>;
 }
 
-// @public (undocumented)
+// @public
 export interface OfficialRegistryConfig {
     attachAttestations?: boolean;
     baseUrl?: string;
@@ -548,7 +540,7 @@ export interface OfficialRegistryConfig {
     ref?: string;
 }
 
-// @public (undocumented)
+// @public
 export class OfficialRegistryError extends Erc7730Error {
     constructor(code: OfficialRegistryErrorCode, message: string, options?: {
         cause?: unknown;
@@ -557,10 +549,10 @@ export class OfficialRegistryError extends Erc7730Error {
     readonly code: OfficialRegistryErrorCode;
 }
 
-// @public (undocumented)
+// @public
 export type OfficialRegistryErrorCode = 'REGISTRY_FETCH_FAILED' | 'REGISTRY_NOT_FOUND' | 'INVALID_PIN' | 'INVALID_REF' | 'INDEX_MALFORMED';
 
-// @public (undocumented)
+// @public
 export interface OfficialRegistryIndexes {
     // Warning: (ae-forgotten-export) The symbol "CalldataIndex" needs to be exported by the entry point index.d.ts
     //
@@ -572,7 +564,7 @@ export interface OfficialRegistryIndexes {
     eip712?: Eip712Index;
 }
 
-// @public (undocumented)
+// @public
 export interface PathContext {
     args?: unknown;
     base?: string;
@@ -595,7 +587,7 @@ export interface PathEnvelope {
     value?: bigint;
 }
 
-// @public (undocumented)
+// @public
 export class PathResolveError extends Erc7730Error {
     constructor(message: string, path: string, code: PathResolveErrorCode);
     // (undocumented)
@@ -604,10 +596,10 @@ export class PathResolveError extends Erc7730Error {
     readonly path: string;
 }
 
-// @public (undocumented)
+// @public
 export type PathResolveErrorCode = 'invalid' | 'not_found' | 'missing_data';
 
-// @public (undocumented)
+// @public
 export interface PrefetchedRegistryIndexes {
     // (undocumented)
     calldata: CalldataIndex;
@@ -615,7 +607,7 @@ export interface PrefetchedRegistryIndexes {
     eip712: Eip712Index;
 }
 
-// @public (undocumented)
+// @public
 export interface PrefetchRegistryIndexOptions {
     // (undocumented)
     baseUrl?: string;
@@ -654,13 +646,13 @@ export interface Provider {
     }) => Promise<unknown>;
 }
 
-// @public (undocumented)
+// @public
 export interface RawDetails {
     // (undocumented)
     raw: unknown;
 }
 
-// @public (undocumented)
+// @public
 export type RegistryAddress = `0x${string}`;
 
 // @public
@@ -688,7 +680,7 @@ export interface RegistryLookupKey {
 // @public
 export function renderScreensText(screens: ClearSignScreens, indent?: number): string;
 
-// @public (undocumented)
+// @public
 export interface ResolvedDeployment {
     // (undocumented)
     address: `0x${string}`;
@@ -719,17 +711,16 @@ export function resolveDescriptor(input: InputDescriptor, loader: IncludeLoader)
 // @public
 export function resolvePath(path: string, ctx: PathContext): unknown;
 
-// @public (undocumented)
+// @public
 export interface ScreenField {
     // (undocumented)
     label: string;
-    // (undocumented)
     path?: string;
     // (undocumented)
     value: string;
 }
 
-// @public (undocumented)
+// @public
 export interface ScreenRisk {
     // (undocumented)
     message: string;
@@ -741,20 +732,19 @@ export interface ScreenRisk {
     type: SecurityWarningType;
 }
 
-// @public (undocumented)
+// @public
 export type ScreenVerification = 'verified' | 'unverified' | 'rejected';
 
-// @public (undocumented)
+// @public
 export function screenVerification(operation: DecodedOperation): ScreenVerification;
 
 // @public
 export const SECURITY_WARNING_TYPES: readonly ["infinite_approval", "dangerous_permissions", "untrusted_descriptor", "untrusted_spender", "ownership_change", "proxy_upgrade", "expired_deadline", "selector_mismatch", "missing_metadata", "interpolation_failed", "no_trusted_attestation"];
 
-// @public (undocumented)
+// @public
 export interface SecurityWarning {
     // (undocumented)
     message: string;
-    // (undocumented)
     path?: string;
     // (undocumented)
     severity: 'high' | 'medium' | 'low';
@@ -762,14 +752,13 @@ export interface SecurityWarning {
     type: SecurityWarningType;
 }
 
-// @public (undocumented)
+// @public
 export type SecurityWarningType = (typeof SECURITY_WARNING_TYPES)[number];
 
-// @public (undocumented)
+// @public
 export interface TokenAmountDetails {
     // (undocumented)
     amount: bigint;
-    // (undocumented)
     isInfinite: boolean;
     // (undocumented)
     nativeCurrency?: boolean;
@@ -777,7 +766,7 @@ export interface TokenAmountDetails {
     token?: TokenInfo;
 }
 
-// @public (undocumented)
+// @public
 export interface TokenInfo {
     // (undocumented)
     decimals: number;
@@ -790,7 +779,7 @@ export interface TokenInfo {
 // @public
 export function toScreens(operation: DecodedOperation, options?: ToScreensOptions): ClearSignScreens;
 
-// @public (undocumented)
+// @public
 export interface ToScreensOptions {
     unverifiedPrefix?: string;
 }
@@ -804,10 +793,10 @@ export interface TransactionInput {
     value?: string | bigint;
 }
 
-// @public (undocumented)
+// @public
 export const TRUST_REASON_CODES: readonly ["source_official_registry_accepted", "source_official_registry_rejected", "source_attested_accepted", "source_attested_rejected", "source_local_override_accepted", "source_local_override_rejected", "source_trusted_token_accepted", "source_trusted_token_rejected", "source_builtin_accepted", "source_builtin_rejected", "source_sourcify_accepted", "source_sourcify_rejected", "source_generated_accepted", "source_generated_rejected", "source_inferred_accepted", "source_inferred_rejected", "source_basic_accepted", "source_basic_rejected", "untrusted_descriptor", "no_policies", "attested", "no_trusted_attestation", "attestation_options_incomplete"];
 
-// @public (undocumented)
+// @public
 export interface TrustContext {
     // (undocumented)
     address?: Address;
@@ -823,10 +812,10 @@ export interface TrustContext {
 // @public
 export type TrustedTokens = Record<number, Record<string, TrustedTokenStandard>>;
 
-// @public (undocumented)
+// @public
 export type TrustedTokenStandard = 'erc20' | 'erc721';
 
-// @public (undocumented)
+// @public
 export interface TrustPolicy {
     // (undocumented)
     evaluate(ctx: TrustContext): Promise<TrustReport> | TrustReport;
@@ -837,15 +826,13 @@ export interface TrustPolicy {
 // @public
 export type TrustReasonCode = 'source_official_registry_accepted' | 'source_official_registry_rejected' | 'source_attested_accepted' | 'source_attested_rejected' | 'source_local_override_accepted' | 'source_local_override_rejected' | 'source_trusted_token_accepted' | 'source_trusted_token_rejected' | 'source_builtin_accepted' | 'source_builtin_rejected' | 'source_sourcify_accepted' | 'source_sourcify_rejected' | 'source_generated_accepted' | 'source_generated_rejected' | 'source_inferred_accepted' | 'source_inferred_rejected' | 'source_basic_accepted' | 'source_basic_rejected' | 'untrusted_descriptor' | 'no_policies' | 'attested' | 'no_trusted_attestation' | 'attestation_options_incomplete';
 
-// @public (undocumented)
+// @public
 export interface TrustReport {
     // (undocumented)
     accepted: boolean;
-    // (undocumented)
     attesters?: Address[];
     // (undocumented)
     descriptorHash?: Hex;
-    // (undocumented)
     policy: string;
     // (undocumented)
     reasons: TrustReasonCode[];
@@ -874,7 +861,7 @@ export interface TypedDataInput {
     }>>;
 }
 
-// @public (undocumented)
+// @public
 export interface UserOpInput {
     // (undocumented)
     callData: Hex;
@@ -882,7 +869,6 @@ export interface UserOpInput {
     chainId: number;
     // (undocumented)
     nonce?: bigint;
-    // (undocumented)
     sender: Address;
 }
 
@@ -894,7 +880,7 @@ export function validateDescriptor(input: unknown): ValidationResult;
 // @public
 export function validateDescriptorTests(input: unknown): TestsValidationResult;
 
-// @public (undocumented)
+// @public
 export interface ValidationIssue {
     // (undocumented)
     message: string;
@@ -904,7 +890,7 @@ export interface ValidationIssue {
     rule?: string;
 }
 
-// @public (undocumented)
+// @public
 export type ValidationResult = {
     ok: true;
     descriptor: InputDescriptor;
@@ -928,7 +914,7 @@ export interface VerifiedContractAbi {
 
 // Warnings were encountered during analysis:
 //
-// dist/<chunk>.d.ts:268:3 - (ae-forgotten-export) The symbol "ClearSignKind" needs to be exported by the entry point index.d.ts
+// dist/<chunk>.d.ts:296:3 - (ae-forgotten-export) The symbol "ClearSignKind" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 

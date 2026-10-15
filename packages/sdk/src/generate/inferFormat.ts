@@ -7,6 +7,7 @@
 
 import type { ERC7730V2FieldFormat, FieldParams } from '../types/v2';
 
+/** Format guessed from an ABI parameter name and type. */
 export interface InferredFormat {
   format: ERC7730V2FieldFormat;
   params?: FieldParams;
@@ -14,6 +15,7 @@ export interface InferredFormat {
   enumName?: string;
 }
 
+/** Extra hints for {@link inferFormat}: ERC-20 shape and Solidity `internalType`. */
 export interface InferFormatContext {
   /** When the ABI looks like ERC-20, token amounts use `tokenPath: "@.to"`. */
   looksLikeErc20?: boolean;

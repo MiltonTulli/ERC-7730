@@ -17,6 +17,7 @@ export function assertSafeRef(ref: string): string {
   return ref;
 }
 
+/** True when `value` is 40 hex characters. Does not check that the commit exists. */
 export function isCommitSha(value: string): boolean {
   return COMMIT_SHA_RE.test(value);
 }

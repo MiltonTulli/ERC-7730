@@ -1,14 +1,21 @@
+// `@mergeModuleWith <project>` publishes this entry beside the other modules
+// so `/sdk/api/functions/…` has no `index` segment.
 /**
- * @erc7730/sdk
+ * Decode blockchain transactions into human-readable form using ERC-7730.
  *
- * Decode blockchain transactions into human-readable format
- * using the ERC-7730 standard.
+ * @packageDocumentation
+ * @mergeModuleWith <project>
  *
  * @example
  * ```typescript
  * import { clearSign } from '@erc7730/sdk';
  *
- * const signed = await clearSign(tx);
+ * const signed = await clearSign({
+ *   to: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+ *   data: '0xd0e30db0',
+ *   value: 10n ** 18n,
+ *   chainId: 1,
+ * });
  *
  * console.log(signed.screens.headline);
  * console.log(signed.screens.verification);

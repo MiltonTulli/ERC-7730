@@ -5,12 +5,15 @@ import type {
   SecurityWarningType,
 } from './decode/types';
 
+/** One row on a confirmation screen. `value` is the text to show. */
 export interface ScreenField {
   label: string;
   value: string;
+  /** ERC-7730 path of the decoded field, when the row came from one. */
   path?: string;
 }
 
+/** A {@link SecurityWarning} placed on the screen, highest severity first. */
 export interface ScreenRisk {
   severity: SecurityWarning['severity'];
   type: SecurityWarningType;
@@ -18,18 +21,28 @@ export interface ScreenRisk {
   path?: string;
 }
 
+/**
+ * What the wallet should emphasize.
+ * `verified` is official-registry or attested and accepted.
+ * `rejected` is a curated source the policy refused.
+ * Anything else is `unverified`.
+ */
 export type ScreenVerification = 'verified' | 'unverified' | 'rejected';
 
+/** Blocks a wallet confirmation screen renders. No network and no registry. */
 export interface ClearSignScreens {
   headline: string;
   verification: ScreenVerification;
   verificationLabel: string;
+  /** Rows whose decoded field was required. Unverified screens also lead with To and Selector. */
   primary: ScreenField[];
   secondary: ScreenField[];
   risks: ScreenRisk[];
+  /** Nested Multicall3, Safe CALL, batch, or UserOp screens. */
   children?: ClearSignScreens[];
 }
 
+/** Options for {@link toScreens}. */
 export interface ToScreensOptions {
   /** Prefixed to the headline when verification is not `verified`. */
   unverifiedPrefix?: string;
@@ -43,6 +56,7 @@ const SEVERITY_RANK: Record<SecurityWarning['severity'], number> = {
 
 const DEFAULT_PREFIX = 'Unverified: ';
 
+/** Map `source` and `trust.accepted` to {@link ScreenVerification}. */
 export function screenVerification(operation: DecodedOperation): ScreenVerification {
   const curated =
     operation.source === 'official-registry' ||

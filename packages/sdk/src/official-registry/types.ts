@@ -2,8 +2,10 @@ import type { DiagnosticLog, RegistryCacheObserver } from '../decode/types';
 import type { LogBlockTag, Provider, TypedDataInput } from '../types';
 import type { Hex, InputDescriptor, ResolvedDescriptor } from '../types/descriptor';
 
+/** Lowercase `0x` address used as a registry key. */
 export type Address = `0x${string}`;
 
+/** CAIP-10 account id: `eip155:<chainId>:<address>`. */
 export type Caip10 = `eip155:${number}:${string}`;
 
 /**
@@ -39,22 +41,29 @@ export interface RegistryLookupKey {
   diagnosticLog?: DiagnosticLog;
 }
 
+/** Optional durable cache in front of the registry's memory cache. */
 export interface DescriptorCache {
   get(key: string): Promise<unknown | undefined> | unknown | undefined;
   set(key: string, value: unknown): Promise<void> | void;
 }
 
+/**
+ * Pinned catalog client. `findCalldata` / `findEip712` return a resolved
+ * descriptor or null. `extend` adds app overrides for this instance only.
+ */
 export interface OfficialRegistry {
   findCalldata(key: RegistryLookupKey): Promise<ResolvedDescriptor | null>;
   findEip712(key: RegistryLookupKey): Promise<ResolvedDescriptor | null>;
   extend(descriptors: InputDescriptor[]): void;
 }
 
+/** Caller-owned index objects. When set, those files are not fetched again. */
 export interface OfficialRegistryIndexes {
   calldata?: CalldataIndex;
   eip712?: Eip712Index;
 }
 
+/** Options for {@link createOfficialRegistry}. `pin` and `ref` are mutually exclusive. */
 export interface OfficialRegistryConfig {
   /**
    * Full 40-character git commit SHA. When omitted (and `ref` is unset),
