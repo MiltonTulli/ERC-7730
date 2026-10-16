@@ -2,7 +2,7 @@
 
 Tracker: [#2](https://github.com/MiltonTulli/ERC-7730/issues/2). That issue is the checklist. This file is the version chain.
 
-North star: one production wallet on `officialOnlyPolicy()`.
+Adoption goal: one production wallet on `officialOnlyPolicy()`. This is a post-release validation objective, not a prerequisite for API stability or 1.0.
 
 Public one-liner: the safest way to show a transaction to a human in TypeScript.
 
@@ -18,7 +18,7 @@ Do not open the next minor until the previous exit criteria are green. Patches a
 | 0.10 minor | M1 Honest contract | Real result types, `officialOnlyPolicy()` default, builtins never `high`, no process-global state, `/lite` and `/viem` removed, no `viem` on the root. | [#94](https://github.com/MiltonTulli/ERC-7730/issues/94)–[#105](https://github.com/MiltonTulli/ERC-7730/issues/105), [#124](https://github.com/MiltonTulli/ERC-7730/issues/124) |
 | 0.11 minor | M2 Product | `clearSign`, diagnostics, `toScreens`, one wallet fork. | [#106](https://github.com/MiltonTulli/ERC-7730/issues/106)–[#111](https://github.com/MiltonTulli/ERC-7730/issues/111) |
 | 0.12 minor | M3 Small API | ~25 root exports, perf, `erc7730 test`. Start only after 0.11 is in a wallet fork. | [#112](https://github.com/MiltonTulli/ERC-7730/issues/112)–[#122](https://github.com/MiltonTulli/ERC-7730/issues/122) |
-| 1.0 major | M4 Stable | No `@deprecated`. Written viem and CJS decisions. A real wallet in production. | [#123](https://github.com/MiltonTulli/ERC-7730/issues/123)–[#127](https://github.com/MiltonTulli/ERC-7730/issues/127) |
+| 1.0 major | M4 Stable | No `@deprecated`. Written module/support decisions, verified candidate and stable public API. | [#123](https://github.com/MiltonTulli/ERC-7730/issues/123)–[#127](https://github.com/MiltonTulli/ERC-7730/issues/127) |
 | post 1.0 | M5 Adoption | Listing, coverage dashboard, benches, adapters. | [#128](https://github.com/MiltonTulli/ERC-7730/issues/128)–[#131](https://github.com/MiltonTulli/ERC-7730/issues/131) |
 
 ## Decisions
@@ -33,7 +33,7 @@ Do not open the next minor until the previous exit criteria are green. Patches a
 - **0.9.1:** clean install imports the package; a known `transfer` does not print `Param 1`; README claims nothing false; disclosure channel exists.
 - **0.10:** exported `DecodedField` is the runtime type; a call with no options does not return `policy: 'unspecified'`; `/lite` and `/viem` are gone; the root entry does not depend on `viem`.
 - **0.11:** README quick start is `clearSign`; five failure reasons assert a diagnostic code; a wallet case study covers its 20 most common transactions.
-- **1.0:** zero `@deprecated` in `dist/index.d.ts`; an external wallet in production on `officialOnlyPolicy()`.
+- **1.0:** zero `@deprecated` in `dist/index.d.ts`; documented compatibility, migration and support policy; verified candidate and passing release checks. External wallet deployment remains an adoption objective, not a release gate.
 
 ## Shipped
 
@@ -42,7 +42,7 @@ Do not open the next minor until the previous exit criteria are green. Patches a
 - 0.4 CLI and `@erc7730/sdk/viem` (entry removed in 0.10)
 - 0.5 wallet drop-in ([#53](https://github.com/MiltonTulli/ERC-7730/issues/53))
 - 0.6 coverage, policies, authoring ([#54](https://github.com/MiltonTulli/ERC-7730/issues/54))
-- 0.7–0.9 published 2026-10-05, each breaking. Current published SDK: 0.9.1. 0.10 is the M1 contract in progress.
+- 0.7–0.9 published 2026-10-05, each breaking. Stable SDK: 0.12.0; CLI: 0.4.1. Verified candidates: SDK 1.0.0-next.0 and CLI 0.5.0-next.0. 1.0 stable is pending promotion.
 
 ## First PRs
 

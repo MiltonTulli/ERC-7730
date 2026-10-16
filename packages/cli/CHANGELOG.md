@@ -1,26 +1,76 @@
 # @erc7730/cli
 
+## 0.5.0
+
+### Minor Changes
+
+- f2a96b1: `erc7730 test` runs each case in a testsv2 file, prints the confirmation screen, and exits 1 when the expected intent, owner, or fields differ. `--reporter github` prints workflow error annotations and, when `GITHUB_STEP_SUMMARY` is set, appends a Markdown summary of those screens.
+- 18d5769: `erc7730 lint` reports an invalid format as one line that names the value and the allowed formats. A clean file prints the schema, how many formats were checked, and how many includes resolved. `erc7730 preview --policy` selects official-only (the default), official-or-local, or none.
+
+  `validateDescriptor` keeps the closest oneOf or anyOf branch and collapses sibling const values into one message. A bad format parameter is that one line. The published main entry budget moves from 33 KB to 34 KB.
+
+### Patch Changes
+
+- d504880: Remove the SDK compatibility entry and its deprecated aliases, including the bound signer's `decode` method. Use `createClearSigner`, `decodeTransaction`, `decodeTypedData`, and schema-derived input types instead. The CLI validates registry pins without importing the removed entry.
+
+  Generate `docs/migrating-to-1.0.md` from the shipped 0.12 API reports and the current reports, with replacements for every removed symbol. Reject deprecated declarations and removed entry points in the SDK bundle check.
+- Updated dependencies [a5df22e]
+- Updated dependencies [d3e437a]
+- Updated dependencies [9720a5f]
+- Updated dependencies [18d5769]
+- Updated dependencies [d504880]
+- Updated dependencies [1f65edf]
+- Updated dependencies [e105ce2]
+- Updated dependencies [9a6cb73]
+- Updated dependencies [8abc043]
+  - @erc7730/sdk@1.0.0
+
+## 0.5.0-next.0
+
+### Minor Changes
+
+- f2a96b1: `erc7730 test` runs each case in a testsv2 file, prints the confirmation screen, and exits 1 when the expected intent, owner, or fields differ. `--reporter github` prints workflow error annotations and, when `GITHUB_STEP_SUMMARY` is set, appends a Markdown summary of those screens.
+- 18d5769: `erc7730 lint` reports an invalid format as one line that names the value and the allowed formats. A clean file prints the schema, how many formats were checked, and how many includes resolved. `erc7730 preview --policy` selects official-only (the default), official-or-local, or none.
+
+  `validateDescriptor` keeps the closest oneOf or anyOf branch and collapses sibling const values into one message. A bad format parameter is that one line. The published main entry budget moves from 33 KB to 34 KB.
+
+### Patch Changes
+
+- d504880: Remove the SDK compatibility entry and its deprecated aliases, including the bound signer's `decode` method. Use `createClearSigner`, `decodeTransaction`, `decodeTypedData`, and schema-derived input types instead. The CLI validates registry pins without importing the removed entry.
+
+  Generate `docs/migrating-to-1.0.md` from the shipped 0.12 API reports and the current reports, with replacements for every removed symbol. Reject deprecated declarations and removed entry points in the SDK bundle check.
+- Updated dependencies [a5df22e]
+- Updated dependencies [d3e437a]
+- Updated dependencies [9720a5f]
+- Updated dependencies [18d5769]
+- Updated dependencies [d504880]
+- Updated dependencies [1f65edf]
+- Updated dependencies [e105ce2]
+- Updated dependencies [9a6cb73]
+- Updated dependencies [8abc043]
+  - @erc7730/sdk@1.0.0-next.0
+
 ## 0.4.1
 
 ### Patch Changes
 
 - 34d438b: Move deprecated root values to `@erc7730/sdk/legacy`.
-  
+
   `ClearSigner`, `getDefaultClearSignRegistry`, `format`, `formatTypedData`, `Registry`, `decodeCalldata`, `extractSelector`, the signature helpers, amount and address formatters, `resolveImplementation`, `EIP1967_IMPLEMENTATION_SLOT`, `createMemoryIncludeLoader`, `isCommitSha`, `toCaip10`, and the official registry URL constants are `@deprecated` and removed in 1.0.
-  
+
   `calldataDepth` and `nestedDepth` are no longer public `DecodeOptions` fields. `BatchDecodeResult.warnings` lists the child warnings, deduped by `type` and `path`.
-  
+
   Removed with no replacement: `isContract`, `intentFromFormat`, `Registry.getAll`, `Registry.getStats`, `Provider.getEnsAddress`, `Provider.chain`, `ExternalDataProvider.chainClient`, `RegistryConfig`, and `ChainName`. `attestedPolicy` stays on `@erc7730/sdk/attest`.
-  
+
   The CLI imports `isCommitSha` from `@erc7730/sdk/legacy`.
-  
+
   API Extractor reports for the root entry and for `legacy`, `attest`, `generate`, `sourcify`, and `known-data` are committed under `api/`.
 - 737c42c: Move authoring, Sourcify, and curated token and contract names off the root entry.
-  
+
   `generateDescriptor`, `generateFunctionDescriptor`, `inferIntent`, `inferFormat`, `inferLabel`, `looksLikeErc20`, `V2_SCHEMA_URI`, and `GENERATED_DESCRIPTOR_COMMENT` are `@erc7730/sdk/generate`.
-  
+
   `fetchFromSourcify`, `isVerifiedOnSourcify`, and `sourcifyVerifiedAbiLoader({ fetch, baseUrl })` are `@erc7730/sdk/sourcify`. The loader is a factory and attaches a draft descriptor. Pass `loadVerifiedAbi: sourcifyVerifiedAbiLoader()`.
-  
+
   `knownDataProvider()` is `@erc7730/sdk/known-data`. The decode core no longer applies `KNOWN_TOKENS` or `KNOWN_ADDRESSES`. A loader that returns only an ABI no longer gets a generated descriptor. The CLI imports the new subpaths.
 - Updated dependencies [af3480d]
 - Updated dependencies [34d438b]
@@ -33,7 +83,7 @@
 ### Minor Changes
 
 - ef6d269: Add `clearSign()`, confirmation screens, and a diagnostic chain.
-  
+
   `clearSign` decodes a transaction, EIP-712 typed data, an EIP-5792 batch, or a Simple Account user operation and attaches `screens` from `toScreens()`. With no registry it uses one official-registry client pinned to the vendored commit. `DecodedField` is a union on `format`. Structured values live on `details`. A calldata field's nested operation is `details.embedded` when `format` is `calldata`. `required` is `true` for an explicit required path and `'implicit'` when the format lists none. `diagnostics` records registry, context, format, include, and trust steps on every decode, including a hit. `onEvent` reports decode, registry cache, trust, and warning events for that call. `erc7730 preview --explain` prints the diagnostic chain.
 
 ### Patch Changes
