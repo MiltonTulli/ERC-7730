@@ -14,11 +14,11 @@
     "clean": "rm -rf dist .astro src/content/docs/guide.md src/content/docs/interop.md src/content/docs/action.md src/content/docs/divergences.md src/content/docs/trust.md src/content/docs/cli/generate.md src/content/docs/sdk/api"
   },
   "dependencies": {
-    "@astrojs/starlight": "^0.42.4",
+    "@astrojs/starlight": "^0.42.6",
     "@erc7730/sdk": "workspace:*",
     "@erc7730/web": "workspace:*",
-    "astro": "^7.3.5",
-    "sharp": "^0.34.2"
+    "astro": "^7.3.8",
+    "sharp": "^0.35.5"
   },
   "devDependencies": {
     "starlight-typedoc": "^0.23.1",

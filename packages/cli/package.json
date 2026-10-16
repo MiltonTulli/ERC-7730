@@ -18,12 +18,12 @@
   },
   "dependencies": {
     "@erc7730/sdk": "workspace:*",
-    "viem": "^2.21.0"
+    "viem": "^2.57.5"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",
     "@vitest/coverage-v8": "^1.2.0",
-    "tsdown": "0.23.0",
+    "tsdown": "0.23.1",
     "typescript": "^5.3.3",
     "vitest": "^1.2.0"
   },
