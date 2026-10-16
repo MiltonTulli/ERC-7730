@@ -1,5 +1,30 @@
 # @erc7730/cli
 
+## 0.5.0
+
+### Minor Changes
+
+- f2a96b1: `erc7730 test` runs each case in a testsv2 file, prints the confirmation screen, and exits 1 when the expected intent, owner, or fields differ. `--reporter github` prints workflow error annotations and, when `GITHUB_STEP_SUMMARY` is set, appends a Markdown summary of those screens.
+- 18d5769: `erc7730 lint` reports an invalid format as one line that names the value and the allowed formats. A clean file prints the schema, how many formats were checked, and how many includes resolved. `erc7730 preview --policy` selects official-only (the default), official-or-local, or none.
+  
+  `validateDescriptor` keeps the closest oneOf or anyOf branch and collapses sibling const values into one message. A bad format parameter is that one line. The published main entry budget moves from 33 KB to 34 KB.
+
+### Patch Changes
+
+- d504880: Remove the SDK compatibility entry and its deprecated aliases, including the bound signer's `decode` method. Use `createClearSigner`, `decodeTransaction`, `decodeTypedData`, and schema-derived input types instead. The CLI validates registry pins without importing the removed entry.
+  
+  Generate `docs/migrating-to-1.0.md` from the shipped 0.12 API reports and the current reports, with replacements for every removed symbol. Reject deprecated declarations and removed entry points in the SDK bundle check.
+- Updated dependencies [a5df22e]
+- Updated dependencies [d3e437a]
+- Updated dependencies [9720a5f]
+- Updated dependencies [18d5769]
+- Updated dependencies [d504880]
+- Updated dependencies [1f65edf]
+- Updated dependencies [e105ce2]
+- Updated dependencies [9a6cb73]
+- Updated dependencies [8abc043]
+  - @erc7730/sdk@1.0.0
+
 ## 0.4.1
 
 ### Patch Changes
