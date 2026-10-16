@@ -17,11 +17,15 @@ function readJson(path) {
   return JSON.parse(readFileSync(path, 'utf8'));
 }
 
-function pack(dir) {
-  const packedOut = execFileSync('npm', ['pack', '--pack-destination', stage], {
-    cwd: dir,
-    encoding: 'utf8',
-  });
+function pack(dir, spec) {
+  const packedOut = execFileSync(
+    'npm',
+    ['pack', ...(spec ? [spec] : []), '--pack-destination', stage],
+    {
+      cwd: dir,
+      encoding: 'utf8',
+    }
+  );
   const tarballLine = packedOut
     .trim()
     .split('\n')
@@ -51,6 +55,15 @@ function importEntries(app, entries) {
       assert.ok(Object.keys(exports).length > 0, entry + ' has no runtime exports');
       console.log('Imported ' + entry + ' on ' + process.version);
     }
+    const { decodeTransaction } = await import('@erc7730/sdk');
+    const result = await decodeTransaction({
+      to: '0xdAC17F958D2ee523a2206206994597C13D831ec7', chainId: 1,
+      data: '0xa9059cbb' + '1'.padStart(64, '0') + '1'.padStart(64, '0'),
+    });
+    assert.equal(result.intent, 'Send tokens');
+    assert.equal(result.source, 'builtin');
+    assert.equal(result.trust.accepted, false);
+    console.log('Decoded transfer with the default trust policy');
   `;
   execFileSync(process.execPath, ['--input-type=module', '-e', code], {
     cwd: app,
@@ -94,11 +107,11 @@ function typecheckEntries(app, entries) {
 }
 
 try {
-  if (!existsSync(join(sdkDir, 'dist/index.js'))) {
+  if (!process.env.SDK_PACKAGE && !existsSync(join(sdkDir, 'dist/index.js'))) {
     fail('Build @erc7730/sdk before the consumer install check.');
   }
 
-  const tarball = pack(sdkDir);
+  const tarball = pack(process.env.SDK_PACKAGE ? stage : sdkDir, process.env.SDK_PACKAGE);
   const app = join(stage, 'app');
   mkdirSync(app);
   writeFileSync(
@@ -114,6 +127,9 @@ try {
   assert.ok(installed.dependencies?.ox && installed.dependencies?.['@noble/hashes']);
   assert.equal(existsSync(join(app, 'node_modules/viem')), false, 'Base install pulled viem');
   assert.equal(installed.type, 'module');
+  if (process.env.SDK_PACKAGE) {
+    assert.equal(`${installed.name}@${installed.version}`, process.env.SDK_PACKAGE);
+  }
 
   // Derive coverage from the tarball so a new public subpath is tested automatically.
   const entries = Object.entries(installed.exports).map(([subpath, conditions]) => {

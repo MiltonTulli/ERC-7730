@@ -86,3 +86,6 @@ packages/docs/src/content/docs/cli/generate.md
 packages/docs/src/content/docs/sdk/api/
 packages/docs/src/content/docs/sdk/migrating-to-1-0.md
 packages/docs/src/content/docs/sdk/compatibility.md
+
+# Release workflow evidence
+.release-evidence/

@@ -84,11 +84,11 @@ fi
   --bundle "$WORKDIR/slsa-bundle.json" \
   --type slsaprovenance1 \
   --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
-  --certificate-identity-regexp "^https://github.com/MiltonTulli/ERC-7730/\\.github/workflows/release\\.yml@refs/heads/main$" \
+  --certificate-identity-regexp "^https://github.com/MiltonTulli/ERC-7730/\\.github/workflows/release\\.yml@refs/heads/(main|next)$" \
   --certificate-github-workflow-repository "$REPO_SLUG" \
   "$TARBALL" >&2
 
-COMMIT=$(BUNDLE="$WORKDIR/slsa-bundle.json" REPO_HTTPS="$REPO_HTTPS" WORKFLOW_PATH="$WORKFLOW_PATH" node <<'JS'
+COMMIT=$(VERSION="$VERSION" BUNDLE="$WORKDIR/slsa-bundle.json" REPO_HTTPS="$REPO_HTTPS" WORKFLOW_PATH="$WORKFLOW_PATH" node <<'JS'
 const { readFileSync } = require('node:fs')
 const bundle = JSON.parse(readFileSync(process.env.BUNDLE, 'utf8'))
 const encoded = bundle.dsseEnvelope && bundle.dsseEnvelope.payload
@@ -107,7 +107,8 @@ if (workflow?.path !== process.env.WORKFLOW_PATH) {
   console.error(`Provenance workflow path is ${workflow?.path ?? 'missing'}`)
   process.exit(1)
 }
-if (workflow?.ref !== 'refs/heads/main') {
+const expectedRef = /-next\.\d+$/.test(process.env.VERSION) ? 'refs/heads/next' : 'refs/heads/main'
+if (workflow?.ref !== expectedRef) {
   console.error(`Provenance workflow ref is ${workflow?.ref ?? 'missing'}`)
   process.exit(1)
 }
