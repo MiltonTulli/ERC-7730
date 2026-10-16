@@ -11,17 +11,41 @@ import sdkPkg from '../../../../sdk/package.json';
 npm install @erc7730/sdk
 ```
 
-`viem` is not a dependency of this package. Keccak is `@noble/hashes` and the ABI codec is `ox`. `decodeViemTypedData` stays on the root and does not require `viem` at runtime.
+`viem` is an optional peer used only by `@erc7730/sdk/attest`. Keccak is `@noble/hashes` and the ABI codec is `ox`. `decodeViemTypedData` stays on the root and does not require `viem` at runtime.
 
 ## Entry points
 
 | Import | What you get |
 | --- | --- |
 | `@erc7730/sdk` | Runtime. Sourcify is not in this entry. `useSourcifyFallback` defaults to `false` and does nothing until the call passes a loader. `decodeViemTypedData` lives here |
-| `@erc7730/sdk/attest` | `attestedPolicy`. This entry can depend on `viem` |
+| `@erc7730/sdk/attest` | `attestedPolicy`. Requires the optional peer `viem@^2.21.0` |
 | `@erc7730/sdk/generate` | `generateDescriptor` and the infer helpers |
 | `@erc7730/sdk/sourcify` | Sourcify client. `loadVerifiedAbi: sourcifyVerifiedAbiLoader()` with `useSourcifyFallback: true` |
 | `@erc7730/sdk/known-data` | `knownDataProvider()`. The root entry does not apply the curated list |
+
+{/* runtime-support:start */}
+## Module and runtime support
+
+`@erc7730/sdk` ships **ESM only**, including every public subpath.
+
+| Environment | Status | Validation / requirements |
+| --- | --- | --- |
+| Node.js | Supported with ESM; package minimum `>=20` | CI runs clean consumer imports and type checks on Node 20, 22, and 24. Node 22 and 24 are the actively supported lines with full build/test coverage; Node 20 has consumer checks only. |
+| Modern browser bundlers | Supported with ESM | TypeScript `moduleResolution: "bundler"` consumer checks and Vite/Chromium browser goldens. Requires ES2022 (including BigInt) and `fetch` for network operations. |
+| CommonJS (`require`) | Unsupported | No CJS build or `exports.require`. A CommonJS app may use asynchronous `import()` if its runtime supports ESM. |
+| React Native / Metro | **Unverified** | No reproducible Metro build and device/emulator runtime smoke test has been recorded. ESM compatibility or a Metro flag alone is not evidence of RN support. |
+
+Use a current patch release within the Node line: the SDK declares `>=20`, while the current `@noble/hashes` dependency requires `>=20.19.0`. Building this repository requires Node `>=22.18.0`.
+
+The public entries are `@erc7730/sdk`, `/attest`, `/generate`, `/sourcify`, and `/known-data`. Only `/attest` requires the **optional peer `viem@^2.21.0`** at runtime and for types. Install it explicitly when using that entry:
+
+```bash
+npm install @erc7730/sdk viem@^2.21.0
+```
+
+The other four entries install, import, and typecheck without `viem`, including the root's `decodeViemTypedData` helper.
+More about packaging checks and the CJS/RN decision: [runtime compatibility](https://miltontulli.github.io/ERC-7730/sdk/compatibility/).
+{/* runtime-support:end */}
 
 ## Quick start
 

@@ -14,6 +14,7 @@ const required = [
   'registry/index.html',
   'not-this/index.html',
   'sdk/index.html',
+  'sdk/compatibility/index.html',
   'sdk/decode/index.html',
   'sdk/validate-resolve/index.html',
   'sdk/viem/index.html',

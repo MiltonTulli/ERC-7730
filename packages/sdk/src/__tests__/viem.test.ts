@@ -75,8 +75,8 @@ describe('viem package entry point', () => {
     expect(pkg.dependencies.viem).toBeUndefined();
     expect(pkg.dependencies.ox).toEqual(expect.any(String));
     expect(pkg.dependencies['@noble/hashes']).toEqual(expect.any(String));
-    expect(pkg.peerDependencies?.viem).toBeUndefined();
-    expect(pkg.peerDependenciesMeta).toBeUndefined();
+    expect(pkg.peerDependencies?.viem).toBe('^2.21.0');
+    expect(pkg.peerDependenciesMeta?.viem).toEqual({ optional: true });
     const entry = await readFile(new URL('../index.ts', import.meta.url), 'utf8');
     expect(entry).toContain('decodeViemTypedData');
     expect(entry).not.toMatch(/from ['"]\.\/attest['"]/);

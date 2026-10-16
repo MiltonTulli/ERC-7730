@@ -77,6 +77,7 @@ export default defineConfig({
           label: 'SDK',
           items: [
             { slug: 'sdk' },
+            { slug: 'sdk/compatibility' },
             { slug: 'sdk/decode' },
             { slug: 'diagnostics' },
             { slug: 'rendering' },

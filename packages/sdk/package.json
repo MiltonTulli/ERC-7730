@@ -55,6 +55,14 @@
     "ajv-formats": "^3.0.1",
     "ox": "^1.8.6"
   },
+  "peerDependencies": {
+    "viem": "^2.21.0"
+  },
+  "peerDependenciesMeta": {
+    "viem": {
+      "optional": true
+    }
+  },
   "devDependencies": {
     "@arethetypeswrong/cli": "0.18.5",
     "@microsoft/api-extractor": "7.52.8",
