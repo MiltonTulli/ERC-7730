@@ -1,6 +1,14 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import {
+  copyFileSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
@@ -11,16 +19,16 @@ import {
   packages,
   releaseChannel,
 } from './release-policy.mjs';
+import { npmView, versionExists, waitForRegistry } from './release-registry.mjs';
 
 const run = (cmd, args, options = {}) =>
   execFileSync(cmd, args, { encoding: 'utf8', ...options })?.trim() ?? '';
 const json = (path) => JSON.parse(readFileSync(path, 'utf8'));
-const metadata = (name) =>
-  JSON.parse(run('npm', ['view', name, 'versions', 'dist-tags', 'time', '--json']));
+const metadata = (name) => JSON.parse(npmView(name, ['dist-tags', 'time']));
 const directory = '.release-evidence';
 mkdirSync(directory, { recursive: true });
 
-function verifyProvenance(pkg, version, expectedCommit) {
+function verifyProvenance(pkg, version, expectedCommit, saveTarball = false) {
   const stage = mkdtempSync(join(tmpdir(), 'erc7730-provenance-'));
   try {
     run('npm', ['pack', `@erc7730/${pkg}@${version}`, '--pack-destination', stage]);
@@ -31,16 +39,18 @@ function verifyProvenance(pkg, version, expectedCommit) {
       `@erc7730/${pkg}`,
       version,
     ]);
+    assert.match(commit, /^[0-9a-f]{40}$/, 'Provenance must resolve a single publication commit');
     if (expectedCommit) {
       assert.equal(commit, expectedCommit, 'npm provenance must match the tested candidate commit');
     }
+    if (saveTarball) copyFileSync(tarball, `packages/${pkg}/erc7730-${pkg}-${version}.tgz`);
     return commit;
   } finally {
     rmSync(stage, { recursive: true, force: true });
   }
 }
 
-function preflight() {
+async function preflight() {
   const branch = process.env.GITHUB_REF_NAME;
   const pre = existsSync('.changeset/pre.json') ? json('.changeset/pre.json') : undefined;
   const channel = releaseChannel(branch, pre);
@@ -55,7 +65,10 @@ function preflight() {
   for (const pkg of packages) {
     const { name, version } = json(`packages/${pkg}/package.json`);
     const before = metadata(name); // Fail closed on registry errors, including cadence queries.
-    const published = before.versions.includes(version);
+    const published = await waitForRegistry(
+      () => versionExists(name, version),
+      `${name}@${version} visibility before publication`
+    );
     checkVersion(version, channel, published);
     const skipStableOnNext = channel === 'next' && !version.includes('-');
     const createRelease =
@@ -126,26 +139,36 @@ function consumerSmoke(pkg, version) {
   }
 }
 
-function verify() {
+async function verify() {
   const evidence = json(`${directory}/before.json`);
   for (const [pkg, entry] of Object.entries(evidence.packages)) {
-    const after = metadata(entry.name);
-    assert.ok(after.versions.includes(entry.version), 'Published version missing from npm');
-    if (evidence.channel === 'next') {
-      assert.equal(
-        after['dist-tags'].latest,
-        entry.before['dist-tags'].latest,
-        'Prerelease changed latest'
-      );
-    }
-    if (!entry.published) {
-      assert.equal(after['dist-tags'][evidence.channel], entry.version, 'Wrong npm dist-tag');
-    }
+    const after = await waitForRegistry(() => {
+      if (!versionExists(entry.name, entry.version)) return false;
+      const snapshot = metadata(entry.name);
+      if (evidence.channel === 'next') {
+        assert.equal(
+          snapshot['dist-tags'].latest,
+          entry.before['dist-tags'].latest,
+          'Prerelease changed latest'
+        );
+      }
+      if (!entry.published && snapshot['dist-tags'][evidence.channel] !== entry.version)
+        return false;
+      if (entry.needsVerification) {
+        const attestation = npmView(`${entry.name}@${entry.version}`, ['dist.attestations.url']);
+        const url = attestation ? JSON.parse(attestation) : undefined;
+        if (url == null || url === '') return false;
+        assert.equal(typeof url, 'string', 'Unexpected npm attestation URL');
+      }
+      return snapshot;
+    }, `${entry.name}@${entry.version} version, npm tag and provenance metadata`);
+    assert.ok(after, `npm publication did not propagate: ${entry.name}@${entry.version}`);
     if (entry.needsVerification) {
       entry.publicationCommit = verifyProvenance(
         pkg,
         entry.version,
-        entry.published ? undefined : evidence.commit
+        entry.published ? undefined : evidence.commit,
+        entry.createRelease
       );
       consumerSmoke(pkg, entry.version);
       entry.smoke = 'passed';
@@ -154,6 +177,15 @@ function verify() {
     entry.after = after;
   }
   writeFileSync(`${directory}/verified.json`, `${JSON.stringify(evidence, null, 2)}\n`);
+  if (process.env.GITHUB_OUTPUT) {
+    for (const [pkg, entry] of Object.entries(evidence.packages)) {
+      if (entry.createRelease) {
+        writeFileSync(process.env.GITHUB_OUTPUT, `${pkg}_commit=${entry.publicationCommit}\n`, {
+          flag: 'a',
+        });
+      }
+    }
+  }
 }
 
 function complete() {
@@ -182,6 +214,6 @@ assert.ok(
   ['preflight', 'verify', 'complete'].includes(process.argv[2]),
   'Use preflight, verify or complete'
 );
-if (process.argv[2] === 'preflight') preflight();
-else if (process.argv[2] === 'verify') verify();
+if (process.argv[2] === 'preflight') await preflight();
+else if (process.argv[2] === 'verify') await verify();
 else complete();

@@ -28,7 +28,7 @@ fi
 WORKDIR=$(mktemp -d)
 trap 'rm -rf "$WORKDIR"' EXIT
 
-ATT_JSON=$(npm view "${PKG}@${VERSION}" dist.attestations.url --json || true)
+ATT_JSON=$(npm view "${PKG}@${VERSION}" dist.attestations.url --json --prefer-online)
 ATT_URL=$(node -e '
 const raw = process.argv[1] ?? "";
 if (!raw.trim()) process.exit(2);
@@ -75,7 +75,7 @@ else
       ;;
   esac
   curl -fsSL -o "$WORKDIR/cosign" "https://github.com/sigstore/cosign/releases/download/${COSIGN_VERSION}/${ASSET}"
-  echo "${SUM}  ${WORKDIR}/cosign" | sha256sum -c -
+  echo "${SUM}  ${WORKDIR}/cosign" | sha256sum -c - >&2
   chmod +x "$WORKDIR/cosign"
   COSIGN="$WORKDIR/cosign"
 fi
