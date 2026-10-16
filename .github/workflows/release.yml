@@ -166,33 +166,6 @@ jobs:
           VERSION="${{ steps.guard.outputs.sdk_version }}"
           npm publish "erc7730-sdk-${VERSION}.tgz" --access public --provenance --tag "$RELEASE_CHANNEL"
 
-      - name: Fetch published SDK tarball (release recovery)
-        if: steps.guard.outputs.sdk_publish != 'true' && steps.guard.outputs.sdk_release == 'true'
-        working-directory: packages/sdk
-        env:
-          VERSION: ${{ steps.guard.outputs.sdk_version }}
-        run: npm pack "@erc7730/sdk@${VERSION}"
-
-      - name: Resolve SDK publication commit
-        id: sdk_commit
-        if: steps.guard.outputs.sdk_release == 'true'
-        working-directory: packages/sdk
-        env:
-          VERSION: ${{ steps.guard.outputs.sdk_version }}
-          PUBLISH: ${{ steps.guard.outputs.sdk_publish }}
-        run: |
-          if [ "$PUBLISH" = "true" ]; then
-            if ! printf '%s' "$GITHUB_SHA" | grep -Eq '^[0-9a-f]{40}$'; then
-              echo "GITHUB_SHA is not a commit: $GITHUB_SHA"
-              exit 1
-            fi
-            echo "publication_commit=${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          ROOT=$(git rev-parse --show-toplevel)
-          COMMIT=$("$ROOT/scripts/resolve-publication-commit.sh" "erc7730-sdk-${VERSION}.tgz" "@erc7730/sdk" "$VERSION")
-          echo "publication_commit=${COMMIT}" >> "$GITHUB_OUTPUT"
-
       - name: Pack CLI tarball
         if: steps.guard.outputs.cli_publish == 'true'
         working-directory: packages/cli
@@ -223,34 +196,8 @@ jobs:
         run: |
           npm publish "erc7730-cli-${VERSION}.tgz" --access public --provenance --tag "$RELEASE_CHANNEL"
 
-      - name: Fetch published CLI tarball (release recovery)
-        if: steps.guard.outputs.cli_publish != 'true' && steps.guard.outputs.cli_release == 'true'
-        working-directory: packages/cli
-        env:
-          VERSION: ${{ steps.guard.outputs.cli_version }}
-        run: npm pack "@erc7730/cli@${VERSION}"
-
-      - name: Resolve CLI publication commit
-        id: cli_commit
-        if: steps.guard.outputs.cli_release == 'true'
-        working-directory: packages/cli
-        env:
-          VERSION: ${{ steps.guard.outputs.cli_version }}
-          PUBLISH: ${{ steps.guard.outputs.cli_publish }}
-        run: |
-          if [ "$PUBLISH" = "true" ]; then
-            if ! printf '%s' "$GITHUB_SHA" | grep -Eq '^[0-9a-f]{40}$'; then
-              echo "GITHUB_SHA is not a commit: $GITHUB_SHA"
-              exit 1
-            fi
-            echo "publication_commit=${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          ROOT=$(git rev-parse --show-toplevel)
-          COMMIT=$("$ROOT/scripts/resolve-publication-commit.sh" "erc7730-cli-${VERSION}.tgz" "@erc7730/cli" "$VERSION")
-          echo "publication_commit=${COMMIT}" >> "$GITHUB_OUTPUT"
-
       - name: Verify published packages, provenance and npm tags
+        id: verify
         run: node scripts/release-guard.mjs verify
 
       - name: GitHub Release (SDK)
@@ -260,7 +207,7 @@ jobs:
           tag_name: sdk-v${{ steps.guard.outputs.sdk_version }}
           prerelease: ${{ steps.guard.outputs.channel == 'next' }}
           make_latest: ${{ steps.guard.outputs.channel == 'next' && 'false' || 'legacy' }}
-          target_commitish: ${{ steps.sdk_commit.outputs.publication_commit }}
+          target_commitish: ${{ steps.verify.outputs.sdk_commit }}
           name: "@erc7730/sdk v${{ steps.guard.outputs.sdk_version }}"
           body: |
             Package: `@erc7730/sdk`
@@ -277,7 +224,7 @@ jobs:
           tag_name: cli-v${{ steps.guard.outputs.cli_version }}
           prerelease: ${{ steps.guard.outputs.channel == 'next' }}
           make_latest: ${{ steps.guard.outputs.channel == 'next' && 'false' || 'legacy' }}
-          target_commitish: ${{ steps.cli_commit.outputs.publication_commit }}
+          target_commitish: ${{ steps.verify.outputs.cli_commit }}
           name: "@erc7730/cli v${{ steps.guard.outputs.cli_version }}"
           body: |
             Package: `@erc7730/cli`
@@ -298,4 +245,5 @@ jobs:
         with:
           name: release-evidence-${{ github.sha }}
           path: .release-evidence/
+          include-hidden-files: true
           if-no-files-found: ignore
