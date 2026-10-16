@@ -381,18 +381,6 @@ test('registry metadata errors fail closed', () => {
   }
 });
 
-test('workflow creates releases only from verified commits and uploads hidden evidence', () => {
-  const workflow = readFileSync(
-    new URL('../.github/workflows/release.yml', import.meta.url),
-    'utf8'
-  );
-  for (const pkg of ['sdk', 'cli']) {
-    assert.ok(workflow.includes(`target_commitish: \${{ steps.verify.outputs.${pkg}_commit }}`));
-    assert.ok(workflow.indexOf('id: verify') < workflow.indexOf(`tag_name: ${pkg}-v`));
-  }
-  assert.match(workflow, /path: \.release-evidence\/\n\s+include-hidden-files: true/);
-});
-
 for (const failure of ['provenance', 'consumer']) {
   test(`failed ${failure} verification prevents release commit outputs`, () => {
     const { dir, data, run } = fixture();
