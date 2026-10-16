@@ -8,7 +8,6 @@ import type { InputDescriptor } from '../types/descriptor';
 import type {
   DisplayField,
   DisplayFormat,
-  ERC7730V2Descriptor,
   ERC7730V2Display,
   ERC7730V2Metadata,
   EnumDefinition,
@@ -62,7 +61,7 @@ export interface GenerateOptions {
 export type GenerateInput = GenerateOptions;
 
 /** v2 draft with `$schema`, `$comment`, a contract context, and display formats. */
-export type GeneratedDescriptor = ERC7730V2Descriptor & {
+export type GeneratedDescriptor = InputDescriptor & {
   $schema: string;
   $comment: string;
   context: {

@@ -11,7 +11,6 @@ export const entryPoints = [
   'packages/sdk/src/generate/index.ts',
   'packages/sdk/src/sourcify.ts',
   'packages/sdk/src/known-data.ts',
-  'packages/sdk/src/legacy.ts',
 ];
 
 const declPattern =

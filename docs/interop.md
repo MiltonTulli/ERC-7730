@@ -25,11 +25,11 @@ This SDK matches those descriptors when they are loaded through `extend()` (or a
 
 | Fixture | python-erc7730 | Sourcify `format()` | `@erc7730/sdk` |
 | --- | --- | --- | --- |
-| WETH `deposit` | golden resolve/lint | not snapshotted in CI | `decodeTransaction` / `format` |
+| WETH `deposit` | golden resolve/lint | not snapshotted in CI | `decodeTransaction` |
 | USDT transfer | golden | not snapshotted | decode + tokenAmount |
 | USDT approve | golden | not snapshotted | decode + `untrusted_spender` |
 | USDC transfer (mock official) | n/a (not in calldata index) | not snapshotted | decode + interpolatedIntent |
-| USDC Permit (EIP-712) | golden | not snapshotted | `decodeTypedData` / `formatTypedData` |
+| USDC Permit (EIP-712) | golden | not snapshotted | `decodeTypedData` |
 | Lido stETH submit | golden | not snapshotted | decode |
 | Uniswap V3 router | golden | not snapshotted | decode |
 | Safe 1.4.1 proxy | golden | not snapshotted | matchContext + decode |
@@ -37,7 +37,7 @@ This SDK matches those descriptors when they are loaded through `extend()` (or a
 | Simple Account `execute` | n/a | n/a | `decodeUserOp` one child |
 | Domain-only EIP-712 override | n/a | index miss | `extend()` + domain match |
 
-Sourcify `format()` is not snapshotted here: their default resolver fetches the registry at call time. Mapping their `DisplayModel` onto `DecodedOperation` is fine for wallets; this package keeps `DecodedOperation` as the source of truth. `format` / `formatTypedData` are thin aliases on `@erc7730/sdk/legacy`.
+Sourcify `format()` is not snapshotted here: their default resolver fetches the registry at call time. Mapping their `DisplayModel` onto `DecodedOperation` is fine for wallets; this package keeps `DecodedOperation` as the source of truth. Use `decodeTransaction` / `decodeTypedData`; the old `format` / `formatTypedData` aliases are removed in 1.0.
 
 ## Trust reason codes
 

@@ -83,6 +83,7 @@ export default defineConfig({
             { slug: 'observability' },
             { slug: 'sdk/validate-resolve' },
             { slug: 'sdk/viem' },
+            { slug: 'sdk/migrating-to-1-0' },
           ],
         },
         typeDocSidebarGroup,

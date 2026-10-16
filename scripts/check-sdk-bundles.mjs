@@ -49,8 +49,6 @@ const required = [
   'sourcify.d.ts',
   'known-data.js',
   'known-data.d.ts',
-  'legacy.js',
-  'legacy.d.ts',
 ];
 for (const name of required) {
   const file = join(dist, name);
@@ -132,6 +130,17 @@ if (!knownData.includes('knownDataProvider') || !knownData.includes('KNOWN_TOKEN
   fail('dist/known-data.js must export knownDataProvider and KNOWN_TOKENS');
 }
 const indexDts = readFileSync(join(dist, 'index.d.ts'), 'utf8');
+for (const name of readdirSync(dist).filter((name) => name.endsWith('.d.ts'))) {
+  if (readFileSync(join(dist, name), 'utf8').includes('@deprecated')) {
+    fail(`dist/${name} still contains @deprecated`);
+  }
+}
+const pkg = JSON.parse(readFileSync(join(root, 'packages/sdk/package.json'), 'utf8'));
+for (const entry of ['./legacy', './lite', './viem']) {
+  if (entry in pkg.exports) {
+    fail(`SDK package still exports ${entry}`);
+  }
+}
 const rootValues = [
   'clearSign',
   'createClearSigner',
@@ -233,7 +242,7 @@ if (!/from\s*['"]viem(?:\/[^'"]*)?['"]/.test(attest)) {
 if (/\bviem\b/.test(indexDts)) {
   fail('dist/index.d.ts still names viem');
 }
-for (const name of ['lite.js', 'viem.js', 'lite.d.ts', 'viem.d.ts']) {
+for (const name of ['legacy.js', 'legacy.d.ts', 'lite.js', 'viem.js', 'lite.d.ts', 'viem.d.ts']) {
   try {
     if (statSync(join(dist, name)).isFile()) {
       fail(`SDK dist still publishes ${name}`);

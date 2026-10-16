@@ -86,6 +86,7 @@ The CLI does not open PRs against the official registry. Walkthrough: [CLI docs]
 - [EIP-7730](https://eips.ethereum.org/EIPS/eip-7730) · [clearsigning.org](https://clearsigning.org)
 - Official registry · Ledger [`python-erc7730`](https://github.com/LedgerHQ/python-erc7730) · Sourcify clear-signing
 - Wallet guide: [`docs/GUIDE.md`](./docs/GUIDE.md) · [site guide](https://miltontulli.github.io/ERC-7730/guide/) · [trust](https://miltontulli.github.io/ERC-7730/trust/)
+- [Migrating from 0.x to 1.0](./docs/migrating-to-1.0.md)
 - Interop: [`docs/interop.md`](./docs/interop.md) · Divergences: [`docs/divergences.md`](./docs/divergences.md)
 - Security reports: [`SECURITY.md`](./SECURITY.md)
 - [License](./LICENSE)

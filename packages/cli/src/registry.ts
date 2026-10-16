@@ -7,7 +7,6 @@ import {
   VENDORED_REGISTRY_COMMIT,
   createOfficialRegistry,
 } from '@erc7730/sdk';
-import { isCommitSha } from '@erc7730/sdk/legacy';
 import { pathExists, readJsonFile, resolveIncludePath, writeTextFile } from './fsjson';
 import { REGISTRY_HELP } from './help';
 import type { CliContext, CliResult } from './types';
@@ -47,7 +46,7 @@ export function pinOrigin(flag: string | undefined, env: NodeJS.ProcessEnv): Pin
 
 export function resolvePin(flag: string | undefined, env: NodeJS.ProcessEnv): string {
   const value = (flag ?? env.ERC7730_REGISTRY_PIN ?? VENDORED_REGISTRY_COMMIT).trim();
-  if (!isCommitSha(value) || !PIN_RE.test(value)) {
+  if (!PIN_RE.test(value)) {
     throw new UsageError(
       'pin must be a 40-character git commit SHA (refusing master/main). Pass --pin or ERC7730_REGISTRY_PIN'
     );

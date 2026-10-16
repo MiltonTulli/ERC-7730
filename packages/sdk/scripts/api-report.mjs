@@ -25,7 +25,6 @@ const base = JSON.parse(readFileSync(join(sdkRoot, 'api-extractor.json'), 'utf8'
 /** @type {Array<[string, string]>} */
 const entries = [
   ['dist/index.d.ts', 'sdk.api.md'],
-  ['dist/legacy.d.ts', 'sdk-legacy.api.md'],
   ['dist/attest.d.ts', 'sdk-attest.api.md'],
   ['dist/generate.d.ts', 'sdk-generate.api.md'],
   ['dist/sourcify.d.ts', 'sdk-sourcify.api.md'],

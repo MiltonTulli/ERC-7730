@@ -66,7 +66,9 @@ After updating the vendored official schemas, regenerate types:
 pnpm schema:types
 ```
 
-Do not hand-edit the generated file. `InputDescriptor` is the only public input type. The old `ERC7730*` aliases live in `packages/sdk/src/legacy.ts` and are not exported from the package root. `@erc7730/registry` only types the JSON catalog index; it does not define a parallel descriptor dialect.
+Do not hand-edit the generated file. `InputDescriptor` is the only public input type. The deprecated compatibility aliases and `/legacy` entry are removed. See [Migrating to 1.0](docs/migrating-to-1.0.md) for replacements. `@erc7730/registry` only types the JSON catalog index; it does not define a parallel descriptor dialect.
+
+After changing the SDK API, rebuild and run `pnpm --filter @erc7730/sdk api:report`, then `pnpm docs:migration`. The migration table compares the shipped 0.12 reports under `api/baselines/0.12.0` with the current `api/` reports. Add replacement advice in `scripts/generate-migration-guide.mjs` for newly removed symbols. CI checks the generated table with `pnpm check:migration`.
 
 ## Docs site
 

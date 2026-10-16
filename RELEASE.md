@@ -17,6 +17,8 @@ Published history is the package changelogs:
 
 On 0.x, `minor` is the usual feature bump, including breaking API changes. A **patch** (`0.x.Y`) is a bugfix or docs in the published tarball, with no public API break. Do not jump to `1.0.0` from this runbook. Version direction: [ROADMAP.md](./ROADMAP.md) and tracker [#2](https://github.com/MiltonTulli/ERC-7730/issues/2).
 
+The user-facing 0.x → 1.0 break list is [Migrating to 1.0](./docs/migrating-to-1.0.md). Its removal table is generated from the shipped 0.12 and current API reports. The removal of `/legacy` carries a major SDK changeset.
+
 Do not use the npm `latest` tag for experiments. A future `--tag canary` pipeline is out of scope here.
 
 ## Add a changeset in a feature PR

@@ -4,7 +4,7 @@
 
 ```ts
 
-// @public
+// @public (undocumented)
 export interface AddressNameParams {
     // (undocumented)
     sources?: ('ens' | 'lens' | 'local')[];
@@ -38,7 +38,7 @@ export class ClearSigner {
     extend(descriptors: InputDescriptor | readonly InputDescriptor[]): void;
 }
 
-// @public
+// @public (undocumented)
 export interface ClearSignerConfig {
     builtins?: boolean;
     // Warning: (ae-forgotten-export) The symbol "RegistryCacheObserver" needs to be exported by the entry point legacy.d.ts
@@ -114,10 +114,10 @@ export interface ContractDeployment {
 
 // Warning: (ae-forgotten-export) The symbol "IncludeLoader" needs to be exported by the entry point legacy.d.ts
 //
-// @public
+// @public (undocumented)
 export function createMemoryIncludeLoader(files: Record<string, unknown>): IncludeLoader;
 
-// @public
+// @public (undocumented)
 export interface DateParams {
     // (undocumented)
     encoding: 'timestamp' | 'blockheight';
@@ -128,7 +128,7 @@ export interface DateParams {
 // @public
 export function decodeCalldata(tx: TransactionInput, signatures?: Record<string, string>): RawDecodedTransaction;
 
-// @public
+// @public (undocumented)
 export const DEFAULT_OFFICIAL_REGISTRY_BASE_URL = "https://raw.githubusercontent.com/ethereum/clear-signing-erc7730-registry";
 
 // Warning: (ae-forgotten-export) The symbol "Hex" needs to be exported by the entry point legacy.d.ts
@@ -136,7 +136,7 @@ export const DEFAULT_OFFICIAL_REGISTRY_BASE_URL = "https://raw.githubusercontent
 // @public
 export const EIP1967_IMPLEMENTATION_SLOT: Hex;
 
-// @public
+// @public (undocumented)
 export interface EnumParams {
     // (undocumented)
     $ref: string;
@@ -160,7 +160,7 @@ export type ERC7730V2Descriptor = InputDescriptor;
 // @public
 export function extractSelector(data: string): string;
 
-// @public
+// @public (undocumented)
 export interface FieldDefinition {
     // (undocumented)
     format?: RegistryFieldFormat;
@@ -186,13 +186,13 @@ export function formatAddress(address: string, name?: string | null): string;
 // @public
 export function formatAmount(rawAmount: bigint | string | number, decimals: number, symbol?: string): string;
 
-// @public
+// @public (undocumented)
 export type FormatParams = TokenAmountParams | AddressNameParams | EnumParams | DateParams | UnitParams;
 
 // @public @deprecated (undocumented)
 export function formatTypedData(data: TypedDataInput, options?: ClearSignerConfig): Promise<DecodedOperation>;
 
-// @public
+// @public (undocumented)
 export interface FunctionFormat {
     // (undocumented)
     excluded?: string[];
@@ -215,19 +215,19 @@ export function getSignatureBySelector(selector: string, extra?: Record<string, 
 // @public
 export function getTokenInfo(address: string, _chainId: number, provider?: Provider | null): Promise<TokenInfo_2 | null>;
 
-// @public
+// @public (undocumented)
 export function isCommitSha(value: string): boolean;
 
 // @public
 export function isInfiniteApproval(amount: bigint | string | number): boolean;
 
-// @public
+// @public (undocumented)
 export const NATIVE_CURRENCY: Record<number, {
     symbol: string;
     decimals: number;
 }>;
 
-// @public
+// @public (undocumented)
 export const OFFICIAL_REGISTRY_REPO = "ethereum/clear-signing-erc7730-registry";
 
 // @public
@@ -250,15 +250,15 @@ export type RegistryFieldFormat = 'raw' | 'addressName' | 'tokenAmount' | 'nftNa
 // @public
 export function resolveAddress(address: string, chainId: number, provider?: Provider | null): Promise<ResolvedAddress>;
 
-// @public
+// @public (undocumented)
 export function resolveImplementation(address: Address, provider: Provider | null | undefined, log?: DiagnosticLog): Promise<Address | undefined>;
 
 // Warning: (ae-forgotten-export) The symbol "Caip10" needs to be exported by the entry point legacy.d.ts
 //
-// @public
+// @public (undocumented)
 export function toCaip10(chainId: number, address: string): Caip10;
 
-// @public
+// @public (undocumented)
 export interface TokenAmountParams {
     // (undocumented)
     message?: string;
@@ -270,7 +270,7 @@ export interface TokenAmountParams {
     tokenPath?: string;
 }
 
-// @public
+// @public (undocumented)
 export interface UnitParams {
     // (undocumented)
     base: string;
@@ -280,7 +280,7 @@ export interface UnitParams {
     prefix?: boolean;
 }
 
-// @public
+// @public (undocumented)
 export interface ValidationError {
     // (undocumented)
     message: string;

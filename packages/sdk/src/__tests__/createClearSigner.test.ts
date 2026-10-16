@@ -145,19 +145,17 @@ describe('createClearSigner', () => {
     expect(right.fields.map((field) => field.label)).toEqual(['dest', 'coins', 'flag']);
   });
 
-  it('decode is an alias of decodeTransaction', async () => {
+  it('decodeTransaction uses the same pipeline as the functional API', async () => {
     const signer = createClearSigner({ provider: null, useSourcifyFallback: false });
-    const viaAlias = await signer.decode(transferTx);
     const viaMethod = await signer.decodeTransaction(transferTx);
     const viaFunction = await decodeTransaction(transferTx, {
       provider: null,
       useSourcifyFallback: false,
     });
 
-    expect(viaAlias).toEqual(viaMethod);
-    expect(viaAlias.source).toBe(viaFunction.source);
-    expect(viaAlias.intent).toBe(viaFunction.intent);
-    expect(viaAlias.confidence).toBe('low');
+    expect(viaMethod.source).toBe(viaFunction.source);
+    expect(viaMethod.intent).toBe(viaFunction.intent);
+    expect(viaMethod.confidence).toBe('low');
   });
 
   it('applies extend() overrides before decode', async () => {

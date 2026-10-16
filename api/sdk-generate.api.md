@@ -43,10 +43,8 @@ export function asInputDescriptor(descriptor: GeneratedDescriptor): InputDescrip
 // @public
 export const GENERATED_DESCRIPTOR_COMMENT = "TODO: generated draft — review intents and formats before submitting to the official registry. Never a high-confidence runtime source.";
 
-// Warning: (ae-forgotten-export) The symbol "ERC7730V2Descriptor" needs to be exported by the entry point generate.d.ts
-//
 // @public
-export type GeneratedDescriptor = ERC7730V2Descriptor & {
+export type GeneratedDescriptor = InputDescriptor & {
     $schema: string;
     $comment: string;
     context: {
@@ -158,7 +156,7 @@ export type ValidationResult = {
 // Warnings were encountered during analysis:
 //
 // dist/<chunk>.d.ts:658:3 - (ae-forgotten-export) The symbol "DescriptorVersion" needs to be exported by the entry point generate.d.ts
-// dist/<chunk>.d.ts:57:3 - (ae-forgotten-export) The symbol "ERC7730V2Display" needs to be exported by the entry point generate.d.ts
+// dist/<chunk>.d.ts:53:3 - (ae-forgotten-export) The symbol "ERC7730V2Display" needs to be exported by the entry point generate.d.ts
 
 // (No @packageDocumentation comment for this package)
 

@@ -17,6 +17,7 @@ const required = [
   'sdk/decode/index.html',
   'sdk/validate-resolve/index.html',
   'sdk/viem/index.html',
+  'sdk/migrating-to-1-0/index.html',
   'sdk/api/index.html',
   'sdk/api/functions/clearsign/index.html',
   'sdk/api/functions/decodetransaction/index.html',

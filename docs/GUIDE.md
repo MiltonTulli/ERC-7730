@@ -197,7 +197,6 @@ const userOpDisplay = await decodeUserOp(
 | `decodeTypedData` | `eth_signTypedData` |
 | `decodeBatch` | EIP-5792 `wallet_sendCalls` |
 | `decodeUserOp` | ERC-4337 Simple Account `execute` / `executeBatch` |
-| `format` / `formatTypedData` | Deprecated aliases of `decode*` on `@erc7730/sdk/legacy`. Omitted `trust` is `officialOnlyPolicy()` |
 
 Batch / nested `interpolatedIntent` joins per-call sentences with `" and "`.
 
@@ -301,6 +300,7 @@ Result `source` is `"sourcify"` and confidence is never high. That path verifies
 
 ## See also
 
+- [Migrating to 1.0](./migrating-to-1.0.md) — replacements for removed compatibility symbols
 - Docs site — https://miltontulli.github.io/ERC-7730/
 - [trust-table.md](./trust-table.md) — source × policy × confidence
 - Root [README.md](../README.md) — install + short start

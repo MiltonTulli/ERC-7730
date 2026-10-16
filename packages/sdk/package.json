@@ -30,10 +30,6 @@
     "./known-data": {
       "types": "./dist/known-data.d.ts",
       "import": "./dist/known-data.js"
-    },
-    "./legacy": {
-      "types": "./dist/legacy.d.ts",
-      "import": "./dist/legacy.js"
     }
   },
   "files": ["dist", "!dist/**/*.map", "!dist/**/*.tsbuildinfo"],
