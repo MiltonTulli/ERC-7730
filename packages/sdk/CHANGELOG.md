@@ -1,33 +1,89 @@
 # @erc7730/sdk
 
+## 1.0.0
+
+### Major Changes
+
+- d504880: Remove the SDK compatibility entry and its deprecated aliases, including the bound signer's `decode` method. Use `createClearSigner`, `decodeTransaction`, `decodeTypedData`, and schema-derived input types instead. The CLI validates registry pins without importing the removed entry.
+
+  Generate `docs/migrating-to-1.0.md` from the shipped 0.12 API reports and the current reports, with replacements for every removed symbol. Reject deprecated declarations and removed entry points in the SDK bundle check.
+
+### Minor Changes
+
+- d3e437a: Importing the SDK no longer compiles the JSON schemas or resolves the builtin token templates; both happen on first use, and descriptor and tests validation share one Ajv instance. `ox` is imported by subpath.
+
+  `createOfficialRegistry` keeps the last 256 resolved descriptors per commit pin, selector matching uses an index built once per descriptor, `extend()` overrides are looked up by deployment, and `mergeIncludes` copies the input once. Nested calls and `decodeBatch` calls decode in parallel.
+
+  Factory context matching now needs a bounded `fromBlock` (a block number or a tag other than `earliest`). Without one it is skipped and records `FACTORY_RANGE_UNBOUNDED` in diagnostics instead of scanning logs from genesis.
+- 8abc043: `verifyAttestation` checks one ERC-8176 offchain attestation and returns why it was accepted or rejected. Attested clear-signing uses that verdict and the caller-supplied clock.
+
+### Patch Changes
+
+- a5df22e: ABI array suffixes are scanned linearly. The parser no longer uses a nested quantifier on those suffixes.
+- 9720a5f: Declare viem as an optional peer for the attestation entry. Other entries continue to install and import without it.
+- 18d5769: `erc7730 lint` reports an invalid format as one line that names the value and the allowed formats. A clean file prints the schema, how many formats were checked, and how many includes resolved. `erc7730 preview --policy` selects official-only (the default), official-or-local, or none.
+
+  `validateDescriptor` keeps the closest oneOf or anyOf branch and collapses sibling const values into one message. A bad format parameter is that one line. The published main entry budget moves from 33 KB to 34 KB.
+- 1f65edf: The ERC-7730 path grammar prints back to the path it parsed. Descriptor hashes stay the same when object keys are reordered or an address changes case. Merging an include twice returns the same document. The Node unit-test setup blocks calls to globalThis.fetch unless ERC7730_LIVE=1. The pinned registry lookup runs only when ERC7730_LIVE=1, and a failed lookup fails the run.
+- e105ce2: Public exports now have a TSDoc summary. Functions that throw name the error code.
+- 9a6cb73: Smaller published graph: the build drops annotation keywords (`title`, `description`, `$comment`, `examples`) from the bundled JSON schemas, and shared code is split so no `dist` chunk is over 100 KB. Nested-call decoding no longer uses a dynamic `import()` of the transaction decoder, which removes the `INEFFECTIVE_DYNAMIC_IMPORT` build warning. Validation results are unchanged.
+
+## 1.0.0-next.0
+
+### Major Changes
+
+- d504880: Remove the SDK compatibility entry and its deprecated aliases, including the bound signer's `decode` method. Use `createClearSigner`, `decodeTransaction`, `decodeTypedData`, and schema-derived input types instead. The CLI validates registry pins without importing the removed entry.
+
+  Generate `docs/migrating-to-1.0.md` from the shipped 0.12 API reports and the current reports, with replacements for every removed symbol. Reject deprecated declarations and removed entry points in the SDK bundle check.
+
+### Minor Changes
+
+- d3e437a: Importing the SDK no longer compiles the JSON schemas or resolves the builtin token templates; both happen on first use, and descriptor and tests validation share one Ajv instance. `ox` is imported by subpath.
+
+  `createOfficialRegistry` keeps the last 256 resolved descriptors per commit pin, selector matching uses an index built once per descriptor, `extend()` overrides are looked up by deployment, and `mergeIncludes` copies the input once. Nested calls and `decodeBatch` calls decode in parallel.
+
+  Factory context matching now needs a bounded `fromBlock` (a block number or a tag other than `earliest`). Without one it is skipped and records `FACTORY_RANGE_UNBOUNDED` in diagnostics instead of scanning logs from genesis.
+- 8abc043: `verifyAttestation` checks one ERC-8176 offchain attestation and returns why it was accepted or rejected. Attested clear-signing uses that verdict and the caller-supplied clock.
+
+### Patch Changes
+
+- a5df22e: ABI array suffixes are scanned linearly. The parser no longer uses a nested quantifier on those suffixes.
+- 9720a5f: Declare viem as an optional peer for the attestation entry. Other entries continue to install and import without it.
+- 18d5769: `erc7730 lint` reports an invalid format as one line that names the value and the allowed formats. A clean file prints the schema, how many formats were checked, and how many includes resolved. `erc7730 preview --policy` selects official-only (the default), official-or-local, or none.
+
+  `validateDescriptor` keeps the closest oneOf or anyOf branch and collapses sibling const values into one message. A bad format parameter is that one line. The published main entry budget moves from 33 KB to 34 KB.
+- 1f65edf: The ERC-7730 path grammar prints back to the path it parsed. Descriptor hashes stay the same when object keys are reordered or an address changes case. Merging an include twice returns the same document. The Node unit-test setup blocks calls to globalThis.fetch unless ERC7730_LIVE=1. The pinned registry lookup runs only when ERC7730_LIVE=1, and a failed lookup fails the run.
+- e105ce2: Public exports now have a TSDoc summary. Functions that throw name the error code.
+- 9a6cb73: Smaller published graph: the build drops annotation keywords (`title`, `description`, `$comment`, `examples`) from the bundled JSON schemas, and shared code is split so no `dist` chunk is over 100 KB. Nested-call decoding no longer uses a dynamic `import()` of the transaction decoder, which removes the `INEFFECTIVE_DYNAMIC_IMPORT` build warning. Validation results are unchanged.
+
 ## 0.12.0
 
 ### Minor Changes
 
 - af3480d: Public errors extend `Erc7730Error` and carry a stable `code`.
-  
+
   `OfficialRegistryError` codes are `REGISTRY_FETCH_FAILED`, `REGISTRY_NOT_FOUND`, `INVALID_PIN`, `INVALID_REF`, and `INDEX_MALFORMED`. HTTP 404 is `REGISTRY_NOT_FOUND`. Other fetch failures are `REGISTRY_FETCH_FAILED`.
-  
+
   `DescriptorResolveError` codes are `VALIDATION_FAILED`, `INCLUDE_NOT_FOUND`, `INCLUDE_CYCLE`, `INCLUDE_DEPTH`, and `REF_NOT_FOUND`. `issues` lists every validation issue. `resolveDescriptor` and `extend` on `createOfficialRegistry` and `createClearSigner` throw that error instead of the first issue only.
-  
+
   `PathResolveError` still uses `invalid`, `not_found`, and `missing_data`, and now extends `Erc7730Error`.
-  
+
   An include loader that throws `OfficialRegistryError` keeps that error. Other loader failures stay `INCLUDE_NOT_FOUND`. `resolveDescriptor` validates the merged document and reports every issue.
-  
+
   Proxy, factory, spender, and verified-ABI failures are recorded on `result.diagnostics` (`IMPLEMENTATION_LOOKUP_FAILED`, `FACTORY_LOGS_FAILED`, `SPENDER_LOOKUP_FAILED`, `VERIFIED_ABI_FAILED`) and no longer fail the decode.
 - 34d438b: Move deprecated root values to `@erc7730/sdk/legacy`.
-  
+
   `ClearSigner`, `getDefaultClearSignRegistry`, `format`, `formatTypedData`, `Registry`, `decodeCalldata`, `extractSelector`, the signature helpers, amount and address formatters, `resolveImplementation`, `EIP1967_IMPLEMENTATION_SLOT`, `createMemoryIncludeLoader`, `isCommitSha`, `toCaip10`, and the official registry URL constants are `@deprecated` and removed in 1.0.
-  
+
   `calldataDepth` and `nestedDepth` are no longer public `DecodeOptions` fields. `BatchDecodeResult.warnings` lists the child warnings, deduped by `type` and `path`.
-  
+
   Removed with no replacement: `isContract`, `intentFromFormat`, `Registry.getAll`, `Registry.getStats`, `Provider.getEnsAddress`, `Provider.chain`, `ExternalDataProvider.chainClient`, `RegistryConfig`, and `ChainName`. `attestedPolicy` stays on `@erc7730/sdk/attest`.
-  
+
   The CLI imports `isCommitSha` from `@erc7730/sdk/legacy`.
-  
+
   API Extractor reports for the root entry and for `legacy`, `attest`, `generate`, `sourcify`, and `known-data` are committed under `api/`.
 - 165ede7: Trust reason codes and the `no_trusted_attestation` warning are snake_case. `TrustReport.reasons` is `TrustReasonCode[]`.
-  
+
   | Before | After |
   | --- | --- |
   | `source:official-registry:accepted` | `source_official_registry_accepted` |
@@ -35,14 +91,14 @@
   | `ATTESTED` | `attested` |
   | `NO_TRUSTED_ATTESTATION` | `no_trusted_attestation` (reason and `SecurityWarning.type`) |
   | `ATTESTATION_OPTIONS_INCOMPLETE` | `attestation_options_incomplete` |
-  
+
   `untrusted_descriptor` and `no_policies` are unchanged. The other `SECURITY_WARNING_TYPES` were already snake_case.
 - 737c42c: Move authoring, Sourcify, and curated token and contract names off the root entry.
-  
+
   `generateDescriptor`, `generateFunctionDescriptor`, `inferIntent`, `inferFormat`, `inferLabel`, `looksLikeErc20`, `V2_SCHEMA_URI`, and `GENERATED_DESCRIPTOR_COMMENT` are `@erc7730/sdk/generate`.
-  
+
   `fetchFromSourcify`, `isVerifiedOnSourcify`, and `sourcifyVerifiedAbiLoader({ fetch, baseUrl })` are `@erc7730/sdk/sourcify`. The loader is a factory and attaches a draft descriptor. Pass `loadVerifiedAbi: sourcifyVerifiedAbiLoader()`.
-  
+
   `knownDataProvider()` is `@erc7730/sdk/known-data`. The decode core no longer applies `KNOWN_TOKENS` or `KNOWN_ADDRESSES`. A loader that returns only an ABI no longer gets a generated descriptor. The CLI imports the new subpaths.
 
 ## 0.11.0
@@ -50,7 +106,7 @@
 ### Minor Changes
 
 - ef6d269: Add `clearSign()`, confirmation screens, and a diagnostic chain.
-  
+
   `clearSign` decodes a transaction, EIP-712 typed data, an EIP-5792 batch, or a Simple Account user operation and attaches `screens` from `toScreens()`. With no registry it uses one official-registry client pinned to the vendored commit. `DecodedField` is a union on `format`. Structured values live on `details`. A calldata field's nested operation is `details.embedded` when `format` is `calldata`. `required` is `true` for an explicit required path and `'implicit'` when the format lists none. `diagnostics` records registry, context, format, include, and trust steps on every decode, including a hit. `onEvent` reports decode, registry cache, trust, and warning events for that call. `erc7730 preview --explain` prints the diagnostic chain.
 
 ### Patch Changes

@@ -30,11 +30,11 @@ test('prereleases never reach latest, and next cannot create stable versions', (
   }
 });
 
-test('rolling seven-day cadence ignores candidates and patches; patches bypass it', () => {
+test('weekly cadence is advisory; recent feature releases still require promotion', () => {
   const now = Date.parse('2026-10-16T12:00:00Z');
   const recent = { '0.12.0': '2026-10-12T12:00:00Z' };
-  assert.throws(() => checkCadence('1.0.0', recent, now), /Weekly cadence/);
-  assert.throws(() => checkCadence('1.0.1', recent, now), /Weekly cadence/);
+  assert.equal(checkCadence('1.0.0', recent, now), true);
+  assert.equal(checkCadence('1.0.1', recent, now), true);
   checkCadence('0.12.1', recent, now);
   checkCadence('0.12.2', { ...recent, '0.12.1': '2026-10-16T11:00:00Z' }, now);
   checkCadence(
