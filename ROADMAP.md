@@ -10,7 +10,7 @@ The docs site is live at [miltontulli.github.io/ERC-7730](https://miltontulli.gi
 
 ## How versions chain
 
-Do not open the next minor until the previous exit criteria are green. Patches anytime. At most one minor per week. 0.10 is the only breaking minor in this cycle.
+Do not open the next minor until the previous exit criteria are green. Patches anytime. Prefer at most one stable minor/major per week; reviewed promotions may ship earlier. 0.10 is the only breaking minor in this cycle.
 
 | Version | Milestone | Closes | Issues |
 |---|---|---|---|

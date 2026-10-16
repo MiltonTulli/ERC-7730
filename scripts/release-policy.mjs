@@ -36,10 +36,11 @@ export function checkCadence(version, times, now = Date.now()) {
     const time = times[released];
     const publishedAt = Date.parse(time);
     assert.ok(Number.isFinite(publishedAt), `Invalid npm publication time for ${released}`);
-    assert.ok(
-      now - publishedAt >= 7 * 24 * 60 * 60 * 1000,
-      `Weekly cadence: ${released} shipped at ${time}; wait seven days before ${version}`
-    );
+    if (now - publishedAt < 7 * 24 * 60 * 60 * 1000) {
+      console.warn(
+        `Cadence recommendation: ${released} shipped at ${time}; prefer seven days between feature releases. Reviewed promotion of ${version} is allowed.`
+      );
+    }
   }
   return true;
 }

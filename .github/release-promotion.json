@@ -2,11 +2,11 @@
   "@erc7730/sdk": {
     "candidate": "1.0.0-next.0",
     "commit": "61a373383ce96e467f900fdcfc5a7e989e78385d",
-    "notes": "What this means for your wallet: first stable public API; this is not a claim of external wallet production adoption. Additional changes since the candidate are release recovery tooling/tests/docs (#175/#176), and promotion metadata/version/changelog/roadmap updates. No additional SDK/CLI runtime changes intended. Breaking changes and migration: see docs/migrating-to-1.0.md for removed legacy entry and aliases. Candidate provenance and consumer smoke verified in run 38930648897; re-run all stable release checks."
+    "notes": "What this means for your wallet: first stable public API; this is not a claim of external wallet production adoption. Additional changes since the candidate are release recovery tooling/tests/docs (#175/#176), and promotion metadata/version/changelog/roadmap updates and the maintainer-authorized change from mandatory weekly cadence to an advisory warning (release tooling/tests/docs only). No additional SDK/CLI runtime changes intended. Breaking changes and migration: see docs/migrating-to-1.0.md for removed legacy entry and aliases. Candidate provenance and consumer smoke verified in run 38930648897; re-run all stable release checks."
   },
   "@erc7730/cli": {
     "candidate": "0.5.0-next.0",
     "commit": "61a373383ce96e467f900fdcfc5a7e989e78385d",
-    "notes": "What this means for your wallet: first stable public API; this is not a claim of external wallet production adoption. Additional changes since the candidate are release recovery tooling/tests/docs (#175/#176), and promotion metadata/version/changelog/roadmap updates. No additional SDK/CLI runtime changes intended. Breaking changes and migration: see docs/migrating-to-1.0.md for removed legacy entry and aliases. Candidate provenance and consumer smoke verified in run 38930648897; re-run all stable release checks."
+    "notes": "What this means for your wallet: first stable public API; this is not a claim of external wallet production adoption. Additional changes since the candidate are release recovery tooling/tests/docs (#175/#176), and promotion metadata/version/changelog/roadmap updates and the maintainer-authorized change from mandatory weekly cadence to an advisory warning (release tooling/tests/docs only). No additional SDK/CLI runtime changes intended. Breaking changes and migration: see docs/migrating-to-1.0.md for removed legacy entry and aliases. Candidate provenance and consumer smoke verified in run 38930648897; re-run all stable release checks."
   }
 }
