@@ -13,6 +13,8 @@ const required = [
   'trust/index.html',
   'registry/index.html',
   'not-this/index.html',
+  'design-decisions/index.html',
+  'support-policy/index.html',
   'sdk/index.html',
   'sdk/compatibility/index.html',
   'sdk/decode/index.html',
@@ -165,14 +167,33 @@ for (const needle of ['@erc7730/sdk', '@erc7730/cli', 'python-erc7730', 'Sourcif
     process.exit(1);
   }
 }
-if (!home.includes('not-this')) {
-  console.error('docs smoke: home page should link to /not-this/');
-  process.exit(1);
+for (const route of ['not-this', 'design-decisions', 'support-policy']) {
+  if (!home.includes(`href="/${base}/${route}/"`)) {
+    throw new Error(`docs smoke: home page should link to /${route}/`);
+  }
 }
-const notThis = await readFile(join(root, 'not-this/index.html'), 'utf8');
-if (!/descriptor catalog/i.test(notThis)) {
-  console.error('docs smoke: /not-this/ should state we are not a descriptor catalog');
-  process.exit(1);
+
+// Check published adoption pages, including sidebar links and fragment targets.
+const site = 'https://miltontulli.github.io';
+for (const route of ['design-decisions', 'support-policy', 'not-this', 'trust']) {
+  const html = await readFile(join(root, route, 'index.html'), 'utf8');
+  const pageUrl = `${site}/${base}/${route}/`;
+  for (const [, href] of html.matchAll(/href="([^"]+)"/g)) {
+    const target = new URL(href, pageUrl);
+    if (target.origin !== site || !target.pathname.startsWith(`/${base}/`)) continue;
+    const rel = decodeURIComponent(target.pathname.slice(base.length + 2));
+    const file = join(root, rel.endsWith('/') || rel === '' ? `${rel}index.html` : rel);
+    if (!(await exists(file))) {
+      throw new Error(`docs smoke: broken internal link on /${route}/: ${href}`);
+    }
+    if (target.hash && file.endsWith('.html')) {
+      const destination = await readFile(file, 'utf8');
+      const id = decodeURIComponent(target.hash.slice(1));
+      if (!destination.includes(`id="${id}"`)) {
+        throw new Error(`docs smoke: missing fragment on /${route}/: ${href}`);
+      }
+    }
+  }
 }
 
 console.log(`docs smoke ok (${root})`);

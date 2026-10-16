@@ -50,6 +50,8 @@ WETH `deposit()` is the verified reference: mainnet `0xC02aaA39b223FE8D0A0e5C4F2
 
 Safe `execTransaction` stays `verified` because the outer descriptor is accepted. Confidence drops to `low` because the nested inner call is untrusted and caps the parent.
 
+The outer label does not verify that inner call or establish transaction safety. Render child screens and risks separately; the [trust model](https://miltontulli.github.io/ERC-7730/trust/#safe-outer-call-with-an-untrusted-inner-call) describes the current runtime limitations.
+
 USDT `transferFrom` is not in the Tether file, so the ERC-20 builtin renders it. An infinite `approve` still matches the official format and stays verified; the unlimited amount is a warning on `screens.risks`, not a failed verification.
 
 ## Three calls the pin does not verify

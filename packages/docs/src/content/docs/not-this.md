@@ -1,18 +1,8 @@
 ---
 title: What we are not
-description: Not a catalog, not the reference TypeScript implementation, not ABI pretty-printing.
+description: Where to find the toolkit's design boundaries and maintenance commitments.
 ---
 
-Say this out loud before integrating:
+The toolkit's scope and tradeoffs are documented in [Design decisions](/ERC-7730/design-decisions/): registry pins, descriptor provenance, ABI fallbacks, RPC boundaries, and the limits of nested verification.
 
-1. **Not a descriptor catalog.** The source of truth is [`ethereum/clear-signing-erc7730-registry`](https://github.com/ethereum/clear-signing-erc7730-registry). Open protocol metadata PRs there. `@erc7730/registry` in this monorepo is fixtures only.
-2. **Not the reference TypeScript implementation.** That seat belongs to Sourcify clear-signing and the working group. This toolkit is pin-SHA + pluggable `TrustPolicy` + a JS authoring CLI, with documented interop against Ledger `python-erc7730`.
-3. **Not ABI pretty-printing.** `generateDescriptor`, Sourcify ABI fallback, inferred selectors, and basic decoding are labeled by `source` and are **never** `confidence: "high"` under `officialOnlyPolicy()`.
-4. **Not a second firmware converter.** Ledger `python-erc7730` owns authoring/firmware conversion the official registry CI runs. See [divergences](/ERC-7730/divergences/).
-5. **Exploration is not the production default.** The [playground](/ERC-7730/demo/) opens in Production (`officialOnlyPolicy()`, no Sourcify). Exploration opts into local overrides and Sourcify. Production guidance is `officialOnlyPolicy()` or `attestedPolicy()`.
-
-## Related
-
-- [Trust](/ERC-7730/trust/)
-- [Interop](/ERC-7730/interop/)
-- [Home](/ERC-7730/)
+Before adopting it, read the [support policy](/ERC-7730/support-policy/) for versioning and maintenance commitments and the [trust model](/ERC-7730/trust/) for what a confirmation screen's signals mean.

@@ -324,6 +324,8 @@ Result `source` is `"sourcify"` and confidence is never high. That path verifies
 
 ## See also
 
+- [Design decisions](./design-decisions.md) — pins, provenance, RPC boundaries, and nested verification limits
+- [Support policy](./support-policy.md) — semver, deprecations, maintained lines, and runtime support
 - [Migrating to 1.0](./migrating-to-1.0.md) — replacements for removed compatibility symbols
 - Docs site — https://miltontulli.github.io/ERC-7730/
 - [trust-table.md](./trust-table.md) — source × policy × confidence

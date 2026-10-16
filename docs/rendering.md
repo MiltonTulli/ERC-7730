@@ -17,6 +17,8 @@ const screens: ClearSignScreens = signed.screens;
 
 `verification` is `verified` only when `trust.accepted` is true and `source` is `official-registry` or `attested`. A curated descriptor the policy rejects is `rejected`. Everything else is `unverified`, and the headline is prefixed with `"Unverified: "` (pass `{ unverifiedPrefix }` to change it). Unverified and rejected screens also put `To` and the raw selector in `primary`.
 
+Verification applies to the current operation's metadata, not transaction safety or all nested calls. Render child screens and warnings separately; see the [Safe outer-call example and runtime limitations](./trust-table.md#safe-outer-call-with-an-untrusted-inner-call).
+
 `primary` is fields with `required === true`. `secondary` is `'implicit'` or `false`. The vendored WETH `deposit()` format has no required list, so Amount is secondary and the headline is `Wrap`.
 
 `risks` follows warning severity, high then medium then low. `children` repeats the same shape for nested calls.
