@@ -76,7 +76,7 @@ Expected output: headline `Wrap`, verification `verified`, then `official-regist
 
 Name the registry `pin` at the call site. With no network, pass `indexes` and `cache`. ERC-20, ERC-721, and WETH builtins fill in when no registry descriptor matches. `officialOnlyPolicy()` rejects that source, so confidence stays `low`.
 
-What this toolkit is not: [not this](https://miltontulli.github.io/ERC-7730/not-this/). Upgrading notes: [Migrating from 0.x to 1.0](../../docs/migrating-to-1.0.md).
+Before adopting: [Design decisions](https://miltontulli.github.io/ERC-7730/design-decisions/) · [Support policy](https://miltontulli.github.io/ERC-7730/support-policy/). Upgrading notes: [Migrating from 0.x to 1.0](../../docs/migrating-to-1.0.md).
 
 ## Schema
 

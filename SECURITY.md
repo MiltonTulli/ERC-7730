@@ -2,7 +2,7 @@
 
 ## Supported versions
 
-Security fixes ship on the latest minor of `@erc7730/sdk` and `@erc7730/cli` published on npm.
+Security fixes ship on the latest stable minor line of each package's current stable major, in its latest patch. Older minors and majors have no promised backports. A new stable major ends maintenance of that package's previous major. See the [support policy](./docs/support-policy.md) for the full maintenance and runtime scope.
 
 ## Reporting a vulnerability
 

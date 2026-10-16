@@ -99,6 +99,18 @@ if (supportDrift) {
 /** @type {Array<{ source: string; dest: string; title: string; description: string }>} */
 const pages = [
   {
+    source: 'docs/design-decisions.md',
+    dest: 'design-decisions.md',
+    title: 'Design decisions',
+    description: 'Registry pins, trust boundaries, enrichment, and scope for wallet integrators.',
+  },
+  {
+    source: 'docs/support-policy.md',
+    dest: 'support-policy.md',
+    title: 'Support policy',
+    description: 'Semver, deprecations, maintained release lines, runtimes, and security response.',
+  },
+  {
     source: 'docs/runtime-compatibility.md',
     dest: 'sdk/compatibility.md',
     title: 'Runtime compatibility',
@@ -167,8 +179,14 @@ const pages = [
 /** @param {string} body */
 function rewriteLinks(body) {
   return body
+    .replaceAll('](./GUIDE.md', '](/ERC-7730/guide/')
+    .replaceAll('](./design-decisions.md', '](/ERC-7730/design-decisions/')
+    .replaceAll('](./support-policy.md', '](/ERC-7730/support-policy/')
+    .replaceAll('](./runtime-compatibility.md)', '](/ERC-7730/sdk/compatibility/)')
+    .replaceAll('](./case-studies/ambire.md)', '](/ERC-7730/case-studies/ambire/)')
+    .replaceAll('](../SECURITY.md)', `](${GITHUB_BLOB}/SECURITY.md)`)
+    .replaceAll('](../RELEASE.md)', `](${GITHUB_BLOB}/RELEASE.md)`)
     .replaceAll('](./migrating-to-1.0.md)', '](/ERC-7730/sdk/migrating-to-1-0/)')
-    .replaceAll('](./GUIDE.md#11-migrating-to-010)', '](/ERC-7730/guide/#11-migrating-to-010)')
     .replaceAll('](../packages/sdk/CHANGELOG.md)', `](${GITHUB_BLOB}/packages/sdk/CHANGELOG.md)`)
     .replaceAll('](../api/baselines/0.12.0)', `](${GITHUB_TREE}/api/baselines/0.12.0)`)
     .replaceAll('](../api)', `](${GITHUB_TREE}/api)`)
@@ -178,7 +196,7 @@ function rewriteLinks(body) {
     .replaceAll('](./diagnostics.md)', '](/ERC-7730/diagnostics/)')
     .replaceAll('](./rendering.md)', '](/ERC-7730/rendering/)')
     .replaceAll('](./observability.md)', '](/ERC-7730/observability/)')
-    .replaceAll('](./trust-table.md)', '](/ERC-7730/trust/)')
+    .replaceAll('](./trust-table.md', '](/ERC-7730/trust/')
     .replaceAll('](../README.md)', `](${GITHUB_BLOB}/README.md)`)
     .replaceAll('](../ROADMAP.md)', `](${GITHUB_BLOB}/ROADMAP.md)`);
 }
@@ -211,60 +229,23 @@ ${body}
 }
 
 const trustTable = stripLeadingH1(
-  await readFile(join(repoRoot, 'docs/trust-table.md'), 'utf8')
+  rewriteLinks(await readFile(join(repoRoot, 'docs/trust-table.md'), 'utf8'))
 ).trim();
 
 const trustPage = `---
 # GENERATED FROM docs/trust-table.md — do not edit; run prepare:content
 title: Trust model
-description: source × TrustPolicy × confidence — clear signing is not ABI pretty-printing.
+description: Provenance, policy acceptance, confidence, and screen verification for wallet integrators.
 ---
 
-Integrators must separate **trusted metadata** from **ABI guesses**. Shipping the latter as “clear signing” is false confidence.
-
-## Source × policy × confidence
-
 ${trustTable}
-
-## Production policies
-
-\`\`\`ts
-import { officialOnlyPolicy, composePolicies } from '@erc7730/sdk';
-import { attestedPolicy } from '@erc7730/sdk/attest';
-
-const pinOnly = officialOnlyPolicy();
-
-const attested = attestedPolicy({
-  attesters: ['0x3846c3A30E62075Fa916216b35EF04B8F53931f6'],
-  eas: {
-    call: async (chainId, { to, data }) => rpcEthCall(chainId, to, data),
-  },
-});
-
-const pinOrAttested = composePolicies([pinOnly, attested], 'any');
-\`\`\`
-
-\`attestedPolicy\` **verifies** ERC-8176 attestations; the SDK never issues them. Without \`eas.call\` it fails closed (\`ATTESTATION_OPTIONS_INCOMPLETE\` / \`NO_TRUSTED_ATTESTATION\`).
-
-| Recipe | Code |
-| --- | --- |
-| Pin only | \`trust: officialOnlyPolicy()\` |
-| Pin + local \`extend()\` | \`trust: officialOrLocalPolicy()\` |
-| ERC-8176 attesters | \`trust: attestedPolicy({ attesters, eas })\` |
-| Pin **or** attested | \`composePolicies([officialOnlyPolicy(), attestedPolicy(...)], 'any')\` |
-| Pin **and** attested | \`composePolicies([officialOnlyPolicy(), attestedPolicy(...)], 'all')\` |
-
-\`trust.reasons\` are stable codes (\`source:official-registry:accepted\`, \`ATTESTED\`, …) — safe for telemetry. Prefer them over free-form sentences.
-
-## Demo vs production
-
-The [interactive demo](/ERC-7730/demo/) defaults to Production (\`officialOnlyPolicy()\`, no Sourcify). Exploration opts into \`officialOrLocalPolicy()\` and Sourcify. Production wallets should pass \`officialOnlyPolicy()\` or \`attestedPolicy()\`.
 
 ## See also
 
 - [Wallet guide](/ERC-7730/guide/) — format first, then pin + policy
 - [Registry](/ERC-7730/registry/) — commit SHA pins and indexes
-- [What we are not](/ERC-7730/not-this/)
+- [Design decisions](/ERC-7730/design-decisions/)
+- [Support policy](/ERC-7730/support-policy/)
 `;
 
 await writeFile(join(outDir, 'trust.md'), trustPage);

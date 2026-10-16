@@ -11,7 +11,7 @@
     "preview": "astro preview --host 127.0.0.1",
     "smoke": "node scripts/docs-smoke.mjs",
     "check-stale": "node scripts/check-stale-phrases.mjs",
-    "clean": "rm -rf dist .astro src/content/docs/guide.md src/content/docs/interop.md src/content/docs/action.md src/content/docs/divergences.md src/content/docs/trust.md src/content/docs/cli/generate.md src/content/docs/sdk/api"
+    "clean": "rm -rf dist .astro src/content/docs/guide.md src/content/docs/interop.md src/content/docs/action.md src/content/docs/divergences.md src/content/docs/trust.md src/content/docs/design-decisions.md src/content/docs/support-policy.md src/content/docs/cli/generate.md src/content/docs/sdk/api"
   },
   "dependencies": {
     "@astrojs/starlight": "^0.42.4",

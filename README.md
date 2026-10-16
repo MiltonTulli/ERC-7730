@@ -75,7 +75,7 @@ Name the registry `pin` at the call site, as the snippet does. With no network, 
 
 `attestedPolicy` is imported from `@erc7730/sdk/attest`. `generateDescriptor` is `@erc7730/sdk/generate`. The Sourcify client is `@erc7730/sdk/sourcify`. Curated token and contract names are `knownDataProvider()` from `@erc7730/sdk/known-data`. The root entry does not apply that list.
 
-What this toolkit is not: [not this](https://miltontulli.github.io/ERC-7730/not-this/).
+Before adopting: [Design decisions](https://miltontulli.github.io/ERC-7730/design-decisions/) · [Support policy](https://miltontulli.github.io/ERC-7730/support-policy/).
 
 ## Packages
 

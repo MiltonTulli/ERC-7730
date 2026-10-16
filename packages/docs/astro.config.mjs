@@ -66,6 +66,8 @@ export default defineConfig({
             { slug: 'guide' },
             { slug: 'trust' },
             { slug: 'registry' },
+            { slug: 'design-decisions' },
+            { slug: 'support-policy' },
             { slug: 'not-this' },
             {
               label: 'Security',

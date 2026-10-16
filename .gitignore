@@ -82,6 +82,8 @@ packages/docs/src/content/docs/rendering.md
 packages/docs/src/content/docs/observability.md
 packages/docs/src/content/docs/case-studies/
 packages/docs/src/content/docs/trust.md
+packages/docs/src/content/docs/design-decisions.md
+packages/docs/src/content/docs/support-policy.md
 packages/docs/src/content/docs/cli/generate.md
 packages/docs/src/content/docs/sdk/api/
 packages/docs/src/content/docs/sdk/migrating-to-1-0.md

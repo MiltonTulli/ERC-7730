@@ -1,5 +1,7 @@
 # Releases — @erc7730/sdk and @erc7730/cli
 
+The [support policy](./docs/support-policy.md) defines semver, deprecation windows, and maintained release lines. This page defines how releases are published.
+
 Only `@erc7730/sdk` and `@erc7730/cli` publish. SDK and CLI have independent versions, changesets, npm publications and `sdk-vX.Y.Z` / `cli-vX.Y.Z` Git tags. `@erc7730/web`, `@erc7730/registry` and `@erc7730/docs` are private and ignored by Changesets.
 
 `.github/workflows/release.yml` is the only npm publication path. It runs on pushes to `main` and `next`, or a dispatch on those branches. Keep this filename for npm Trusted Publishing. No tag push publishes a package. Both channels share a concurrency group so they cannot race npm tags.
