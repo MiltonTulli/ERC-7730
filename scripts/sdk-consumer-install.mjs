@@ -1,5 +1,6 @@
+import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -10,6 +11,10 @@ const stage = mkdtempSync(join(tmpdir(), 'erc7730-sdk-consumer-'));
 
 function fail(message) {
   throw new Error(message);
+}
+
+function readJson(path) {
+  return JSON.parse(readFileSync(path, 'utf8'));
 }
 
 function pack(dir) {
@@ -24,9 +29,68 @@ function pack(dir) {
     .filter((line) => line.endsWith('.tgz'))
     .at(-1);
   if (!tarballLine) {
-    fail(`pnpm pack in ${dir} did not print a tarball path:\n${packedOut}`);
+    fail(`npm pack in ${dir} did not print a tarball path:\n${packedOut}`);
   }
   return tarballLine.startsWith('/') ? tarballLine : join(stage, tarballLine);
+}
+
+function install(app, ...packages) {
+  execFileSync('npm', ['install', '--no-fund', '--no-audit', '--ignore-scripts', ...packages], {
+    cwd: app,
+    stdio: 'inherit',
+  });
+}
+
+function importEntries(app, entries) {
+  const code = `
+    import assert from 'node:assert/strict';
+    // Imports must not make a network request.
+    globalThis.fetch = () => { throw new Error('Network request during import'); };
+    for (const entry of ${JSON.stringify(entries)}) {
+      const exports = await import(entry);
+      assert.ok(Object.keys(exports).length > 0, entry + ' has no runtime exports');
+      console.log('Imported ' + entry + ' on ' + process.version);
+    }
+  `;
+  execFileSync(process.execPath, ['--input-type=module', '-e', code], {
+    cwd: app,
+    stdio: 'inherit',
+  });
+}
+
+function typecheckEntries(app, entries) {
+  const imports = entries.map((entry, i) => `import * as entry${i} from '${entry}';`);
+  writeFileSync(
+    join(app, 'consumer.mts'),
+    `${imports.join('\n')}\nexport const entries = [${entries.map((_, i) => `entry${i}`).join(', ')}];\n`
+  );
+  for (const [module, moduleResolution] of [
+    ['NodeNext', 'NodeNext'],
+    ['ESNext', 'Bundler'],
+  ]) {
+    writeFileSync(
+      join(app, 'tsconfig.json'),
+      JSON.stringify({
+        compilerOptions: {
+          target: 'ES2022',
+          lib: ['ES2022', 'DOM'],
+          module,
+          moduleResolution,
+          strict: true,
+          noEmit: true,
+          skipLibCheck: false,
+        },
+        files: ['consumer.mts'],
+      })
+    );
+    execFileSync(process.execPath, ['node_modules/typescript/bin/tsc', '-p', 'tsconfig.json'], {
+      cwd: app,
+      stdio: 'inherit',
+    });
+    console.log(
+      `Typechecked ${entries.length} entries with ${moduleResolution} on ${process.version}`
+    );
+  }
 }
 
 try {
@@ -36,46 +100,57 @@ try {
 
   const tarball = pack(sdkDir);
   const app = join(stage, 'app');
-  execFileSync('mkdir', ['-p', app]);
+  mkdirSync(app);
   writeFileSync(
     join(app, 'package.json'),
     `${JSON.stringify({ name: 'erc7730-sdk-consumer', private: true, type: 'module' }, null, 2)}\n`
   );
-  execFileSync('npm', ['install', '--no-fund', '--no-audit', '--ignore-scripts', tarball], {
-    cwd: app,
-    stdio: 'inherit',
+  install(app, tarball);
+
+  const installed = readJson(join(app, 'node_modules/@erc7730/sdk/package.json'));
+  assert.equal(installed.dependencies?.viem, undefined, 'viem must not be a runtime dependency');
+  assert.equal(installed.peerDependencies?.viem, '^2.21.0');
+  assert.equal(installed.peerDependenciesMeta?.viem?.optional, true);
+  assert.ok(installed.dependencies?.ox && installed.dependencies?.['@noble/hashes']);
+  assert.equal(existsSync(join(app, 'node_modules/viem')), false, 'Base install pulled viem');
+  assert.equal(installed.type, 'module');
+
+  // Derive coverage from the tarball so a new public subpath is tested automatically.
+  const entries = Object.entries(installed.exports).map(([subpath, conditions]) => {
+    assert.ok(conditions.types && conditions.import, `${subpath} needs ESM and type exports`);
+    assert.equal(conditions.require, undefined, `${subpath} must remain ESM-only`);
+    return subpath === '.' ? installed.name : installed.name + subpath.slice(1);
   });
-
-  const installed = JSON.parse(
-    readFileSync(join(app, 'node_modules/@erc7730/sdk/package.json'), 'utf8')
-  );
-  if (installed.dependencies?.viem != null) {
-    fail(`Packed SDK still depends on viem: ${String(installed.dependencies?.viem)}`);
-  }
-  if (installed.peerDependencies?.viem != null || installed.peerDependenciesMeta?.viem != null) {
-    fail('Packed SDK still declares viem as a peer');
-  }
-  if (!installed.dependencies?.ox || !installed.dependencies?.['@noble/hashes']) {
-    fail(`Packed SDK is missing ox or @noble/hashes: ${JSON.stringify(installed.dependencies)}`);
-  }
-
+  const attest = `${installed.name}/attest`;
+  assert.ok(entries.includes(attest));
+  const withoutPeer = entries.filter((entry) => entry !== attest);
+  importEntries(app, withoutPeer);
   execFileSync(
     process.execPath,
-    ['--input-type=module', '-e', ["await import('@erc7730/sdk');"].join('\n')],
+    [
+      '--input-type=module',
+      '-e',
+      `import assert from 'node:assert/strict';
+       await assert.rejects(import('${attest}'), (error) =>
+         error.code === 'ERR_MODULE_NOT_FOUND' && error.message.includes("package 'viem'"));`,
+    ],
     { cwd: app, stdio: 'inherit' }
   );
 
-  let listed = '';
-  try {
-    listed = execFileSync('npm', ['ls', 'viem', '--all'], { cwd: app, encoding: 'utf8' });
-  } catch (error) {
-    listed = String(error.stdout ?? error.message ?? '');
-  }
-  if (/viem@/.test(listed)) {
-    fail(`Root install pulled viem:\n${listed}`);
-  }
+  // Install the same compiler/type versions as the checkout, in the isolated app.
+  const typescript = readJson(join(root, 'node_modules/typescript/package.json')).version;
+  const nodeTypes = readJson(join(sdkDir, 'node_modules/@types/node/package.json')).version;
+  install(app, `typescript@${typescript}`, `@types/node@${nodeTypes}`);
+  assert.equal(existsSync(join(app, 'node_modules/viem')), false, 'Type tooling pulled viem');
+  typecheckEntries(app, withoutPeer);
+
+  install(app, `viem@${installed.peerDependencies.viem}`);
+  const viem = readJson(join(app, 'node_modules/viem/package.json')).version;
+  console.log(`Optional peer installed: viem@${viem}; TypeScript ${typescript}`);
+  importEntries(app, entries);
+  typecheckEntries(app, entries);
 } finally {
   rmSync(stage, { recursive: true, force: true });
 }
 
-console.log('SDK consumer install passed');
+console.log(`SDK consumer install passed on ${process.version}`);

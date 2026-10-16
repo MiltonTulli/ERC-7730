@@ -62,8 +62,49 @@ if (quickstartDrift) {
   process.exit(1);
 }
 
+// Keep the support policy identical on GitHub, npm, and the site's entry pages.
+const guide = await readFile(join(repoRoot, 'docs/GUIDE.md'), 'utf8');
+const support = guide.match(
+  /<!-- runtime-support:start -->\n([\s\S]*?)\n<!-- runtime-support:end -->/
+);
+if (!support) {
+  throw new Error('Missing runtime-support markers in docs/GUIDE.md');
+}
+let supportDrift = false;
+for (const target of quickstartTargets.filter((target) => target.rel !== 'docs/GUIDE.md')) {
+  const path = join(repoRoot, target.rel);
+  const raw = await readFile(path, 'utf8');
+  const pattern =
+    target.comment === 'mdx'
+      ? /{\/\* runtime-support:start \*\/}[\s\S]*?{\/\* runtime-support:end \*\/}/
+      : /<!-- runtime-support:start -->[\s\S]*?<!-- runtime-support:end -->/;
+  if (!pattern.test(raw)) {
+    throw new Error(`Missing runtime-support markers in ${target.rel}`);
+  }
+  const open =
+    target.comment === 'mdx' ? '{/* runtime-support:start */}' : '<!-- runtime-support:start -->';
+  const close =
+    target.comment === 'mdx' ? '{/* runtime-support:end */}' : '<!-- runtime-support:end -->';
+  const next = raw.replace(pattern, `${open}\n${support[1]}\n${close}`);
+  if (next !== raw) {
+    await writeFile(path, next);
+    console.error(`runtime support drift in ${target.rel}; rewritten from docs/GUIDE.md`);
+    supportDrift = true;
+  }
+}
+if (supportDrift) {
+  process.exit(1);
+}
+
 /** @type {Array<{ source: string; dest: string; title: string; description: string }>} */
 const pages = [
+  {
+    source: 'docs/runtime-compatibility.md',
+    dest: 'sdk/compatibility.md',
+    title: 'Runtime compatibility',
+    description:
+      'ESM consumer checks, supported Node versions, and the CJS / React Native decision.',
+  },
   {
     source: 'docs/migrating-to-1.0.md',
     dest: 'sdk/migrating-to-1-0.md',

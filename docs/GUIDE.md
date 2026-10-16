@@ -12,6 +12,30 @@ npm install @erc7730/sdk
 
 What this toolkit is not: [not this](https://miltontulli.github.io/ERC-7730/not-this/).
 
+<!-- runtime-support:start -->
+## Module and runtime support
+
+`@erc7730/sdk` ships **ESM only**, including every public subpath.
+
+| Environment | Status | Validation / requirements |
+| --- | --- | --- |
+| Node.js | Supported with ESM; package minimum `>=20` | CI runs clean consumer imports and type checks on Node 20, 22, and 24. Node 22 and 24 are the actively supported lines with full build/test coverage; Node 20 has consumer checks only. |
+| Modern browser bundlers | Supported with ESM | TypeScript `moduleResolution: "bundler"` consumer checks and Vite/Chromium browser goldens. Requires ES2022 (including BigInt) and `fetch` for network operations. |
+| CommonJS (`require`) | Unsupported | No CJS build or `exports.require`. A CommonJS app may use asynchronous `import()` if its runtime supports ESM. |
+| React Native / Metro | **Unverified** | No reproducible Metro build and device/emulator runtime smoke test has been recorded. ESM compatibility or a Metro flag alone is not evidence of RN support. |
+
+Use a current patch release within the Node line: the SDK declares `>=20`, while the current `@noble/hashes` dependency requires `>=20.19.0`. Building this repository requires Node `>=22.18.0`.
+
+The public entries are `@erc7730/sdk`, `/attest`, `/generate`, `/sourcify`, and `/known-data`. Only `/attest` requires the **optional peer `viem@^2.21.0`** at runtime and for types. Install it explicitly when using that entry:
+
+```bash
+npm install @erc7730/sdk viem@^2.21.0
+```
+
+The other four entries install, import, and typecheck without `viem`, including the root's `decodeViemTypedData` helper.
+More about packaging checks and the CJS/RN decision: [runtime compatibility](https://miltontulli.github.io/ERC-7730/sdk/compatibility/).
+<!-- runtime-support:end -->
+
 ## 2. Quick start
 
 `clearSign` is the wallet entry. With no registry it uses one official-registry client pinned to the commit shipped with the SDK. `officialOnlyPolicy()` is what you get when `trust` is omitted. The snippet is [`docs/snippets/quickstart.ts`](./snippets/quickstart.ts).
