@@ -1,149 +1,150 @@
 # Releases — @erc7730/sdk and @erc7730/cli
 
-This repo publishes two public packages: [`@erc7730/sdk`](https://www.npmjs.com/package/@erc7730/sdk) and [`@erc7730/cli`](https://www.npmjs.com/package/@erc7730/cli).
+Only `@erc7730/sdk` and `@erc7730/cli` publish. SDK and CLI have independent versions, changesets, npm publications and `sdk-vX.Y.Z` / `cli-vX.Y.Z` Git tags. `@erc7730/web`, `@erc7730/registry` and `@erc7730/docs` are private and ignored by Changesets.
 
-Never publish `@erc7730/registry` or `@erc7730/web`. Both are ignored by Changesets. `@erc7730/registry` is a private historical snapshot and fixture set. It is not an input of the SDK build. The web package is the GitHub Pages demo.
+`.github/workflows/release.yml` is the only npm publication path. It runs on pushes to `main` and `next`, or a dispatch on those branches. Keep this filename for npm Trusted Publishing. No tag push publishes a package. Both channels share a concurrency group so they cannot race npm tags.
 
-Versioning is **Changesets**. Publishing is `.github/workflows/release.yml` on `push` to `main`. There is no tag-triggered publish.
+| Branch | Version | npm tag | GitHub Release |
+| --- | --- | --- | --- |
+| `next` | Next intended version with `-next.N`, e.g. `1.0.0-next.0` | `next` only | Prerelease, never GitHub Latest |
+| `main` | Stable semver, e.g. `1.0.0` | `latest` explicitly | Stable |
 
-The only remaining human step is **approve the GitHub Environment `npm`** on the publish job.
+A new stable version on `next`, a prerelease on `main`, a mismatched Changesets pre-state, or publication from any other branch fails closed. Already published stable package versions on `next` are skipped, so an SDK candidate does not republish an unchanged CLI.
 
-## Semver while on 0.x
+## Changesets and wallet-facing changelogs
 
-Published history is the package changelogs:
-
-- [`packages/sdk/CHANGELOG.md`](./packages/sdk/CHANGELOG.md)
-- [`packages/cli/CHANGELOG.md`](./packages/cli/CHANGELOG.md)
-
-On 0.x, `minor` is the usual feature bump, including breaking API changes. A **patch** (`0.x.Y`) is a bugfix or docs in the published tarball, with no public API break. Do not jump to `1.0.0` from this runbook. Version direction: [ROADMAP.md](./ROADMAP.md) and tracker [#2](https://github.com/MiltonTulli/ERC-7730/issues/2).
-
-The user-facing 0.x → 1.0 break list is [Migrating to 1.0](./docs/migrating-to-1.0.md). Its removal table is generated from the shipped 0.12 and current API reports. The removal of `/legacy` carries a major SDK changeset.
-
-Do not use the npm `latest` tag for experiments. A future `--tag canary` pipeline is out of scope here.
-
-## Add a changeset in a feature PR
-
-When you change `packages/sdk/src/**`, `packages/sdk/package.json`, `packages/cli/src/**`, or `packages/cli/package.json`, CI requires a file under `.changeset/` other than `README.md`.
+Add a changeset in a feature PR for published SDK or CLI changes; see [CONTRIBUTING.md](./CONTRIBUTING.md) for the exact paths. Docs and workflows alone need no changeset.
 
 ```bash
 pnpm changeset
 ```
 
-Pick `@erc7730/sdk` and/or `@erc7730/cli`, the bump type (`patch` / `minor` / `major` — on 0.x, `minor` is the usual feature bump), and a short summary. Commit the generated `.changeset/<id>.md` with the feature.
+Choose only affected packages and the intended stable bump. Use the upcoming version, not a disposable canary number: the pending SDK major changeset produces `1.0.0-next.N`, not `0.12.1-next.N`. On 0.x, `minor` remains the usual feature bump; after 1.0 use normal semver. See [Migrating to 1.0](./docs/migrating-to-1.0.md).
 
-Docs-only, workflow-only, web-only, and registry-descriptor PRs do **not** need a changeset.
+Changeset summaries become the changelog. Include **What this means for your wallet**, explain observable behavior, and for breaking changes name the removed behavior, replacement, and migration steps. Link the migration guide where relevant. Avoid claiming implementation work outside the diff. Review the generated changelog in every Version PR; do not edit package changelogs by hand.
 
-## Cut a release
+`pnpm version-packages` wraps Changesets: it preserves the published manifest and changelog of packages without applicable changesets, then updates the lockfile. In prerelease exit mode, archived `.changeset/pre/*.md` files also count. This prevents Changesets' automatic dependent bumps from forcing a CLI release for an SDK-only change. An explicit CLI changeset still versions CLI and packs its dependency against the current workspace SDK. Review that dependency when shipping CLI; use `pnpm pack` for CLI so `workspace:*` is resolved.
 
-1. Merge feature PRs that include a changeset.
-2. Wait for the Release workflow to open **chore: version packages**.
-3. Review `CHANGELOG.md` and `packages/sdk/package.json`. Merge that PR.
-4. Approve the `npm` Environment when the publish job waits.
-5. Confirm npm `latest` and the GitHub Release.
+## Stable releases from main
 
-Do not run `pnpm version-packages`, `git tag`, `npm publish`, or `pnpm release` from a laptop on the happy path.
+1. Merge feature PRs with changesets into `main`.
+2. The Release workflow opens or updates **chore: version packages**, the Version PR for `main`.
+3. Review versions, lockfile, changelogs, wallet impact and breaking/migration notes. Stable minor/major releases also need the candidate evidence described below.
+4. Merge the Version PR when the cadence gate allows publication. Approve the GitHub Environment `npm` if its reviewer policy requires it.
+5. Confirm the workflow's verified publication evidence, npm `latest`, package Git tag and GitHub Release.
 
-## What the Release workflow does
+The Version PR job has no deployment Environment. The publish job runs only after pending changesets have been consumed. It rebuilds, typechecks, tests, validates snippets/API/bundles and runs local consumer/tarball checks before publication. Versions already on npm and with a GitHub Release are skipped independently per package. A docs-only merge does not create another package release.
 
-Filename stays **`release.yml`** so npm Trusted Publishing (OIDC) keeps matching. There is exactly one `npm publish` path: the `publish` job in that file.
+## Start and advance next
 
-On `push` to `main` (and optional `workflow_dispatch` of this same file):
-
-1. Job **Open Version PR** (no Environment). If `.changeset/*.md` files exist besides `README.md`, `changesets/action@v2` opens or updates PR `chore: version packages` (`pnpm version-packages`, then `biome check --write` on `packages/sdk/package.json` and `CHANGELOG.md` so Lint & Format stays green). The action v2 inputs are `pr-title`, `commit-message`, and `version-script`, and the token is the `github-token` input. `create-github-releases` and `push-git-tags` stay false because the publish job creates the package tags and GitHub Releases. This action requires `@changesets/cli` 3. If there are pending changesets, the publish job is skipped.
-2. Job **Publish packages** (`environment: npm`) runs only when there are **no** pending changesets (typical after merging the Version PR).
-3. `pnpm install --frozen-lockfile`, then `pnpm build` / `typecheck` / `test`.
-4. For each package, the job checks two things independently: whether its version is **already on npm**, and whether its GitHub Release (`sdk-vX.Y.Z` / `cli-vX.Y.Z`) **already exists**. If both are true, nothing happens for that package. Docs-only merges to `main` stay green.
-5. Otherwise `npm pack` in `packages/sdk` (and `packages/cli` when that version is not on npm). Fails if a tarball contains `src/`, tests, or `.map` files.
-6. `npm publish <tarball> --access public --provenance` via **OIDC Trusted Publishing** (no `NPM_TOKEN`) for each package whose version is new.
-7. For each package whose GitHub Release is missing, `softprops/action-gh-release` creates a **package-specific** tag at the **verified publication commit**, a GitHub Release named after that package and version, and attaches that package's `.tgz`:
-   - `sdk-vX.Y.Z` → "@erc7730/sdk vX.Y.Z"
-   - `cli-vX.Y.Z` → "@erc7730/cli vX.Y.Z"
-
-When this run publishes the package, the tag points at the workflow SHA (`github.sha`). On a recovery run the tag points at the `gitCommit` in the npm provenance attestation, after `scripts/resolve-publication-commit.sh` verifies that attestation with cosign (GitHub Actions OIDC, `.github/workflows/release.yml`, this repository) against the published tarball. If provenance is missing, verification fails, or that commit is not in the repository, the release step fails instead of tagging the current `main`.
-
-`@erc7730/sdk` and `@erc7730/cli` are versioned, published, and released independently: a package whose version is already on npm **and** already has its GitHub Release gets nothing new in that run. If a run publishes to npm but the GitHub Release step fails, the next run (re-run or `workflow_dispatch`) skips `npm publish` and only creates the missing release, attaching the tarball downloaded from npm (`npm pack @erc7730/<pkg>@X.Y.Z`) so it matches what was published. There is no shared/generic `vX.Y.Z` tag. The Environment is on the **publish** job only, so opening a Version PR does not wait for approval.
-
-First publish of `@erc7730/cli` needs npm Trusted Publishing configured for that package (same workflow filename `release.yml`, GitHub Environment `npm`).
-
-`changeset publish` is **not** used in CI. Versions and changelog are written in the Version PR; this workflow publishes the tarball.
-
-Pushing a `v*` tag by hand does **not** publish.
-
-## Maintainer setup (one-time)
-
-### 1. GitHub Environment `npm`
-
-Already created. Required reviewer: a release owner. `prevent_self_review` can stay off for a solo maintainer.
-
-The publish job runs on branch **`main`**. The Environment deployment branch policy must **allow `main`**. A tags-only rule (`v*`) will block publish.
-
-### 2. Allow Actions to open the Version PR
-
-Repo **Settings → Actions → General → Workflow permissions**:
-
-- Default is **Read** (this workflow requests write on the job).
-- Enable **Allow GitHub Actions to create and approve pull requests**. Without this, the Version PR cannot be opened with `GITHUB_TOKEN`.
-
-### 3. npm Trusted Publishing (OIDC)
-
-Requires npm CLI **≥ 11.5.1** on the runner (the release workflow installs `npm@11`). GitHub-hosted runners only.
-
-1. Open [npmjs.com/package/@erc7730/sdk](https://www.npmjs.com/package/@erc7730/sdk) while logged in as a maintainer of the `@erc7730` scope
-2. **Package settings** (or **Access**) → **Trusted Publisher**
-3. Publisher type: **GitHub Actions**
-4. Fill in:
-   - **Organization or user:** `MiltonTulli`
-   - **Repository:** `ERC-7730`
-   - **Workflow filename:** `release.yml` (filename only, not `.github/workflows/release.yml`)
-   - **Environment name:** `npm`
-5. Save. If the UI asks which actions to allow, permit **`npm publish`** (not only staged publish).
-
-Do **not** add `NODE_AUTH_TOKEN` / `NPM_TOKEN` to the release workflow. `setup-node`'s `registry-url` writes a dummy `_authToken`; the workflow strips it so the npm CLI can do the OIDC exchange.
-
-`--provenance` is required and needs `permissions.id-token: write` on GitHub-hosted runners.
-
-The first publish **will fail** until Trusted Publishing is saved on npmjs.com. That is expected.
-
-### 4. Branch protection
-
-Protect `main` and require the `CI` workflow (lint + Node 22/24 build/test). Building this repo needs Node 22.18 or newer because tsdown publishes the SDK and CLI. The published packages declare `engines.node` of `>=20`. Pages and Release are separate.
-
-## Emergency / broken bot
-
-Use this only if the Release workflow cannot open a Version PR or cannot publish.
-
-1. Re-run the failed **Release** workflow, or approve the `npm` Environment if the publish job is waiting.
-2. **Run workflow** (`workflow_dispatch`) on `.github/workflows/release.yml` from `main`. Same filename, same publish job, same Trusted Publisher. If pending changesets exist, it opens/updates the Version PR instead of publishing.
-3. If Actions cannot open PRs: from a clean `main`, run `pnpm version-packages && npx biome check --write packages/sdk/package.json packages/sdk/CHANGELOG.md`, commit `chore: version packages`, open that PR yourself, merge, then dispatch the Release workflow.
-4. Last resort, from a trusted machine after `pnpm build` (bypasses OIDC provenance):
+After this workflow change has landed on `main`, create `next` from the reviewed commit and push it. Keep CI and branch protection enabled for `next`, and allow `next` in the `npm` Environment's deployment branch policy before the first publish.
 
 ```bash
-cd packages/sdk
-VERSION=$(node -p "require('./package.json').version")
-npm pack
-npm publish "erc7730-sdk-${VERSION}.tgz" --access public
+git switch -c next origin/main
+git push -u origin next
 ```
 
-Do **not** `git push origin sdk-vX.Y.Z` / `cli-vX.Y.Z` expecting a publish. Tags no longer trigger `release.yml`. If npm already has the version but the GitHub Release is missing, re-run the Release workflow. It recreates only the missing release and tags the commit recorded in npm provenance, not whatever `main` is at recovery time. A laptop publish has no provenance, so that recovery path refuses to create the release. In that case, create the release from the GitHub UI on the commit you built, using the package-specific tag (`sdk-vX.Y.Z` or `cli-vX.Y.Z`), never a bare `vX.Y.Z`.
-
-## Rollback
-
-npm **cannot unpublish** a version after 72 hours, or if anyone else has installed it. Do not unpublish.
+Develop upcoming changes in PRs targeting `next`. With pending changesets, the workflow opens the Version PR against `next`. On the first run, `pnpm version-packages` runs `pnpm changeset pre enter next` before versioning. The Version PR commits `.changeset/pre.json`, prerelease versions, changelogs and the lockfile together. Maintainers can also enter pre mode explicitly in a reviewed PR:
 
 ```bash
-npm deprecate @erc7730/sdk@X.Y.Z "Broken; use @erc7730/sdk@A.B.C"
+pnpm changeset pre enter next
+pnpm version-packages
 ```
 
-Then land a patch changeset, merge the Version PR, and approve the `npm` Environment.
+Merge that Version PR to publish the candidate using OIDC and `npm publish --tag next --provenance`. With the current SDK major changeset, the first candidate is `@erc7730/sdk@1.0.0-next.0`, tagged `sdk-v1.0.0-next.0`. CLI only participates when it has its own applicable changeset. A CLI that depends on the candidate SDK is also a prerelease.
 
-## Troubleshooting
+Changesets 3 moves consumed prerelease changesets into `.changeset/pre/`. Those archived files are not pending work: a subsequent `next` push with no new changesets publishes instead of reopening the Version PR. New changesets produce the next candidate number through another Version PR. Never delete or hand-edit pre-state to reset a counter, and never reuse a published version.
 
-| Symptom | Likely cause |
+Integrators opt in explicitly:
+
+```bash
+npm install @erc7730/sdk@next
+# Pin the exact candidate for reproducible testing:
+npm install @erc7730/sdk@1.0.0-next.0
+```
+
+Regular installs continue to use `latest`. Prereleases have no weekly cadence limit.
+
+## Promote a tested candidate
+
+Promotion publishes a freshly built stable tarball from `main`; it never moves an npm dist-tag to bless an existing prerelease tarball.
+
+1. Pick an exact published candidate version and its full publication SHA. Review the successful release-evidence artifact, smoke results and provenance. Keep the candidate's `sdk-v…` / `cli-v…` tag reachable in the repository.
+2. Create a promotion branch from that reviewed `next` commit. Merge any intervening `main` fixes into it and review conflicts. Keep the candidate commit in the ancestry; do not squash it away.
+3. Exit pre mode and generate the stable Version PR changes:
+
+   ```bash
+   pnpm changeset pre exit
+   pnpm version-packages
+   ```
+
+4. Add `.github/release-promotion.json`, keyed by each package receiving a stable minor/major. Replace the sample SHA with the actual 40-character candidate commit:
+
+   ```json
+   {
+     "@erc7730/sdk": {
+       "candidate": "1.0.0-next.0",
+       "commit": "0123456789abcdef0123456789abcdef01234567",
+       "notes": "What this means for your wallet: describe the reviewed changes since this candidate, or say none. Breaking changes and migration: link the guide and explain any additional steps."
+     }
+   }
+   ```
+
+5. Open this as the stable **chore: version packages** PR against `main`. Review all additional commits and the complete diff from the candidate SHA to the proposed stable head. Include candidate version/SHA, extra changes, wallet impact, breaking/migration notes and CI results in the PR body. Merge with history preserved so the candidate remains an ancestor of `main`.
+6. The publication guard verifies the candidate's npm provenance with cosign, its exact package-specific Git tag, GitHub prerelease status, intended stable version, and ancestry. It reinstalls the exact published candidate for a fresh consumer smoke check. It records **every additional commit** between candidate and publication SHA in the evidence artifact, alongside the maintainer's review notes. The stable build/typecheck/test/tarball checks then run again before publishing.
+7. After successful stable publication, sync `main` back into `next` before starting another cycle. The next Version PR enters pre mode again when needed.
+
+Keep historical promotion entries until the corresponding release is complete; replace them when promoting another version of that package. Missing or mismatched evidence blocks a new stable minor/major. Never merge a `next` pre-state or prerelease package version directly into `main`.
+
+## Weekly cadence and emergency patches
+
+The publish guard queries npm publication times separately for SDK and CLI. A stable minor/major can ship only after **seven full days** since that package's last stable minor/major. It detects a change of major/minor series even when the proposed patch component is nonzero. Prereleases and intervening patch releases do not reset the clock. Registry query failures block publication rather than bypassing the gate.
+
+Do not merge a stable feature Version PR before its window opens. If merged too early, the publish job fails before either package is published; after the seven days, dispatch `release.yml` on `main`. There is no automatic weekly scheduler. For example, a stable minor shipped October 12 at 15:00 UTC permits the next stable minor/major October 19 at 15:00 UTC.
+
+Security and corrective **patches in the current stable major/minor series** bypass the waiting period automatically and do not require a prerelease candidate. There is no token or workflow-input override for shipping a feature major/minor early. For an emergency while `next` is ahead:
+
+1. Branch from `main`, implement the smallest corrective/security fix and add a patch changeset for affected packages only.
+2. Merge the fix, review and merge the ordinary `main` Version PR, and run the same OIDC/provenance/checks pipeline immediately.
+3. Merge the patch back into `next` and include it in the next candidate. Resolve version/pre-state conflicts in a reviewed PR.
+
+## Publication evidence and recovery
+
+Every publish job uploads `release-evidence-<workflow SHA>` even on failure. `before.json` snapshots package versions, npm dist-tags and publication times before publishing. `verified.json` is written after npm verification succeeds and includes after tags, smoke/provenance results, publication commits and the additional promotion commits. Finally, `released.json` also records Git tags checked against the verified publication commits and the GitHub prerelease flags. The workflow summary identifies this evidence by artifact name. A failed job or missing `released.json` is not a completed verified release.
+
+For newly published versions, verification requires the requested npm tag, signed SLSA provenance matching the workflow SHA, and an isolated install from npm. SDK smoke imports all public entries, checks the optional viem peer, and typechecks NodeNext/Bundler consumers; CLI smoke checks the installed executable's exact version and help. Every `next` run compares both packages' `latest` values before/after and fails if either changed. GitHub Releases are created only after npm verification passes, with package-specific tags and the tarball attached. A final check fetches those Git tags and compares their commits with verified npm provenance; conflicting pre-existing tags fail the run.
+
+If npm publication succeeds but verification or GitHub Release creation fails, rerun the workflow or dispatch the same file on the same channel. It skips already published versions, downloads the published tarball, verifies its provenance and recovers its original publication commit before tagging. Missing GitHub Releases trigger consumer/provenance verification again. It never guesses a commit from the current branch head. A prerelease attestation must identify `refs/heads/next`; stable attestations must identify `refs/heads/main`.
+
+Before declaring issue #126 complete, link a successful first SDK candidate run with candidate SHA/version, `next` npm tag, `sdk-v…` Git tag, provenance, before/after `latest` and published consumer smoke results. Workflow code and local tarball smoke alone do not satisfy that publication gate.
+
+To rerun SDK smoke against a specific published candidate after installing repository dependencies:
+
+```bash
+SDK_PACKAGE=@erc7730/sdk@1.0.0-next.0 node scripts/sdk-consumer-install.mjs
+```
+
+## Maintainer setup
+
+- GitHub Environment **npm** must allow branches **main and next**, with release-owner review if desired. A tags-only branch policy blocks this workflow.
+- Enable **Settings → Actions → General → Allow GitHub Actions to create and approve pull requests**. The Version PR action receives `github-token` explicitly and does not create GitHub Releases or tags.
+- Configure npm Trusted Publisher for **each** public package: GitHub user `MiltonTulli`, repository `ERC-7730`, workflow filename `release.yml`, Environment `npm`. Use GitHub-hosted runners, npm ≥ 11.5.1 (CI installs npm 11) and `id-token: write`.
+- Keep `--provenance`, OIDC and cosign verification. Do not add `NPM_TOKEN` or `NODE_AUTH_TOKEN`. The workflow removes setup-node's dummy `_authToken` so npm can exchange the OIDC identity.
+- Protect both branches and require CI. Building needs Node ≥ 22.18; published packages support Node ≥ 20. Never weaken checks or publish from a laptop to get around a failed gate.
+
+If the Version PR bot is unavailable, run `pnpm version-packages` on a clean branch based on the intended channel, commit the generated files, open the Version PR manually and review/merge it. For the first `next` cycle, explicitly enter pre mode first. Publish through the same workflow, not `pnpm release` or a laptop `npm publish`.
+
+## Rollback and troubleshooting
+
+Do not unpublish. Deprecate the broken version, ship a corrective patch through `main`, and merge the fix back into `next`. Do not move `latest` to a prerelease.
+
+| Symptom | Action |
 | --- | --- |
-| `ENEEDAUTH` / `E404` on publish | Trusted Publisher not configured, or `_authToken` still in `.npmrc` (OIDC never starts) |
-| Publish job waiting on Environment | Approve the `npm` environment deployment |
-| Publish job skipped / not deployed | Environment `npm` still restricted to tags; allow branch `main` |
-| Version PR never opens | Enable **Allow GitHub Actions to create and approve pull requests** |
-| Docs-only `main` push is green, no npm publish | Intended: version already on npm, publish job exits 0 |
-| Tarball inspect failed | `files` in `packages/sdk/package.json` leaked `src/`, tests, or sourcemaps |
-| Pages did not deploy | Path filter: README-only pushes no longer trigger Pages |
+| `ENEEDAUTH` / `E404` at publish | Check that package's Trusted Publisher and removal of dummy `_authToken` |
+| Deployment blocked | Allow the selected channel branch in Environment `npm`; approve any required review |
+| Version PR never opens | Enable Actions PR creation; check pending root changesets and branch pre-state |
+| Weekly cadence failure | Wait for the exact seven-day boundary, then dispatch on `main`; use a true corrective patch for emergencies |
+| Promotion failure | Check candidate version, full SHA, provenance, Git tag, ancestry and review notes |
+| Published version but no GitHub Release | Rerun the same channel; recovery verifies npm provenance and original commit |
+| Tarball inspection fails | Remove leaked sources/tests/maps from package files; do not bypass the check |
+| Docs-only merge publishes nothing | Expected when both package versions and GitHub Releases already exist |
