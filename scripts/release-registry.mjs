@@ -57,3 +57,38 @@ export async function waitForRegistry(check, description) {
     await setTimeout(delay);
   }
 }
+
+/** Retry only a delayed tarball 404; authentication and integrity errors fail immediately. */
+export async function packPublishedTarball(name, version, destination) {
+  const tarballUrl = `https://registry.npmjs.org/${name}/-/${name.split('/').at(-1)}-${version}.tgz`;
+  const packed = await waitForRegistry(() => {
+    try {
+      execFileSync(
+        'npm',
+        [
+          'pack',
+          `${name}@${version}`,
+          '--pack-destination',
+          destination,
+          '--json',
+          '--prefer-online',
+          '--fetch-retries=0',
+          '--fetch-timeout=30000',
+        ],
+        { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }
+      );
+      return true;
+    } catch (error) {
+      let failure;
+      try {
+        failure = JSON.parse(error.stdout).error;
+      } catch {
+        throw error;
+      }
+      if (failure?.code === 'E404' && failure.summary?.includes(`GET ${tarballUrl} - Not found`))
+        return false;
+      throw error;
+    }
+  }, `${name}@${version} tarball availability`);
+  assert.ok(packed, `npm tarball did not propagate: ${name}@${version}`);
+}

@@ -467,3 +467,96 @@ test('publication resolver keeps checksum diagnostics out of its commit output',
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+const tarballQuery = 'pack @erc7730/sdk@1.0.0-next.0 --pack-destination';
+const delayedTarball = {
+  error: {
+    code: 'E404',
+    summary:
+      '404 Not Found - GET https://registry.npmjs.org/@erc7730/sdk/-/sdk-1.0.0-next.0.tgz - Not found',
+  },
+};
+
+test('metadata can precede tarball: retry the download and preserve provenance verification', () => {
+  const { dir, data, run, respond, calls } = fixture();
+  try {
+    data.sdk.versions.push('1.0.0-next.0');
+    data.sdk['dist-tags'].next = '1.0.0-next.0';
+    assert.equal(run().status, 0);
+    respond(tarballQuery, delayedTarball, delayedTarball, null);
+    const result = run('verify');
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(calls().filter((args) => args[0] === 'pack').length, 3);
+    const evidence = JSON.parse(readFileSync(join(dir, '.release-evidence/verified.json')));
+    assert.equal(evidence.packages.sdk.provenance, 'verified');
+    assert.equal(evidence.packages.sdk.smoke, 'passed');
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('exhausted tarball retries cannot produce release outputs', () => {
+  const { dir, data, run, respond, calls } = fixture();
+  try {
+    data.sdk.versions.push('1.0.0-next.0');
+    assert.equal(run().status, 0);
+    respond(tarballQuery, delayedTarball);
+    const result = run('verify');
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /npm tarball did not propagate/);
+    assert.equal(calls().filter((args) => args[0] === 'pack').length, 10);
+    assert.equal(existsSync(join(dir, '.release-evidence/verified.json')), false);
+    assert.doesNotMatch(readFileSync(join(dir, 'outputs'), 'utf8'), /sdk_commit=/);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+for (const failure of [
+  { code: 'E401', summary: 'Unauthorized' },
+  { code: 'E403', summary: 'Forbidden' },
+  { code: 'EINTEGRITY', summary: 'Checksum mismatch' },
+  { code: 'E404', summary: 'Package inaccessible' },
+  { code: 'E404', summary: '404 Not Found - GET https://example.com/other.tgz - Not found' },
+]) {
+  test(`tarball errors fail immediately: ${failure.code} ${failure.summary}`, () => {
+    const { dir, data, run, respond, calls } = fixture();
+    try {
+      data.sdk.versions.push('1.0.0-next.0');
+      assert.equal(run().status, 0);
+      respond(tarballQuery, { error: failure });
+      assert.notEqual(run('verify').status, 0);
+      assert.equal(calls().filter((args) => args[0] === 'pack').length, 1);
+      assert.equal(existsSync(join(dir, '.release-evidence/verified.json')), false);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+}
+
+test('syncing stable main into idle next publishes nothing without prerelease state', () => {
+  const { dir, data, run, manifest } = fixture();
+  try {
+    rmSync(join(dir, '.changeset/pre.json'));
+    manifest('sdk', '1.0.0');
+    manifest('cli', '0.5.0');
+    data.sdk.versions.push('1.0.0');
+    data.sdk['dist-tags'].latest = '1.0.0';
+    data.cli.versions.push('0.5.0');
+    data.cli['dist-tags'].latest = '0.5.0';
+    const result = run();
+    assert.equal(result.status, 0, result.stderr);
+    const outputs = readFileSync(join(dir, 'outputs'), 'utf8');
+    for (const pkg of ['sdk', 'cli']) {
+      assert.match(outputs, new RegExp(`${pkg}_publish=false`));
+      assert.match(outputs, new RegExp(`${pkg}_release=false`));
+    }
+    assert.equal(run('verify').status, 0);
+    data.sdk.versions = ['0.12.0'];
+    const blocked = run();
+    assert.notEqual(blocked.status, 0);
+    assert.match(blocked.stderr, /Idle next may only contain already-published/);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});

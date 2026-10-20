@@ -102,7 +102,7 @@ The CLI does not open PRs against the official registry. Walkthrough: [CLI docs]
 
 | Package line | ERC-7730 schema |
 | --- | --- |
-| SDK 0.x | Decodes v1 and v2 descriptors; `validateDescriptor` accepts v1 and v2 |
+| SDK 1.x (also supported by historical 0.x) | Decodes v1 and v2 descriptors; `validateDescriptor` accepts v1 and v2 |
 | CLI 0.x | Lints v1 and v2. `generate` writes a v2 draft |
 
 ## Links
