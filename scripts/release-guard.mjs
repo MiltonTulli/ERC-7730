@@ -19,7 +19,12 @@ import {
   packages,
   releaseChannel,
 } from './release-policy.mjs';
-import { npmView, versionExists, waitForRegistry } from './release-registry.mjs';
+import {
+  npmView,
+  packPublishedTarball,
+  versionExists,
+  waitForRegistry,
+} from './release-registry.mjs';
 
 const run = (cmd, args, options = {}) =>
   execFileSync(cmd, args, { encoding: 'utf8', ...options })?.trim() ?? '';
@@ -28,10 +33,10 @@ const metadata = (name) => JSON.parse(npmView(name, ['dist-tags', 'time']));
 const directory = '.release-evidence';
 mkdirSync(directory, { recursive: true });
 
-function verifyProvenance(pkg, version, expectedCommit, saveTarball = false) {
+async function verifyProvenance(pkg, version, expectedCommit, saveTarball = false) {
   const stage = mkdtempSync(join(tmpdir(), 'erc7730-provenance-'));
   try {
-    run('npm', ['pack', `@erc7730/${pkg}@${version}`, '--pack-destination', stage]);
+    await packPublishedTarball(`@erc7730/${pkg}`, version, stage);
     const tarball = join(stage, `erc7730-${pkg}-${version}.tgz`);
     const commit = run('bash', [
       'scripts/resolve-publication-commit.sh',
@@ -53,7 +58,9 @@ function verifyProvenance(pkg, version, expectedCommit, saveTarball = false) {
 async function preflight() {
   const branch = process.env.GITHUB_REF_NAME;
   const pre = existsSync('.changeset/pre.json') ? json('.changeset/pre.json') : undefined;
-  const channel = releaseChannel(branch, pre);
+  // After stable promotion, next is idle until new changesets enter pre mode.
+  const idleNext = branch === 'next' && pre === undefined;
+  const channel = idleNext ? 'next' : releaseChannel(branch, pre);
   const promotions = existsSync('.github/release-promotion.json')
     ? json('.github/release-promotion.json')
     : {};
@@ -69,6 +76,10 @@ async function preflight() {
       () => versionExists(name, version),
       `${name}@${version} visibility before publication`
     );
+    if (idleNext) {
+      assert.match(version, /^\d+\.\d+\.\d+$/, 'Idle next requires stable versions');
+      assert.ok(published, 'Idle next may only contain already-published stable versions');
+    }
     checkVersion(version, channel, published);
     const skipStableOnNext = channel === 'next' && !version.includes('-');
     const createRelease =
@@ -80,7 +91,7 @@ async function preflight() {
       if (checkCadence(version, before.time)) {
         checkPromotion(version, promotions[name]);
         const promotion = promotions[name];
-        verifyProvenance(pkg, promotion.candidate, promotion.commit);
+        await verifyProvenance(pkg, promotion.candidate, promotion.commit);
         const tag = `${pkg}-v${promotion.candidate}`;
         assert.equal(run('git', ['rev-parse', `${tag}^{commit}`]), promotion.commit);
         run('git', ['merge-base', '--is-ancestor', promotion.commit, evidence.commit]);
@@ -164,7 +175,7 @@ async function verify() {
     }, `${entry.name}@${entry.version} version, npm tag and provenance metadata`);
     assert.ok(after, `npm publication did not propagate: ${entry.name}@${entry.version}`);
     if (entry.needsVerification) {
-      entry.publicationCommit = verifyProvenance(
+      entry.publicationCommit = await verifyProvenance(
         pkg,
         entry.version,
         entry.published ? undefined : evidence.commit,
