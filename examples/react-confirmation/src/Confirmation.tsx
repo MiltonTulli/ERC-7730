@@ -5,6 +5,7 @@ type Result =
   | { input: TransactionInput; status: 'ready'; screens: ClearSignScreens }
   | { input: TransactionInput; status: 'error'; message: string };
 
+/** Decode the current transaction with the default trust policy and ignore obsolete results. */
 export function Confirmation({ transaction }: { transaction: TransactionInput }) {
   const { to, data, value, chainId, from } = transaction;
   // Depend on every scalar input, not the caller's object identity.
@@ -50,6 +51,7 @@ export function Confirmation({ transaction }: { transaction: TransactionInput })
   return <Screen screens={result.screens} />;
 }
 
+/** Render SDK screen text, metadata verification, fields and risks recursively for nested calls. */
 export function Screen({ screens }: { screens: ClearSignScreens }) {
   return (
     <section className="screen" aria-label={screens.headline}>

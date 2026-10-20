@@ -61,10 +61,12 @@ afterEach(async () => {
   vi.unstubAllGlobals();
 });
 
+/** Commit a transaction input and flush React updates before checking the rendered output. */
 async function render(transaction: TransactionInput) {
   await act(async () => root.render(<Confirmation transaction={transaction} />));
 }
 
+/** Control decode completion order to test stale successes, errors and effect cleanup. */
 function deferred() {
   let resolve!: (result: ClearSignedOperation) => void;
   let reject!: (reason: Error) => void;

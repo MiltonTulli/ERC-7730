@@ -5,6 +5,7 @@ import { Confirmation } from './Confirmation';
 import { fixtures } from './fixtures';
 import './style.css';
 
+/** Let readers select fixtures or edit transaction values while inspecting the decoded screen. */
 function App() {
   const [transaction, setTransaction] = useState<TransactionInput>(fixtures.verified);
   return (
