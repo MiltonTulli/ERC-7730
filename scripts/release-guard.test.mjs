@@ -221,7 +221,7 @@ test('a prerelease run fails verification if latest moved', () => {
   }
 });
 
-test('preflight blocks wrong branches, unpublished stable on next, and early stable promotion', () => {
+test('preflight blocks wrong branches, unpublished stable on next, and stable promotion without candidate evidence', () => {
   const { dir, run, manifest } = fixture();
   try {
     assert.notEqual(run('preflight', 'main').status, 0);
@@ -229,7 +229,7 @@ test('preflight blocks wrong branches, unpublished stable on next, and early sta
     manifest('sdk', '1.0.0');
     assert.match(run().stderr, /next cannot publish a new stable version/);
     rmSync(join(dir, '.changeset/pre.json'));
-    assert.match(run('preflight', 'main').stderr, /Weekly cadence/);
+    assert.match(run('preflight', 'main').stderr, /needs reviewed promotion evidence/);
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
@@ -256,7 +256,7 @@ test('stable promotion reinstalls the exact candidate and records every extra co
   try {
     rmSync(join(dir, '.changeset/pre.json'));
     manifest('sdk', '1.0.0');
-    data.sdk.time['0.12.0'] = new Date(Date.now() - 8 * 86400000).toISOString();
+    data.sdk.time['0.12.0'] = new Date(Date.now() - 86400000).toISOString();
     mkdirSync(join(dir, '.github'));
     writeFileSync(
       join(dir, '.github/release-promotion.json'),

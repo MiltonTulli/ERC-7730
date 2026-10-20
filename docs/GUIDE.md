@@ -61,6 +61,12 @@ console.log(signed.source, signed.confidence, signed.trust.accepted);
 
 Expected output for this WETH `deposit()`: headline `Wrap`, verification `verified`, then `official-registry high true`. Amount is on `screens.secondary` because the format lists no required fields.
 
+### React confirmation example
+
+The [buildable TypeScript React example](https://github.com/MiltonTulli/ERC-7730/tree/main/examples/react-confirmation) uses `clearSign` with the default `officialOnlyPolicy()`. It renders loading, errors, verification, fields, risks and nested calls, and guards against stale async responses when transaction inputs change. Its README records tested versions, installation/run commands, fixtures, and optional RPC/hash lookup separately from decoding.
+
+This is a private browser example, not an `@erc7730/react` package or a wagmi integration. Ethers is deferred until a named consumer and sample input show a conversion gap; React Native remains unverified pending exact-version Metro and device/emulator evidence. See the example's integration scope for those independent gates.
+
 ## Advanced
 
 `decodeTransaction` is the same decode without the screen object. Name the pin at the call site when you want that explicit.

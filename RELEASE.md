@@ -32,7 +32,7 @@ Changeset summaries become the changelog. Include **What this means for your wal
 1. Merge feature PRs with changesets into `main`.
 2. The Release workflow opens or updates **chore: version packages**, the Version PR for `main`.
 3. Review versions, lockfile, changelogs, wallet impact and breaking/migration notes. Stable minor/major releases also need the candidate evidence described below.
-4. Merge the Version PR when the cadence gate allows publication. Approve the GitHub Environment `npm` if its reviewer policy requires it.
+4. Merge the Version PR after reviewing the candidate and passing release checks. Approve the GitHub Environment `npm` if its reviewer policy requires it.
 5. Confirm the workflow's verified publication evidence, npm `latest`, package Git tag and GitHub Release.
 
 The Version PR job has no deployment Environment. The publish job runs only after pending changesets have been consumed. It rebuilds, typechecks, tests, validates snippets/API/bundles and runs local consumer/tarball checks before publication. Versions already on npm and with a GitHub Release are skipped independently per package. A docs-only merge does not create another package release.
@@ -100,11 +100,11 @@ Keep historical promotion entries until the corresponding release is complete; r
 
 ## Weekly cadence and emergency patches
 
-The publish guard queries npm publication times separately for SDK and CLI. A stable minor/major can ship only after **seven full days** since that package's last stable minor/major. It detects a change of major/minor series even when the proposed patch component is nonzero. Prereleases and intervening patch releases do not reset the clock. Registry query failures block publication rather than bypassing the gate.
+Prefer spacing stable minor/major releases by seven days to reduce integration churn. This is an advisory cadence, not a publication block. The guard emits a warning for a recent feature release but still requires reviewed candidate evidence, provenance, ancestry and consumer smoke for a new stable major/minor series. Same-series corrective patches do not require a candidate. Registry query failures still block publication.
 
-Do not merge a stable feature Version PR before its window opens. If merged too early, the publish job fails before either package is published; after the seven days, dispatch `release.yml` on `main`. There is no automatic weekly scheduler. For example, a stable minor shipped October 12 at 15:00 UTC permits the next stable minor/major October 19 at 15:00 UTC.
+Maintainers may publish a reviewed stable feature release earlier when appropriate. No waiting period, scheduler or override token is needed; all mandatory release checks still apply.
 
-Security and corrective **patches in the current stable major/minor series** bypass the waiting period automatically and do not require a prerelease candidate. There is no token or workflow-input override for shipping a feature major/minor early. For an emergency while `next` is ahead:
+Security and corrective **patches in the current stable major/minor series** can publish immediately and do not require a prerelease candidate. For an emergency while `next` is ahead:
 
 1. Branch from `main`, implement the smallest corrective/security fix and add a patch changeset for affected packages only.
 2. Merge the fix, review and merge the ordinary `main` Version PR, and run the same OIDC/provenance/checks pipeline immediately.
@@ -147,7 +147,7 @@ Do not unpublish. Deprecate the broken version, ship a corrective patch through 
 | `ENEEDAUTH` / `E404` at publish | Check that package's Trusted Publisher and removal of dummy `_authToken` |
 | Deployment blocked | Allow the selected channel branch in Environment `npm`; approve any required review |
 | Version PR never opens | Enable Actions PR creation; check pending root changesets and branch pre-state |
-| Weekly cadence failure | Wait for the exact seven-day boundary, then dispatch on `main`; use a true corrective patch for emergencies |
+| Cadence recommendation | Review release timing; this warning does not block a verified promotion |
 | Promotion failure | Check candidate version, full SHA, provenance, Git tag, ancestry and review notes |
 | Published version but no GitHub Release | Rerun the same channel; recovery verifies npm provenance and original commit |
 | Tarball inspection fails | Remove leaked sources/tests/maps from package files; do not bypass the check |

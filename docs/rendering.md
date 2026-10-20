@@ -48,23 +48,8 @@ function mountScreens(root: HTMLElement, screens: ClearSignScreens): void {
 
 ## React
 
-```tsx
-function Confirm({ screens }: { screens: ClearSignScreens }) {
-  return (
-    <section>
-      <p>{screens.verificationLabel}</p>
-      <h2>{screens.headline}</h2>
-      {screens.primary.map((field) => (
-        <p key={field.path ?? field.label}>
-          <strong>{field.label}</strong> {field.value}
-        </p>
-      ))}
-      {screens.risks.map((risk) => (
-        <p key={`${risk.type}:${risk.path ?? ''}`}>{risk.message}</p>
-      ))}
-    </section>
-  );
-}
-```
+The [React confirmation example](https://github.com/MiltonTulli/ERC-7730/tree/main/examples/react-confirmation) is a buildable TypeScript app using the SDK's public exports. `Confirmation.tsx` owns loading, errors and stale-response protection; `Screen` renders headline, verification, both field groups, risks and child screens.
+
+The example keeps `officialOnlyPolicy()` as the default. Its effect depends on scalar transaction values, so fresh object identities do not create decode loops. Cleanup ignores obsolete successes and errors, while an input snapshot check hides previous results as soon as the input changes. The README includes tested React versions, install/run commands, and instructions for exercising verified, fallback, malformed and rapidly changing inputs.
 
 `field.value` stays a string. Structured data is on `DecodedField.details`, selected by `format`. For `format: 'calldata'`, the nested operation is `details.embedded`.

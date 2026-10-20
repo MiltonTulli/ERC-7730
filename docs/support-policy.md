@@ -20,7 +20,7 @@ For each package, maintenance and security fixes target the latest stable minor 
 
 When a new stable major ships, it becomes the maintained major for that package and the previous major's maintenance ends. An SDK release does not change the CLI's maintained line unless the CLI itself releases. An npm `next` prerelease is for opt-in candidate testing; it does not replace the stable support line or carry a separate long-term maintenance promise.
 
-Stable minor/major releases ship at most once per week, subject to review and the release gate; this is a maximum frequency, not a promise of a weekly release. Corrective and security patches can ship whenever needed. Candidates publish only under `next`; stable releases use `latest`. See [RELEASE.md](../RELEASE.md) for promotion, independent versioning, changelog guidance, and emergency patches.
+Stable minor/major releases preferably ship no more than once per week to reduce integration churn. This is a recommendation, not a hard limit or a promise of weekly releases; maintainers may publish earlier after reviewed candidate promotion and all mandatory release checks. Corrective and security patches can ship whenever needed. Candidates publish only under `next`; stable releases use `latest`. See [RELEASE.md](../RELEASE.md) for promotion, independent versioning, changelog guidance, and emergency patches.
 
 ## Runtime minimum, tested environments, and supported environments
 
