@@ -53,10 +53,10 @@
     "@noble/hashes": "^2.4.0",
     "ajv": "^8.20.0",
     "ajv-formats": "^3.0.1",
-    "ox": "^1.8.6"
+    "ox": "^1.8.8"
   },
   "peerDependencies": {
-    "viem": "^2.21.0"
+    "viem": "^2.57.7"
   },
   "peerDependenciesMeta": {
     "viem": {
@@ -65,19 +65,19 @@
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "0.18.5",
-    "@microsoft/api-extractor": "7.52.8",
+    "@microsoft/api-extractor": "7.59.4",
     "@size-limit/preset-small-lib": "12.1.0",
     "@types/node": "^20.11.0",
     "@vitest/browser": "1.6.1",
     "@vitest/coverage-v8": "^1.2.0",
     "fast-check": "3.23.2",
     "json-schema-to-typescript": "15.0.4",
-    "playwright": "1.64.0",
-    "publint": "0.3.24",
+    "playwright": "1.64.1",
+    "publint": "0.3.25",
     "size-limit": "12.1.0",
-    "tsdown": "0.23.0",
+    "tsdown": "0.23.1",
     "typescript": "^5.3.3",
-    "viem": "^2.21.0",
+    "viem": "^2.57.7",
     "vitest": "^1.2.0"
   },
   "keywords": [
