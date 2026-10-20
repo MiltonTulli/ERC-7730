@@ -18,7 +18,7 @@
     "check:scripts": "node --test scripts/check-nested-quantifiers.test.mjs scripts/check-doc-snippets.test.mjs scripts/check-changeset-claims.test.mjs scripts/check-tsdoc.test.mjs scripts/generate-migration-guide.test.mjs scripts/release-policy.test.mjs scripts/release-guard.test.mjs scripts/version-packages.test.mjs",
     "format": "biome format --write .",
     "clean": "turbo clean && rm -rf node_modules/.cache",
-    "typecheck": "pnpm --filter @erc7730/sdk --filter @erc7730/cli --filter @erc7730/web typecheck && pnpm exec tsc -p packages/registry/tsconfig.json --noEmit && pnpm --filter @erc7730/sdk typecheck:consumer",
+    "typecheck": "pnpm --filter @erc7730/sdk --filter @erc7730/cli --filter @erc7730/web --filter react-confirmation-example typecheck && pnpm exec tsc -p packages/registry/tsconfig.json --noEmit && pnpm --filter @erc7730/sdk typecheck:consumer",
     "schema:types": "pnpm --filter @erc7730/sdk schema:types",
     "prepare": "simple-git-hooks",
     "golden:python": "tsx scripts/golden-python-erc7730.ts",
